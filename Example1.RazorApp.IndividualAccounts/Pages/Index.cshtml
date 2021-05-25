@@ -4,7 +4,66 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h3>Welcome to example 1 of using the AuthPermissions library</h3>
+<p>
+    This example shows how to manage authorization in an <strong>ASP.NET Core razor pages</strong> web application
+    use both the in-built ASP.NET Core authorization features and then using the AuthPermissions library.
+    <br/>
+    See <a href="https://docs.microsoft.com/en-us/aspnet/core/security/authorization/secure-data">
+        ASP.NET Core documentation on building razor page web app individual accounts authorization
+    </a>.
+</p>
+<p>
+    To test these authorization features you will need some users to log in. Here are the various users and what they can do
+</p>
+<ul>
+    <li>coming soon!</li>
+</ul>
+
+<br/>
+
+<p><strong>Click the links to see what happens</strong></p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Link to razor page</th>
+        <th>Access</th>
+        <th>Auth type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/Public">Public page</a>
+        </td>
+        <td>Anyone</td>
+        <td>default</td>
+    </tr>
+    <tr>
+        <td>
+            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/LoggedInConfigure">Logged in page</a>
+        </td>
+        <td>Must be logged in</td>
+        <td>
+            <code>Configure</code>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/LoggedInAuthorize">Logged in page</a>
+        </td>
+        <td>Must be logged in</td>
+        <td>
+            <code>[Authorize]</code>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/LoggedInUser">Logged in page</a>
+        </td>
+        <td>Must be logged in</td>
+        <td>Test <code>User</code> instance</td>
+    </tr>
+
+    </tbody>
+</table>

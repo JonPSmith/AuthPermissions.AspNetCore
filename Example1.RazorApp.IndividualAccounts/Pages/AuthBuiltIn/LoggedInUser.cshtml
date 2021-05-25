@@ -1,0 +1,25 @@
+﻿@page
+@model Example1.RazorApp.IndividualAccounts.Pages.AuthBuiltIn.LoggedInUserModel
+@{
+    ViewData["Title"] = "AuthBuiltIn.LoggedInUser";
+}
+
+<h3>AuthBuiltIn.LoggedInUser</h3>
+<p>
+    You can test whether a user is logged in using the <code>User</code> instance
+</p>
+<pre><code>
+    public class LoggedInUserModel : PageModel
+    {
+        public IActionResult OnGet()
+        {
+            if (User.Identity?.IsAuthenticated != true)
+                return Challenge();
+
+            return Page();
+        }
+    }
+</code></pre>
+
+<a class="nav-link text-primary" asp-area="" asp-page="/Index">Back to home page</a>
+

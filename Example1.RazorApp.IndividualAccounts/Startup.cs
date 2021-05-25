@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Example1.RazorApp.IndividualAccounts
 {
@@ -33,8 +34,12 @@ namespace Example1.RazorApp.IndividualAccounts
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddDefaultIdentity<IdentityUser>(
                     options => options.SignIn.RequireConfirmedAccount = false)
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddRazorPages();
+            services.AddRazorPages(options =>
+            {
+                options.Conventions.AuthorizePage("/AuthBuiltIn/LoggedInConfigure");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

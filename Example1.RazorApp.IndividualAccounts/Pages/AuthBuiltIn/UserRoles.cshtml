@@ -1,0 +1,18 @@
+﻿@page
+@model Example1.RazorApp.IndividualAccounts.Pages.AuthBuiltIn.PublicModel
+@{
+    ViewData["Title"] = "AuthBuiltIn.LoggedInAttribute";
+}
+
+<h3>AuthBuiltIn.LoggedInAttribute</h3>
+<p>
+    By adding <code>[Authorize]</code> to the razor page model means you can only access it if you are logged in e.g.,
+</p>
+<pre><code>
+    [Authorize]
+    public class LoggedInAttributeModel : PageModel
+    {...
+</code></pre>
+
+<a class="nav-link text-primary" asp-area="" asp-page="/Index">Back to home page</a>
+

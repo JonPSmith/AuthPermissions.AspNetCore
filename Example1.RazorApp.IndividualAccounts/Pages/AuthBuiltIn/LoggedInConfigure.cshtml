@@ -1,0 +1,21 @@
+﻿@page
+@model Example1.RazorApp.IndividualAccounts.Pages.AuthBuiltIn.LoggedInConfigureModel
+@{
+    ViewData["Title"] = "AuthBuiltIn.LoggedInConfigure";
+}
+
+<h3>AuthBuiltIn.LoggedInConfigure</h3>
+<p>
+    You can configure a razor page in the <code>Startup</code> to logged in e.g.,
+</p>
+<pre><code>
+    public void ConfigureServices(IServiceCollection services)
+    {
+        //... other code left out 
+
+        services.AddRazorPages(options =&gt;
+        {
+            options.Conventions.AuthorizePage("/AuthBuiltIn/LoggedInConfigure");
+        });
+     }
+</code></pre>
