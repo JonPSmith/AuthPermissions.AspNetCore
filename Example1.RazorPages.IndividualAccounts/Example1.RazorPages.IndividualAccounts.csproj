@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>aspnet-Example1.RazorApp.IndividualAccounts-9BFCF434-1CBC-460C-98B7-CBCEDC0204D8</UserSecretsId>
+    <UserSecretsId>aspnet-Example1.RazorPages.IndividualAccounts-9BFCF434-1CBC-460C-98B7-CBCEDC0204D8</UserSecretsId>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
   </PropertyGroup>
 

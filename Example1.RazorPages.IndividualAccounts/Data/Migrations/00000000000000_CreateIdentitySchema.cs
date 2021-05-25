@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
-namespace Example1.RazorApp.IndividualAccounts.Data.Migrations
+namespace Example1.RazorPages.IndividualAccounts.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

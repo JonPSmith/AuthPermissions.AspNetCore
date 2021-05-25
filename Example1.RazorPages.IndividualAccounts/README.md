@@ -1,4 +1,4 @@
-﻿# Example1.RazorApp.IndividualAccounts
+﻿# Example1.RazorPages.IndividualAccounts
 
 This project contains a example of using the AuthPermissions.AspNetCore library in ASP.NET Core razor page web app with user data provided by the individual accounts approach. This is one of the simplest approaches using:
 

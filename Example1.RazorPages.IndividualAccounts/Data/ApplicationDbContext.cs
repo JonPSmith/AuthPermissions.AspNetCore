@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Example1.RazorApp.IndividualAccounts.Data
+namespace Example1.RazorPages.IndividualAccounts.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

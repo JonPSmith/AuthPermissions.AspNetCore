@@ -16,7 +16,7 @@
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       }
     },
-    "Example1.RazorApp.IndividualAccounts": {
+    "Example1.RazorPages.IndividualAccounts": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
