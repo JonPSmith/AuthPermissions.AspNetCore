@@ -1,4 +1,5 @@
 using Example1.RazorPages.IndividualAccounts.Data;
+using Example1.RazorPages.IndividualAccounts.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
