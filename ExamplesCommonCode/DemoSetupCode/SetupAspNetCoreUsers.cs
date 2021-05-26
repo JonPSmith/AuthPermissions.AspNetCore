@@ -31,15 +31,9 @@ namespace ExamplesCommonCode.DemoSetupCode
             // Create a new scope to retrieve scoped services
             using var scope = _serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
-            var env = services.GetRequiredService<IWebHostEnvironment>();
-
-            //Get the demo data from files in the WebRootPath
-            var pathUserJson = Path.GetFullPath(Path.Combine(env.WebRootPath, SeedDataDir, UsersFilename));
-            var userJson = File.ReadAllText(pathUserJson);
-            var seedUsers = JsonSerializer.Deserialize<List<UserJson>>(userJson);
 
             var demoData = services.GetRequiredService<IOptions<DemoSetup>>();
-            var aspNetUsers = await services.AddDemoUsersFromJson(seedUsers, demoData.Value.AddRolesToAspNetUser);
+            var aspNetUsers = await services.AddDemoUsersFromJson(demoData.Value);
         }
 
         // noop

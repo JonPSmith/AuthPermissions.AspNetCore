@@ -13,18 +13,18 @@ namespace ExamplesCommonCode.DemoSetupCode
     internal static class AspNetUserExtension
     {
         public static async Task<List<IdentityUser>> AddDemoUsersFromJson(this IServiceProvider serviceProvider,
-            List<UserJson> usersJson, bool addRolesToAspNetUser)
+            DemoSetup demoData)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             var result = new List<IdentityUser>();
-            foreach (var userJson in usersJson)
+            foreach (var userInfo in demoData.Users)
             {
-                var user = await userManager.CheckAddNewUserAsync(userJson.Email, userJson.Email);
+                var user = await userManager.CheckAddNewUserAsync(userInfo.Email, userInfo.Email);
                 result.Add(user);
-                if (addRolesToAspNetUser)
+                if (demoData.AddRolesToAspNetUser && !string.IsNullOrEmpty(userInfo.RolesCommaDelimited))
                 {
                     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                    foreach (var roleName in userJson.RolesCommaDelimited.Split(',').Select(x => x.Trim()))
+                    foreach (var roleName in userInfo.RolesCommaDelimited.Split(',').Select(x => x.Trim()))
                     {
                         var roleExist = await roleManager.RoleExistsAsync(roleName);
                         if (!roleExist)
