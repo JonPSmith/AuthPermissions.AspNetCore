@@ -11,7 +11,14 @@ namespace Example1.RazorPages.IndividualAccounts.Services
     {
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(10000);
+            await Task.Delay(1000);
+            await Task.Delay(1000);
+            await Task.Delay(1000);
+            await Task.Delay(1000);
+            await Task.Delay(1000);
+            await Task.Delay(1000);
+            await Task.Delay(1000);
+            await Task.Delay(1000);
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

@@ -43,6 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="TestHelpers\" />
     <Folder Include="UnitTests\TestAuthPermissionsAspNetCore\" />
     <Folder Include="UnitTests\TestExampleCommonCode\" />
   </ItemGroup>

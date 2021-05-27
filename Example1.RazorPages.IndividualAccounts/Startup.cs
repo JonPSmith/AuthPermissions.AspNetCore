@@ -30,10 +30,15 @@ namespace Example1.RazorPages.IndividualAccounts
                     options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            //Example of configure a page as only shown if you log in
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/AuthBuiltIn/LoggedInConfigure");
             });
+
+            //Test using HostedService to run setup code
+            //services.AddHostedService<TestIHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
