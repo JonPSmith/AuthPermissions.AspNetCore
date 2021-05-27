@@ -8,13 +8,13 @@ namespace AuthPermissions
 {
     public class RegisterData
     {
-        public RegisterData(IServiceCollection callerServices, AuthPermissionsOptions options)
+        public RegisterData(IServiceCollection services, AuthPermissionsOptions options)
         {
-            CallerServices = callerServices;
+            Services = services;
             Options = options;
         }
 
-        public IServiceCollection CallerServices { get; }
+        public IServiceCollection Services { get; }
 
         public AuthPermissionsOptions Options { get; }
     }

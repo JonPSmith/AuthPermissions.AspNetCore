@@ -14,6 +14,5 @@ namespace AuthPermissions
         //-------------------------------------------------
         //internal properties/handles
 
-        internal IServiceCollection InternalServiceCollection { get; set; } = new ServiceCollection();
     }
 }

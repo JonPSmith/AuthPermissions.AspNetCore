@@ -4,7 +4,6 @@
 using System;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
-using AuthPermissions.PermissionsCode.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +11,7 @@ namespace AuthPermissions
 {
     public static class SetupExtensions
     {
-        public static RegisterData RegisterAuthPermissions<TEnumPermissions>(this IServiceCollection externalServices, 
+        public static RegisterData RegisterAuthPermissions<TEnumPermissions>(this IServiceCollection services, 
             AuthPermissionsOptions options = null) where TEnumPermissions : Enum
         {
             options ??= new AuthPermissionsOptions();
@@ -22,15 +21,16 @@ namespace AuthPermissions
 
             //Register external Services
             //This is needed by the policy 
-            externalServices.AddSingleton(new EnumTypeService(typeof(TEnumPermissions)));
+            services.AddSingleton(new EnumTypeService(typeof(TEnumPermissions)));
 
-            return new RegisterData(externalServices, options);
+            return new RegisterData(services, options);
         }
 
         public static RegisterData UsingEfCoreSqlServer(this RegisterData regData, string connectionString)
         {
-            regData.Options.InternalServiceCollection.AddDbContext<AuthPermissionsDbContext>(
-                options => options.UseSqlServer(connectionString));
+            regData.Services.AddDbContext<AuthPermissionsDbContext>(
+                options => options.UseSqlServer(connectionString, dbOptions =>
+                    dbOptions.MigrationsHistoryTable(PermissionConstants.MigrationsHistoryTableName)));
 
             return regData;
         }

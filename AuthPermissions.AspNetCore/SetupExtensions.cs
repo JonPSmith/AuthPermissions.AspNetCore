@@ -10,12 +10,18 @@ namespace AuthPermissions.AspNetCore
 {
     public static class SetupExtensions
     {
-        public static List<string> AppToAspNetCore(this RegisterData regData)
+        public static RegisterData AppToAspNetCore(this RegisterData regData)
         {
+            regData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
 
-            regData.CallerServices.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
+            return regData; 
+        }
 
-            return null;
+        public static RegisterData AddDatabaseOnStartup(this RegisterData regData)
+        {
+            regData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
+
+            return regData;
         }
     }
 }
