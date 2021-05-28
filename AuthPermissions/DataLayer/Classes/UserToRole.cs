@@ -17,18 +17,27 @@ namespace AuthPermissions.DataLayer.Classes
     {
         private UserToRole() : base(null) { }  //needed by EF Core
 
-        public UserToRole(string userId, RoleToPermissions role, string tenantId = null)
+        public UserToRole(string userId, string userName, RoleToPermissions role, string tenantId = null)
             : base(tenantId)
         {
             UserId = userId;
+            UserName = userName;
             Role = role;
         }
 
-        //I use a composite key for this table: combination of UserId and RoleName
+        //I use a composite key for this table: combination of UserId, TenantId and RoleName
+        //This means:
+        //a) a user can have different roles in another tenant (null means same roles for all tenants)
+        //b) It ensures a user only links to a role once (per tenant) 
+
         //That has to be defined by EF Core's fluent API
         [Required(AllowEmptyStrings = false)]
         [MaxLength(ExtraAuthConstants.UserIdSize)] 
         public string UserId { get; private set; }
+
+        //Contains a name to help work out who the user is
+        [MaxLength(ExtraAuthConstants.UserNameSize)]
+        public string UserName { get; private set; }
 
         [Required(AllowEmptyStrings = false)]
         [MaxLength(ExtraAuthConstants.RoleNameSize)]
@@ -38,7 +47,8 @@ namespace AuthPermissions.DataLayer.Classes
         public RoleToPermissions Role { get; private set; }
 
 
-        public static IStatusGeneric<UserToRole> AddRoleToUser(string userId, string roleName, AuthPermissionsDbContext context)
+        public static IStatusGeneric<UserToRole> AddRoleToUser(string userId, string userName, string roleName, 
+            AuthPermissionsDbContext context, string tenantId = null)
         {
             if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 
@@ -55,7 +65,7 @@ namespace AuthPermissions.DataLayer.Classes
                 return status;
             }
 
-            return status.SetResult(new UserToRole(userId, roleToAdd));
+            return status.SetResult(new UserToRole(userId, userName, roleToAdd, tenantId));
         }
     }
 }

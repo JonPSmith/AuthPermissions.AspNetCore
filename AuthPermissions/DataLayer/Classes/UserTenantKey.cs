@@ -7,9 +7,9 @@ using AuthPermissions.DataLayer.Classes.SupportTypes;
 
 namespace AuthPermissions.DataLayer.Classes
 {
-    public class UserDataKey : TenantBase
+    public class UserTenantKey : TenantBase
     {
-        public UserDataKey(string userId, string dataKey, string tenantId = null)
+        public UserTenantKey(string userId, string dataKey, string tenantId = null)
             : base(tenantId)
         {
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));

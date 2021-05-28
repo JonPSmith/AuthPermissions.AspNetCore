@@ -35,7 +35,18 @@ namespace AuthPermissions
             return regData;
         }
 
-        //Checks
+        public static RegisterData UsingInMemoryDatabaseForTesting(this RegisterData regData)
+        {
+            return regData;
+        }
+
+        //NOTE: Only works with in-memory database
+        public static RegisterData AddTestUsersRolesEtc(this RegisterData regData)
+        {
+            return regData;
+        }
+
+
 
     }
 }
