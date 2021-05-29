@@ -32,19 +32,24 @@ namespace AuthPermissions.DataLayer.Classes
 
         //That has to be defined by EF Core's fluent API
         [Required(AllowEmptyStrings = false)]
-        [MaxLength(ExtraAuthConstants.UserIdSize)] 
+        [MaxLength(AuthDbConstants.UserIdSize)] 
         public string UserId { get; private set; }
 
         //Contains a name to help work out who the user is
-        [MaxLength(ExtraAuthConstants.UserNameSize)]
+        [MaxLength(AuthDbConstants.UserNameSize)]
         public string UserName { get; private set; }
 
         [Required(AllowEmptyStrings = false)]
-        [MaxLength(ExtraAuthConstants.RoleNameSize)]
+        [MaxLength(AuthDbConstants.RoleNameSize)]
         public string RoleName { get; private set; }
 
         [ForeignKey(nameof(RoleName))]
         public RoleToPermissions Role { get; private set; }
+
+        public override string ToString()
+        {
+            return $"User {UserName} has role {RoleName}";
+        }
 
 
         public static IStatusGeneric<UserToRole> AddRoleToUser(string userId, string userName, string roleName, 

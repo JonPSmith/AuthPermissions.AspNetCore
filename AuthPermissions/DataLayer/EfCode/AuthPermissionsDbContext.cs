@@ -13,7 +13,7 @@ namespace AuthPermissions.DataLayer.EfCode
         { }
 
         public DbSet<RoleToPermissions> RoleToPermissions { get; set; }
-        public DbSet<UserTenantKey> UserDataKey { get; set; }
+        public DbSet<UserTenantKey> UserTenantKey { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

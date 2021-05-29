@@ -35,13 +35,12 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         [Key]
         [Required(AllowEmptyStrings = false)]
-        [MaxLength(ExtraAuthConstants.RoleNameSize)]
+        [MaxLength(AuthDbConstants.RoleNameSize)]
         public string RoleName { get; private set; }
 
         /// <summary>
         /// A human-friendly description of what the Role does
         /// </summary>
-        [Required(AllowEmptyStrings = false)]
         public string Description { get; private set; }
 
         /// <summary>
@@ -49,6 +48,12 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         [Required(AllowEmptyStrings = false)] //A role must have at least one role in it
         public string PackedPermissionsInRole { get; private set; }
+
+        public override string ToString()
+        {
+            var desc = Description == null ? "" : $" (description = {Description})";
+            return $"{RoleName}{desc} has {PackedPermissionsInRole.Length} permissions.";
+        }
 
         public static IStatusGeneric<RoleToPermissions> CreateRoleWithPermissions(string roleName, string description,
             string packedPermissions, AuthPermissionsDbContext context)

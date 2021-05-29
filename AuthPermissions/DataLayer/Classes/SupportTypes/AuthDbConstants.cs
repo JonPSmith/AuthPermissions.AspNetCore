@@ -1,11 +1,9 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.ComponentModel.Design.Serialization;
-
 namespace AuthPermissions.DataLayer.Classes.SupportTypes
 {
-    public static class ExtraAuthConstants
+    public static class AuthDbConstants
     {
         public const int UserIdSize = 256; //must be below 900 bytes because it has a unique index
 
@@ -16,5 +14,7 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
         public const int DataKeySize = 64;
 
         public const int TenantIdSize = 256;
+
+        public const string DefaultTenantIdValue = "NoTenantIdAdded";
     }
 }

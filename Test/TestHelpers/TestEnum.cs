@@ -3,6 +3,6 @@
 
 namespace Test.TestHelpers
 {
-    public enum TestEnum : short { Zero, One, Two, Three }
+    public enum TestEnum : short { Bad = 0, One, Two, Three }
 
 }

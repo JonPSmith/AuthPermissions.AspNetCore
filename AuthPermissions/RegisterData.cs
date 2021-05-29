@@ -2,6 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using AuthPermissions.SetupParts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthPermissions
@@ -17,5 +19,18 @@ namespace AuthPermissions
         public IServiceCollection Services { get; }
 
         public AuthPermissionsOptions Options { get; }
+
+        /// <summary>
+        /// This holds the a string containing the definition of the RolesToPermission database class
+        /// See the <see cref="SetupExtensions.AddRolesPermissionsIfEmpty"/> method for the format of the lines
+        /// </summary>
+        public string RolesPermissionsSetupText { get; internal set; }
+
+        /// <summary>
+        /// This holds the definition for a user, with its various parts
+        /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
+        /// </summary>
+        public List<DefineUserWithRolesTenant> UsersWithRolesSetupData { get; internal set; }
+
     }
 }

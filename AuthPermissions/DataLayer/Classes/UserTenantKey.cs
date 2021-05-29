@@ -17,10 +17,10 @@ namespace AuthPermissions.DataLayer.Classes
         }
 
         [Required(AllowEmptyStrings = false)]
-        [MaxLength(ExtraAuthConstants.UserIdSize)]
+        [MaxLength(AuthDbConstants.UserIdSize)]
         public string UserId { get; private set; }
 
-        [MaxLength(ExtraAuthConstants.DataKeySize)]
+        [MaxLength(AuthDbConstants.DataKeySize)]
         public string DataKey { get; private set; }
     }
 }

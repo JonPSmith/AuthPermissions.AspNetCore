@@ -35,6 +35,25 @@ namespace AuthPermissions.PermissionsCode.Internal
                 s + (char)Convert.ChangeType(Enum.Parse(enumPermissionsType, permissionName), typeof(char)));
         }
 
+        /// <summary>
+        /// This checks a permissionName is valid for the enumPermissionsType
+        /// </summary>
+        /// <param name="enumPermissionsType"></param>
+        /// <param name="permissionName"></param>
+        /// <returns>true if valid</returns>
+        public static bool PermissionsNameIsValid(this Type enumPermissionsType, string permissionName)
+        {
+            try
+            {
+                Enum.Parse(enumPermissionsType, permissionName);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
     }
 }

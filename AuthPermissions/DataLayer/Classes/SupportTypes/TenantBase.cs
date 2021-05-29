@@ -9,10 +9,13 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
     {
         public TenantBase(string tenantId)
         {
-            TenantId = tenantId;
+            TenantId = tenantId ?? AuthDbConstants.DefaultTenantIdValue;
         }
 
-        [MaxLength(ExtraAuthConstants.TenantIdSize)]
+        //A composite key can't be null in EF Core 
+        //see https://github.com/dotnet/efcore/issues/22196
+        [Required(AllowEmptyStrings = false)]
+        [MaxLength(AuthDbConstants.TenantIdSize)]
         public string TenantId { get; private set; }
     }
 }
