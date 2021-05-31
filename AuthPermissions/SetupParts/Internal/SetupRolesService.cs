@@ -3,15 +3,16 @@
 
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
-using AuthPermissions.SetupParts.Internal;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupParts
+[assembly: InternalsVisibleTo("Test")]
+namespace AuthPermissions.SetupParts.Internal
 {
-    public class SetupRolesService
+    internal class SetupRolesService
     {
         private readonly AuthPermissionsDbContext _context;
 

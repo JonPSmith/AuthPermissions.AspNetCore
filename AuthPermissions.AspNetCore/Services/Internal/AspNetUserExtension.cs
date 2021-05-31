@@ -2,28 +2,39 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ExamplesCommonCode.DemoSetupCode
+namespace AuthPermissions.AspNetCore.Services.Internal
 {
-    public static class AspNetUserExtension
+    internal static class AspNetUserExtension
     {
-        public static async Task<List<IdentityUser>> AddDemoUsersAsync(this IServiceProvider serviceProvider,
-            IEnumerable<string> usersEmails)
+        /// <summary>
+        /// This adds a user using the email/password in the "SuperAdmin" section of the appsettings.json file
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        public static async Task CheckAddSuperAdminAsync(this IServiceProvider serviceProvider)
         {
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            var result = new List<IdentityUser>();
-            foreach (var userEmail in usersEmails)
+            using (var scope = serviceProvider.CreateScope())
             {
-                var user = await userManager.CheckAddNewUserAsync(userEmail, userEmail);
-                result.Add(user);
-            }
+                var services = scope.ServiceProvider;
 
-            return result;
+                var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+                var config = services.GetRequiredService<IConfiguration>();
+                var superSection = config.GetSection("SuperAdmin");
+                if (superSection == null)
+                    return;
+
+                var userEmail = superSection["Email"];
+                var userPassword = superSection["Password"];
+
+                var superUser = await userManager.CheckAddNewUserAsync(userEmail, userPassword);
+            }
         }
 
         /// <summary>

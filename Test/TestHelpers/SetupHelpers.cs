@@ -6,6 +6,7 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
 using AuthPermissions.SetupParts;
+using AuthPermissions.SetupParts.Internal;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers
@@ -28,9 +29,9 @@ Role3: Three";
         {
             return new List<DefineUserWithRolesTenant>
             {
-                new DefineUserWithRolesTenant("1", "User1", "Role1"),
-                new DefineUserWithRolesTenant("2", "User2", user2Roles),
-                new DefineUserWithRolesTenant("3", "User3", "Role1,Role3"),
+                new DefineUserWithRolesTenant("User1", "Role1"),
+                new DefineUserWithRolesTenant("User2", user2Roles),
+                new DefineUserWithRolesTenant("User3", "Role1,Role3"),
             };
         }
     }

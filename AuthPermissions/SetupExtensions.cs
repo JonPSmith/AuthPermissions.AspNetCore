@@ -7,6 +7,7 @@ using System.Linq;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupParts;
+using AuthPermissions.SetupParts.Internal;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,7 @@ namespace AuthPermissions
 {
     public static class SetupExtensions
     {
-        public static RegisterData RegisterAuthPermissions<TEnumPermissions>(this IServiceCollection services, 
+        public static AuthSetupData RegisterAuthPermissions<TEnumPermissions>(this IServiceCollection services, 
             AuthPermissionsOptions options = null) where TEnumPermissions : Enum
         {
             options ??= new AuthPermissionsOptions();
@@ -25,69 +26,66 @@ namespace AuthPermissions
             //This is needed by the ASP.NET Core policy 
             services.AddSingleton(new EnumTypeService(typeof(TEnumPermissions)));
 
-            return new RegisterData(services, options);
+            return new AuthSetupData(services, options);
         }
 
-        public static RegisterData UsingEfCoreSqlServer(this RegisterData regData, string connectionString)
+        public static AuthSetupData UsingEfCoreSqlServer(this AuthSetupData setupDat, string connectionString)
         {
-            regData.Services.AddDbContext<AuthPermissionsDbContext>(
+            setupDat.Services.AddDbContext<AuthPermissionsDbContext>(
                 options => options.UseSqlServer(connectionString, dbOptions =>
                     dbOptions.MigrationsHistoryTable(PermissionConstants.MigrationsHistoryTableName)));
 
-            return regData;
+            return setupDat;
         }
 
-        //public static RegisterData AddTenantsIfEmpty(this RegisterData regData, string linesOfText)
+        //public static AuthSetupData AddTenantsIfEmpty(this AuthSetupData setupDat, string linesOfText)
         //{
-        //    return regData;
+        //    return setupDat;
         //}
 
         /// <summary>
         /// This allows you to add Roles with their permissions, but only if the auth database contains NO RoleToPermissions
         /// </summary>
-        /// <param name="regData"></param>
+        /// <param name="setupDat"></param>
         /// <param name="linesOfText">This contains the lines of text, each line defined a Role with Permissions. The format is
         /// RoleName |optional-description|: PermissionName, PermissionName, PermissionName... and so on
         /// For example:
         /// SalesManager |Can authorize and alter sales|: SalesRead, SalesAdd, SalesUpdate, SalesAuthorize
         /// </param>
-        /// <returns></returns>
-        public static RegisterData AddRolesPermissionsIfEmpty(this RegisterData regData, string linesOfText)
+        /// <returns>AuthSetupData</returns>
+        public static AuthSetupData AddRolesPermissionsIfEmpty(this AuthSetupData setupDat, string linesOfText)
         {
-            regData.RolesPermissionsSetupText = linesOfText;
-            return regData;
+            setupDat.RolesPermissionsSetupText = linesOfText;
+            return setupDat;
         }
 
         /// <summary>
         /// This allows you to define permission user, but only if the auth database doesn't have any UserToRoles in the database
         /// NOTE: You need the user's ID from the authentication part of your application.
         /// </summary>
-        /// <param name="regData"></param>
-        /// <param name="userSetup"></param>
-        /// <returns></returns>
-        public static RegisterData AddUsersIfEmpty(this RegisterData regData, List<DefineUserWithRolesTenant> userSetup)
+        /// <param name="setupDat"></param>
+        /// <param name="userRolesSetup">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have</param>
+        /// <param name="findUserId">This is a function that should provide the userId from the <see cref="DefineUserWithRolesTenant.UniqueUserName"/></param>
+        /// <returns>AuthSetupData</returns>
+        public static AuthSetupData AddUsersRolesIfEmpty(this AuthSetupData setupDat, List<DefineUserWithRolesTenant> userRolesSetup, 
+            Func<string,string> findUserId)
         {
-            regData.UsersWithRolesSetupData = userSetup;
-            return regData;
+            setupDat.UserRolesSetupData = userRolesSetup;
+            setupDat.FindUserId = findUserId;
+            return setupDat;
         }
 
-        public static RegisterData SetupForUnitTesting(this RegisterData regData)
+        public static AuthSetupData SetupForUnitTesting(this AuthSetupData setupDat)
         {
             var inMemoryConnection = SetupSqliteInMemoryConnection();
-            regData.Services.AddDbContext<AuthPermissionsDbContext>(
+            setupDat.Services.AddDbContext<AuthPermissionsDbContext>(
                 options => options.UseSqlite(inMemoryConnection));
 
 
-            var serviceProvider = regData.Services.BuildServiceProvider();
-            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            var status = context.SetupInMemoryDatabase(regData);
+            var serviceProvider = setupDat.Services.BuildServiceProvider();
+            serviceProvider.AddRoleUserToAuthDb(setupDat);
 
-            if (status.HasErrors)
-                throw new InvalidOperationException(status.Errors.Count() == 1
-                    ? status.Errors.Single().ToString()
-                    : $"There were {status.Errors.Count()}:{Environment.NewLine}{status.GetAllErrors()}");
-
-            return regData;
+            return setupDat;
         }
 
         //------------------------------------------------
@@ -102,27 +100,6 @@ namespace AuthPermissions
             return connection;
         }
 
-        private static IStatusGeneric SetupInMemoryDatabase(this AuthPermissionsDbContext context, RegisterData regData)
-        {
-            context.Database.EnsureCreated();
 
-            var setupRoles = new SetupRolesService(context);
-            var status = setupRoles.AddRolesToDatabaseIfEmpty(regData.RolesPermissionsSetupText,
-                regData.Options.EnumPermissionsType);
-            if (status.HasErrors)
-                return status;
-            
-            context.SaveChanges();
-
-            var setupUsers = new SetupUsersService(context);
-            status = setupUsers.AddUsersToDatabaseIfEmpty(regData.UsersWithRolesSetupData);
-
-            if (status.HasErrors)
-                return status;
-
-            context.SaveChanges();
-
-            return status;
-        }
     }
 }

@@ -4,6 +4,7 @@
 using System.Linq;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupParts;
+using AuthPermissions.SetupParts.Internal;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -12,17 +13,17 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestAuthPermissions
 {
-    public class TestSetupPartsSetupUsersService
+    public class TestSetupPartsSetupUsersRolesService
     {
         private readonly ITestOutputHelper _output;
 
-        public TestSetupPartsSetupUsersService(ITestOutputHelper output)
+        public TestSetupPartsSetupUsersRolesService(ITestOutputHelper output)
         {
             _output = output;
         }
 
         [Fact]
-        public void TestAddRolesToDatabaseIfEmpty()
+        public void TestAddUserRolesToDatabaseIfEmpty()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -33,10 +34,10 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context);
+            var service = new SetupUsersService(context, userName => userName);
 
             //ATTEMPT
-            var status = service.AddUsersToDatabaseIfEmpty(
+            var status = service.AddUsersRolesToDatabaseIfEmpty(
                 SetupHelpers.TestUserDefine());
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
@@ -59,7 +60,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public void TestAddRolesToDatabaseIfEmptyNoRoleError()
+        public void TestAddUserRolesToDatabaseIfEmptyNoRoleError()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -70,10 +71,10 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context);
+            var service = new SetupUsersService(context, userName => userName);
 
             //ATTEMPT
-            var status = service.AddUsersToDatabaseIfEmpty(
+            var status = service.AddUsersRolesToDatabaseIfEmpty(
                 SetupHelpers.TestUserDefine(""));
 
             //VERIFY
@@ -82,7 +83,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public void TestAddRolesToDatabaseIfEmptyBadRole()
+        public void TestAddUserRolesToDatabaseIfEmptyBadRole()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -93,10 +94,10 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context);
+            var service = new SetupUsersService(context, userName => userName);
 
             //ATTEMPT
-            var status = service.AddUsersToDatabaseIfEmpty(
+            var status = service.AddUsersRolesToDatabaseIfEmpty(
                 SetupHelpers.TestUserDefine("Role99"));
 
             //VERIFY

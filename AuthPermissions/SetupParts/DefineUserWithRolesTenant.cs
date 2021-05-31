@@ -9,21 +9,33 @@ namespace AuthPermissions.SetupParts
 {
     public class DefineUserWithRolesTenant
     {
-        public DefineUserWithRolesTenant(string userId, string userName, string roleNamesCommaDelimited, string tenantName = null)
+        /// <summary>
+        /// This defines a user in your application
+        /// </summary>
+        /// <param name="userName">name to help the admin team to work out who the user is</param>
+        /// <param name="roleNamesCommaDelimited">A string containing a comma delimited set of auth roles that the user</param>
+        /// <param name="uniqueUserName">A string that is unique for each user, e.g. email. If not provided then uses the userName</param>
+        /// <param name="tenantName">Optional: The unique name of your multi-tenant that this user is linked to</param>
+        public DefineUserWithRolesTenant(string userName, string roleNamesCommaDelimited,
+            string uniqueUserName = null, string tenantName = null)
         {
-            UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-            UserName = userName;
-            RoleNamesCommaDelimited = roleNamesCommaDelimited ?? throw new ArgumentNullException(nameof(roleNamesCommaDelimited));
+            UserName = userName ?? throw new ArgumentNullException(nameof(userName));
+            RoleNamesCommaDelimited = roleNamesCommaDelimited ??
+                                      throw new ArgumentNullException(nameof(roleNamesCommaDelimited));
+            UniqueUserName = uniqueUserName ?? UserName;
             TenantName = tenantName;
         }
 
-        [Required(AllowEmptyStrings = false)]
-        [MaxLength(AuthDbConstants.UserIdSize)]
-        public string UserId { get; private set; }
-
-        //Contains a name to help work out who the user is
+        /// <summary>
+        /// Contains a name to help the admin team to work out who the user is
+        /// </summary>
         [MaxLength(AuthDbConstants.UserNameSize)]
         public string UserName { get; private set; }
+
+        /// <summary>
+        /// This contains a string that is unique for each user, e.g. email
+        /// </summary>
+        public string UniqueUserName { get; private set; }
 
         public string TenantName { get; private set; }
 

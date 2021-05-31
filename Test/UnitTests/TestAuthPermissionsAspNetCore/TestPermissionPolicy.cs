@@ -2,20 +2,18 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.PermissionsCode;
-using AuthPermissions.PermissionsCode.Internal;
 using Microsoft.AspNetCore.Authorization;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestExampleCommonCode
+namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 {
     public class TestPermissionPolicy
     {

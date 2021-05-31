@@ -1,15 +1,16 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using AuthPermissions.SetupParts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthPermissions
 {
-    public class RegisterData
+    public class AuthSetupData
     {
-        public RegisterData(IServiceCollection services, AuthPermissionsOptions options)
+        public AuthSetupData(IServiceCollection services, AuthPermissionsOptions options)
         {
             Services = services;
             Options = options;
@@ -32,9 +33,14 @@ namespace AuthPermissions
         public string RolesPermissionsSetupText { get; internal set; }
 
         /// <summary>
+        /// This is a function provided by the application that can from the UserId based on the <see cref="DefineUserWithRolesTenant.UniqueUserName"/> 
+        /// </summary>
+        public Func<string, string> FindUserId { get; internal set; }
+
+        /// <summary>
         /// This holds the definition for a user, with its various parts
         /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
         /// </summary>
-        public List<DefineUserWithRolesTenant> UsersWithRolesSetupData { get; internal set; }
+        public List<DefineUserWithRolesTenant> UserRolesSetupData { get; internal set; }
     }
 }

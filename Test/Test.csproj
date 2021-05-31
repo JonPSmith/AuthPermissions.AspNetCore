@@ -8,15 +8,9 @@
 
   <ItemGroup>
     <None Remove="appsettings.json" />
-    <None Remove="demosettings.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="demosettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -44,7 +38,6 @@
 
   <ItemGroup>
     <Folder Include="TestHelpers\" />
-    <Folder Include="UnitTests\TestAuthPermissionsAspNetCore\" />
     <Folder Include="UnitTests\TestExampleCommonCode\" />
   </ItemGroup>
 

@@ -1,25 +1,29 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupParts.Internal;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupParts
+[assembly: InternalsVisibleTo("Test")]
+namespace AuthPermissions.SetupParts.Internal
 {
-    public class SetupUsersService
+    internal class SetupUsersService
     {
         private readonly AuthPermissionsDbContext _context;
+        private readonly Func<string, string> _findUserIdFromName;
 
-        public SetupUsersService(AuthPermissionsDbContext context)
+        public SetupUsersService(AuthPermissionsDbContext context, Func<string, string> findUserIdFromName)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _findUserIdFromName = findUserIdFromName;
         }
 
-        public IStatusGeneric AddUsersToDatabaseIfEmpty(List<DefineUserWithRolesTenant> userDefinitions)
+        public IStatusGeneric AddUsersRolesToDatabaseIfEmpty(List<DefineUserWithRolesTenant> userDefinitions)
         {
             var status = new StatusGenericHandler();
 
@@ -63,14 +67,15 @@ namespace AuthPermissions.SetupParts
 
             if (!rolesToPermissions.Any())
                 status.AddError(userDefine.RoleNamesCommaDelimited.FormErrorString(index-1, -1,
-                    $"The user {userDefine.UserName ?? userDefine.UserId} didn't have any roles."));
+                    $"The user {userDefine.UserName} didn't have any roles."));
 
             if (status.HasErrors)
                 return status;
 
             rolesToPermissions.ForEach(roleToPermission =>
             {
-                var userToRole = new UserToRole(userDefine.UserId, userDefine.UserName, roleToPermission);
+                var userId = _findUserIdFromName(userDefine.UniqueUserName);
+                var userToRole = new UserToRole(userId, userDefine.UserName, roleToPermission);
                 _context.Add(userToRole);
             });
 

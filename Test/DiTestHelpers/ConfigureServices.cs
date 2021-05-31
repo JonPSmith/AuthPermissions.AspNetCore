@@ -1,13 +1,9 @@
 ﻿// Copyright (c) 2019 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Configuration;
-using System.Reflection;
-using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TestSupport.Helpers;
 
@@ -24,10 +20,6 @@ namespace Test.DiTestHelpers
             //services.AddDefaultIdentity<IdentityUser>()
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-
-            var startupConfig = AppSettings.GetConfiguration((Assembly)null, "demosettings.json");
-            services.AddSingleton<IConfiguration>(startupConfig);
-            services.Configure<DemoSetup>(startupConfig.GetSection(nameof(DemoSetup)));
             services.AddLogging();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -46,9 +38,6 @@ namespace Test.DiTestHelpers
                 services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(aspNetConnectionString));
 
                 var appConnectionString = callingClass.GetUniqueDatabaseConnectionString("AppData");
-                //services.AddDbContext<CompanyDbContext>(options => options.UseSqlServer(appConnectionString));
-                //services.AddDbContext<ExtraAuthorizeDbContext>(options => options.UseSqlServer(appConnectionString));
-                //services.AddDbContext<CombinedDbContext>(options => options.UseSqlServer(appConnectionString));
             }
             else
             {
@@ -56,9 +45,6 @@ namespace Test.DiTestHelpers
                 var aspNetAuthConnection = SetupSqliteInMemoryConnection();
                 services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(aspNetAuthConnection));
                 var appExtraConnection = SetupSqliteInMemoryConnection();
-                //services.AddDbContext<CompanyDbContext>(options => options.UseSqlite(appExtraConnection));
-                //services.AddDbContext<ExtraAuthorizeDbContext>(options => options.UseSqlite(appExtraConnection));
-                //services.AddDbContext<CombinedDbContext>(options => options.UseSqlite(appExtraConnection));
             }
         }
 

@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using AuthPermissions.AspNetCore.Services.Internal;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,11 +13,11 @@ using Microsoft.Extensions.Logging;
 
 namespace AuthPermissions.AspNetCore.Services
 {
-    public class MigrateAuthPermissionDbOnStartup : IHostedService
+    public class SetupDatabaseOnStartup : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public MigrateAuthPermissionDbOnStartup(IServiceProvider serviceProvider)
+        public SetupDatabaseOnStartup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -33,11 +34,15 @@ namespace AuthPermissions.AspNetCore.Services
                 }
                 catch (Exception ex)
                 {
-                    var logger = services.GetRequiredService<ILogger<MigrateAuthPermissionDbOnStartup>>();
+                    var logger = services.GetRequiredService<ILogger<SetupDatabaseOnStartup>>();
                     logger.LogError(ex, "An error occurred while creating/migrating the SQL database.");
 
                     throw;
                 }
+
+                await services.CheckAddSuperAdminAsync();
+
+
             }
         }
 

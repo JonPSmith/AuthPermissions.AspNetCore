@@ -73,7 +73,7 @@ Role3: One";
             //ATTEMPT
             services.RegisterAuthPermissions<TestEnum>()
                 .AddRolesPermissionsIfEmpty(lines)
-                .AddUsersIfEmpty(SetupHelpers.TestUserDefine())
+                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefine(), userName => userName)
                 .SetupForUnitTesting();
 
             //VERIFY

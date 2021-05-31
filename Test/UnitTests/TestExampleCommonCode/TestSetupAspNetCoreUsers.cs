@@ -22,40 +22,24 @@ namespace Test.UnitTests.TestExampleCommonCode
         public TestSetupAspNetCoreUsers(ITestOutputHelper output)
         {
             _output = output;
-            _serviceProvider = this.SetupServicesForTest(true);
+            _serviceProvider = this.SetupServicesForTest();
         }
 
         [Fact]
-        public void TestDemoSetup()
+        public async Task TestAddDemoUsersAsync()
         {
             //SETUP
 
             //ATTEMPT
-            var demoSetup = (IOptions<DemoSetup>)_serviceProvider.GetService(typeof(IOptions<DemoSetup>));
-
-            //VERIFY
-            demoSetup.Value.ShouldNotBeNull();
-            demoSetup.Value.Users.Length.ShouldEqual(4);
-        }
-
-        [Fact]
-        public async Task TestStartAsync()
-        {
-            //SETUP
-            var setupUsersService = new SetupAspNetCoreUsers(_serviceProvider);
-
-            //ATTEMPT
-            await setupUsersService.StartAsync(default);
+            var result = await _serviceProvider.AddDemoUsersAsync(new string[] {"user1@G.com", "user2@G.com"});
 
             //VERIFY
             using var userManager = _serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             var users = userManager.Users.ToList();
-            users.Count.ShouldEqual(4);
+            users.Count.ShouldEqual(2);
             foreach (var user in users)
             {
-                var roles = await userManager.GetRolesAsync(user);
-                (roles.Any() == !user.Email.StartsWith("No")).ShouldBeTrue();
-                _output.WriteLine($"{user.Email}: Roles = {string.Join(',', roles)}");
+                _output.WriteLine($"{user.Email}");
             }
         }
     }
