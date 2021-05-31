@@ -3,39 +3,45 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using AuthPermissions.AspNetCore.HostedServices.Internal;
+using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.SetupParts;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace AuthPermissions.AspNetCore.Services.Internal
+namespace AuthPermissions.AspNetCore.HostedServices
 {
-    internal static class AspNetUserExtension
+    public class IndividualAccountsAddSuperUser : IHostedService
     {
-        /// <summary>
-        /// This adds a user using the email/password in the "SuperAdmin" section of the appsettings.json file
-        /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
-        public static async Task CheckAddSuperAdminAsync(this IServiceProvider serviceProvider)
+        private readonly IServiceProvider _serviceProvider;
+
+        public IndividualAccountsAddSuperUser(IServiceProvider serviceProvider)
         {
-            using (var scope = serviceProvider.CreateScope())
+            _serviceProvider = serviceProvider;
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            using (var scope = _serviceProvider.CreateScope())
             {
                 var services = scope.ServiceProvider;
 
                 var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
-                var config = services.GetRequiredService<IConfiguration>();
-                var superSection = config.GetSection("SuperAdmin");
-                if (superSection == null)
-                    return;
+                var superUserInfo = services.GetSuperUserConfigData();
 
-                var userEmail = superSection["Email"];
-                var userPassword = superSection["Password"];
-
-                var superUser = await userManager.CheckAddNewUserAsync(userEmail, userPassword);
+                var superUser = await CheckAddNewUserAsync(userManager, superUserInfo.email, superUserInfo.password);
             }
         }
+
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
         /// <summary>
         /// This will add a user with the given email if they don't all ready exist
@@ -44,7 +50,7 @@ namespace AuthPermissions.AspNetCore.Services.Internal
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        private static async Task<IdentityUser> CheckAddNewUserAsync(this UserManager<IdentityUser> userManager, string email, string password)
+        private static async Task<IdentityUser> CheckAddNewUserAsync(UserManager<IdentityUser> userManager, string email, string password)
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user != null)

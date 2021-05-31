@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupParts;
 using AuthPermissions.SetupParts.Internal;
@@ -23,7 +25,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public void TestAddUserRolesToDatabaseIfEmpty()
+        public async Task TestAddUserRolesToDatabaseIfEmpty()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -34,11 +36,11 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, userName => userName);
+            var service = new SetupUsersService(context, null);
 
             //ATTEMPT
-            var status = service.AddUsersRolesToDatabaseIfEmpty(
-                SetupHelpers.TestUserDefine());
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+                SetupHelpers.TestUserDefineWithUserId());
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 
@@ -60,7 +62,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public void TestAddUserRolesToDatabaseIfEmptyNoRoleError()
+        public async Task TestAddUserRolesToDatabaseIfEmptyWithIFindUserId()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -71,11 +73,70 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, userName => userName);
+            var service = new SetupUsersService(context, new MockIFindUserId());
 
             //ATTEMPT
-            var status = service.AddUsersRolesToDatabaseIfEmpty(
-                SetupHelpers.TestUserDefine(""));
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+                SetupHelpers.TestUserDefineNoUserId());
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            //VERIFY
+            var usersWithRoles = context.UserToRoles.ToList();
+            foreach (var userWithRole in usersWithRoles)
+            {
+                _output.WriteLine(userWithRole.ToString());
+            }
+
+            usersWithRoles.Count.ShouldEqual(5);
+            usersWithRoles[0].ToString().ShouldEqual("User User1 has role Role1");
+            usersWithRoles[1].ToString().ShouldEqual("User User2 has role Role1");
+            usersWithRoles[2].ToString().ShouldEqual("User User2 has role Role2");
+            usersWithRoles[3].ToString().ShouldEqual("User User3 has role Role1");
+            usersWithRoles[4].ToString().ShouldEqual("User User3 has role Role3");
+        }
+
+        [Fact]
+        public async Task TestAddUserRolesToDatabaseIfEmptyNoUserIdFail()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupRolesInDb();
+
+            context.ChangeTracker.Clear();
+
+            var service = new SetupUsersService(context, null);
+
+            //ATTEMPT
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(SetupHelpers.TestUserDefineNoUserId(null));
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.Errors.Single().ToString().ShouldStartWith("Line/index 1: The user User2 didn't have a userId and the IFindUserIdService wasn't available.");
+        }
+
+        [Fact]
+        public async Task TestAddUserRolesToDatabaseIfEmptyNoRoleError()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupRolesInDb();
+
+            context.ChangeTracker.Clear();
+
+            var service = new SetupUsersService(context, null);
+
+            //ATTEMPT
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+                SetupHelpers.TestUserDefineWithUserId(""));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -83,7 +144,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public void TestAddUserRolesToDatabaseIfEmptyBadRole()
+        public async Task TestAddUserRolesToDatabaseIfEmptyBadRole()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -94,11 +155,11 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, userName => userName);
+            var service = new SetupUsersService(context, null);
 
             //ATTEMPT
-            var status = service.AddUsersRolesToDatabaseIfEmpty(
-                SetupHelpers.TestUserDefine("Role99"));
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+                SetupHelpers.TestUserDefineWithUserId("Role99"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();

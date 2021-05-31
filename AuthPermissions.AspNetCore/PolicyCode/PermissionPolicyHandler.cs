@@ -15,9 +15,9 @@ namespace AuthPermissions.AspNetCore.PolicyCode
     {
         private readonly Type _enumPermissionType;
 
-        public PermissionPolicyHandler(EnumTypeService enumTypeService)
+        public PermissionPolicyHandler(IAuthPermissionsOptions options)
         {
-            _enumPermissionType = enumTypeService.EnumPermissionsType;
+            _enumPermissionType = options.EnumPermissionsType;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)

@@ -4,14 +4,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AuthPermissions.AspNetCore.Services.Internal;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace AuthPermissions.AspNetCore.Services
+namespace AuthPermissions.AspNetCore.HostedServices
 {
     public class SetupDatabaseOnStartup : IHostedService
     {
@@ -30,7 +29,10 @@ namespace AuthPermissions.AspNetCore.Services
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
                 try
                 {
-                    await context.Database.MigrateAsync(cancellationToken);
+                    if (context.Database.IsSqlite())
+                        await context.Database.EnsureCreatedAsync(cancellationToken);
+                    else
+                        await context.Database.MigrateAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -39,10 +41,6 @@ namespace AuthPermissions.AspNetCore.Services
 
                     throw;
                 }
-
-                await services.CheckAddSuperAdminAsync();
-
-
             }
         }
 

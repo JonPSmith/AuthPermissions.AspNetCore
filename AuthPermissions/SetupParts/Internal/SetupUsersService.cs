@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using StatusGeneric;
@@ -15,15 +16,15 @@ namespace AuthPermissions.SetupParts.Internal
     internal class SetupUsersService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly Func<string, string> _findUserIdFromName;
+        private readonly IFindUserIdService _findUserIdService;
 
-        public SetupUsersService(AuthPermissionsDbContext context, Func<string, string> findUserIdFromName)
+        public SetupUsersService(AuthPermissionsDbContext context, IFindUserIdService findUserIdService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            _findUserIdFromName = findUserIdFromName;
+            _findUserIdService = findUserIdService;
         }
 
-        public IStatusGeneric AddUsersRolesToDatabaseIfEmpty(List<DefineUserWithRolesTenant> userDefinitions)
+        public async Task<IStatusGeneric> AddUsersRolesToDatabaseIfEmptyAsync(List<DefineUserWithRolesTenant> userDefinitions)
         {
             var status = new StatusGenericHandler();
 
@@ -39,7 +40,7 @@ namespace AuthPermissions.SetupParts.Internal
 
             for (int i = 0; i < userDefinitions.Count; i++)
             {
-                status.CombineStatuses( CreateUserTenantAndAddToDb(userDefinitions[i], i));
+                status.CombineStatuses(await CreateUserTenantAndAddToDbAsync(userDefinitions[i], i));
             }
 
             status.Message = $"Added {userDefinitions.Count} new users with associated data to the auth database";
@@ -49,7 +50,7 @@ namespace AuthPermissions.SetupParts.Internal
         //------------------------------------------
         //private methods
 
-        private IStatusGeneric CreateUserTenantAndAddToDb(DefineUserWithRolesTenant userDefine, int index)
+        private async Task<IStatusGeneric> CreateUserTenantAndAddToDbAsync(DefineUserWithRolesTenant userDefine, int index)
         {
             var status = new StatusGenericHandler();
 
@@ -72,9 +73,16 @@ namespace AuthPermissions.SetupParts.Internal
             if (status.HasErrors)
                 return status;
 
+            var userId = userDefine.UserId;
+            if (userId == null && _findUserIdService != null)
+                await _findUserIdService.FindUserIdAsync(userDefine.UniqueUserName);
+            if (userId == null)
+                return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
+                    $"The user {userDefine.UserName} didn't have a userId and the {nameof(IFindUserIdService)}" +
+                    (_findUserIdService == null ? " wasn't available." : " couldn't find it either.")));
+
             rolesToPermissions.ForEach(roleToPermission =>
             {
-                var userId = _findUserIdFromName(userDefine.UniqueUserName);
                 var userToRole = new UserToRole(userId, userDefine.UserName, roleToPermission);
                 _context.Add(userToRole);
             });

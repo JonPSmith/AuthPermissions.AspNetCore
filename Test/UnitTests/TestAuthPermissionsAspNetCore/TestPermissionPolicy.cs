@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.PermissionsCode;
@@ -46,7 +47,12 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 new Claim(PermissionConstants.PackedPermissionClaimType, packed),
             }, "TestAuthentication"));
 
-            var policyHandler = new PermissionPolicyHandler(new EnumTypeService(typeof(TestEnum)));
+            var authOptions = new AuthPermissionsOptions
+            {
+                EnumPermissionsType = typeof(TestEnum)
+            };
+
+            var policyHandler = new PermissionPolicyHandler(authOptions);
             var requirement = new PermissionRequirement( $"{enumToTest}");
             var aspnetContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement>{ requirement }, user, null);
 

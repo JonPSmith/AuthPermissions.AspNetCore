@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupParts;
@@ -18,10 +20,14 @@ namespace AuthPermissions
             AuthPermissionsOptions options = null) where TEnumPermissions : Enum
         {
             options ??= new AuthPermissionsOptions();
-
             options.EnumPermissionsType = typeof(TEnumPermissions);
-            //This is needed by the ASP.NET Core policy 
-            services.AddSingleton(new EnumTypeService(typeof(TEnumPermissions)));
+
+            if (!options.EnumPermissionsType.IsEnum)
+                throw new ArgumentException("Must be an enum");
+            if (Enum.GetUnderlyingType(options.EnumPermissionsType) != typeof(short))
+                throw new InvalidOperationException(
+                    $"The enum permissions {options.EnumPermissionsType.Name} should by 16 bits in size to work.\n" +
+                    $"Please add ': short' to your permissions declaration, i.e. public enum {options.EnumPermissionsType.Name} : short " + "{...};");
 
             return new AuthSetupData(services, options);
         }
@@ -31,7 +37,7 @@ namespace AuthPermissions
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(
                 options => options.UseSqlServer(connectionString, dbOptions =>
                     dbOptions.MigrationsHistoryTable(PermissionConstants.MigrationsHistoryTableName)));
-            setupData.DatabaseType = AuthSetupData.DatabaseTypes.SqlServer;
+            setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.SqlServer;
 
             return setupData;
         }
@@ -46,7 +52,7 @@ namespace AuthPermissions
             var inMemoryConnection = SetupSqliteInMemoryConnection();
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(
                 options => options.UseSqlite(inMemoryConnection));
-            setupData.DatabaseType = AuthSetupData.DatabaseTypes.InMemory;
+            setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.InMemory;
 
             return setupData;
         }
@@ -68,36 +74,57 @@ namespace AuthPermissions
         /// <returns>AuthSetupData</returns>
         public static AuthSetupData AddRolesPermissionsIfEmpty(this AuthSetupData setupData, string linesOfText)
         {
-            setupData.RolesPermissionsSetupText = linesOfText;
+            setupData.Options.RolesPermissionsSetupText = linesOfText;
             return setupData;
         }
 
         /// <summary>
         /// This allows you to define permission user, but only if the auth database doesn't have any UserToRoles in the database
-        /// NOTE: You need the user's ID from the authentication part of your application.
+        /// NOTE: The <see cref="userRolesSetup"/> parameter must contain .
         /// </summary>
         /// <param name="setupData"></param>
         /// <param name="userRolesSetup">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have</param>
-        /// <param name="findUserId">This is a function that should provide the userId from the <see cref="DefineUserWithRolesTenant.UniqueUserName"/></param>
         /// <returns>AuthSetupData</returns>
-        public static AuthSetupData AddUsersRolesIfEmpty(this AuthSetupData setupData, List<DefineUserWithRolesTenant> userRolesSetup, 
-            Func<string,string> findUserId)
+        public static AuthSetupData AddUsersRolesIfEmpty(this AuthSetupData setupData, List<DefineUserWithRolesTenant> userRolesSetup)
         {
-            setupData.UserRolesSetupData = userRolesSetup;
-            setupData.FindUserId = findUserId;
+            var badUserIds = userRolesSetup.Where(x => x.UserId == null).ToList();
+            if (badUserIds.Any())
+                throw new ArgumentException($"{badUserIds.Count} user definitions didn't have a UserId. " +
+                                            $"Use the {nameof(AddUsersRolesIfEmptyWithUserIdLookup)} method with a usersId lookup service. Here are the name of the username without a UserId" +
+                                            Environment.NewLine + string.Join(", ", badUserIds.Select(x => x.UserName))
+                    ,nameof(userRolesSetup));
+
+            setupData.Options.UserRolesSetupData = userRolesSetup;
             return setupData;
         }
 
-        public static AuthSetupData SetupForUnitTesting(this AuthSetupData setupData)
+        /// <summary>
+        /// This allows you to define permission user, but only if the auth database doesn't have any UserToRoles in the database
+        /// It uses the <see cref="TUserLookup"/> service to look up UserIds for user definitions that have a null UserId 
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <param name="userRolesSetup">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have</param>
+        /// <returns>AuthSetupData</returns>
+        public static AuthSetupData AddUsersRolesIfEmptyWithUserIdLookup<TUserLookup>(this AuthSetupData setupData, 
+            List<DefineUserWithRolesTenant> userRolesSetup) where TUserLookup : class, IFindUserIdService
         {
-            if (setupData.DatabaseType != AuthSetupData.DatabaseTypes.InMemory)
-                throw new InvalidOperationException(
-                    $"You can only call the {nameof(SetupForUnitTesting)} if you used the {nameof(UsingInMemoryDatabase)} method.");
-
-            var serviceProvider = setupData.Services.BuildServiceProvider();
-            serviceProvider.AddRoleUserToAuthDb(setupData);
-
+            setupData.Options.UserRolesSetupData = userRolesSetup;
+            setupData.Services.AddScoped<IFindUserIdService, TUserLookup>();
             return setupData;
+        }
+
+        public static async Task<AuthPermissionsDbContext> SetupForUnitTestingAsync(this AuthSetupData setupData)
+        {
+            if (setupData.Options.DatabaseType != AuthPermissionsOptions.DatabaseTypes.InMemory)
+                throw new InvalidOperationException(
+                    $"You can only call the {nameof(SetupForUnitTestingAsync)} if you used the {nameof(UsingInMemoryDatabase)} method.");
+            
+            var serviceProvider = setupData.Services.BuildServiceProvider();
+            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            var findUserIdService = serviceProvider.GetService<IFindUserIdService>();
+            await context.AddRoleUserToAuthDbAsync(setupData.Options, findUserIdService);
+
+            return context;
         }
 
         //------------------------------------------------

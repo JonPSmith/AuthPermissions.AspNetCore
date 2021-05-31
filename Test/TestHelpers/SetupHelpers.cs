@@ -25,13 +25,23 @@ Role3: Three";
             context.SaveChanges();
         }
 
-        public static List<DefineUserWithRolesTenant> TestUserDefine(string user2Roles = "Role1,Role2")
+        public static List<DefineUserWithRolesTenant> TestUserDefineWithUserId(string user2Roles = "Role1,Role2")
         {
             return new List<DefineUserWithRolesTenant>
             {
-                new DefineUserWithRolesTenant("User1", "Role1"),
-                new DefineUserWithRolesTenant("User2", user2Roles),
-                new DefineUserWithRolesTenant("User3", "Role1,Role3"),
+                new DefineUserWithRolesTenant("User1", "Role1", "1"),
+                new DefineUserWithRolesTenant("User2", user2Roles, "2"),
+                new DefineUserWithRolesTenant("User3", "Role1,Role3", "3"),
+            };
+        }
+
+        public static List<DefineUserWithRolesTenant> TestUserDefineNoUserId(string user2Id = "User2")
+        {
+            return new List<DefineUserWithRolesTenant>
+            {
+                new DefineUserWithRolesTenant("User1", "Role1", "1"),
+                new DefineUserWithRolesTenant("User2", "Role1,Role2", user2Id),
+                new DefineUserWithRolesTenant("User3", "Role1,Role3", "3"),
             };
         }
     }

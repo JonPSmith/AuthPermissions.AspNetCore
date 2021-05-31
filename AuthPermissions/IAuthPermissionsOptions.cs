@@ -7,36 +7,34 @@ using AuthPermissions.SetupParts;
 
 namespace AuthPermissions
 {
-    public class AuthPermissionsOptions : IAuthPermissionsOptions
+    public interface IAuthPermissionsOptions
     {
-        public enum DatabaseTypes { NotSet, InMemory, SqlServer }
-
-        //-------------------------------------------------
-        //internal set properties/handles
-
-        public Type EnumPermissionsType { get; internal set; }
+        /// <summary>
+        /// This holds the type of the Enum holding the Permissions
+        /// </summary>
+        Type EnumPermissionsType { get; }
 
         /// <summary>
         /// This contains the type of database used
         /// </summary>
-        public DatabaseTypes DatabaseType { get; internal set; }
+        AuthPermissionsOptions.DatabaseTypes DatabaseType { get; }
 
         /// <summary>
         /// This holds the a string containing the definition of the tenants
         /// See the <see cref="SetupExtensions.AddTenantsIfEmpty"/> method for the format of the lines
         /// </summary>
-        public string UserTenantSetupText { get; internal set; }
+        string UserTenantSetupText { get; }
 
         /// <summary>
         /// This holds the a string containing the definition of the RolesToPermission database class
         /// See the <see cref="SetupExtensions.AddRolesPermissionsIfEmpty"/> method for the format of the lines
         /// </summary>
-        public string RolesPermissionsSetupText { get; internal set; }
+        string RolesPermissionsSetupText { get; }
 
         /// <summary>
         /// This holds the definition for a user, with its various parts
         /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
         /// </summary>
-        public List<DefineUserWithRolesTenant> UserRolesSetupData { get; internal set; }
+        List<DefineUserWithRolesTenant> UserRolesSetupData { get; }
     }
 }
