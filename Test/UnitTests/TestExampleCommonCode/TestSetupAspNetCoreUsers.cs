@@ -22,7 +22,7 @@ namespace Test.UnitTests.TestExampleCommonCode
         public TestSetupAspNetCoreUsers(ITestOutputHelper output)
         {
             _output = output;
-            _serviceProvider = this.SetupServicesForTest();
+            _serviceProvider = this.SetupServicesForTest().BuildServiceProvider();
         }
 
         [Fact]

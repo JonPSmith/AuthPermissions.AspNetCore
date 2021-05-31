@@ -10,6 +10,8 @@ namespace AuthPermissions
 {
     public class AuthSetupData
     {
+        public enum DatabaseTypes {NotSet, InMemory, SqlServer}
+
         public AuthSetupData(IServiceCollection services, AuthPermissionsOptions options)
         {
             Services = services;
@@ -19,6 +21,11 @@ namespace AuthPermissions
         public IServiceCollection Services { get; }
 
         public AuthPermissionsOptions Options { get; }
+
+        /// <summary>
+        /// This contains the type of database used
+        /// </summary>
+        public DatabaseTypes DatabaseType { get; internal set; }
 
         /// <summary>
         /// This holds the a string containing the definition of the tenants

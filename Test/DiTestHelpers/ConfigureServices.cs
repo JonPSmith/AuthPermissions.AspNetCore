@@ -1,9 +1,12 @@
 ﻿// Copyright (c) 2019 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Reflection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TestSupport.Helpers;
 
@@ -11,7 +14,7 @@ namespace Test.DiTestHelpers
 {
     public static class ConfigureServices
     {
-        public static ServiceProvider SetupServicesForTest(this object callingClass, bool useSqlDbs = false)
+        public static ServiceCollection SetupServicesForTest(this object callingClass, bool useSqlDbs = false)
         {
             var services = new ServiceCollection();
             services.RegisterDatabases(callingClass, useSqlDbs);
@@ -20,14 +23,15 @@ namespace Test.DiTestHelpers
             //services.AddDefaultIdentity<IdentityUser>()
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            var startupConfig = AppSettings.GetConfiguration();
             services.AddLogging();
-
-            var serviceProvider = services.BuildServiceProvider();
+            services.AddSingleton<IConfiguration>(startupConfig);
 
             //make sure the  databases are created
+            var serviceProvider = services.BuildServiceProvider();
             serviceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreated();
 
-            return serviceProvider;
+            return services;
         }
 
         private static void RegisterDatabases(this ServiceCollection services, object callingClass, bool useSqlDbs)

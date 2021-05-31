@@ -29,6 +29,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             services.RegisterAuthPermissions<TestEnum>()
+                .UsingInMemoryDatabase()
                 .SetupForUnitTesting();
 
             //VERIFY
@@ -50,6 +51,7 @@ Role3: One";
 
             //ATTEMPT
             services.RegisterAuthPermissions<TestEnum>()
+                .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(lines)
                 .SetupForUnitTesting();
 
@@ -72,6 +74,7 @@ Role3: One";
 
             //ATTEMPT
             services.RegisterAuthPermissions<TestEnum>()
+                .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(lines)
                 .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefine(), userName => userName)
                 .SetupForUnitTesting();
