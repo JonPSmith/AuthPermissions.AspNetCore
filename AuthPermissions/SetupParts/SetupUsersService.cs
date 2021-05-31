@@ -22,9 +22,12 @@ namespace AuthPermissions.SetupParts
             _context = context;
         }
 
-        public async Task<IStatusGeneric> AddUsersToDatabaseIfEmpty(List<DefineUserWithRolesTenant> userDefinitions)
+        public IStatusGeneric AddUsersToDatabaseIfEmpty(List<DefineUserWithRolesTenant> userDefinitions)
         {
             var status = new StatusGenericHandler();
+
+            if (userDefinitions == null || !userDefinitions.Any())
+                return status;
 
             if (_context.UserToRoles.Any())
             {
@@ -35,7 +38,7 @@ namespace AuthPermissions.SetupParts
 
             for (int i = 0; i < userDefinitions.Count; i++)
             {
-                status.CombineStatuses( await CreateUserTenantAndAddToDbAsync(userDefinitions[i], i));
+                status.CombineStatuses( CreateUserTenantAndAddToDb(userDefinitions[i], i));
             }
 
             status.Message = $"Added {userDefinitions.Count} new users with associated data to the auth database";
@@ -45,15 +48,15 @@ namespace AuthPermissions.SetupParts
         //------------------------------------------
         //private methods
 
-        private async Task<IStatusGeneric> CreateUserTenantAndAddToDbAsync(DefineUserWithRolesTenant userDefine, int index)
+        private IStatusGeneric CreateUserTenantAndAddToDb(DefineUserWithRolesTenant userDefine, int index)
         {
             var status = new StatusGenericHandler();
 
             var rolesToPermissions = new List<RoleToPermissions>();
             userDefine.RoleNamesCommaDelimited.DecodeCheckCommaDelimitedString(0, 
-                async (name, startOfName) => 
+                (name, startOfName) => 
                 {
-                    var roleToPermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == name);
+                    var roleToPermission = _context.RoleToPermissions.SingleOrDefault(x => x.RoleName == name);
                     if (roleToPermission == null)
                         status.AddError(userDefine.RoleNamesCommaDelimited.FormErrorString(index, startOfName,
                             $"The role {name} wasn't found in the auth database."));
@@ -70,7 +73,7 @@ namespace AuthPermissions.SetupParts
 
             rolesToPermissions.ForEach(roleToPermission =>
             {
-                var userToRole = new UserToRole(userDefine.UserId, userDefine.UserName, roleToPermission, userDefine.TenantId);
+                var userToRole = new UserToRole(userDefine.UserId, userDefine.UserName, roleToPermission);
                 _context.Add(userToRole);
             });
 

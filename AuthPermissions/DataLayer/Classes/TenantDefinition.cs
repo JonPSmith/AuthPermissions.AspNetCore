@@ -7,20 +7,16 @@ using AuthPermissions.DataLayer.Classes.SupportTypes;
 
 namespace AuthPermissions.DataLayer.Classes
 {
-    public class UserTenantKey : TenantBase
+    public class TenantDefinition :TenantBase
     {
-        public UserTenantKey(string userId, string dataKey, string tenantId = null)
+        public TenantDefinition(Guid tenantId, string tenantName)
             : base(tenantId)
         {
-            UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-            DataKey = dataKey;
+
         }
 
         [Required(AllowEmptyStrings = false)]
-        [MaxLength(AuthDbConstants.UserIdSize)]
-        public string UserId { get; private set; }
-
-        [MaxLength(AuthDbConstants.DataKeySize)]
-        public string DataKey { get; private set; }
+        [MaxLength(AuthDbConstants.TenantNameSize)]
+        public string TenantName { get; private set; }
     }
 }

@@ -15,9 +15,10 @@ namespace AuthPermissions.DataLayer.Classes
     /// </summary>
     public class UserToRole : TenantBase
     {
-        private UserToRole() : base(null) { }  //needed by EF Core
+        private UserToRole(Guid tenantId) //Needed by EF Core
+            : base(tenantId) {}
 
-        public UserToRole(string userId, string userName, RoleToPermissions role, string tenantId = null)
+        public UserToRole(string userId, string userName, RoleToPermissions role, Guid tenantId = default)
             : base(tenantId)
         {
             UserId = userId;
@@ -53,7 +54,7 @@ namespace AuthPermissions.DataLayer.Classes
 
 
         public static IStatusGeneric<UserToRole> AddRoleToUser(string userId, string userName, string roleName, 
-            AuthPermissionsDbContext context, string tenantId = null)
+            AuthPermissionsDbContext context, Guid tenantId = default)
         {
             if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 

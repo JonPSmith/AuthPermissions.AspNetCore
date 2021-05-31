@@ -25,6 +25,9 @@ namespace AuthPermissions.SetupParts
         {
             var status = new StatusGenericHandler();
 
+            if (string.IsNullOrEmpty(linesOfText))
+                return status;
+
             if (_context.RoleToPermissions.Any())
             {
                 status.Message =

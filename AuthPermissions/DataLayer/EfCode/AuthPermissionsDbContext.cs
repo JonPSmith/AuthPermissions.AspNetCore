@@ -13,7 +13,7 @@ namespace AuthPermissions.DataLayer.EfCode
         { }
 
         public DbSet<RoleToPermissions> RoleToPermissions { get; set; }
-        public DbSet<UserTenantKey> UserTenantKey { get; set; }
+        public DbSet<UserDataKey> UserTenantKey { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -23,7 +23,7 @@ namespace AuthPermissions.DataLayer.EfCode
             modelBuilder.Entity<UserToRole>()
                 .HasKey(x => new { x.UserId, x.TenantId, x.RoleName });
 
-            modelBuilder.Entity<UserTenantKey>()
+            modelBuilder.Entity<UserDataKey>()
                 .HasKey(p => new {p.UserId, p.TenantId});
         }
     }

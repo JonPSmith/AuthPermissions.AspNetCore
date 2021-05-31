@@ -21,6 +21,12 @@ namespace AuthPermissions
         public AuthPermissionsOptions Options { get; }
 
         /// <summary>
+        /// This holds the a string containing the definition of the tenants
+        /// See the <see cref="SetupExtensions.AddTenantsIfEmpty"/> method for the format of the lines
+        /// </summary>
+        public string UserTenantSetupText { get; internal set; }
+
+        /// <summary>
         /// This holds the a string containing the definition of the RolesToPermission database class
         /// See the <see cref="SetupExtensions.AddRolesPermissionsIfEmpty"/> method for the format of the lines
         /// </summary>

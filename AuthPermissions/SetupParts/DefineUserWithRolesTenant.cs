@@ -9,12 +9,12 @@ namespace AuthPermissions.SetupParts
 {
     public class DefineUserWithRolesTenant
     {
-        public DefineUserWithRolesTenant(string userId, string userName, string roleNamesCommaDelimited, string tenantId = null)
+        public DefineUserWithRolesTenant(string userId, string userName, string roleNamesCommaDelimited, string tenantName = null)
         {
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));
             UserName = userName;
             RoleNamesCommaDelimited = roleNamesCommaDelimited ?? throw new ArgumentNullException(nameof(roleNamesCommaDelimited));
-            TenantId = tenantId;
+            TenantName = tenantName;
         }
 
         [Required(AllowEmptyStrings = false)]
@@ -25,8 +25,7 @@ namespace AuthPermissions.SetupParts
         [MaxLength(AuthDbConstants.UserNameSize)]
         public string UserName { get; private set; }
 
-        [MaxLength(AuthDbConstants.TenantIdSize)]
-        public string TenantId { get; private set; }
+        public string TenantName { get; private set; }
 
         public string RoleNamesCommaDelimited { get; private set; }
     }

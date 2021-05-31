@@ -11,10 +11,8 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
 
         public const int RoleNameSize = 100;
 
+        public const int TenantNameSize = 100;
+
         public const int DataKeySize = 64;
-
-        public const int TenantIdSize = 256;
-
-        public const string DefaultTenantIdValue = "NoTenantIdAdded";
     }
 }

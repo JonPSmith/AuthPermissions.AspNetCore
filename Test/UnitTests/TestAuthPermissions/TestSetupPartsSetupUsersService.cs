@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupParts;
 using Test.TestHelpers;
@@ -23,7 +22,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddRolesToDatabaseIfEmpty()
+        public void TestAddRolesToDatabaseIfEmpty()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -37,7 +36,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new SetupUsersService(context);
 
             //ATTEMPT
-            var status = await service.AddUsersToDatabaseIfEmpty(
+            var status = service.AddUsersToDatabaseIfEmpty(
                 SetupHelpers.TestUserDefine());
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
@@ -60,7 +59,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddRolesToDatabaseIfEmptyNoRoleError()
+        public void TestAddRolesToDatabaseIfEmptyNoRoleError()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -74,7 +73,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new SetupUsersService(context);
 
             //ATTEMPT
-            var status = await service.AddUsersToDatabaseIfEmpty(
+            var status = service.AddUsersToDatabaseIfEmpty(
                 SetupHelpers.TestUserDefine(""));
 
             //VERIFY
@@ -83,7 +82,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddRolesToDatabaseIfEmptyBadRole()
+        public void TestAddRolesToDatabaseIfEmptyBadRole()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -97,7 +96,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new SetupUsersService(context);
 
             //ATTEMPT
-            var status = await service.AddUsersToDatabaseIfEmpty(
+            var status = service.AddUsersToDatabaseIfEmpty(
                 SetupHelpers.TestUserDefine("Role99"));
 
             //VERIFY
