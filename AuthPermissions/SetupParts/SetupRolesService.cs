@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
@@ -36,7 +35,7 @@ namespace AuthPermissions.SetupParts
             }
 
             //https://stackoverflow.com/questions/45758587/how-can-i-turn-a-multi-line-string-into-an-array-where-each-element-is-a-line-of
-            var lines = linesOfText.Split(new string[] { System.Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = linesOfText.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -106,7 +105,5 @@ namespace AuthPermissions.SetupParts
 
             return status;
         }
-
-
     }
 }

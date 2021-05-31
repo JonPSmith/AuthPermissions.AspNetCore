@@ -3,12 +3,10 @@
 
 using System;
 
-
 namespace AuthPermissions
 {
     public class AuthPermissionsOptions 
     {
-
         //-------------------------------------------------
         //internal properties/handles
 

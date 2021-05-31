@@ -23,7 +23,5 @@ namespace AuthPermissions.DataLayer.Classes
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.DataKeySize)]
         public string DataKey { get; private set; }
-
-
     }
 }

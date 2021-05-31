@@ -13,10 +13,10 @@ namespace AuthPermissions.SetupParts.Internal
             var trimmedNames = new List<string>();
             while (charNum < line.Length)
             {
-                if (!Char.IsLetterOrDigit(line[charNum])) charNum++;
+                if (!char.IsLetterOrDigit(line[charNum])) charNum++;
                 var foundName = "";
                 var startOfName = charNum;
-                while (charNum < line.Length && Char.IsLetterOrDigit(line[charNum]))
+                while (charNum < line.Length && char.IsLetterOrDigit(line[charNum]))
                 {
                     foundName += line[charNum];
                     charNum++;
@@ -34,9 +34,9 @@ namespace AuthPermissions.SetupParts.Internal
         public static string FormErrorString(this string line, int lineNum, int charNum, string error)
         {
             var charPart = charNum < 0 ? "" : $", char: {charNum + 1}";
-            var result = $"Line/index {lineNum + 1:####}{charPart}: {error}{System.Environment.NewLine}{line}";
+            var result = $"Line/index {lineNum + 1:####}{charPart}: {error}{Environment.NewLine}{line}";
             if (charNum > -1)
-                result += System.Environment.NewLine + new String(' ', charNum) + "|";
+                result += Environment.NewLine + new string(' ', charNum) + "|";
 
             return result;
         }

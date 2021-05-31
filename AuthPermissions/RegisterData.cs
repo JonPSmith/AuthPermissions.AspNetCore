@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using AuthPermissions.SetupParts;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +36,5 @@ namespace AuthPermissions
         /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
         /// </summary>
         public List<DefineUserWithRolesTenant> UsersWithRolesSetupData { get; internal set; }
-
     }
 }

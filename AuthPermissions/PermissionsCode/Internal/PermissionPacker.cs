@@ -54,6 +54,5 @@ namespace AuthPermissions.PermissionsCode.Internal
 
             return true;
         }
-
     }
 }
