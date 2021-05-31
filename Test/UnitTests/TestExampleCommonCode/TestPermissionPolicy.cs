@@ -34,7 +34,7 @@ namespace Test.UnitTests.TestExampleCommonCode
 
             //VERIFY
             authAtt.ShouldNotBeNull();
-            authAtt.Policy.ShouldEqual($"{PermissionConstants.PrefixOnPermissionGoingToPolicy}{TestEnum.Two}");
+            authAtt.Policy.ShouldEqual(TestEnum.Two.ToString());
         }
 
         [Theory]
@@ -49,7 +49,7 @@ namespace Test.UnitTests.TestExampleCommonCode
             }, "TestAuthentication"));
 
             var policyHandler = new PermissionPolicyHandler(new EnumTypeService(typeof(TestEnum)));
-            var requirement = new PermissionRequirement( $"{PermissionConstants.PrefixOnPermissionGoingToPolicy}{enumToTest}");
+            var requirement = new PermissionRequirement( $"{enumToTest}");
             var aspnetContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement>{ requirement }, user, null);
 
             //ATTEMPT

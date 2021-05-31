@@ -22,12 +22,6 @@ namespace AuthPermissions.AspNetCore.PolicyCode
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            if (!requirement.PermissionName.StartsWith(PermissionConstants.PrefixOnPermissionGoingToPolicy))
-                //the policy name doesn't start with the expected AuthPermission prefix, so we ignore it
-                return Task.CompletedTask;
-
-            var permissionName =
-                requirement.PermissionName.Substring(PermissionConstants.PrefixOnPermissionGoingToPolicy.Length);
 
             var permissionsClaim =
                 context.User.Claims.SingleOrDefault(c => c.Type == PermissionConstants.PackedPermissionClaimType);
@@ -35,7 +29,7 @@ namespace AuthPermissions.AspNetCore.PolicyCode
             if (permissionsClaim == null)
                 return Task.CompletedTask;
 
-            if (_enumPermissionType.ThisPermissionIsAllowed(permissionsClaim.Value, permissionName))
+            if (_enumPermissionType.ThisPermissionIsAllowed(permissionsClaim.Value, requirement.PermissionName))
                 context.Succeed(requirement);
 
             return Task.CompletedTask;

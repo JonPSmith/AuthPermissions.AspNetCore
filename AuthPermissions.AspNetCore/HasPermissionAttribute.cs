@@ -10,8 +10,9 @@ namespace AuthPermissions.AspNetCore
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false)]
     public class HasPermissionAttribute : AuthorizeAttribute
     {
-        public HasPermissionAttribute(object permission) : base($"{PermissionConstants.PrefixOnPermissionGoingToPolicy}{permission}")
+        public HasPermissionAttribute(object permission) : base(permission?.ToString()!)
         {
+            if (permission == null) throw new ArgumentNullException(nameof(permission));
             if (!permission.GetType().IsEnum)
                 throw new ArgumentException("Must be an enum");
             if (Enum.GetUnderlyingType(permission.GetType()) != typeof(short))

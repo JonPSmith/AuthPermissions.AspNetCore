@@ -8,7 +8,6 @@ namespace AuthPermissions.PermissionsCode
     public static class PermissionConstants
     {
         public const string PackedPermissionClaimType = "Permissions";
-        public const string PrefixOnPermissionGoingToPolicy = "AuthPermission:";
         public const char PackedAccessAllPermission = (char) Int16.MaxValue;
 
         public const string MigrationsHistoryTableName = nameof(AuthPermissions);
