@@ -14,10 +14,10 @@ namespace AuthPermissions.AspNetCore
             if (permission == null) throw new ArgumentNullException(nameof(permission));
             if (!permission.GetType().IsEnum)
                 throw new ArgumentException("Must be an enum");
-            if (Enum.GetUnderlyingType(permission.GetType()) != typeof(short))
+            if (Enum.GetUnderlyingType(permission.GetType()) != typeof(ushort))
                 throw new InvalidOperationException(
                     $"The enum permissions {permission.GetType().Name} should by 16 bits in size to work.\n" +
-                    $"Please add ': short' to your permissions declaration, i.e. public enum {permission.GetType().Name} : short " + "{...};");
+                    $"Please add ': ushort' to your permissions declaration, i.e. public enum {permission.GetType().Name} : ushort " + "{...};");
         }
     }
    

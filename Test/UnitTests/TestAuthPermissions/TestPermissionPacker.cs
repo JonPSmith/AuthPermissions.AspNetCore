@@ -2,8 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.PermissionsCode;
 using AuthPermissions.PermissionsCode.Internal;
+using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 
@@ -11,7 +11,6 @@ namespace Test.UnitTests.TestAuthPermissions
 {
     public class TestPermissionPacker
     {
-        private enum TestEnum : short {Zero,One,Two,Three}
 
         [Fact]
         public void TestPackPermissionsIntoString()

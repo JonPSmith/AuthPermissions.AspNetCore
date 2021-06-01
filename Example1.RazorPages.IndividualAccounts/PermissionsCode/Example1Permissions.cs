@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
 {
-    public enum Example1Permissions : short
+    public enum Example1Permissions : ushort
     {
         NotSet = 0, //error condition
 
@@ -24,6 +24,6 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
         OldPermissionNotUsed = 100,
 
         [Display(GroupName = "SuperAdmin", Name = "AccessAll", Description = "This allows the user to access every feature")]
-        AccessAll = Int16.MaxValue,
+        AccessAll = ushort.MaxValue,
     }
 }

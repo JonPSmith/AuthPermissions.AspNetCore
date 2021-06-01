@@ -12,18 +12,10 @@ namespace ExamplesCommonCode.DemoSetupCode
 {
     public static class AspNetUserExtension
     {
-        public static async Task<List<IdentityUser>> AddDemoUsersAsync(this IServiceProvider serviceProvider,
-            IEnumerable<string> usersEmails)
-        {
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            var result = new List<IdentityUser>();
-            foreach (var userEmail in usersEmails)
-            {
-                var user = await userManager.CheckAddNewUserAsync(userEmail, userEmail);
-                result.Add(user);
-            }
 
-            return result;
+        public static IQueryable<IdentityUser> ListAllAspNetUsers(this UserManager<IdentityUser> userManager)
+        {
+            return userManager.Users;
         }
 
         /// <summary>
@@ -33,12 +25,13 @@ namespace ExamplesCommonCode.DemoSetupCode
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        private static async Task<IdentityUser> CheckAddNewUserAsync(this UserManager<IdentityUser> userManager, string email, string password)
+        public static async Task<IdentityUser> CheckAddNewUserAsync(this UserManager<IdentityUser> userManager,
+            string email, string password)
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user != null)
                 return user;
-            user = new IdentityUser { UserName = email, Email = email };
+            user = new IdentityUser {UserName = email, Email = email};
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {

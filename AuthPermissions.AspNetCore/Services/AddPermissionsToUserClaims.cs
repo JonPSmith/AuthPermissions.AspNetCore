@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
-using FeatureAuthorize;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 

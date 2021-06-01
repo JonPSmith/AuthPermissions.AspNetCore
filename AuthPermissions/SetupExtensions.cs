@@ -24,10 +24,10 @@ namespace AuthPermissions
 
             if (!options.EnumPermissionsType.IsEnum)
                 throw new ArgumentException("Must be an enum");
-            if (Enum.GetUnderlyingType(options.EnumPermissionsType) != typeof(short))
+            if (Enum.GetUnderlyingType(options.EnumPermissionsType) != typeof(ushort))
                 throw new InvalidOperationException(
                     $"The enum permissions {options.EnumPermissionsType.Name} should by 16 bits in size to work.\n" +
-                    $"Please add ': short' to your permissions declaration, i.e. public enum {options.EnumPermissionsType.Name} : short " + "{...};");
+                    $"Please add ': ushort' to your permissions declaration, i.e. public enum {options.EnumPermissionsType.Name} : ushort " + "{...};");
 
             return new AuthSetupData(services, options);
         }

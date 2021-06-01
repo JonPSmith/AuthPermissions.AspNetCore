@@ -1,5 +1,10 @@
+using AuthPermissions;
+using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.Services;
 using Example1.RazorPages.IndividualAccounts.Data;
+using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Example1.RazorPages.IndividualAccounts.Services;
+using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -22,10 +27,10 @@ namespace Example1.RazorPages.IndividualAccounts
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.RegisterInMemoryDb<ApplicationDbContext>(); //Made the db in-memory
+
             services.AddDefaultIdentity<IdentityUser>(
                     options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
@@ -37,8 +42,17 @@ namespace Example1.RazorPages.IndividualAccounts
                 options.Conventions.AuthorizePage("/AuthBuiltIn/LoggedInConfigure");
             });
 
-            //Test using HostedService to run setup code
-            //services.AddHostedService<TestIHostedService>();
+            //The HostedServices to run at startup
+            //NOTE: they are run in the order that they are registered
+            services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
+            services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json
+
+            services.RegisterAuthPermissions<Example1Permissions>()
+                .UsingInMemoryDatabase()
+                .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
+                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualUserUserLookup>(AppAuthSetupData.UsersRolesDefinition)
+                .IndividualAccountsAddSuperUser()
+                .SetupAuthDatabaseOnStartup();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -3,11 +3,14 @@
 This project contains a example of using the AuthPermissions.AspNetCore library in ASP.NET Core razor page web app with user data provided by the individual accounts approach. This is one of the simplest approaches using:
 
 - **Application**: ASP.NET Core, Razor Pages
-- **App type**: Single instance with one database.
-- **Database type**: SQL Server (localdb for testing)
-- **Users**: ASP.NET Core's individual accounts
-- **Roles**: ASP.NET Core's individual accounts
 - **AuthenticationType**: Cookie
+- **Users**: ASP.NET Core's individual accounts
+- **Roles**: Handled by AuthPermissions
+- **DataKey**: not used
+- **Database type**: SQLite in-memory
+- **Databases**: Two databases 
+  - ASP.NET Core ApplicationDbContext for individual users.
+  - AuthPermissionsDbContext for AuthPermissions features.
 
 The ASP.NET Core code comes comes from the [ASP.NET Core documentation on building razor page web app individual accounts authorization](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/secure-data), but the handling of the visibilty of the contact manager features are handled by the AuthPermissions.AspNetCore library.
 

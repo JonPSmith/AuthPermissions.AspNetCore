@@ -1,0 +1,17 @@
+﻿@page
+@model Example1.RazorPages.IndividualAccounts.Pages.AuthPermissions.NeedsPermission1Model
+@{
+    ViewData["Title"] = "AuthPermissions.NeedsPermission1";
+}
+
+<h3>AuthPermissions.NeedsPermission1</h3>
+<p>
+    By adding <code>[HasPermission(enum-name)]</code> to the razor page model means you can only access it if the user has a role in e.g.,
+</p>
+<pre><code>
+    [HasPermission(Example1Permissions.Permission1)
+    public class NeedsPermission1Model : PageModel
+    {...
+</code></pre>
+
+<a class="nav-link text-primary" asp-area="" asp-page="/Index">Back to home page</a>

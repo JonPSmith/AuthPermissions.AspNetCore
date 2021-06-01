@@ -1,12 +1,13 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 
-namespace FeatureAuthorize
+namespace AuthPermissions.PermissionsCode
 {
     /// <summary>
     /// This is the code that calculates what feature permissions a user has
@@ -30,21 +31,11 @@ namespace FeatureAuthorize
         public async Task<string> CalcPermissionsForUserAsync(string userId)
         {
             //This gets all the permissions, with a distinct to remove duplicates
-            var packedPermissionsForUser = (await _context.UserToRoles.Where(x => x.UserId == userId)
-                .SelectMany(x => x.Role.PackedPermissionsInRole)
-                .Distinct().ToListAsync())
-                .ToString();
+            var permissionsForAllRoles = (await _context.UserToRoles.Where(x => x.UserId == userId)
+                .Select(x => x.Role.PackedPermissionsInRole)
+                .ToListAsync());
 
-            //we get the modules this user is allowed to see
-            //var userModules = _context.ModulesForUsers.Find(userId)
-            //        ?.AllowedPaidForModules ?? PaidForModules.None;
-            //Now we remove permissions that are linked to modules that the user has no access to
-            //var filteredPermissions =
-            //    from permission in permissionsForUser
-            //    let moduleAttr = typeof(Permissions).GetMember(permission.ToString())[0]
-            //        .GetCustomAttribute<LinkedToModuleAttribute>()
-            //    where moduleAttr == null || userModules.HasFlag(moduleAttr.PaidForModule)
-            //    select permission;
+            var packedPermissionsForUser = new string(string.Concat(permissionsForAllRoles).Distinct().ToArray());
 
             return packedPermissionsForUser;
         }

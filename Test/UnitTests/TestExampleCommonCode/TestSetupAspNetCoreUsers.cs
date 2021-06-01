@@ -29,12 +29,13 @@ namespace Test.UnitTests.TestExampleCommonCode
         public async Task TestAddDemoUsersAsync()
         {
             //SETUP
+            var userManager = _serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
             //ATTEMPT
-            var result = await _serviceProvider.AddDemoUsersAsync(new string[] {"user1@G.com", "user2@G.com"});
+            await userManager.CheckAddNewUserAsync("user1@G.com", "Pass!W0rd");
+            await userManager.CheckAddNewUserAsync("user2@G.com", "Pass!W0rd");
 
             //VERIFY
-            using var userManager = _serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             var users = userManager.Users.ToList();
             users.Count.ShouldEqual(2);
             foreach (var user in users)

@@ -59,7 +59,7 @@ namespace AuthPermissions.DataLayer.Classes
             if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 
             var status = new StatusGenericHandler<UserToRole>();
-            if (context.Find<UserToRole>(userId, roleName) != null)
+            if (context.Find<UserToRole>(userId, tenantId, roleName) != null)
             {
                 status.AddError($"The user already has the Role '{roleName}'.");
                 return status;

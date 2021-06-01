@@ -1,0 +1,24 @@
+﻿@page
+@model Example1.RazorPages.IndividualAccounts.Pages.AuthPermissions.NeedsPermission2Model
+@{
+    ViewData["Title"] = "AuthPermissions.NeedsPermission2";
+}
+
+<h3>AuthPermissions.NeedsPermission2</h3>
+<p>
+    You can test whether a user has a permission used the <code>UserHasThisPermission(enum-name)</code> method e.g.,
+</p>
+<pre><code>
+    public class NeedsPermission2Model : PageModel
+    {
+        public IActionResult OnGet()
+        {
+        if (!User.UserHasThisPermission(Example1Permissions.Permission2))
+            return Challenge();
+
+        return Page();
+        }
+    }
+</code></pre>
+
+<a class="nav-link text-primary" asp-area="" asp-page="/Index">Back to home page</a>

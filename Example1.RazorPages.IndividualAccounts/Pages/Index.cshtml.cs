@@ -1,20 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Example1.RazorPages.IndividualAccounts.Model;
+using ExamplesCommonCode.DemoSetupCode;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Example1.RazorPages.IndividualAccounts.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public IndexModel(UserManager<IdentityUser> userManager)
         {
-            _logger = logger;
+            _userManager = userManager;
         }
+
+        [ModelBinder] 
+        public AppSummary AppSummary { get; } = new AppSummary();
+
+        [ModelBinder] 
+        public List<IdentityUser> Users { get; private set; }
 
         public void OnGet()
         {
-
+            Users = _userManager.ListAllAspNetUsers().ToList();
         }
     }
 }

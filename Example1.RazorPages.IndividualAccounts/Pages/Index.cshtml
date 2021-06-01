@@ -1,4 +1,5 @@
 ﻿@page
+@using Example1.RazorPages.IndividualAccounts.Model
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -13,11 +14,29 @@
         ASP.NET Core documentation on building razor page web app individual accounts authorization
     </a>.
 </p>
+<h4>Application summary</h4>
+<ul>
+    <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.AppSummary.Application</li>
+    <li><strong>@nameof(AppSummary.AuthenticationType)</strong>:&nbsp;@Model.AppSummary.AuthenticationType</li>
+    <li><strong>@nameof(AppSummary.Users)</strong>:&nbsp;@Model.AppSummary.Users</li>
+    <li><strong>@nameof(AppSummary.Roles)</strong>:&nbsp;@Model.AppSummary.Roles</li>
+    <li><strong>@nameof(AppSummary.DataKey)</strong>:&nbsp;@Model.AppSummary.DataKey</li>
+    <li><strong>@nameof(AppSummary.Databases)</strong>:&nbsp;@Model.AppSummary.Databases</li>
+    @if (@Model.AppSummary.Note != null)
+    {
+        <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.AppSummary.Note</li>
+    }
+</ul>
 <p>
-    To test these authorization features you will need some users to log in. Here are the various users and what they can do
+    To test these authorization features you will need some users to log in.
+    <br />
+    NOTE: The Email address is also the password in these cases.
 </p>
 <ul>
-    <li>coming soon!</li>
+    @foreach (var user in @Model.Users)
+    {
+        <li><strong>@user.UserName</strong></li>
+    }
 </ul>
 
 <br/>
@@ -64,6 +83,19 @@
         <td>Must be logged in</td>
         <td>Test <code>User</code> instance</td>
     </tr>
-
+    <tr>
+        <td>
+            <a class="nav-link text-primary" asp-area="" asp-page="/AuthPermissions/NeedsPermission1">Logged in page</a>
+        </td>
+        <td>User must have Permission1</td>
+        <td><code>[HasPermission(Example1Permissions.Permission1)]</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a class="nav-link text-primary" asp-area="" asp-page="/AuthPermissions/NeedsPermission2">Logged in page</a>
+        </td>
+        <td>User must have Permission2</td>
+        <td><code>User.UserHasThisPermission(Example1Permissions.Permission2)</code></td>
+    </tr>
     </tbody>
 </table>
