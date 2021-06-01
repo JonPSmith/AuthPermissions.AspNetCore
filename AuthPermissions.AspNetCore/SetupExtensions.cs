@@ -7,14 +7,19 @@ using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthPermissions.AspNetCore
 {
     public static class SetupExtensions
     {
-
+        /// <summary>
+        /// This will add a single user to ASP.NET Core individual accounts identity system using data in the appsettings.json file.
+        /// This is here to allow you add a super-admin user when you first start up the application on a new system
+        /// NOTE: for security reasons this will only add a new user if there isn't a user with the AccessAll permission
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
         public static AuthSetupData IndividualAccountsAddSuperUser(this AuthSetupData setupData)
         {
             setupData.Services.AddHostedService<IndividualAccountsAddSuperUser>();
@@ -22,6 +27,12 @@ namespace AuthPermissions.AspNetCore
             return setupData;
         }
 
+        /// <summary>
+        /// This will finalize the setting up of the AuthPermissions parts needed by ASP.NET Core
+        /// NOTE: It assumes the AuthPermissions database has been created and has the current migration applied
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <param name="addRolesUsersOnStartup"></param>
         public static void SetupAspNetCorePart(this AuthSetupData setupData, bool addRolesUsersOnStartup = false)
         {
             setupData.RegisterCommonServices();
@@ -29,6 +40,11 @@ namespace AuthPermissions.AspNetCore
                 setupData.Services.AddHostedService<AddAuthRolesUserOnStartup>();
         }
 
+        /// <summary>
+        /// This will ensure that the AuthPermissions database is created and migrated to the current settings. 
+        /// It also finalize the setting up of the AuthPermissions parts needed by ASP.NET Core
+        /// </summary>
+        /// <param name="setupData"></param>
         public static void SetupAuthDatabaseOnStartup(this AuthSetupData setupData)
         {
             if (setupData.Options.DatabaseType == AuthPermissionsOptions.DatabaseTypes.NotSet)

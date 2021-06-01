@@ -2,12 +2,10 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupParts.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using StatusGeneric;
 
 namespace AuthPermissions.SetupParts
@@ -28,8 +26,6 @@ namespace AuthPermissions.SetupParts
         private static async Task<IStatusGeneric> SetupRolesAndUsers(this AuthPermissionsDbContext context, IAuthPermissionsOptions options,
             IFindUserIdService findUserIdService)
         {
-            await context.Database.EnsureCreatedAsync();
-
             var setupRoles = new SetupRolesService(context);
             var status = setupRoles.AddRolesToDatabaseIfEmpty(options.RolesPermissionsSetupText,
                 options.EnumPermissionsType);

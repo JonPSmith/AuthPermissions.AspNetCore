@@ -23,8 +23,8 @@ namespace AuthPermissions.PermissionsCode
 
         /// <summary>
         /// This is called if the Permissions that a user needs calculating.
-        /// It looks at what permissions the user has, and then filters out any permissions
-        /// they aren't allowed because they haven't get access to the module that permission is linked to.
+        /// It looks at what permissions the user has based on their roles
+        /// NOTE: needs upgrading if TenantId is to change the user's roles.
         /// </summary>
         /// <param name="userId"></param>
         /// <returns>a string containing the packed permissions</returns>
@@ -35,6 +35,7 @@ namespace AuthPermissions.PermissionsCode
                 .Select(x => x.Role.PackedPermissionsInRole)
                 .ToListAsync());
 
+            //thanks to https://stackoverflow.com/questions/5141863/how-to-get-distinct-characters
             var packedPermissionsForUser = new string(string.Concat(permissionsForAllRoles).Distinct().ToArray());
 
             return packedPermissionsForUser;
