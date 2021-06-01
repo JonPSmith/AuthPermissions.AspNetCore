@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.HostedServices;
+using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,7 +42,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 
             //ATTEMPT
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
-            startupServices.Count().ShouldEqual(1);
+            startupServices.Count.ShouldEqual(1);
             startupServices.Single().GetType().Name.ShouldEqual("DataProtectionHostedService");
             await startupServices.Last().StartAsync(default);
 
@@ -63,7 +64,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 
             //ATTEMPT
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
-            startupServices.Count().ShouldEqual(2);
+            startupServices.Count.ShouldEqual(2);
             startupServices.Last().ShouldBeType<AddAuthRolesUserOnStartup>();
             await startupServices.Last().StartAsync(default);
 
@@ -88,7 +89,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count().ShouldEqual(2);
+            startupServices.Count.ShouldEqual(2);
             startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUser>();
             await startupServices.Last().StartAsync(default);
 
@@ -110,7 +111,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count().ShouldEqual(3);
+            startupServices.Count.ShouldEqual(3);
             startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
             await startupServices[1].StartAsync(default);
 
@@ -136,7 +137,7 @@ Role3: One")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count().ShouldEqual(3);
+            startupServices.Count.ShouldEqual(3);
             startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
             await startupServices[1].StartAsync(default);
             startupServices[2].ShouldBeType<AddAuthRolesUserOnStartup>();
@@ -158,7 +159,7 @@ Role3: One")
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
-                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualUserUserLookup>(SetupHelpers.TestUserDefineWithSuperUser())
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
 
@@ -166,7 +167,7 @@ Role3: One")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count().ShouldEqual(4);
+            startupServices.Count.ShouldEqual(4);
             startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser>();
             await startupServices[1].StartAsync(default);
             startupServices[2].ShouldBeType<SetupDatabaseOnStartup>();
@@ -178,6 +179,10 @@ Role3: One")
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
             authContext.RoleToPermissions.Count().ShouldEqual(3);
             authContext.UserToRoles.Count().ShouldEqual(5);
+            var superUser = authContext.UserToRoles.First(x => x.UserName == "Super@g1.com");
+            superUser.UserId.Length.ShouldBeInRange(25,40);
+            using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            userManager.Users.Count().ShouldEqual(1);
         }
     }
 }

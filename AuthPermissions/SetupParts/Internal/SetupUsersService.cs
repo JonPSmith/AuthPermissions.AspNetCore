@@ -75,7 +75,7 @@ namespace AuthPermissions.SetupParts.Internal
 
             var userId = userDefine.UserId;
             if (userId == null && _findUserIdService != null)
-                await _findUserIdService.FindUserIdAsync(userDefine.UniqueUserName);
+                userId = await _findUserIdService.FindUserIdAsync(userDefine.UniqueUserName);
             if (userId == null)
                 return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
                     $"The user {userDefine.UserName} didn't have a userId and the {nameof(IFindUserIdService)}" +

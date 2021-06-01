@@ -43,6 +43,16 @@ Role3: Three";
                 new DefineUserWithRolesTenant("User2", "Role1,Role2", user2Id),
                 new DefineUserWithRolesTenant("User3", "Role1,Role3", "3"),
             };
+        }        
+        
+        public static List<DefineUserWithRolesTenant> TestUserDefineWithSuperUser(string user2Id = "User2")
+        {
+            return new List<DefineUserWithRolesTenant>
+            {
+                new DefineUserWithRolesTenant("User1", "Role1", "1"),
+                new DefineUserWithRolesTenant("Super@g1.com", "Role1,Role2", null),
+                new DefineUserWithRolesTenant("User3", "Role1,Role3", "3"),
+            };
         }
     }
 }
