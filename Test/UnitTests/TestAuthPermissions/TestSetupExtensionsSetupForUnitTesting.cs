@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.TenantParts;
 using Microsoft.Extensions.DependencyInjection;
 using Test.TestHelpers;
 using Xunit;
@@ -76,6 +77,35 @@ Role3: One";
             //VERIFY
             context.RoleToPermissions.Count().ShouldEqual(3);
             context.UserToRoles.Count().ShouldEqual(5);
+        }
+
+        [Fact]
+        public async Task AddRolesToDatabaseIfEmptyAddTenantsAddUsersIfEmptyOk()
+        {
+            //SETUP
+            var services = new ServiceCollection();
+            var rolesLines = @"Role1 : One, Three
+Role2 |my description|: One, Two, Two, Three
+Role3: One";
+            var tenantLines = @"Tenant1
+Tenant2
+Tenant3";
+
+            //ATTEMPT
+            var context = await services.RegisterAuthPermissions<TestEnum>(options =>
+                {
+                    options.TenantType = TenantTypes.SingleTenant;
+                })
+                .UsingInMemoryDatabase()
+                .AddRolesPermissionsIfEmpty(rolesLines)
+                .AddTenantsIfEmpty(tenantLines)
+                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithTenants())
+                .SetupForUnitTestingAsync();
+
+            //VERIFY
+            context.RoleToPermissions.Count().ShouldEqual(3);
+            context.UserToRoles.Count().ShouldEqual(5);
+            context.Tenants.Count().ShouldEqual(3);
         }
     }
 }

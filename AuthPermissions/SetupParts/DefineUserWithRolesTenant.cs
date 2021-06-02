@@ -31,7 +31,7 @@ namespace AuthPermissions.SetupParts
         }
 
         /// <summary>
-        /// This is what AuthPermissions needs to setup the <see cref="UserToRole"/> and <see cref="UserDataKey"/>
+        /// This is what AuthPermissions needs to setup the <see cref="UserToRole"/>
         /// You can add the userId directly or provide a FindUserId function to set value
         /// </summary>
         public string UserId { get; set; }

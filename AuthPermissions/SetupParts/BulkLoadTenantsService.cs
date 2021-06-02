@@ -3,31 +3,30 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.TenantParts;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupParts.Internal
+namespace AuthPermissions.SetupParts
 {
-    internal class SetupTenantsService
+    public class BulkLoadTenantsService
     {
         private readonly AuthPermissionsDbContext _context;
 
-        public SetupTenantsService(AuthPermissionsDbContext context)
+        public BulkLoadTenantsService(AuthPermissionsDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IStatusGeneric> AddTenantsToDatabaseIfEmptyAsync(string linesOfText, AuthPermissionsOptions options)
+        public async Task<IStatusGeneric> AddTenantsToDatabaseIfEmptyAsync(string linesOfText, IAuthPermissionsOptions options)
         {
             var status = new StatusGenericHandler();
+
+            if (string.IsNullOrEmpty(linesOfText))
+                return status;
 
             //Check the options are set
             if (options.TenantType == TenantTypes.NotUsingTenants)

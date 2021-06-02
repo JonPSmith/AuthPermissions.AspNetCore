@@ -4,35 +4,48 @@
 using System;
 using System.Collections.Generic;
 using AuthPermissions.SetupParts;
+using AuthPermissions.TenantParts;
 
 namespace AuthPermissions
 {
     public interface IAuthPermissionsOptions
     {
         /// <summary>
-        /// This holds the type of the Enum holding the Permissions
+        /// This defines whether tenant code is activated, and whether the
+        /// multi-tenant is is a single layer, or many layers (hierarchical)
+        /// </summary>
+        TenantTypes TenantType { get; set; }
+
+        /// <summary>
+        /// If true, then the login must ask the user to pick which one they want to access
+        /// Also, the role admin allows you to set up different roles for each tenant the user is in
+        /// </summary>
+        bool UserCanBeInMoreThanOneTenant { get; set; }
+
+        /// <summary>
+        /// Internal: holds the type of the Enum Permissions 
         /// </summary>
         Type EnumPermissionsType { get; }
 
         /// <summary>
-        /// This contains the type of database used
+        /// Internal: This contains the type of database used
         /// </summary>
         AuthPermissionsOptions.DatabaseTypes DatabaseType { get; }
 
         /// <summary>
-        /// This holds the a string containing the definition of the tenants
+        /// Internal: This holds the a string containing the definition of the tenants
         /// See the <see cref="SetupExtensions.AddTenantsIfEmpty"/> method for the format of the lines
         /// </summary>
         string UserTenantSetupText { get; }
 
         /// <summary>
-        /// This holds the a string containing the definition of the RolesToPermission database class
+        /// Internal: This holds the a string containing the definition of the RolesToPermission database class
         /// See the <see cref="SetupExtensions.AddRolesPermissionsIfEmpty"/> method for the format of the lines
         /// </summary>
         string RolesPermissionsSetupText { get; }
 
         /// <summary>
-        /// This holds the definition for a user, with its various parts
+        /// Internal: This holds the definition for a user, with its various parts
         /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
         /// </summary>
         List<DefineUserWithRolesTenant> UserRolesSetupData { get; }

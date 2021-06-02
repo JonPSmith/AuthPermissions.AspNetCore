@@ -4,21 +4,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.SetupParts.Internal;
+using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
-[assembly: InternalsVisibleTo("Test")]
-namespace AuthPermissions.SetupParts.Internal
+namespace AuthPermissions.SetupParts
 {
-    internal class SetupUsersService
+    public class BulkLoadUsersService
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly IFindUserIdService _findUserIdService;
 
-        public SetupUsersService(AuthPermissionsDbContext context, IFindUserIdService findUserIdService)
+        public BulkLoadUsersService(AuthPermissionsDbContext context, IFindUserIdService findUserIdService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _findUserIdService = findUserIdService;
@@ -42,6 +42,9 @@ namespace AuthPermissions.SetupParts.Internal
             {
                 status.CombineStatuses(await CreateUserTenantAndAddToDbAsync(userDefinitions[i], i));
             }
+
+            if (status.IsValid)
+                await _context.SaveChangesAsync();
 
             status.Message = $"Added {userDefinitions.Count} new users with associated data to the auth database";
             return status;
@@ -80,10 +83,19 @@ namespace AuthPermissions.SetupParts.Internal
                 return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
                     $"The user {userDefine.UserName} didn't have a userId and the {nameof(IFindUserIdService)}" +
                     (_findUserIdService == null ? " wasn't available." : " couldn't find it either.")));
+            int tenantId = default;
+            if (!string.IsNullOrEmpty(userDefine.TenantName))
+            {
+                var tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == userDefine.TenantName);
+                if (tenant == null)
+                    return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
+                        $"The user {userDefine.UserName} has a tenant name of {userDefine.TenantName} which wasn't found in the auth database."));
+                tenantId = tenant.TenantId;
+            }
 
             rolesToPermissions.ForEach(roleToPermission =>
             {
-                var userToRole = new UserToRole(userId, userDefine.UserName, roleToPermission);
+                var userToRole = new UserToRole(userId, userDefine.UserName, roleToPermission, tenantId);
                 _context.Add(userToRole);
             });
 

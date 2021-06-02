@@ -36,7 +36,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new SetupRolesService(context);
+            var service = new BulkLoadRolesService(context);
 
             //ATTEMPT
             var status = service.AddRolesToDatabaseIfEmpty(line, typeof(TestEnum));
@@ -60,7 +60,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new SetupRolesService(context);
+            var service = new BulkLoadRolesService(context);
 
             //ATTEMPT
             var status = service.AddRolesToDatabaseIfEmpty(line, typeof(TestEnum));
@@ -84,7 +84,7 @@ namespace Test.UnitTests.TestAuthPermissions
             context.Database.EnsureCreated();
             //context.Database.EnsureClean();
 
-            var service = new SetupRolesService(context);
+            var service = new BulkLoadRolesService(context);
 
             var lines = @"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three

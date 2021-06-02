@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.SetupParts;
 using AuthPermissions.SetupParts.Internal;
 using AuthPermissions.TenantParts;
 using TestSupport.EfHelpers;
@@ -26,23 +27,47 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseIfEmptyBadOptions()
+        public async Task TestAddTenantsToDatabaseIfEmptyEmptyString()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new SetupTenantsService(context);
+            var service = new BulkLoadTenantsService(context);
 
             //ATTEMPT
             var status = await service.AddTenantsToDatabaseIfEmptyAsync("", new AuthPermissionsOptions());
 
             //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        }
+
+        [Fact]
+        public async Task TestAddTenantsToDatabaseIfEmptyDuplicateTenantName()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var service = new BulkLoadTenantsService(context);
+            var authOptions = new AuthPermissionsOptions
+            {
+                TenantType = TenantTypes.SingleTenant
+            };
+            var lines = @"Tenant1
+Tenant1
+Tenant3";
+
+            //ATTEMPT
+            var status = await service.AddTenantsToDatabaseIfEmptyAsync(lines, authOptions);
+
+            //VERIFY
             status.IsValid.ShouldBeFalse();
             status.GetAllErrors()
                 .ShouldEqual(
-                    $"You must set the options {nameof(AuthPermissionsOptions.TenantType)} to allow tenants to be processed");
+                    $"There were tenants with duplicate names, they are: Tenant1");
         }
 
         [Fact]
@@ -53,7 +78,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new SetupTenantsService(context);
+            var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
                 TenantType = TenantTypes.SingleTenant
@@ -61,7 +86,6 @@ namespace Test.UnitTests.TestAuthPermissions
             var lines = @"Tenant1
 Tenant2
 Tenant3";
-
             //ATTEMPT
             var status = await service.AddTenantsToDatabaseIfEmptyAsync(lines, authOptions);
 
@@ -79,7 +103,7 @@ Tenant3";
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new SetupTenantsService(context);
+            var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
                 TenantType = TenantTypes.SingleTenant
@@ -107,7 +131,7 @@ Tenant3";
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new SetupTenantsService(context);
+            var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
                 TenantType = TenantTypes.HierarchicalTenant
@@ -143,7 +167,7 @@ Company | West Coast | LA | Shop2";
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new SetupTenantsService(context);
+            var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
                 TenantType = TenantTypes.HierarchicalTenant

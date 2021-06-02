@@ -36,7 +36,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null);
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -73,7 +73,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, new MockIFindUserId());
+            var service = new BulkLoadUsersService(context, new MockIFindUserId());
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -110,7 +110,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null);
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(SetupHelpers.TestUserDefineNoUserId(null));
@@ -132,7 +132,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null);
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -155,7 +155,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new SetupUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null);
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -164,6 +164,58 @@ namespace Test.UnitTests.TestAuthPermissions
             //VERIFY
             status.IsValid.ShouldBeFalse();
             status.GetAllErrors().ShouldStartWith("Line/index 2, char: 1: The role Role99 wasn't found in the auth database.");
+        }
+
+        [Fact]
+        public async Task TestAddUserRolesToDatabaseIfEmptySetupWithTenantsGood()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupRolesInDb();
+            context.SetupTenantsInDb();
+
+            context.ChangeTracker.Clear();
+
+            var service = new BulkLoadUsersService(context, null);
+
+            //ATTEMPT
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+                SetupHelpers.TestUserDefineWithTenants());
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            var usersWithRoles = context.UserToRoles.ToList();
+            foreach (var userWithRole in usersWithRoles)
+            {
+                _output.WriteLine(userWithRole.ToString());
+            }
+        }
+
+        [Fact]
+        public async Task TestAddUserRolesToDatabaseIfEmptySetupWithTenantsMissingTenant()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupRolesInDb();
+            context.SetupTenantsInDb();
+
+            context.ChangeTracker.Clear();
+
+            var service = new BulkLoadUsersService(context, null);
+
+            //ATTEMPT
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+                SetupHelpers.TestUserDefineWithTenants("Tenant99"));
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.GetAllErrors().ShouldStartWith("Line/index 1: The user User2 has a tenant name of Tenant99 which wasn't found in the auth database.");
         }
 
     }

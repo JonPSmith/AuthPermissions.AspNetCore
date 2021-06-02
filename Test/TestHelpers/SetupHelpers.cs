@@ -19,9 +19,18 @@ namespace Test.TestHelpers
 Role2 |my description|: Two
 Role3: Three";
 
-            var service = new SetupRolesService(context);
+            var service = new BulkLoadRolesService(context);
             var status = service.AddRolesToDatabaseIfEmpty(lines, typeof(TestEnum));
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            context.SaveChanges();
+        }
+
+        public static void SetupTenantsInDb(this AuthPermissionsDbContext context)
+        {
+            var t1 = new Tenant("Tenant1");
+            var t2 = new Tenant("Tenant2");
+            var t3 = new Tenant("Tenant3");
+            context.AddRange(t1,t2,t3);
             context.SaveChanges();
         }
 
@@ -52,6 +61,16 @@ Role3: Three";
                 new DefineUserWithRolesTenant("User1", "Role1", "1"),
                 new DefineUserWithRolesTenant("Super@g1.com", "Role1,Role2", null),
                 new DefineUserWithRolesTenant("User3", "Role1,Role3", "3"),
+            };
+        }
+
+        public static List<DefineUserWithRolesTenant> TestUserDefineWithTenants(string secondTenant = "Tenant2")
+        {
+            return new List<DefineUserWithRolesTenant>
+            {
+                new DefineUserWithRolesTenant("User1", "Role1", "1", null, "Tenant1"),
+                new DefineUserWithRolesTenant("User2", "Role1,Role2", "2", null, secondTenant),
+                new DefineUserWithRolesTenant("User3", "Role1,Role3", "3")
             };
         }
     }

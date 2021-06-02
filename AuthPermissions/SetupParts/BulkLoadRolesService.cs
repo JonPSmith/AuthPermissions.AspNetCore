@@ -7,16 +7,16 @@ using System.Runtime.CompilerServices;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
+using AuthPermissions.SetupParts.Internal;
 using StatusGeneric;
 
-[assembly: InternalsVisibleTo("Test")]
-namespace AuthPermissions.SetupParts.Internal
+namespace AuthPermissions.SetupParts
 {
-    internal class SetupRolesService
+    public class BulkLoadRolesService
     {
         private readonly AuthPermissionsDbContext _context;
 
-        public SetupRolesService(AuthPermissionsDbContext context)
+        public BulkLoadRolesService(AuthPermissionsDbContext context)
         {
             _context = context;
         }

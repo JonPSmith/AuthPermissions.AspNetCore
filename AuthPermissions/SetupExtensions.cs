@@ -25,19 +25,20 @@ namespace AuthPermissions
         /// <param name="options">optional: You can set certain options to change the way this library works</param>
         /// <returns></returns>
         public static AuthSetupData RegisterAuthPermissions<TEnumPermissions>(this IServiceCollection services, 
-            AuthPermissionsOptions options = null) where TEnumPermissions : Enum
+            Action<AuthPermissionsOptions> options = null) where TEnumPermissions : Enum
         {
-            options ??= new AuthPermissionsOptions();
-            options.EnumPermissionsType = typeof(TEnumPermissions);
+            var authOptions = new AuthPermissionsOptions();
+            options?.Invoke(authOptions);
+            authOptions.EnumPermissionsType = typeof(TEnumPermissions);
 
-            if (!options.EnumPermissionsType.IsEnum)
+            if (!authOptions.EnumPermissionsType.IsEnum)
                 throw new ArgumentException("Must be an enum");
-            if (Enum.GetUnderlyingType(options.EnumPermissionsType) != typeof(ushort))
+            if (Enum.GetUnderlyingType(authOptions.EnumPermissionsType) != typeof(ushort))
                 throw new InvalidOperationException(
-                    $"The enum permissions {options.EnumPermissionsType.Name} should by 16 bits in size to work.\n" +
-                    $"Please add ': ushort' to your permissions declaration, i.e. public enum {options.EnumPermissionsType.Name} : ushort " + "{...};");
+                    $"The enum permissions {authOptions.EnumPermissionsType.Name} should by 16 bits in size to work.\n" +
+                    $"Please add ': ushort' to your permissions declaration, i.e. public enum {authOptions.EnumPermissionsType.Name} : ushort " + "{...};");
 
-            return new AuthSetupData(services, options);
+            return new AuthSetupData(services, authOptions);
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace AuthPermissions
         }
 
         /// <summary>
-        /// This will set up the basic AppPermissions parts and  in-memory 
+        /// This will set up the basic AppPermissions parts and and any roles, tenants and users in the in-memory database
         /// </summary>
         /// <param name="setupData"></param>
         /// <returns></returns>
@@ -173,7 +174,22 @@ namespace AuthPermissions
             var serviceProvider = setupData.Services.BuildServiceProvider();
             var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
             var findUserIdService = serviceProvider.GetService<IFindUserIdService>(); //Can be null
-            await context.AddRoleUserToAuthDbAsync(setupData.Options, findUserIdService);
+            var roleLoader = new BulkLoadRolesService(context);
+            var status = roleLoader.AddRolesToDatabaseIfEmpty(setupData.Options.RolesPermissionsSetupText,
+                setupData.Options.EnumPermissionsType);
+            if (status.IsValid)
+            {
+                var tenantLoader = new BulkLoadTenantsService(context);
+                status = await tenantLoader.AddTenantsToDatabaseIfEmptyAsync(setupData.Options.UserTenantSetupText,
+                    setupData.Options);
+            }
+            if (status.IsValid)
+            {
+                var userLoader = new BulkLoadUsersService(context, findUserIdService);
+                status = await userLoader.AddUsersRolesToDatabaseIfEmptyAsync(setupData.Options.UserRolesSetupData);
+            }
+
+            status.IfErrorsTurnToException();
 
             return context;
         }

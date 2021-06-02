@@ -11,11 +11,11 @@ using Microsoft.Extensions.Hosting;
 
 namespace AuthPermissions.AspNetCore.HostedServices
 {
-    public class AddAuthRolesUserOnStartup : IHostedService
+    public class AddTenantsOnStartup : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public AddAuthRolesUserOnStartup(IServiceProvider serviceProvider)
+        public AddTenantsOnStartup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -27,16 +27,11 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
                 var authOptions = services.GetRequiredService<IAuthPermissionsOptions>();
-                var findUserIdService = services.GetService<IFindUserIdService>();
 
-                var roleLoader = new BulkLoadRolesService(context);
-                var status = roleLoader.AddRolesToDatabaseIfEmpty(authOptions.RolesPermissionsSetupText,
-                    authOptions.EnumPermissionsType);
-                if (status.IsValid)
-                {
-                    var userLoader = new BulkLoadUsersService(context, findUserIdService);
-                    status = await userLoader.AddUsersRolesToDatabaseIfEmptyAsync(authOptions.UserRolesSetupData);
-                }
+                var service = new BulkLoadTenantsService(context);
+                var status =
+                    await service.AddTenantsToDatabaseIfEmptyAsync(authOptions.UserTenantSetupText, authOptions);
+
                 status.IfErrorsTurnToException();
             }
         }

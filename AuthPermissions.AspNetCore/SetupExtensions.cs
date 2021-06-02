@@ -5,6 +5,7 @@ using System;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.TenantParts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,7 +42,8 @@ namespace AuthPermissions.AspNetCore
         }
 
         /// <summary>
-        /// This will ensure that the AuthPermissions database is created and migrated to the current settings. 
+        /// This will ensure that the AuthPermissions database is created and migrated to the current settings
+        /// and seeded with any new Roles, Tenants and Users that you may have included in the setup. 
         /// It also finalize the setting up of the AuthPermissions parts needed by ASP.NET Core
         /// </summary>
         /// <param name="setupData"></param>
@@ -53,8 +55,10 @@ namespace AuthPermissions.AspNetCore
             
             setupData.RegisterCommonServices();
 
-            //NOTE: when I add the database provider I need to change this
+            //NOTE: when I add the database locking I need run all of these within the lock
             setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
+            if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)
+                setupData.Services.AddHostedService<AddTenantsOnStartup>();
             setupData.Services.AddHostedService<AddAuthRolesUserOnStartup>();
         }
 

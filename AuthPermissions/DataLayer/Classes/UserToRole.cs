@@ -48,7 +48,8 @@ namespace AuthPermissions.DataLayer.Classes
 
         public override string ToString()
         {
-            return $"User {UserName} has role {RoleName}";
+            var tenant = TenantId == default ? "" : $", linked to TenantId {TenantId}";
+            return $"User {UserName} has role {RoleName}{tenant}";
         }
 
 
