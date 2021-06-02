@@ -8,6 +8,7 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.TenantParts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -183,6 +184,45 @@ Role3: One")
             superUser.UserId.Length.ShouldBeInRange(25,40);
             using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             userManager.Users.Count().ShouldEqual(1);
+        }
+
+        [Fact]
+        public async Task TestSetupAspNetCoreAddRolesPermissionsUsersIfEmptyAndTenants()
+        {
+            //SETUP
+            var services = this.SetupServicesForTest();
+            services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleTenant)
+                .UsingInMemoryDatabase()
+                .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
+Role2 |my description|: One, Two, Two, Three
+Role3: One")
+                .AddTenantsIfEmpty(@"Tenant1
+Tenant2
+Tenant3")
+                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithTenants())
+                .SetupAuthDatabaseOnStartup();
+
+            var serviceProvider = services.BuildServiceProvider();
+            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+
+            //ATTEMPT
+            startupServices.Count.ShouldEqual(4);
+            startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
+            await startupServices[1].StartAsync(default);
+            startupServices[2].ShouldBeType<AddTenantsOnStartup>();
+            await startupServices[2].StartAsync(default);
+            startupServices[3].ShouldBeType<AddAuthRolesUserOnStartup>();
+            await startupServices[3].StartAsync(default);
+
+            //VERIFY
+            var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            foreach (var userToRole in authContext.UserToRoles.ToList())
+            {
+                _output.WriteLine(userToRole.ToString());
+            }
+            authContext.RoleToPermissions.Count().ShouldEqual(3);
+            authContext.UserToRoles.Count().ShouldEqual(5);
+            authContext.Tenants.Count().ShouldEqual(3);
         }
     }
 }
