@@ -9,11 +9,11 @@ namespace AuthPermissions.DataLayer.Classes
 {
     public class UserDataKey : TenantBase
     {
-        public UserDataKey(string userId, string dataKey, Guid tenantId = default)
-            : base(tenantId)
+        public UserDataKey(string userId, string dataKey, int tenantId = default)
         {
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));
             DataKey = dataKey ?? throw new ArgumentNullException(nameof(dataKey));
+            TenantId = tenantId;
         }
 
         [Required(AllowEmptyStrings = false)]

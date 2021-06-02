@@ -13,6 +13,8 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
 
         public const int TenantNameSize = 100;
 
+        public const int TenantDataKeySize = 100;
+
         public const int DataKeySize = 64;
     }
 }

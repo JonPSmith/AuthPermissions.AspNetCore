@@ -55,7 +55,7 @@ namespace AuthPermissions.SetupParts.Internal
             var status = new StatusGenericHandler();
 
             var rolesToPermissions = new List<RoleToPermissions>();
-            userDefine.RoleNamesCommaDelimited.DecodeCheckCommaDelimitedString(0, 
+            userDefine.RoleNamesCommaDelimited.DecodeCodeNameWithTrimming(0, 
                 (name, startOfName) => 
                 {
                     var roleToPermission = _context.RoleToPermissions.SingleOrDefault(x => x.RoleName == name);

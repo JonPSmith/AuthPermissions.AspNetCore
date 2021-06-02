@@ -8,12 +8,17 @@ namespace AuthPermissions.SetupParts.Internal
 {
     internal static class CommaDelimitedHandler
     {
-        public static List<string> DecodeCheckCommaDelimitedString(this string line, int charNum, Action<string, int> checkValid)
+        public static List<string> DecodeCodeNameWithTrimming(this string line, int charNum, Action<string, int> checkValid)
         {
             var trimmedNames = new List<string>();
             while (charNum < line.Length)
             {
-                if (!char.IsLetterOrDigit(line[charNum])) charNum++;
+                if (!char.IsLetterOrDigit(line[charNum]))
+                {
+                    charNum++;
+                    continue;
+                }
+
                 var foundName = "";
                 var startOfName = charNum;
                 while (charNum < line.Length && char.IsLetterOrDigit(line[charNum]))

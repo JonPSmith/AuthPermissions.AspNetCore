@@ -76,10 +76,22 @@ namespace AuthPermissions
             return setupData;
         }
 
-        //public static AuthSetupData AddTenantsIfEmpty(this AuthSetupData setupData, string linesOfText)
-        //{
-        //    return setupData;
-        //}
+        /// <summary>
+        /// This allows you to define the name of each tenant by name
+        /// If you are using a hierarchical tenant design, then the whole 
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <param name="linesOfText">If you are using a single layer then each line contains the a tenant name
+        /// If you are using hierarchical tenant, then each line contains the whole hierarchy with '|' as separator, e.g.
+        /// Holding company | USA branch | East Coast | New York
+        /// Holding company | USA branch | East Coast | Washington
+        /// </param>
+        /// <returns></returns>
+        public static AuthSetupData AddTenantsIfEmpty(this AuthSetupData setupData, string linesOfText)
+        {
+            setupData.Options.UserTenantSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
+            return setupData;
+        }
 
         /// <summary>
         /// This allows you to add Roles with their permissions, but only if the auth database contains NO RoleToPermissions
@@ -93,13 +105,13 @@ namespace AuthPermissions
         /// <returns>AuthSetupData</returns>
         public static AuthSetupData AddRolesPermissionsIfEmpty(this AuthSetupData setupData, string linesOfText)
         {
-            setupData.Options.RolesPermissionsSetupText = linesOfText;
+            setupData.Options.RolesPermissionsSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
             return setupData;
         }
 
         /// <summary>
         /// This allows you to add what roles a user has, but only if the auth database doesn't have any UserToRoles in the database
-        /// NOTE: The <see cref="userRolesSetup"/> parameter must contain a list of userId+roles.
+        /// The <paramref name="userRolesSetup"/> parameter must contain a list of userId+roles.
         /// </summary>
         /// <param name="setupData"></param>
         /// <param name="userRolesSetup">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have.

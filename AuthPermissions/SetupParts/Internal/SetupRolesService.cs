@@ -35,13 +35,17 @@ namespace AuthPermissions.SetupParts.Internal
                 return status;
             }
 
-            //https://stackoverflow.com/questions/45758587/how-can-i-turn-a-multi-line-string-into-an-array-where-each-element-is-a-line-of
-            var lines = linesOfText.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = linesOfText.Split( Environment.NewLine);
 
             for (int i = 0; i < lines.Length; i++)
             {
+                if (string.IsNullOrWhiteSpace(lines[i]))
+                    continue;
                 status.CombineStatuses(DecodeLineAndAddToDb(lines[i], i, enumPermissionType));
             }
+
+            if (status.IsValid)
+                _context.SaveChanges();
 
             status.Message = $"Added {lines.Length} new RoleToPermissions to the auth database"; //If there is an error this message is removed
             return status;
@@ -81,7 +85,7 @@ namespace AuthPermissions.SetupParts.Internal
                 charNum = indexColon + 2;
             }
 
-            var validPermissionNames = line.DecodeCheckCommaDelimitedString(charNum,
+            var validPermissionNames = line.DecodeCodeNameWithTrimming(charNum,
                 (name, startOfName) =>
                 {
                     if (!enumPermissionType.PermissionsNameIsValid(name))

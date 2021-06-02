@@ -22,4 +22,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TenantParts\" />
+  </ItemGroup>
+
 </Project>

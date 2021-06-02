@@ -7,11 +7,6 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
 {
     public abstract class TenantBase
     {
-        public TenantBase(Guid tenantId)
-        {
-            TenantId = tenantId;
-        }
-
-        public Guid TenantId { get; private set; }
+        public int TenantId { get; protected set; }
     }
 }
