@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using AuthPermissions.CommonCode;
 
 [assembly: InternalsVisibleTo("Test")]
 namespace AuthPermissions.PermissionsCode.Internal
@@ -15,10 +16,7 @@ namespace AuthPermissions.PermissionsCode.Internal
 
         //public PermissionHandler(Type enumType)
         //{
-        //    if (Enum.GetUnderlyingType(enumType) != typeof(ushort))
-        //        throw new InvalidOperationException(
-        //            $"The enum permissions {enumType.Name} should by 16 bits in size to work.\n" +
-        //            $"Please add ': ushort' to your permissions declaration, i.e. public enum {enumType.Name} : ushort " + "{...};");
+        //    enumType.ThrowExceptionIfEnumIsNotCorrect();
 
         //    _enumLookup = Enum.GetNames(enumType)
         //        .ToDictionary(key => (char)((short)Enum.Parse(enumType, key)), value => value);

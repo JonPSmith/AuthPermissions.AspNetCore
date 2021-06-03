@@ -31,13 +31,7 @@ namespace AuthPermissions
             var authOptions = new AuthPermissionsOptions();
             options?.Invoke(authOptions);
             authOptions.EnumPermissionsType = typeof(TEnumPermissions);
-
-            if (!authOptions.EnumPermissionsType.IsEnum)
-                throw new ArgumentException("Must be an enum");
-            if (Enum.GetUnderlyingType(authOptions.EnumPermissionsType) != typeof(ushort))
-                throw new InvalidOperationException(
-                    $"The enum permissions {authOptions.EnumPermissionsType.Name} should by 16 bits in size to work.\n" +
-                    $"Please add ': ushort' to your permissions declaration, i.e. public enum {authOptions.EnumPermissionsType.Name} : ushort " + "{...};");
+            authOptions.EnumPermissionsType.ThrowExceptionIfEnumIsNotCorrect();
 
             return new AuthSetupData(services, authOptions);
         }
@@ -169,7 +163,7 @@ namespace AuthPermissions
         public static async Task<AuthPermissionsDbContext> SetupForUnitTestingAsync(this AuthSetupData setupData)
         {
             if (setupData.Options.DatabaseType != AuthPermissionsOptions.DatabaseTypes.InMemory)
-                throw new InvalidOperationException(
+                throw new AuthPermissionsException(
                     $"You can only call the {nameof(SetupForUnitTestingAsync)} if you used the {nameof(UsingInMemoryDatabase)} method.");
             
             var serviceProvider = setupData.Services.BuildServiceProvider();

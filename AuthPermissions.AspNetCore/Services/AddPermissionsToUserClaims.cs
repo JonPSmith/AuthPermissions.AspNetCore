@@ -22,6 +22,14 @@ namespace AuthPermissions.AspNetCore.Services
         private readonly ICalcAllowedPermissions _calcAllowedPermissions;
         private readonly IDataKeyCalc _dataKeyCalc;
 
+
+        /// <summary>
+        /// Needs UserManager and IdentityOptions, plus the two services to provide the permissions and dataKey
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="optionsAccessor"></param>
+        /// <param name="calcAllowedPermissions"></param>
+        /// <param name="dataKeyCalc"></param>
         public AddPermissionsToUserClaims(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor, 
             ICalcAllowedPermissions calcAllowedPermissions, IDataKeyCalc dataKeyCalc)
             : base(userManager, optionsAccessor)

@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using StatusGeneric;
@@ -70,7 +71,7 @@ namespace AuthPermissions.DataLayer.Classes
         public void Update(string description, string packedPermissions)
         {
             if (string.IsNullOrEmpty(packedPermissions))
-                throw new InvalidOperationException("There should be at least one permission associated with a role.");
+                throw new AuthPermissionsException("There should be at least one permission associated with a role.");
 
             PackedPermissionsInRole = packedPermissions;
             Description = description;

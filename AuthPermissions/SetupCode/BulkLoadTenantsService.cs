@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using StatusGeneric;
@@ -120,7 +121,7 @@ namespace AuthPermissions.SetupCode
                 LineNum = lineNum;
 
                 if (!TenantNamesInOrder.Any())
-                    throw new InvalidOperationException($"line {lineNum} produced no tenant names");
+                    throw new AuthPermissionsException($"line {lineNum} produced no tenant names");
 
                 ParentFullName = TenantNamesInOrder.Count > 1
                     ? CombineName(TenantNamesInOrder.Take(TenantNamesInOrder.Count - 1))

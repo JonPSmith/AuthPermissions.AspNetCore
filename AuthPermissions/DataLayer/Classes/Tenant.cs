@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +47,7 @@ namespace AuthPermissions.DataLayer.Classes
         {
             //We check that the higher layer has a primary key
             if (parent?.TenantId == (int)default)
-                throw new InvalidOperationException(
+                throw new AuthPermissionsException(
                     "The parent in the hierarchical setup doesn't have a valid primary key");
 
             return new Tenant(tenantName, parent?.TenantDataKey, parent);
