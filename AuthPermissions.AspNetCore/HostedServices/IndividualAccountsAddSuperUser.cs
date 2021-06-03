@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.HostedServices.Internal;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupParts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

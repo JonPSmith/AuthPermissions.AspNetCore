@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
-using AuthPermissions.SetupParts;
-using AuthPermissions.SetupParts.Internal;
+using AuthPermissions.SetupCode;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers

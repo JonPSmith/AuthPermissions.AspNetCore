@@ -3,12 +3,9 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupParts.Internal;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupParts
+namespace AuthPermissions.SetupCode
 {
     public static class ErrorReportingExtensions
     {

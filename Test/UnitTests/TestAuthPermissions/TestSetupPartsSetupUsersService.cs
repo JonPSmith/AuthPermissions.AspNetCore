@@ -5,8 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupParts;
-using AuthPermissions.SetupParts.Internal;
+using AuthPermissions.SetupCode;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -187,11 +186,12 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var usersWithRoles = context.UserToRoles.ToList();
-            foreach (var userWithRole in usersWithRoles)
+            var userToTenants = context.UserToTenants.ToList();
+            foreach (var entity in userToTenants)
             {
-                _output.WriteLine(userWithRole.ToString());
+                _output.WriteLine(entity.ToString());
             }
+            context.UserToTenants.Count().ShouldEqual(2);
         }
 
         [Fact]

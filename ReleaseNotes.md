@@ -7,6 +7,6 @@
 ## Things not in the first release
 
 - A user having multiple tenants: this needs
-  - UserWithRoleTenant has to have multiple tenants and optionally different roles
-  - Example of three-setp login process with user selection
--   
+  - An three-step login code with tenat selection
+- A user can have different roles on different tenants  
+(the code is available in the UserToRoles, but the `DefineUserWithRolesTenant` class needs a `TenantNameForRoles` properly)

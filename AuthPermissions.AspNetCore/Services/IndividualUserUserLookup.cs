@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using AuthPermissions.SetupParts;
+using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 
 namespace AuthPermissions.AspNetCore.Services

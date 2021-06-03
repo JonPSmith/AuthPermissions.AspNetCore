@@ -5,7 +5,7 @@ using System;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.TenantParts;
+using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;

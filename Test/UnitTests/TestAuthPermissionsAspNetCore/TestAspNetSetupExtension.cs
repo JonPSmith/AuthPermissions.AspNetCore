@@ -8,7 +8,7 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.TenantParts;
+using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -223,6 +223,7 @@ Tenant3")
             authContext.RoleToPermissions.Count().ShouldEqual(3);
             authContext.UserToRoles.Count().ShouldEqual(5);
             authContext.Tenants.Count().ShouldEqual(3);
+            authContext.UserToTenants.Count().ShouldEqual(2);
         }
     }
 }

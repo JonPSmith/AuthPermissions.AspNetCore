@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupParts;
+using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

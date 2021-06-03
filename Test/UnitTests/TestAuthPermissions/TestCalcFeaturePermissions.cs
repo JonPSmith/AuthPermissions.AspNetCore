@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
-using AuthPermissions.SetupParts.Internal;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

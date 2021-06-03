@@ -3,8 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using AuthPermissions.SetupParts;
-using AuthPermissions.TenantParts;
+using AuthPermissions.SetupCode;
 
 namespace AuthPermissions
 {
@@ -15,12 +14,6 @@ namespace AuthPermissions
         /// multi-tenant is is a single layer, or many layers (hierarchical)
         /// </summary>
         TenantTypes TenantType { get; set; }
-
-        /// <summary>
-        /// If true, then the login must ask the user to pick which one they want to access
-        /// Also, the role admin allows you to set up different roles for each tenant the user is in
-        /// </summary>
-        bool UserCanBeInMoreThanOneTenant { get; set; }
 
         /// <summary>
         /// Internal: holds the type of the Enum Permissions 

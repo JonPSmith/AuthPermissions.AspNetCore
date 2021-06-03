@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using AuthPermissions.SetupParts;
+using AuthPermissions.SetupCode;
 
 namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
 {

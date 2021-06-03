@@ -3,8 +3,7 @@
 
 using System.Linq;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupParts;
-using AuthPermissions.SetupParts.Internal;
+using AuthPermissions.SetupCode;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

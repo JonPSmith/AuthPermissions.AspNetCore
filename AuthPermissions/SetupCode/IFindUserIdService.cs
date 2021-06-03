@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace AuthPermissions.SetupParts
+namespace AuthPermissions.SetupCode
 {
     public interface IFindUserIdService
     {

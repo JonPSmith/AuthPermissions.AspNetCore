@@ -7,10 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.TenantParts;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupParts
+namespace AuthPermissions.SetupCode
 {
     public class BulkLoadTenantsService
     {

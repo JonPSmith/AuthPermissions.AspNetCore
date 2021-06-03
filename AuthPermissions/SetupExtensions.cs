@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
-using AuthPermissions.SetupParts;
+using AuthPermissions.SetupCode;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

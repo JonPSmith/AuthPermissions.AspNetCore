@@ -7,11 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupParts.Internal;
+using AuthPermissions.SetupCode.Internal;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupParts
+namespace AuthPermissions.SetupCode
 {
     public class BulkLoadUsersService
     {
@@ -83,19 +83,22 @@ namespace AuthPermissions.SetupParts
                 return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
                     $"The user {userDefine.UserName} didn't have a userId and the {nameof(IFindUserIdService)}" +
                     (_findUserIdService == null ? " wasn't available." : " couldn't find it either.")));
-            int tenantId = default;
-            if (!string.IsNullOrEmpty(userDefine.TenantName))
+
+            if (!string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
             {
-                var tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == userDefine.TenantName);
+                var tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == userDefine.TenantNameForDataKey);
                 if (tenant == null)
                     return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
-                        $"The user {userDefine.UserName} has a tenant name of {userDefine.TenantName} which wasn't found in the auth database."));
-                tenantId = tenant.TenantId;
+                        $"The user {userDefine.UserName} has a tenant name of {userDefine.TenantNameForDataKey} which wasn't found in the auth database."));
+
+                var userToTenant = new UserToTenant(userId, tenant, userDefine.UserName);
+                _context.Add(userToTenant);
             }
 
             rolesToPermissions.ForEach(roleToPermission =>
             {
-                var userToRole = new UserToRole(userId, userDefine.UserName, roleToPermission, tenantId);
+                //FUTURE FEATURE: Could make the roles change depending on the Tenant it is linked to
+                var userToRole = new UserToRole(userId, userDefine.UserName, roleToPermission);
                 _context.Add(userToRole);
             });
 

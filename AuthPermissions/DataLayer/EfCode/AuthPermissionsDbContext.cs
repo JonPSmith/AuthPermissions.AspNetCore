@@ -14,6 +14,7 @@ namespace AuthPermissions.DataLayer.EfCode
 
         public DbSet<RoleToPermissions> RoleToPermissions { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<UserToTenant> UserToTenants { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,6 +25,9 @@ namespace AuthPermissions.DataLayer.EfCode
             modelBuilder.Entity<Tenant>()
                 .Property("_parentDataKey")
                 .HasColumnName("ParentDataKey");
+
+            modelBuilder.Entity<UserToTenant>()
+                .HasKey(x => new { x.UserId, x.TenantId});
 
             modelBuilder.Entity<UserToRole>()
                 .HasKey(x => new { x.UserId, x.TenantId, x.RoleName });

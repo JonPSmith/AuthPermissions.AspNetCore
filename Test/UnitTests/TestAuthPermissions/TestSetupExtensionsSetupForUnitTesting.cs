@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
-using AuthPermissions.TenantParts;
+using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Test.TestHelpers;
 using Xunit;
@@ -106,6 +106,7 @@ Tenant3";
             context.RoleToPermissions.Count().ShouldEqual(3);
             context.UserToRoles.Count().ShouldEqual(5);
             context.Tenants.Count().ShouldEqual(3);
+            context.UserToTenants.Count().ShouldEqual(2);
         }
     }
 }

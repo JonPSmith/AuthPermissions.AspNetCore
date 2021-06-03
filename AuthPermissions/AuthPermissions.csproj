@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TenantParts\" />
+    <Folder Include="AdminCode\" />
   </ItemGroup>
 
 </Project>

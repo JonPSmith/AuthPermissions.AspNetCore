@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AuthPermissions.SetupParts.Internal
+namespace AuthPermissions.SetupCode.Internal
 {
     internal static class CommaDelimitedHandler
     {
