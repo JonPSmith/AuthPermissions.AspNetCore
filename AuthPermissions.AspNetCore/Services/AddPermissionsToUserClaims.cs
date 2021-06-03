@@ -3,8 +3,10 @@
 
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AuthPermissions.DataKeyCode;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
+using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -17,21 +19,33 @@ namespace AuthPermissions.AspNetCore.Services
     // Thanks to https://korzh.com/blogs/net-tricks/aspnet-identity-store-user-data-in-claims
     public class AddPermissionsToUserClaims : UserClaimsPrincipalFactory<IdentityUser>
     {
-        private readonly AuthPermissionsDbContext _authPermissionsDbContext;
+        private readonly ICalcAllowedPermissions _calcAllowedPermissions;
+        private readonly IDataKeyCalc _dataKeyCalc;
 
-        public AddPermissionsToUserClaims(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor,
-            AuthPermissionsDbContext authPermissionsDbContext)
+        public AddPermissionsToUserClaims(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor, 
+            ICalcAllowedPermissions calcAllowedPermissions, IDataKeyCalc dataKeyCalc)
             : base(userManager, optionsAccessor)
         {
-            _authPermissionsDbContext = authPermissionsDbContext;
+            _calcAllowedPermissions = calcAllowedPermissions;
+            _dataKeyCalc = dataKeyCalc;
         }
 
+        /// <summary>
+        /// This adds the permissions and, optionally, a multi-tenant DataKey to the claims
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(IdentityUser user)
         {
             var identity = await base.GenerateClaimsAsync(user);
             var userId = identity.Claims.GetUserIdFromClaims();
-            var rtoPCalcer = new CalcAllowedPermissions(_authPermissionsDbContext);
-            identity.AddClaim(new Claim(PermissionConstants.PackedPermissionClaimType, await rtoPCalcer.CalcPermissionsForUserAsync(userId)));
+            var permissions = await _calcAllowedPermissions.CalcPermissionsForUserAsync(userId);
+            identity.AddClaim(new Claim(PermissionConstants.PackedPermissionClaimType, permissions));
+            var dataKey = await _dataKeyCalc.GetDataKey(userId);
+            if (dataKey != null)
+            {
+                identity.AddClaim(new Claim(PermissionConstants.DayaKeyClaimType, dataKey));
+            }
             return identity;
         }
     }

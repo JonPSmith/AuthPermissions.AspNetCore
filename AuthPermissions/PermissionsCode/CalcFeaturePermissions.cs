@@ -12,7 +12,7 @@ namespace AuthPermissions.PermissionsCode
     /// <summary>
     /// This is the code that calculates what feature permissions a user has
     /// </summary>
-    public class CalcAllowedPermissions
+    public class CalcAllowedPermissions : ICalcAllowedPermissions
     {
         private readonly AuthPermissionsDbContext _context;
 
@@ -24,7 +24,7 @@ namespace AuthPermissions.PermissionsCode
         /// <summary>
         /// This is called if the Permissions that a user needs calculating.
         /// It looks at what permissions the user has based on their roles
-        /// NOTE: needs upgrading if TenantId is to change the user's roles.
+        /// FUTURE FEATURE: needs upgrading if TenantId is to change the user's roles.
         /// </summary>
         /// <param name="userId"></param>
         /// <returns>a string containing the packed permissions</returns>

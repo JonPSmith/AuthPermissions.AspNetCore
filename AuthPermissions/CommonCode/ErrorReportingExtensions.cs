@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupCode
+namespace AuthPermissions.CommonCode
 {
     public static class ErrorReportingExtensions
     {
