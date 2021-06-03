@@ -35,15 +35,5 @@ namespace AuthPermissions.SetupParts.Internal
 
             return trimmedNames;
         }
-
-        public static string FormErrorString(this string line, int lineNum, int charNum, string error)
-        {
-            var charPart = charNum < 0 ? "" : $", char: {charNum + 1}";
-            var result = $"Line/index {lineNum + 1:####}{charPart}: {error}{Environment.NewLine}{line}";
-            if (charNum > -1)
-                result += Environment.NewLine + new string(' ', charNum) + "|";
-
-            return result;
-        }
     }
 }

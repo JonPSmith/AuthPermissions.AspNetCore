@@ -44,19 +44,10 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         public static Tenant SetupHierarchicalTenant(string tenantName, Tenant parent)
         {
-            //We check that the higher layer a) are there and b) have a
-
-            var lookParent = parent;
-            while (lookParent != null)
-            {
-                if (lookParent.TenantId == default)
-                    throw new InvalidOperationException(
-                        "The parent in the hierarchical setup doesn't have a valid primary key");
-                if (lookParent.Parent == null && lookParent.ParentTenantId != null)
-                    throw new InvalidOperationException(
-                        "There is a parent layer that hasn't been read in");
-                lookParent = lookParent.Parent;
-            }
+            //We check that the higher layer has a primary key
+            if (parent?.TenantId == (int)default)
+                throw new InvalidOperationException(
+                    "The parent in the hierarchical setup doesn't have a valid primary key");
 
             return new Tenant(tenantName, parent?.TenantDataKey, parent);
         }
