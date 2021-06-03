@@ -20,7 +20,7 @@ namespace AuthPermissions.AspNetCore.Services
     public class AddPermissionsToUserClaims : UserClaimsPrincipalFactory<IdentityUser>
     {
         private readonly ICalcAllowedPermissions _calcAllowedPermissions;
-        private readonly IDataKeyCalc _dataKeyCalc;
+        private readonly ICalcDataKey _calcDataKey;
 
 
         /// <summary>
@@ -29,13 +29,13 @@ namespace AuthPermissions.AspNetCore.Services
         /// <param name="userManager"></param>
         /// <param name="optionsAccessor"></param>
         /// <param name="calcAllowedPermissions"></param>
-        /// <param name="dataKeyCalc"></param>
+        /// <param name="calcDataKey"></param>
         public AddPermissionsToUserClaims(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor, 
-            ICalcAllowedPermissions calcAllowedPermissions, IDataKeyCalc dataKeyCalc)
+            ICalcAllowedPermissions calcAllowedPermissions, ICalcDataKey calcDataKey)
             : base(userManager, optionsAccessor)
         {
             _calcAllowedPermissions = calcAllowedPermissions;
-            _dataKeyCalc = dataKeyCalc;
+            _calcDataKey = calcDataKey;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace AuthPermissions.AspNetCore.Services
             var userId = identity.Claims.GetUserIdFromClaims();
             var permissions = await _calcAllowedPermissions.CalcPermissionsForUserAsync(userId);
             identity.AddClaim(new Claim(PermissionConstants.PackedPermissionClaimType, permissions));
-            var dataKey = await _dataKeyCalc.GetDataKey(userId);
+            var dataKey = await _calcDataKey.GetDataKeyAsync(userId);
             if (dataKey != null)
             {
                 identity.AddClaim(new Claim(PermissionConstants.DayaKeyClaimType, dataKey));

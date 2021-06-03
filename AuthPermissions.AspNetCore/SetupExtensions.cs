@@ -71,7 +71,7 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
             setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
             setupData.Services.AddScoped<ICalcAllowedPermissions, CalcAllowedPermissions>();
-            setupData.Services.AddScoped<IDataKeyCalc, DataKeyCalc>();
+            setupData.Services.AddScoped<ICalcDataKey, CalcDataKey>();
         }
     }
 }

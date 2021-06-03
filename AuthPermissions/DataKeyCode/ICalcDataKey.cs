@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AuthPermissions.DataKeyCode
 {
-    public interface IDataKeyCalc
+    public interface ICalcDataKey
     {
         /// <summary>
         /// This return the multi-tenant data key.
@@ -13,6 +13,6 @@ namespace AuthPermissions.DataKeyCode
         /// </summary>
         /// <param name="userid"></param>
         /// <returns></returns>
-        Task<string> GetDataKey(string userid);
+        Task<string> GetDataKeyAsync(string userid);
     }
 }

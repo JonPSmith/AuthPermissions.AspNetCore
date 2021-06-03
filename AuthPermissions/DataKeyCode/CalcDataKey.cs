@@ -13,7 +13,7 @@ namespace AuthPermissions.DataKeyCode
     /// <summary>
     /// This provides the code to get the multi-tenant data key
     /// </summary>
-    public class DataKeyCalc : IDataKeyCalc
+    public class CalcDataKey : ICalcDataKey
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly IAuthPermissionsOptions _options;
@@ -23,7 +23,7 @@ namespace AuthPermissions.DataKeyCode
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        public DataKeyCalc(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
+        public CalcDataKey(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
         {
             _context = context;
             _options = options;
@@ -35,7 +35,7 @@ namespace AuthPermissions.DataKeyCode
         /// </summary>
         /// <param name="userid"></param>
         /// <returns></returns>
-        public async Task<string> GetDataKey(string userid)
+        public async Task<string> GetDataKeyAsync(string userid)
         {
             if (_options.TenantType == TenantTypes.NotUsingTenants)
                 return null;

@@ -4,8 +4,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
+using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
 namespace AuthPermissions.DataLayer.Classes
@@ -13,16 +15,15 @@ namespace AuthPermissions.DataLayer.Classes
     /// <summary>
     /// This is a one-to-many relationship between the User (represented by the UserId) and their Roles (represented by RoleToPermissions)
     /// </summary>
-    public class UserToRole : TenantBase
+    public class UserToRole
     {
         private UserToRole() {} //Needed by EF Core
 
-        public UserToRole(string userId, string userName, RoleToPermissions role, int tenantId = default)
+        public UserToRole(string userId, string userName, RoleToPermissions role)
         {
             UserId = userId;
             UserName = userName;
             Role = role;
-            TenantId = tenantId;
         }
 
         //I use a composite key for this table: combination of UserId, TenantId and RoleName
@@ -48,30 +49,37 @@ namespace AuthPermissions.DataLayer.Classes
 
         public override string ToString()
         {
-            var tenant = TenantId == default ? "" : $", linked to TenantId {TenantId}";
-            return $"User {UserName} has role {RoleName}{tenant}";
+            return $"User {UserName} has role {RoleName}";
         }
 
-
-        public static IStatusGeneric<UserToRole> AddRoleToUser(string userId, string userName, string roleName, 
-            AuthPermissionsDbContext context, int tenantId = default)
+        /// <summary>
+        /// This returns a UserToRole after checks that it is allowable
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userName"></param>
+        /// <param name="roleName"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static async Task<IStatusGeneric<UserToRole>> CreateNewRoleToUserWithChecksAsync(string userId, string userName, string roleName, 
+            AuthPermissionsDbContext context)
         {
             if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 
             var status = new StatusGenericHandler<UserToRole>();
-            if (context.Find<UserToRole>(userId, tenantId, roleName) != null)
+            if (await context.UserToRoles
+                .SingleOrDefaultAsync(x => x.UserId == userId && x.RoleName == roleName) != null)
             {
                 status.AddError($"The user already has the Role '{roleName}'.");
                 return status;
             }
-            var roleToAdd = context.Find<RoleToPermissions>(roleName);
+            var roleToAdd = await context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
             if (roleToAdd == null)
             {
                 status.AddError($"I could not find the Role '{roleName}'.");
                 return status;
             }
 
-            return status.SetResult(new UserToRole(userId, userName, roleToAdd, tenantId));
+            return status.SetResult(new UserToRole(userId, userName, roleToAdd));
         }
     }
 }

@@ -2,6 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
@@ -21,6 +23,17 @@ Role3: Three";
             var service = new BulkLoadRolesService(context);
             var status = service.AddRolesToDatabaseIfEmpty(lines, typeof(TestEnum));
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            context.SaveChanges();
+        }
+
+        public static void AddUserToRoleInDb(this AuthPermissionsDbContext context, int numAdded, string userId = "User1")
+        {
+            var rolesInOrder = context.RoleToPermissions.OrderBy(x => x.RoleName).ToList();
+
+            for (int i = 0; i < numAdded; i++)
+            {
+                context.Add(new UserToRole(userId, userId, rolesInOrder[i]));
+            }
             context.SaveChanges();
         }
 

@@ -30,7 +30,7 @@ namespace AuthPermissions.DataLayer.EfCode
                 .HasKey(x => new { x.UserId, x.TenantId});
 
             modelBuilder.Entity<UserToRole>()
-                .HasKey(x => new { x.UserId, x.TenantId, x.RoleName });
+                .HasKey(x => new { x.UserId, x.RoleName });
         }
     }
 }
