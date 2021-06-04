@@ -35,7 +35,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
                     authOptions.EnumPermissionsType);
                 if (status.IsValid)
                 {
-                    var userLoader = new BulkLoadUsersService(context, findUserIdService);
+                    var userLoader = new BulkLoadUsersService(context, findUserIdService, authOptions);
                     status = await userLoader.AddUsersRolesToDatabaseIfEmptyAsync(authOptions.UserRolesSetupData);
                 }
                 status.IfErrorsTurnToException();

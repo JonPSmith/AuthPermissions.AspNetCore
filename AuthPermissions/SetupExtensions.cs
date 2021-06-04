@@ -180,7 +180,7 @@ namespace AuthPermissions
             }
             if (status.IsValid)
             {
-                var userLoader = new BulkLoadUsersService(context, findUserIdService);
+                var userLoader = new BulkLoadUsersService(context, findUserIdService, setupData.Options);
                 status = await userLoader.AddUsersRolesToDatabaseIfEmptyAsync(setupData.Options.UserRolesSetupData);
             }
 

@@ -40,13 +40,13 @@ namespace AuthPermissions.DataKeyCode
             if (_options.TenantType == TenantTypes.NotUsingTenants)
                 return null;
 
-            var userToTenant = await _context.UserToTenants.Include(x => x.Tenant)
+            var userWithTenant = await _context.Users.Include(x => x.UserTenant)
                 .SingleOrDefaultAsync(x => x.UserId == userid);
-            if (userToTenant == null)
+            if (userWithTenant == null)
                 throw new AuthPermissionsException(
-                    $"Tenant data keys are configured, but no {nameof(UserToTenant)} for the user with id {userid}");
+                    $"The user {userWithTenant.UserName} doesn't have a tenant linked it i.");
 
-            return userToTenant.Tenant.TenantDataKey;
+            return userWithTenant.UserTenant.TenantDataKey;
         }
     }
 }

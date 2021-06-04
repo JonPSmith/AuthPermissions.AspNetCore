@@ -18,11 +18,13 @@ namespace AuthPermissions.SetupCode
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly IFindUserIdService _findUserIdService;
+        private readonly IAuthPermissionsOptions _options;
 
-        public BulkLoadUsersService(AuthPermissionsDbContext context, IFindUserIdService findUserIdService)
+        public BulkLoadUsersService(AuthPermissionsDbContext context, IFindUserIdService findUserIdService, IAuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _findUserIdService = findUserIdService;
+            _options = options;
         }
 
         public async Task<IStatusGeneric> AddUsersRolesToDatabaseIfEmptyAsync(List<DefineUserWithRolesTenant> userDefinitions)
@@ -85,23 +87,22 @@ namespace AuthPermissions.SetupCode
                     $"The user {userDefine.UserName} didn't have a userId and the {nameof(IFindUserIdService)}" +
                     (_findUserIdService == null ? " wasn't available." : " couldn't find it either.")));
 
-            if (!string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
+            Tenant userTenant = null;
+            if (_options.TenantType != TenantTypes.NotUsingTenants)
             {
-                var tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == userDefine.TenantNameForDataKey);
-                if (tenant == null)
+                if(string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
+                    return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
+                        $"You have defined this is a multi-tenant application, but user {userDefine.UserName} has no tenant name defined in the {nameof(userDefine.TenantNameForDataKey)}."));
+
+
+                userTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == userDefine.TenantNameForDataKey);
+                if (userTenant == null)
                     return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
                         $"The user {userDefine.UserName} has a tenant name of {userDefine.TenantNameForDataKey} which wasn't found in the auth database."));
-
-                var userToTenant = new UserToTenant(userId, tenant, userDefine.UserName);
-                _context.Add(userToTenant);
             }
 
-            rolesToPermissions.ForEach(roleToPermission =>
-            {
-                //FUTURE FEATURE: Could make the roles change depending on the Tenant it is linked to
-                var userToRole = new UserToRole(userId, userDefine.UserName, roleToPermission);
-                _context.Add(userToRole);
-            });
+            var authUser = new AuthUser(userId, userDefine.UserName, rolesToPermissions, userTenant);
+            _context.Add(authUser);
 
             return status;
         }

@@ -34,6 +34,8 @@ namespace Test.UnitTests.TestAuthPermissions
                 .SetupForUnitTestingAsync();
 
             //VERIFY
+            context.ChangeTracker.Clear();
+            context.Users.Count().ShouldEqual(0);
             context.RoleToPermissions.Count().ShouldEqual(0);
             context.UserToRoles.Count().ShouldEqual(0);
         }
@@ -54,8 +56,11 @@ Role3: One";
                 .SetupForUnitTestingAsync();
 
             //VERIFY
+            context.ChangeTracker.Clear();
+            context.Users.Count().ShouldEqual(0);
             context.RoleToPermissions.Count().ShouldEqual(3);
             context.UserToRoles.Count().ShouldEqual(0);
+            context.Users.Count(x => x.TenantId != null).ShouldEqual(0);
         }
 
         [Fact]
@@ -75,8 +80,11 @@ Role3: One";
                 .SetupForUnitTestingAsync();
 
             //VERIFY
+            context.ChangeTracker.Clear();
+            context.Users.Count().ShouldEqual(3);
             context.RoleToPermissions.Count().ShouldEqual(3);
             context.UserToRoles.Count().ShouldEqual(5);
+            context.Users.Count(x => x.TenantId != null).ShouldEqual(0);
         }
 
         [Fact]
@@ -103,10 +111,12 @@ Tenant3";
                 .SetupForUnitTestingAsync();
 
             //VERIFY
+            context.ChangeTracker.Clear();
+            context.Users.Count().ShouldEqual(3);
             context.RoleToPermissions.Count().ShouldEqual(3);
             context.UserToRoles.Count().ShouldEqual(5);
             context.Tenants.Count().ShouldEqual(3);
-            context.UserToTenants.Count().ShouldEqual(2);
+            context.Users.Count(x => x.TenantId != null).ShouldEqual(3);
         }
     }
 }

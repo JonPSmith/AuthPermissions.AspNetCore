@@ -26,14 +26,10 @@ Role3: Three";
             context.SaveChanges();
         }
 
-        public static void AddUserToRoleInDb(this AuthPermissionsDbContext context, int numAdded, string userId = "User1")
+        public static void AddUserWithRoleInDb(this AuthPermissionsDbContext context, int numAdded, string userId = "User1")
         {
-            var rolesInOrder = context.RoleToPermissions.OrderBy(x => x.RoleName).ToList();
-
-            for (int i = 0; i < numAdded; i++)
-            {
-                context.Add(new UserToRole(userId, userId, rolesInOrder[i]));
-            }
+            var user = new AuthUser(userId, userId, context.RoleToPermissions.OrderBy(x => x.RoleName));
+            context.Add(user);
             context.SaveChanges();
         }
 
@@ -82,7 +78,7 @@ Role3: Three";
             {
                 new DefineUserWithRolesTenant("User1", "Role1", "1", null, "Tenant1"),
                 new DefineUserWithRolesTenant("User2", "Role1,Role2", "2", null, secondTenant),
-                new DefineUserWithRolesTenant("User3", "Role1,Role3", "3")
+                new DefineUserWithRolesTenant("User3", "Role1,Role3", "3", null, "Tenant3")
             };
         }
     }

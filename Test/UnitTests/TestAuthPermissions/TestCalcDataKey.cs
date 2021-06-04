@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.DataKeyCode;
@@ -16,7 +17,7 @@ namespace Test.UnitTests.TestAuthPermissions
     public class TestCalcDataKey
     {
         [Fact]
-        public async Task TestCalcAllowedPermissionsSimple()
+        public async Task TestCalcDataKeySimple()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -24,8 +25,9 @@ namespace Test.UnitTests.TestAuthPermissions
             context.Database.EnsureCreated();
 
             var tenant = new Tenant("Tenant1");
-            var userTenant = new UserToTenant("User1", tenant, "User1");
-            context.AddRange(tenant, userTenant);
+            var role = new RoleToPermissions("Role1", null, $"{((char) 1)}");
+            var user = new AuthUser("User1", null, new [] {role}, tenant);
+            context.AddRange(tenant, role, user);
             context.SaveChanges();
 
             context.ChangeTracker.Clear();

@@ -29,9 +29,8 @@ namespace Test.UnitTests.TestAuthPermissions
             var rolePer2 = RoleToPermissions.CreateRoleWithPermissions("Role2", null,
                 $"{(char)2}{(char)3}", context).Result;
             context.AddRange(rolePer1, rolePer2);
-            context.SaveChanges();
-            var userToRole = (await UserToRole.CreateNewRoleToUserWithChecksAsync("User1", null, "Role1", context)).Result;
-            context.Add(userToRole);
+            var user = new AuthUser("User1", null, new[] {rolePer1});
+            context.Add(user);
             context.SaveChanges();
 
             context.ChangeTracker.Clear();
@@ -58,10 +57,8 @@ namespace Test.UnitTests.TestAuthPermissions
             var rolePer2 = RoleToPermissions.CreateRoleWithPermissions("Role2", null,
                 $"{(char)2}{(char)3}", context).Result;
             context.AddRange(rolePer1, rolePer2);
-            context.SaveChanges();
-            var userToRole1 = (await UserToRole.CreateNewRoleToUserWithChecksAsync("User1", null, "Role1", context)).Result;
-            var userToRole2 = (await UserToRole.CreateNewRoleToUserWithChecksAsync("User1", null, "Role2", context)).Result;
-            context.AddRange(userToRole1, userToRole2);
+            var user = new AuthUser("User1", null, new[] { rolePer1, rolePer2 });
+            context.Add(user);
             context.SaveChanges();
 
             context.ChangeTracker.Clear();

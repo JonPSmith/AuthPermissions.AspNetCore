@@ -4,8 +4,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -32,10 +34,11 @@ namespace Test.UnitTests.TestAuthPermissions
             context.Database.EnsureCreated();
 
             context.SetupRolesInDb();
+            
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -43,21 +46,12 @@ namespace Test.UnitTests.TestAuthPermissions
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 
-            context.ChangeTracker.Clear();
-
             //VERIFY
-            var usersWithRoles = context.UserToRoles.ToList();
-            foreach (var userWithRole in usersWithRoles)
-            {
-                _output.WriteLine(userWithRole.ToString());
-            }
-
-            usersWithRoles.Count.ShouldEqual(5);
-            usersWithRoles[0].ToString().ShouldEqual("User User1 has role Role1");
-            usersWithRoles[1].ToString().ShouldEqual("User User2 has role Role1");
-            usersWithRoles[2].ToString().ShouldEqual("User User2 has role Role2");
-            usersWithRoles[3].ToString().ShouldEqual("User User3 has role Role1");
-            usersWithRoles[4].ToString().ShouldEqual("User User3 has role Role3");
+            context.ChangeTracker.Clear();
+            context.Users.Count().ShouldEqual(3);
+            context.RoleToPermissions.Count().ShouldEqual(3);
+            context.UserToRoles.Count().ShouldEqual(5);
+            context.Tenants.Count().ShouldEqual(0);
         }
 
         [Fact]
@@ -72,7 +66,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, new MockIFindUserId());
+            var service = new BulkLoadUsersService(context, new MockIFindUserId(), new AuthPermissionsOptions());
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -80,21 +74,12 @@ namespace Test.UnitTests.TestAuthPermissions
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 
-            context.ChangeTracker.Clear();
-
             //VERIFY
-            var usersWithRoles = context.UserToRoles.ToList();
-            foreach (var userWithRole in usersWithRoles)
-            {
-                _output.WriteLine(userWithRole.ToString());
-            }
-
-            usersWithRoles.Count.ShouldEqual(5);
-            usersWithRoles[0].ToString().ShouldEqual("User User1 has role Role1");
-            usersWithRoles[1].ToString().ShouldEqual("User User2 has role Role1");
-            usersWithRoles[2].ToString().ShouldEqual("User User2 has role Role2");
-            usersWithRoles[3].ToString().ShouldEqual("User User3 has role Role1");
-            usersWithRoles[4].ToString().ShouldEqual("User User3 has role Role3");
+            context.ChangeTracker.Clear();
+            context.Users.Count().ShouldEqual(3);
+            context.RoleToPermissions.Count().ShouldEqual(3);
+            context.UserToRoles.Count().ShouldEqual(5);
+            context.Tenants.Count().ShouldEqual(0);
         }
 
         [Fact]
@@ -109,7 +94,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(SetupHelpers.TestUserDefineNoUserId(null));
@@ -131,7 +116,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -154,7 +139,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -178,7 +163,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -186,12 +171,8 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var userToTenants = context.UserToTenants.ToList();
-            foreach (var entity in userToTenants)
-            {
-                _output.WriteLine(entity.ToString());
-            }
-            context.UserToTenants.Count().ShouldEqual(2);
+            var users = context.Users.Include(x => x.UserTenant).ToList();
+            users.Count(x => x.UserTenant != null ).ShouldEqual(3);
         }
 
         [Fact]
@@ -207,7 +188,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, null);
+            var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
@@ -216,6 +197,30 @@ namespace Test.UnitTests.TestAuthPermissions
             //VERIFY
             status.IsValid.ShouldBeFalse();
             status.GetAllErrors().ShouldStartWith("Line/index 1: The user User2 has a tenant name of Tenant99 which wasn't found in the auth database.");
+        }
+
+        [Fact]
+        public async Task TestAddUserRolesToDatabaseIfEmptySetupWithTenantsNoTenant()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupRolesInDb();
+            context.SetupTenantsInDb();
+
+            context.ChangeTracker.Clear();
+
+            var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+
+            //ATTEMPT
+            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+                SetupHelpers.TestUserDefineWithTenants(null));
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.GetAllErrors().ShouldStartWith("Line/index 1: You have defined this is a multi-tenant application, but user User2 has no tenant name");
         }
 
     }

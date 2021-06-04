@@ -12,25 +12,22 @@ namespace AuthPermissions.DataLayer.EfCode
             : base(options)
         { }
 
+        public DbSet<AuthUser> Users { get; set; }
         public DbSet<RoleToPermissions> RoleToPermissions { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<UserToTenant> UserToTenants { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("authp");
 
+            modelBuilder.Entity<UserToRole>()
+                .HasKey(x => new { x.UserId, x.RoleName });
+
             modelBuilder.Entity<Tenant>().HasKey(x => x.TenantId);
             modelBuilder.Entity<Tenant>()
                 .Property("_parentDataKey")
                 .HasColumnName("ParentDataKey");
-
-            modelBuilder.Entity<UserToTenant>()
-                .HasKey(x => new { x.UserId, x.TenantId});
-
-            modelBuilder.Entity<UserToRole>()
-                .HasKey(x => new { x.UserId, x.RoleName });
         }
     }
 }

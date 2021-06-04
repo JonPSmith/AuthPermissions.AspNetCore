@@ -17,69 +17,38 @@ namespace AuthPermissions.DataLayer.Classes
     /// </summary>
     public class UserToRole
     {
-        private UserToRole() {} //Needed by EF Core
+        private UserToRole()
+        {
+        } //Needed by EF Core
 
-        public UserToRole(string userId, string userName, RoleToPermissions role)
+        public UserToRole(string userId, RoleToPermissions role)
         {
             UserId = userId;
-            UserName = userName;
             Role = role;
         }
 
-        //I use a composite key for this table: combination of UserId, TenantId and RoleName
-        //This means:
-        //a) a user can have different roles in another tenant (null means same roles for all tenants)
-        //b) It ensures a user only links to a role once (per tenant) 
-
-        //That has to be defined by EF Core's fluent API
+        /// <summary>
+        /// The user
+        /// </summary>
         [Required(AllowEmptyStrings = false)]
-        [MaxLength(AuthDbConstants.UserIdSize)] 
+        [MaxLength(AuthDbConstants.UserIdSize)]
         public string UserId { get; private set; }
 
-        //Contains a name to help work out who the user is
-        [MaxLength(AuthDbConstants.UserNameSize)]
-        public string UserName { get; private set; }
-
+        /// <summary>
+        /// The RoleName is part of the key, which ensure that a user only has a role once
+        /// It is also a foreign key for the RoleToPermissions
+        /// </summary>
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.RoleNameSize)]
         public string RoleName { get; private set; }
 
-        [ForeignKey(nameof(RoleName))]
+        /// <summary>
+        /// Link to the RoleToPermissions
+        /// </summary>
+        [ForeignKey(nameof(RoleName))] 
         public RoleToPermissions Role { get; private set; }
 
-        public override string ToString()
-        {
-            return $"User {UserName} has role {RoleName}";
-        }
 
-        /// <summary>
-        /// This returns a UserToRole after checks that it is allowable
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="userName"></param>
-        /// <param name="roleName"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public static async Task<IStatusGeneric<UserToRole>> CreateNewRoleToUserWithChecksAsync(string userId, string userName, string roleName, 
-            AuthPermissionsDbContext context)
-        {
-            if (roleName == null) throw new ArgumentNullException(nameof(roleName));
-
-            var status = new StatusGenericHandler<UserToRole>();
-            if (await context.UserToRoles
-                .SingleOrDefaultAsync(x => x.UserId == userId && x.RoleName == roleName) != null)
-            {
-                status.AddError($"The user already has the Role '{roleName}'.");
-                return status;
-            }
-            var roleToAdd = await context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
-            if (roleToAdd == null)
-            {
-                status.AddError($"I could not find the Role '{roleName}'.");
-                return status;
-            }
-
-            return status.SetResult(new UserToRole(userId, userName, roleToAdd));
-        }
     }
+
 }

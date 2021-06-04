@@ -24,7 +24,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="roleName"></param>
         /// <param name="description"></param>
         /// <param name="packedPermissions">The enum values converted to unicode chars</param>
-        private RoleToPermissions(string roleName, string description, string packedPermissions)
+        public RoleToPermissions(string roleName, string description, string packedPermissions)
         {
             RoleName = roleName;
             Update(description, packedPermissions);
