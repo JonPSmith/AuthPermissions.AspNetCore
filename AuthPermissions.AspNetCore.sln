@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		ReleaseNotes.md = ReleaseNotes.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example2.WebApiWithToken.IndividualAccounts", "Example2.WebApiWithToken.IndividualAccounts\Example2.WebApiWithToken.IndividualAccounts.csproj", "{E2667176-A75B-4182-94AF-43D8F0CF989A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,18 @@ Global
 		{A3F5A164-334A-4095-A211-2892E8CF6770}.Release|x64.Build.0 = Release|Any CPU
 		{A3F5A164-334A-4095-A211-2892E8CF6770}.Release|x86.ActiveCfg = Release|Any CPU
 		{A3F5A164-334A-4095-A211-2892E8CF6770}.Release|x86.Build.0 = Release|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Debug|x64.Build.0 = Debug|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Debug|x86.Build.0 = Debug|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|x64.ActiveCfg = Release|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|x64.Build.0 = Release|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|x86.ActiveCfg = Release|Any CPU
+		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

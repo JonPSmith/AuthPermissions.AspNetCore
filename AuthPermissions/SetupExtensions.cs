@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupCode;
@@ -47,7 +48,7 @@ namespace AuthPermissions
         {
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(
                 options => options.UseSqlServer(connectionString, dbOptions =>
-                    dbOptions.MigrationsHistoryTable(PermissionConstants.MigrationsHistoryTableName)));
+                    dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName)));
             setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.SqlServer;
 
             return setupData;

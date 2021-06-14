@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -17,7 +18,7 @@ namespace AuthPermissions.DataLayer.EfCode
             var optionsBuilder =                              
                 new DbContextOptionsBuilder<AuthPermissionsDbContext>(); 
             optionsBuilder.UseSqlServer(connectionString, dbOptions =>
-                dbOptions.MigrationsHistoryTable(PermissionConstants.MigrationsHistoryTableName));    
+                dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));    
 
             return new AuthPermissionsDbContext(optionsBuilder.Options); 
         }

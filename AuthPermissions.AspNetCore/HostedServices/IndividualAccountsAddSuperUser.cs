@@ -35,8 +35,8 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
                 var superUserInfo = services.GetSuperUserConfigData();
-
-                var superUser = await CheckAddNewUserAsync(userManager, superUserInfo.email, superUserInfo.password);
+                if (!string.IsNullOrEmpty(superUserInfo.email))
+                    await CheckAddNewUserAsync(userManager, superUserInfo.email, superUserInfo.password);
             }
         }
 

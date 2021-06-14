@@ -3,12 +3,23 @@
 
 namespace AuthPermissions.PermissionsCode
 {
+    /// <summary>
+    /// Various permission constants
+    /// </summary>
     public static class PermissionConstants
     {
+        /// <summary>
+        /// The claim name holding the packed permission string
+        /// </summary>
         public const string PackedPermissionClaimType = "Permissions";
-        public const string DayaKeyClaimType = "DataKey";
-        public const char PackedAccessAllPermission = (char) ushort.MaxValue;
+        /// <summary>
+        /// The claim name holding the optional DataKey
+        /// </summary>
+        public const string DataKeyClaimType = "DataKey";
 
-        public const string MigrationsHistoryTableName = nameof(AuthPermissions);
+        /// <summary>
+        /// This is the char for the AccessAll permission
+        /// </summary>
+        public const char PackedAccessAllPermission = (char) ushort.MaxValue;
     }
 }

@@ -52,7 +52,7 @@ namespace AuthPermissions.AspNetCore.Services
             var dataKey = await _calcDataKey.GetDataKeyAsync(userId);
             if (dataKey != null)
             {
-                identity.AddClaim(new Claim(PermissionConstants.DayaKeyClaimType, dataKey));
+                identity.AddClaim(new Claim(PermissionConstants.DataKeyClaimType, dataKey));
             }
             return identity;
         }
