@@ -61,9 +61,8 @@ namespace AuthPermissions
         /// <returns></returns>
         public static AuthSetupData UsingInMemoryDatabase(this AuthSetupData setupData)
         {
-            var inMemoryConnection = SetupSqliteInMemoryConnection();
-            setupData.Services.AddDbContext<AuthPermissionsDbContext>(
-                options => options.UseSqlite(inMemoryConnection));
+            setupData.Services.AddDbContext<AuthPermissionsDbContext>(opt =>
+                opt.UseInMemoryDatabase(nameof(AuthPermissionsDbContext)));
             setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.InMemory;
 
             using var serviceProvider = setupData.Services.BuildServiceProvider();

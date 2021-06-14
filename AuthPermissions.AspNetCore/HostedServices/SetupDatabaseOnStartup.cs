@@ -29,7 +29,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
                 try
                 {
-                    if (context.Database.IsSqlite())
+                    if (context.Database.IsInMemory())
                         await context.Database.EnsureCreatedAsync(cancellationToken);
                     else
                         await context.Database.MigrateAsync(cancellationToken);

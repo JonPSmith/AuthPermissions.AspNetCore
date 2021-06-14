@@ -3,7 +3,7 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using Example1.RazorPages.IndividualAccounts.Data;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
-using Example1.RazorPages.IndividualAccounts.Services;
+using Microsoft.EntityFrameworkCore.InMemory;
 using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,7 +29,8 @@ namespace Example1.RazorPages.IndividualAccounts
         {
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.RegisterInMemoryDb<ApplicationDbContext>(); //Made the db in-memory
+            services.AddDbContext<ApplicationDbContext>(opt =>
+                opt.UseInMemoryDatabase(nameof(ApplicationDbContext)));
 
             services.AddDefaultIdentity<IdentityUser>(
                     options => options.SignIn.RequireConfirmedAccount = false)
@@ -42,7 +43,7 @@ namespace Example1.RazorPages.IndividualAccounts
                 options.Conventions.AuthorizePage("/AuthBuiltIn/LoggedInConfigure");
             });
 
-            //The HostedServices to run at startup
+            //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered
             services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
             services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json

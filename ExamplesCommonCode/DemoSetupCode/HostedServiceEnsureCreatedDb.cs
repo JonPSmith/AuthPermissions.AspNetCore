@@ -27,7 +27,7 @@ namespace ExamplesCommonCode.DemoSetupCode
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<TContext>();
 
-                if (context.Database.IsSqlite())
+                if (context.Database.IsInMemory())
                     await context.Database.EnsureCreatedAsync(cancellationToken);
                 else
                     await context.Database.MigrateAsync(cancellationToken);
