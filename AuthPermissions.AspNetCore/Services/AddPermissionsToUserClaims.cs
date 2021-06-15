@@ -3,10 +3,7 @@
 
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AuthPermissions.DataKeyCode;
-using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
-using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -14,28 +11,24 @@ namespace AuthPermissions.AspNetCore.Services
 {
     /// <summary>
     /// This version provides:
-    /// - Adds Permissions to the user's claims.
+    /// - Adds Permissions and DataKey claims to the user's claims.
     /// </summary>
     // Thanks to https://korzh.com/blogs/net-tricks/aspnet-identity-store-user-data-in-claims
     public class AddPermissionsToUserClaims : UserClaimsPrincipalFactory<IdentityUser>
     {
-        private readonly ICalcAllowedPermissions _calcAllowedPermissions;
-        private readonly ICalcDataKey _calcDataKey;
-
+        private readonly IClaimsCalculator _claimsCalculator;
 
         /// <summary>
         /// Needs UserManager and IdentityOptions, plus the two services to provide the permissions and dataKey
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="optionsAccessor"></param>
-        /// <param name="calcAllowedPermissions"></param>
-        /// <param name="calcDataKey"></param>
-        public AddPermissionsToUserClaims(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor, 
-            ICalcAllowedPermissions calcAllowedPermissions, ICalcDataKey calcDataKey)
+        /// <param name="claimsCalculator"></param>
+        public AddPermissionsToUserClaims(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor,
+            IClaimsCalculator claimsCalculator)
             : base(userManager, optionsAccessor)
         {
-            _calcAllowedPermissions = calcAllowedPermissions;
-            _calcDataKey = calcDataKey;
+            _claimsCalculator = claimsCalculator;
         }
 
         /// <summary>
@@ -47,13 +40,9 @@ namespace AuthPermissions.AspNetCore.Services
         {
             var identity = await base.GenerateClaimsAsync(user);
             var userId = identity.Claims.GetUserIdFromClaims();
-            var permissions = await _calcAllowedPermissions.CalcPermissionsForUserAsync(userId);
-            identity.AddClaim(new Claim(PermissionConstants.PackedPermissionClaimType, permissions));
-            var dataKey = await _calcDataKey.GetDataKeyAsync(userId);
-            if (dataKey != null)
-            {
-                identity.AddClaim(new Claim(PermissionConstants.DataKeyClaimType, dataKey));
-            }
+            var claims = await _claimsCalculator.GetClaimsForAuthUser(userId);
+            identity.AddClaims(claims);
+
             return identity;
         }
     }

@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="AdminCode\" />
+    <Folder Include="DataKeyCode\" />
   </ItemGroup>
 
 </Project>

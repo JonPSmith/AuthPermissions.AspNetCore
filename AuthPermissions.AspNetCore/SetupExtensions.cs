@@ -5,8 +5,6 @@ using System;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.DataKeyCode;
-using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -73,8 +71,7 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
             setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
-            setupData.Services.AddScoped<ICalcAllowedPermissions, CalcAllowedPermissions>();
-            setupData.Services.AddScoped<ICalcDataKey, CalcDataKey>();
+            setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
         }
     }
 }

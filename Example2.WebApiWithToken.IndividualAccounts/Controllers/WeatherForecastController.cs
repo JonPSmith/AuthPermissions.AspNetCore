@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AspNetCore;
+using Example2.WebApiWithToken.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
@@ -24,7 +26,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
             _logger = logger;
         }
 
-        [Authorize]
+        [HasPermission(Example2Permissions.Permission1)]
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
