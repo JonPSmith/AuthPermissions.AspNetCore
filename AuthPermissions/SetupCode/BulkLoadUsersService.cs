@@ -101,7 +101,7 @@ namespace AuthPermissions.SetupCode
                         $"The user {userDefine.UserName} has a tenant name of {userDefine.TenantNameForDataKey} which wasn't found in the auth database."));
             }
 
-            var authUser = new AuthUser(userId, userDefine.UserName, rolesToPermissions, userTenant);
+            var authUser = new AuthUser(userId, userDefine.UserName, userDefine.Email, rolesToPermissions, userTenant);
             _context.Add(authUser);
 
             return status;

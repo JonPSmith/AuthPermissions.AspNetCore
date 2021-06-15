@@ -14,9 +14,9 @@ SuperRole: AccessAll";
 
         public static List<DefineUserWithRolesTenant> UsersRolesDefinition = new List<DefineUserWithRolesTenant>
         {
-            new DefineUserWithRolesTenant("Permission1@g1.com", "Role1"),
-            new DefineUserWithRolesTenant("Permission2@g1.com", "Role2"),
-            new DefineUserWithRolesTenant("Super@g1.com", "SuperRole"),
+            new DefineUserWithRolesTenant("Permission1@g1.com", null, "Role1"),
+            new DefineUserWithRolesTenant("Permission2@g1.com", null, "Role2"),
+            new DefineUserWithRolesTenant( "Super@g1.com", null, "SuperRole"),
         };
     }
 }

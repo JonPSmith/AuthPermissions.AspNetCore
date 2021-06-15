@@ -8,22 +8,27 @@ using AuthPermissions.DataLayer.Classes.SupportTypes;
 
 namespace AuthPermissions.SetupCode
 {
+    /// <summary>
+    /// Class used to define users with their roles and tenant
+    /// </summary>
     public class DefineUserWithRolesTenant
     {
         /// <summary>
         /// This defines a user in your application
         /// </summary>
+        /// <param name="email">Unique email</param>
         /// <param name="userName">name to help the admin team to work out who the user is</param>
         /// <param name="roleNamesCommaDelimited">A string containing a comma delimited set of auth roles that the user</param>
         /// <param name="userId"></param>
         /// <param name="uniqueUserName">A string that is unique for each user, e.g. email. If not provided then uses the userName</param>
         /// <param name="tenantNameForDataKey">Optional: The unique name of your multi-tenant that this user is linked to</param>
-        public DefineUserWithRolesTenant(string userName, string roleNamesCommaDelimited,
+        public DefineUserWithRolesTenant(string email, string userName, string roleNamesCommaDelimited,
             string userId = null,
             string uniqueUserName = null, string tenantNameForDataKey = null)
         {
             UserId = userId; //Can be null
-            UserName = userName ?? throw new ArgumentNullException(nameof(userName));
+            Email = email ?? throw new ArgumentNullException(nameof(email));
+            UserName = userName ?? email;
             RoleNamesCommaDelimited = roleNamesCommaDelimited ??
                                       throw new ArgumentNullException(nameof(roleNamesCommaDelimited));
             UniqueUserName = uniqueUserName ?? UserName;
@@ -35,6 +40,11 @@ namespace AuthPermissions.SetupCode
         /// You can add the userId directly or provide a FindUserId function to set value
         /// </summary>
         public string UserId { get; set; }
+
+        /// <summary>
+        /// Contains a name to help the admin team to work out who the user is
+        /// </summary>
+        public string Email { get; private set; }
 
         /// <summary>
         /// Contains a name to help the admin team to work out who the user is

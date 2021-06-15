@@ -12,14 +12,25 @@ using StatusGeneric;
 
 namespace AuthPermissions.SetupCode
 {
+    /// <summary>
+    /// This setups Tenants from a string containing a line for each tenant
+    /// For non-
+    /// non-hierarchical: Tenant1
+    /// hierarchical:     Company | West Coast | SanFran 
+    /// </summary>
     public class BulkLoadTenantsService
     {
         private readonly AuthPermissionsDbContext _context;
 
+        /// <summary>
+        /// requires access to the AuthPermissionsDbContext
+        /// </summary>
+        /// <param name="context"></param>
         public BulkLoadTenantsService(AuthPermissionsDbContext context)
         {
             _context = context;
         }
+
 
         public async Task<IStatusGeneric> AddTenantsToDatabaseIfEmptyAsync(string linesOfText, IAuthPermissionsOptions options)
         {

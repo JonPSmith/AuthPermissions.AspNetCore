@@ -29,7 +29,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var rolePer2 = RoleToPermissions.CreateRoleWithPermissions("Role2", null,
                 $"{(char)2}{(char)3}", context).Result;
             context.AddRange(rolePer1, rolePer2);
-            var user = new AuthUser("User1", null, new[] {rolePer1});
+            var user = new AuthUser("User1", "User1@g.com", null, new[] {rolePer1});
             context.Add(user);
             context.SaveChanges();
 
@@ -57,7 +57,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var rolePer2 = RoleToPermissions.CreateRoleWithPermissions("Role2", null,
                 $"{(char)2}{(char)3}", context).Result;
             context.AddRange(rolePer1, rolePer2);
-            var user = new AuthUser("User1", null, new[] { rolePer1, rolePer2 });
+            var user = new AuthUser("User1", "User1@g.com", null, new[] { rolePer1, rolePer2 });
             context.Add(user);
             context.SaveChanges();
 

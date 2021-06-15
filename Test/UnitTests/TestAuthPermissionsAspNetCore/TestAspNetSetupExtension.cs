@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -125,9 +126,10 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
         public async Task TestSetupAspNetCoreAddRolesPermissionsUsersIfEmpty()
         {
             //SETUP
+            var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
-                .UsingInMemoryDatabase()
+                .UsingInMemoryDatabase(inMemoryName)
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
@@ -154,9 +156,10 @@ Role3: One")
         public async Task TestSetupAspNetCoreSuperUserAddRolesPermissionsUsersIfEmpty()
         {
             //SETUP
+            var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
-                .UsingInMemoryDatabase()
+                .UsingInMemoryDatabase(inMemoryName)
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
@@ -190,9 +193,10 @@ Role3: One")
         public async Task TestSetupAspNetCoreAddRolesPermissionsUsersIfEmptyAndTenants()
         {
             //SETUP
+            var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleTenant)
-                .UsingInMemoryDatabase()
+                .UsingInMemoryDatabase(inMemoryName)
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")

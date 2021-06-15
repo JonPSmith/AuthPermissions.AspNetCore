@@ -58,11 +58,12 @@ namespace AuthPermissions
         /// This registers an in-memory database. The data added to this database will be lost when the app/unit test stops
         /// </summary>
         /// <param name="setupData"></param>
+        /// <param name="inMemoryDbName">optional: Use when debugging to obtain the same InMemory database</param>
         /// <returns></returns>
-        public static AuthSetupData UsingInMemoryDatabase(this AuthSetupData setupData)
+        public static AuthSetupData UsingInMemoryDatabase(this AuthSetupData setupData, string inMemoryDbName = null)
         {
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(opt =>
-                opt.UseInMemoryDatabase(nameof(AuthPermissionsDbContext)));
+                opt.UseInMemoryDatabase(inMemoryDbName ?? Guid.NewGuid().ToString()));
             setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.InMemory;
 
             using var serviceProvider = setupData.Services.BuildServiceProvider();
@@ -186,21 +187,9 @@ namespace AuthPermissions
 
             status.IfErrorsTurnToException();
 
+            await context.SaveChangesAsync();
+
             return context;
         }
-
-        //------------------------------------------------
-        //private methods
-
-        private static SqliteConnection SetupSqliteInMemoryConnection()
-        {
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
-            var connectionString = connectionStringBuilder.ToString();
-            var connection = new SqliteConnection(connectionString);
-            connection.Open();  //see https://github.com/aspnet/EntityFramework/issues/6968
-            return connection;
-        }
-
-
     }
 }

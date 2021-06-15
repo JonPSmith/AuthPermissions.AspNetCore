@@ -26,7 +26,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             var tenant = new Tenant("Tenant1");
             var role = new RoleToPermissions("Role1", null, $"{((char) 1)}");
-            var user = new AuthUser("User1", null, new [] {role}, tenant);
+            var user = new AuthUser("User1", "User1@g.com", null, new [] {role}, tenant);
             context.AddRange(tenant, role, user);
             context.SaveChanges();
 

@@ -1,10 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Example2.WebApiWithToken.IndividualAccounts.JwtCode;
@@ -50,6 +45,14 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
             await HttpContext.AuthenticateAsync();
 
             return Ok(_tokenBuilder.GenerateJwtToken(user, claims));
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("authenticate")]
+        public async Task<ActionResult> QuickAuthenticate()
+        {
+            return await Authenticate(new LoginUserModel {Email = "Super@g1.com", Password = "Super@g1.com"});
         }
     }
 }

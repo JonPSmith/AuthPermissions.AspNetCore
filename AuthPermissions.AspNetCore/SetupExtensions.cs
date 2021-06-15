@@ -14,6 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthPermissions.AspNetCore
 {
+    /// <summary>
+    /// A set of extension methods for creation and configuring the AuthPermissions that uses ASP.NET Core features
+    /// </summary>
     public static class SetupExtensions
     {
         /// <summary>

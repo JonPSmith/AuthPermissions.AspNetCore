@@ -15,6 +15,10 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
         /// <summary>
         /// Max size of the UserName string
         /// </summary>
+        public const int EmailSize = 256;//must be below 900 bytes because it has a unique index
+        /// <summary>
+        /// Max size of the UserName string
+        /// </summary>
         public const int UserNameSize = 128;
         /// <summary>
         /// Max size of the RoleName string

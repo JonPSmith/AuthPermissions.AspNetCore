@@ -16,9 +16,10 @@ using StatusGeneric;
 namespace AuthPermissions.DataLayer.Classes
 {
     /// <summary>
-    /// This defines a simple user (UserId and username) which will hold the roles and tenant data
+    /// This defines a simple user (UserId, email and username) which will hold the roles and tenant data
     /// for this user.
     /// </summary>
+    [Index(nameof(Email), IsUnique = true)]
     public class AuthUser
     {
         private HashSet<UserToRole> _userRoles;
@@ -29,13 +30,15 @@ namespace AuthPermissions.DataLayer.Classes
         /// Define a user with there default roles
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="email"></param>
         /// <param name="userName"></param>
         /// <param name="roles"></param>
         /// <param name="userTenant"></param>
-        public AuthUser(string userId, string userName, IEnumerable<RoleToPermissions> roles, Tenant userTenant = null)
+        public AuthUser(string userId, string email, string userName, IEnumerable<RoleToPermissions> roles, Tenant userTenant = null)
         {
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-            UserName = userName;
+            Email = email ?? throw new ArgumentNullException(nameof(email));
+            UserName = userName ?? Email;
             _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(userId, x)));
             UserTenant = userTenant;
         }
@@ -47,6 +50,13 @@ namespace AuthPermissions.DataLayer.Classes
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.UserIdSize)]
         public string UserId { get; private set; }
+
+        /// <summary>
+        /// Contains the Email, which is used for lookup
+        /// </summary>
+        [Required(AllowEmptyStrings = false)]
+        [MaxLength(AuthDbConstants.EmailSize)]
+        public string Email { get; private set; }
 
         /// <summary>
         /// Contains a name to help work out who the user is
