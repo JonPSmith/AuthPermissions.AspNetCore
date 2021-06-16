@@ -1,19 +1,37 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
+using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.PermissionsCode.Internal;
 using AuthPermissions.SetupCode;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.Extensions.Options;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers
 {
     public static class SetupHelpers
     {
+        public static IOptions<JwtData> CreateJwtDataOptions(TimeSpan expiresIn = default)
+        {
+
+            var data = new JwtData
+            {
+                Issuer = "issuer",
+                Audience = "audience",
+                SigningKey = "long-key-with-lots-of-data-in-it",
+                Expires = expiresIn == default ? new TimeSpan(0, 0, 50) : expiresIn,
+                RefreshTokenExpires = expiresIn == default ? new TimeSpan(0, 0, 50) : expiresIn,
+            };
+
+            return Options.Create(data);
+        }
+
+
         public static void SetupRolesInDb(this AuthPermissionsDbContext context, string lines = null)
         {
             lines ??= @"Role1 : One
@@ -26,11 +44,12 @@ Role3: Three";
             context.SaveChanges();
         }
 
-        public static void AddUserWithRoleInDb(this AuthPermissionsDbContext context, int numAdded, string userId = "User1")
+        public static AuthUser AddUserWithRoleInDb(this AuthPermissionsDbContext context, string userId = "User1")
         {
             var user = new AuthUser(userId, userId, null, context.RoleToPermissions.OrderBy(x => x.RoleName));
             context.Add(user);
             context.SaveChanges();
+            return user;
         }
 
         public static void SetupTenantsInDb(this AuthPermissionsDbContext context)

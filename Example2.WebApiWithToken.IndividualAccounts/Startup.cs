@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,11 +7,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.AspNetCore.Services;
 using Example2.WebApiWithToken.IndividualAccounts.Data;
-using Example2.WebApiWithToken.IndividualAccounts.JwtCode;
 using Example2.WebApiWithToken.IndividualAccounts.Models;
 using Example2.WebApiWithToken.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.DemoSetupCode;
@@ -39,10 +41,10 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
-            // Configure Authentication
+            // Configure Authentication using JWT token with refresh capability
             var jwtData = new JwtData();
-            Configuration.Bind(JwtData.SectionName, jwtData);
-            services.Configure<JwtData>(Configuration.GetSection(JwtData.SectionName));
+            Configuration.Bind(nameof(JwtData), jwtData);
+            services.Configure<JwtData>(Configuration.GetSection(nameof(JwtData)));
             services.AddAuthentication(auth =>
                 {
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,7 +61,21 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                         ValidateAudience = true,
                         ValidAudience = jwtData.Audience,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SigningKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SigningKey)),
+                        ClockSkew = TimeSpan.Zero //The default is 5 minutes, but we want a quick 
+                    };
+
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                            {
+                                context.Response.Headers.Add("Token-Expired", "true");
+                            }
+                            return Task.CompletedTask;
+                        }
                     };
                 });
 

@@ -34,6 +34,17 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
         public const int TenantDataKeySize = 100;
 
         /// <summary>
+        /// Max size of the TokenValue in the RefreshToken
+        /// This comes from the 32 bytes being turned into Base64, which becomes 44 chars long
+        /// </summary>
+        public const int RefreshTokenValueSize = 50;
+
+        /// <summary>
+        /// This is the number of bytes in the RandomNumberGenerator used in the JWT RefreshToken
+        /// </summary>
+        public const int RefreshTokenRandomByteSize = 32;
+
+        /// <summary>
         /// the name of the EF Core migration 
         /// </summary>
         public const string MigrationsHistoryTableName = "__AuthPermissionsMigrationHistory";

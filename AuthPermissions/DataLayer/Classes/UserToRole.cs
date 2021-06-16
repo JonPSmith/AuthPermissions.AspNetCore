@@ -28,7 +28,7 @@ namespace AuthPermissions.DataLayer.Classes
         }
 
         /// <summary>
-        /// The user
+        /// The user Id
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.UserIdSize)]

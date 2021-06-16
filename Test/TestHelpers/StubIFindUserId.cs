@@ -6,7 +6,7 @@ using AuthPermissions.SetupCode;
 
 namespace Test.TestHelpers
 {
-    public class MockIFindUserId : IFindUserIdService
+    public class StubIFindUserId : IFindUserIdService
     {
         public Task<string> FindUserIdAsync(string uniqueName)
         {

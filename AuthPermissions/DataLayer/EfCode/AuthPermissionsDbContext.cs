@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthPermissions.DataLayer.EfCode
@@ -16,6 +17,8 @@ namespace AuthPermissions.DataLayer.EfCode
         public DbSet<RoleToPermissions> RoleToPermissions { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<UserToRole> UserToRoles { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +31,15 @@ namespace AuthPermissions.DataLayer.EfCode
             modelBuilder.Entity<Tenant>()
                 .Property("_parentDataKey")
                 .HasColumnName("ParentDataKey");
+
+            modelBuilder.Entity<RefreshToken>()
+                .Property(x => x.TokenValue)
+                .IsUnicode(false)
+                .HasMaxLength(AuthDbConstants.RefreshTokenValueSize)
+                .IsRequired();
+
+            modelBuilder.Entity<RefreshToken>()
+                .HasKey(x => x.TokenValue);
         }
     }
 }

@@ -3,12 +3,14 @@
 
 using System.Collections.Generic;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
-namespace Example2.WebApiWithToken.IndividualAccounts.JwtCode
+namespace AuthPermissions.AspNetCore.JwtTokenCode
 {
     public interface ITokenBuilder
     {
-        string GenerateJwtToken(IdentityUser user, IEnumerable<Claim> claims);
+        Task<string> GenerateJwtTokenAsync(string userId);
+
+        public Task<TokenAndRefreshToken> GenerateTokenAndRefreshTokenAsync(string userId);
     }
 }

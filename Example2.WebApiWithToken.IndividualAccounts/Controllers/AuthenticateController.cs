@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions;
-using Example2.WebApiWithToken.IndividualAccounts.JwtCode;
+using AuthPermissions.AspNetCore.JwtTokenCode;
 using Example2.WebApiWithToken.IndividualAccounts.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -18,16 +15,19 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ITokenBuilder _tokenBuilder;
-        private readonly IClaimsCalculator _claimsCalculator;
 
         public AuthenticateController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, ITokenBuilder tokenBuilder, IClaimsCalculator claimsCalculator)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _tokenBuilder = tokenBuilder;
-            _claimsCalculator = claimsCalculator;
         }
 
+        /// <summary>
+        /// This 
+        /// </summary>
+        /// <param name="loginUser"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("authenticate")]
@@ -40,13 +40,12 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
                 return BadRequest(new { message = "Username or password is incorrect" });
             }
             var user = await _userManager.FindByEmailAsync(loginUser.Email);
-            var claims = await _claimsCalculator.GetClaimsForAuthUser(user.Id);
 
-            return Ok(_tokenBuilder.GenerateJwtToken(user, claims));
+            return Ok(await _tokenBuilder.GenerateJwtTokenAsync(user.Id));
         }
 
         /// <summary>
-        /// This will generate for the user "Super@g1.com"
+        /// This will generate fa JWT token for the user "Super@g1.com"
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
@@ -56,5 +55,48 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         {
             return await Authenticate(new LoginUserModel {Email = "Super@g1.com", Password = "Super@g1.com"});
         }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("authenticatewithrefresh")]
+        public async Task<ActionResult<TokenAndRefreshToken>> AuthenticateWithRefresh(LoginUserModel loginUser)
+        {
+            //NOTE: The _signInManager.PasswordSignInAsync does not change the current ClaimsPrincipal - that only happens on the next access with the token
+            var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, false);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { message = "Username or password is incorrect" });
+            }
+            var user = await _userManager.FindByEmailAsync(loginUser.Email);
+
+            return Ok(await _tokenBuilder.GenerateTokenAndRefreshTokenAsync(user.Id));
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("quickauthenticatewithrefresh")]
+        public Task<ActionResult<TokenAndRefreshToken>> QuickAuthenticateWithRefresh()
+        {
+            return AuthenticateWithRefresh(new LoginUserModel {Email = "Super@g1.com", Password = "Super@g1.com"});
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("refreshauthentication")]
+        public async Task<ActionResult<TokenAndRefreshToken>> RefreshAuthentication(LoginUserModel loginUser)
+        {
+            //NOTE: The _signInManager.PasswordSignInAsync does not change the current ClaimsPrincipal - that only happens on the next access with the token
+            var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, false);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { message = "Username or password is incorrect" });
+            }
+            var user = await _userManager.FindByEmailAsync(loginUser.Email);
+
+            return Ok(await _tokenBuilder.GenerateTokenAndRefreshTokenAsync(user.Id));
+        }
+
+
+
     }
 }

@@ -66,7 +66,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, new MockIFindUserId(), new AuthPermissionsOptions());
+            var service = new BulkLoadUsersService(context, new StubIFindUserId(), new AuthPermissionsOptions());
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
