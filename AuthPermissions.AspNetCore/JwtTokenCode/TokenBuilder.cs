@@ -165,7 +165,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
                 Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, userId) }),
                 Issuer = _jwtData.Issuer,
                 Audience = _jwtData.Audience,
-                Expires = DateTime.UtcNow.Add(_jwtData.Expires),
+                Expires = DateTime.UtcNow.Add(_jwtData.TokenExpires),
                 SigningCredentials =
                     new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Claims = claims.ToDictionary(x => x.Type, y => (object)y.Value)

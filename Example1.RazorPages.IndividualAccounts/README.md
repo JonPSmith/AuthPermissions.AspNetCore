@@ -8,7 +8,7 @@ This project contains a example of using the AuthPermissions.AspNetCore library 
 - **Roles**: Handled by AuthPermissions
 - **DataKey**: not used
 - **Database type**: SQLite in-memory
-- **Databases**: Two databases 
+- **Databases**: Two databases
   - ASP.NET Core ApplicationDbContext for individual users.
   - AuthPermissionsDbContext for AuthPermissions features.
 
@@ -16,11 +16,11 @@ The ASP.NET Core code comes comes from the [ASP.NET Core documentation on buildi
 
 The AuthPermissions.AspNetCore code/features used in this example
 
-- Mapping the user's Roles to Permissions (read this doc).
-- Authorization in razor pages via the `IsAuthorized(<enum permission>)` method.
-- UserId data key, plus permissions.
+- Mapping the user's Roles to Permissions (read this doc !!! link needed !!!).
+- Authorization in razor pages via the `[HasPermission(<enum permission>)]` attribute on the `PageModel` class.
+- Authorization in razor pages via the `IsAuthorized(<enum permission>)` method in the razor page itself.
 - Add SuperUser on startup feature.
 - Admin page to alter the permissions in each role.
 
-*NOTE: [This article](https://blog.francium.tech/asp-net-core-basic-authentication-authorization-in-razor-pages-with-postgresql-b1f2888b21d0) provides a good overview of the statndard ASP.NET Core authorization approaches.*
+*NOTE: [This article](https://blog.francium.tech/asp-net-core-basic-authentication-authorization-in-razor-pages-with-postgresql-b1f2888b21d0) provides a good overview of the standard ASP.NET Core authorization approaches.*
 

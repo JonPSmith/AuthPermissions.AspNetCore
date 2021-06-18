@@ -10,10 +10,25 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
     /// </summary>
     public class JwtData
     {
+        /// <summary>
+        /// This identifies provider that issued the JWT
+        /// </summary>
         public string Issuer { get; set; }
+        /// <summary>
+        /// This identifies the recipients that the JWT is intended for
+        /// </summary>
         public string Audience { get; set; }
+        /// <summary>
+        /// This is a SECRET key that both the issuer and audience have to have 
+        /// </summary>
         public string SigningKey { get; set; }
-        public TimeSpan Expires { get; set; }
+        /// <summary>
+        /// JWT Token' `Expires` property is set to a date by added a `TokenExpires` timespan to the current Datetime.UtcNow
+        /// </summary>
+        public TimeSpan TokenExpires { get; set; }
+        /// <summary>
+        /// This Timespan is used to work out if the RefreshToken (in the database) has expired or not
+        /// </summary>
         public TimeSpan RefreshTokenExpires { get; set; }
     }
 }

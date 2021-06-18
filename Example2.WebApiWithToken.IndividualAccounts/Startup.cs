@@ -65,7 +65,8 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                         ClockSkew = TimeSpan.Zero //The default is 5 minutes, but we want a quick 
                     };
 
-
+                    //This code came from https://www.blinkingcaret.com/2018/05/30/refresh-tokens-in-asp-net-core-web-api/
+                    //It returns a useful header if the JWT Token has expired
                     options.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = context =>

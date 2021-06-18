@@ -24,7 +24,7 @@ namespace Test.TestHelpers
                 Issuer = "issuer",
                 Audience = "audience",
                 SigningKey = "long-key-with-lots-of-data-in-it",
-                Expires = expiresIn == default ? new TimeSpan(0, 0, 50) : expiresIn,
+                TokenExpires = expiresIn == default ? new TimeSpan(0, 0, 50) : expiresIn,
                 RefreshTokenExpires = expiresIn == default ? new TimeSpan(0, 0, 50) : expiresIn,
             };
 
