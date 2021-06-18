@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace AuthPermissions.DataLayer.Migrations
 {
@@ -8,6 +9,22 @@ namespace AuthPermissions.DataLayer.Migrations
         {
             migrationBuilder.EnsureSchema(
                 name: "authp");
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                schema: "authp",
+                columns: table => new
+                {
+                    TokenValue = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    JwtId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsInvalid = table.Column<bool>(type: "bit", nullable: false),
+                    AddedDateUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.TokenValue);
+                });
 
             migrationBuilder.CreateTable(
                 name: "RoleToPermissions",
@@ -52,6 +69,7 @@ namespace AuthPermissions.DataLayer.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     TenantId = table.Column<int>(type: "int", nullable: true)
                 },
@@ -109,6 +127,13 @@ namespace AuthPermissions.DataLayer.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                schema: "authp",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_TenantId",
                 schema: "authp",
                 table: "Users",
@@ -129,6 +154,10 @@ namespace AuthPermissions.DataLayer.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "RefreshTokens",
+                schema: "authp");
+
             migrationBuilder.DropTable(
                 name: "UserToRoles",
                 schema: "authp");

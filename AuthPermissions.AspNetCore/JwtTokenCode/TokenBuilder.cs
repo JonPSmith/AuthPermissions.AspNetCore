@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.Extensions.Logging;
@@ -120,13 +121,19 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             }
 
             //Success, so we ...
-            //a) Create a JWT containing the same data, but with a new Expired time
-            var userId = claimsPrincipal.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            //a) get the UserId
+            var userId = claimsPrincipal.Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                throw new AuthPermissionsException(
+                    $"The JTW token didn't contain a claim holding the UserId. Token = {tokenAndRefresh.Token}");
+            }
+            //b) Create a JWT containing the same data, but with a new Expired time
             var tokenAndDesc = GenerateJwtTokenHandler(userId, claimsPrincipal.Claims);
             var token = tokenAndDesc.tokenHandler.CreateToken(tokenAndDesc.tokenDescriptor);
-            //b) Mark the refreshTokenFromDb as used
+            //c) Mark the refreshTokenFromDb as used
             refreshTokenFromDb.MarkAsInvalid();
-            //c) Create a new RefreshToken and write to the database
+            //d) Create a new RefreshToken and write to the database
             var newRefreshToken = RefreshToken.CreateNewRefreshToken(userId, token.Id);
             _context.Add(newRefreshToken);
             await _context.SaveChangesAsync();

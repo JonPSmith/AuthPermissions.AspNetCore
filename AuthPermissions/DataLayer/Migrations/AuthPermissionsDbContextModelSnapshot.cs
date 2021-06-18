@@ -71,7 +71,7 @@ namespace AuthPermissions.DataLayer.Migrations
 
                     b.HasKey("TokenValue");
 
-                    b.ToTable("RefreshToken");
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("AuthPermissions.DataLayer.Classes.RoleToPermissions", b =>

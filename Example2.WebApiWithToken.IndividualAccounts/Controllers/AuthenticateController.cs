@@ -24,7 +24,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         }
 
         /// <summary>
-        /// This 
+        /// This checks you are a valid user and returns a JTW token
         /// </summary>
         /// <param name="loginUser"></param>
         /// <returns></returns>
@@ -45,7 +45,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         }
 
         /// <summary>
-        /// This will generate fa JWT token for the user "Super@g1.com"
+        /// DEMO ONLY: This will generate a JWT token for the user "Super@g1.com"
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
@@ -56,6 +56,11 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
             return await Authenticate(new LoginUserModel {Email = "Super@g1.com", Password = "Super@g1.com"});
         }
 
+        /// <summary>
+        /// This checks you are a valid user and returns a JTW token and a Refresh token
+        /// </summary>
+        /// <param name="loginUser"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("authenticatewithrefresh")]
@@ -72,6 +77,10 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
             return Ok(await _tokenBuilder.GenerateTokenAndRefreshTokenAsync(user.Id));
         }
 
+        /// <summary>
+        /// DEMO ONLY: This will generate a JWT token and a Refresh token for the user "Super@g1.com"
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("quickauthenticatewithrefresh")]
@@ -80,20 +89,21 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
             return AuthenticateWithRefresh(new LoginUserModel {Email = "Super@g1.com", Password = "Super@g1.com"});
         }
 
+        /// <summary>
+        /// This will refresh the JWT token using the provided Refresh token
+        /// </summary>
+        /// <param name="tokenAndRefresh"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("refreshauthentication")]
-        public async Task<ActionResult<TokenAndRefreshToken>> RefreshAuthentication(LoginUserModel loginUser)
+        public async Task<ActionResult<TokenAndRefreshToken>> RefreshAuthentication(TokenAndRefreshToken tokenAndRefresh)
         {
-            //NOTE: The _signInManager.PasswordSignInAsync does not change the current ClaimsPrincipal - that only happens on the next access with the token
-            var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, false);
-            if (!result.Succeeded)
-            {
-                return BadRequest(new { message = "Username or password is incorrect" });
-            }
-            var user = await _userManager.FindByEmailAsync(loginUser.Email);
+            var result = await _tokenBuilder.RefreshTokenUsingRefreshTokenAsync(tokenAndRefresh);
+            if (result.updatedTokens != null)
+                return result.updatedTokens;
 
-            return Ok(await _tokenBuilder.GenerateTokenAndRefreshTokenAsync(user.Id));
+            return StatusCode(result.HttpStatusCode);
         }
 
 

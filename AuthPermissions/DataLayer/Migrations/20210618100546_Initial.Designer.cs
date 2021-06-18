@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthPermissions.DataLayer.Migrations
 {
     [DbContext(typeof(AuthPermissionsDbContext))]
-    [Migration("20210614105332_Initial")]
+    [Migration("20210618100546_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,6 +28,11 @@ namespace AuthPermissions.DataLayer.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
@@ -37,9 +42,38 @@ namespace AuthPermissions.DataLayer.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("TenantId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.RefreshToken", b =>
+                {
+                    b.Property<string>("TokenValue")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("AddedDateUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsInvalid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JwtId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("TokenValue");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("AuthPermissions.DataLayer.Classes.RoleToPermissions", b =>
