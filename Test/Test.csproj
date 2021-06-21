@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="EfCore.TestSupport" Version="5.0.0" />
+    <PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.7" />

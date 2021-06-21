@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using TestSupport.EfHelpers;
@@ -34,7 +35,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadTenantsService(context);
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseIfEmptyAsync("", new AuthPermissionsOptions());
+            var status = await service.AddTenantsToDatabaseAsync("", new AuthPermissionsOptions());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -58,7 +59,7 @@ Tenant1
 Tenant3";
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseIfEmptyAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -84,7 +85,7 @@ Tenant3";
 Tenant2
 Tenant3";
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseIfEmptyAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -112,7 +113,7 @@ Tenant3
 Tenant3";
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseIfEmptyAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeFalse(status.GetAllErrors());
@@ -143,7 +144,7 @@ Company | West Coast | LA | Shop1
 Company | West Coast | LA | Shop2";
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseIfEmptyAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -179,7 +180,7 @@ Company | YY Coast | LA | Shop1
 Company | West Coast | LA | Shop2";
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseIfEmptyAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeFalse(); 

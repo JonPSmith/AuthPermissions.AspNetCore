@@ -7,7 +7,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +19,7 @@ namespace AuthPermissions.DataLayer.Classes
     /// for this user.
     /// </summary>
     [Index(nameof(Email), IsUnique = true)]
-    public class AuthUser
+    public class AuthUser : INameToShowOnException
     {
         private HashSet<UserToRole> _userRoles;
 
@@ -44,7 +43,7 @@ namespace AuthPermissions.DataLayer.Classes
         }
 
         /// <summary>
-        /// The user's Id is its primamry key
+        /// The user's Id is its primary key
         /// </summary>
         [Key]
         [Required(AllowEmptyStrings = false)]
@@ -82,6 +81,14 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         [ForeignKey(nameof(TenantId))]
         public Tenant UserTenant { get; private set; }
+
+        //--------------------------------------------------
+        // Exception Error name
+
+        /// <summary>
+        /// Used when there is an exception
+        /// </summary>
+        public string NameToUseForError => UserName ?? Email;
 
         //--------------------------------------------------
         // Access methods

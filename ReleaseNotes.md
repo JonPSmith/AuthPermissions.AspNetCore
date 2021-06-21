@@ -14,7 +14,11 @@
 - Provide more configuration options/features
   - Don't migrate the AuthPermission database on startup
   - Delete Expired Refresh Tokens on startup
-  - xx
+  - Optional Encript claims in JWT Token
+- Improve IFindUserId to IFindUser (ID and name)
+- Update AuthUsers with missing users (service and on startup)
+
+- Add checks at the end of registering the data, e.g. if using tenants all user must have a tenant
 
 ## Things not in the first release
 

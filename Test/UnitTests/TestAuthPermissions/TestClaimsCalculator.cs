@@ -7,7 +7,6 @@ using AuthPermissions;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
-using AuthPermissions.SetupCode;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -24,10 +23,10 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var rolePer1 = RoleToPermissions.CreateRoleWithPermissions("Role1", null,
-                $"{(char)1}{(char)3}", context).Result;
-            var rolePer2 = RoleToPermissions.CreateRoleWithPermissions("Role2", null,
-                $"{(char)2}{(char)3}", context).Result;
+            var rolePer1 = new RoleToPermissions("Role1", null,
+                $"{(char)1}{(char)3}");
+            var rolePer2 = new RoleToPermissions("Role2", null,
+                $"{(char)2}{(char)3}");
             context.AddRange(rolePer1, rolePer2);
             var user = new AuthUser("User1", "User1@g.com", null, new[] { rolePer1 });
             context.Add(user);
@@ -35,8 +34,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var authOptions = new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants };
-            var service = new ClaimsCalculator(context, authOptions);
+            var service = new ClaimsCalculator(context);
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("User1");
@@ -55,10 +53,10 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var rolePer1 = RoleToPermissions.CreateRoleWithPermissions("Role1", null,
-                $"{(char)1}{(char)3}", context).Result;
-            var rolePer2 = RoleToPermissions.CreateRoleWithPermissions("Role2", null,
-                $"{(char)2}{(char)3}", context).Result;
+            var rolePer1 = new RoleToPermissions("Role1", null,
+                $"{(char) 1}{(char) 3}");
+            var rolePer2 = new RoleToPermissions("Role2", null,
+                $"{(char)2}{(char)3}");
             context.AddRange(rolePer1, rolePer2);
             var user = new AuthUser("User1", "User1@g.com", null, new[] { rolePer1, rolePer2 });
             context.Add(user);
@@ -66,8 +64,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var authOptions = new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants };
-            var service = new ClaimsCalculator(context, authOptions);
+            var service = new ClaimsCalculator(context);
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("User1");
@@ -76,6 +73,23 @@ namespace Test.UnitTests.TestAuthPermissions
             claims.Count.ShouldEqual(1);
             claims.Single().Type.ShouldEqual(PermissionConstants.PackedPermissionClaimType);
             new string(claims.Single().Value.OrderBy(x => x).ToArray()).ShouldEqual($"{(char)1}{(char)2}{(char)3}");
+        }
+
+        [Fact]
+        public async Task TestCalcAllowedPermissionsNoUser()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var service = new ClaimsCalculator(context);
+
+            //ATTEMPT
+            var claims = await service.GetClaimsForAuthUser("User1");
+
+            //VERIFY
+            claims.Count.ShouldEqual(0);
         }
 
         [Fact]
@@ -93,8 +107,8 @@ namespace Test.UnitTests.TestAuthPermissions
             context.SaveChanges();
 
             context.ChangeTracker.Clear();
-            var authOptions = new AuthPermissionsOptions {TenantType = TenantTypes.SingleTenant};
-            var service = new ClaimsCalculator(context, authOptions);
+
+            var service = new ClaimsCalculator(context);
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("User1");
@@ -104,6 +118,23 @@ namespace Test.UnitTests.TestAuthPermissions
             claims.First().Type.ShouldEqual(PermissionConstants.PackedPermissionClaimType);
             claims.Last().Type.ShouldEqual(PermissionConstants.DataKeyClaimType);
             claims.Last().Value.ShouldEqual(tenant.TenantDataKey);
+        }
+
+        [Fact]
+        public async Task TestCalcDataKeyNoUser()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var service = new ClaimsCalculator(context);
+
+            //ATTEMPT
+            var claims = await service.GetClaimsForAuthUser("NoUser");
+
+            //VERIFY
+            claims.Count.ShouldEqual(0);
         }
 
     }

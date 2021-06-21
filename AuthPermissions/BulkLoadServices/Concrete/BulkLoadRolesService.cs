@@ -3,16 +3,20 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using AuthPermissions.BulkLoadServices.Concrete.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
-using AuthPermissions.SetupCode.Internal;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupCode
+namespace AuthPermissions.BulkLoadServices.Concrete
 {
-    public class BulkLoadRolesService
+    /// <summary>
+    /// This bulk loads Roles with their permissions from a string with contains a series of lines
+    /// </summary>
+    public class BulkLoadRolesService : IBulkLoadRolesService
     {
         private readonly AuthPermissionsDbContext _context;
 
@@ -21,19 +25,23 @@ namespace AuthPermissions.SetupCode
             _context = context;
         }
 
-        public IStatusGeneric AddRolesToDatabaseIfEmpty(string linesOfText, Type enumPermissionType)
+        /// <summary>
+        /// This allows you to add Roles with their permissions from a string with contains a series of lines
+        /// (a line is ended with <see cref="Environment.NewLine"/>
+        /// </summary>
+        /// <param name="linesOfText">This contains the lines of text, each line defined a Role with Permissions. The format is
+        /// RoleName |optional-description|: PermissionName, PermissionName, PermissionName... and so on
+        /// For example:
+        /// SalesManager |Can authorize and alter sales|: SalesRead, SalesAdd, SalesUpdate, SalesAuthorize
+        /// </param>
+        /// <param name="enumPermissionType"></param>
+        /// <returns></returns>
+        public async Task<IStatusGeneric> AddRolesToDatabaseAsync(string linesOfText, Type enumPermissionType)
         {
-            var status = new StatusGenericHandler();
+            IStatusGeneric status = new StatusGenericHandler();
 
             if (string.IsNullOrEmpty(linesOfText))
                 return status;
-
-            if (_context.RoleToPermissions.Any())
-            {
-                status.Message =
-                    "There were already RoleToPermissions in the auth database, so didn't add these roles";
-                return status;
-            }
 
             var lines = linesOfText.Split( Environment.NewLine);
 
@@ -45,7 +53,7 @@ namespace AuthPermissions.SetupCode
             }
 
             if (status.IsValid)
-                _context.SaveChanges();
+                status = await _context.SaveChangesWithUniqueCheckAsync();
 
             status.Message = $"Added {lines.Length} new RoleToPermissions to the auth database"; //If there is an error this message is removed
             return status;
@@ -100,13 +108,8 @@ namespace AuthPermissions.SetupCode
             if (status.HasErrors)
                 return status;
 
-            var roleStatus = RoleToPermissions.CreateRoleWithPermissions(roleName, description,
-                enumPermissionType.PackPermissionsNames(validPermissionNames.Distinct()), _context);
-
-            if (status.HasErrors)
-                return status;
-
-            _context.Add(roleStatus.Result);
+            var role = new RoleToPermissions(roleName, description, enumPermissionType.PackPermissionsNames(validPermissionNames.Distinct()));
+            _context.Add(role);
 
             return status;
         }

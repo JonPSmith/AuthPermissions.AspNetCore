@@ -6,11 +6,11 @@ using AuthPermissions.SetupCode;
 
 namespace Test.TestHelpers
 {
-    public class StubIFindUserId : IFindUserIdService
+    public class StubIFindUserInfo : IFindUserInfoService
     {
-        public Task<string> FindUserIdAsync(string uniqueName)
+        public Task<FindUserInfoResult> FindUserInfoAsync(string uniqueName)
         {
-            return Task.FromResult(uniqueName);
+            return Task.FromResult(new FindUserInfoResult(uniqueName, null));
         }
     }
 }

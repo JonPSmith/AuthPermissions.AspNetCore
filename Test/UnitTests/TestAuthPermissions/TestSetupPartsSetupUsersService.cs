@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
@@ -33,15 +34,14 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
-            
+            await context.SetupRolesInDbAsync();
 
             context.ChangeTracker.Clear();
 
             var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+            var status = await service.AddUsersRolesToDatabaseAsync(
                 SetupHelpers.TestUserDefineWithUserId());
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
@@ -62,14 +62,14 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
+            await context.SetupRolesInDbAsync();
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, new StubIFindUserId(), new AuthPermissionsOptions());
+            var service = new BulkLoadUsersService(context, new StubIFindUserInfo(), new AuthPermissionsOptions());
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+            var status = await service.AddUsersRolesToDatabaseAsync(
                 SetupHelpers.TestUserDefineNoUserId());
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
@@ -90,18 +90,18 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
+            await context.SetupRolesInDbAsync();
 
             context.ChangeTracker.Clear();
 
             var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(SetupHelpers.TestUserDefineNoUserId(null));
+            var status = await service.AddUsersRolesToDatabaseAsync(SetupHelpers.TestUserDefineNoUserId(null));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.Errors.Single().ToString().ShouldStartWith("Line/index 1: The user User2 didn't have a userId and the IFindUserIdService wasn't available.");
+            status.Errors.Single().ToString().ShouldStartWith("Line/index 1: The user User2 didn't have a userId and the IFindUserInfoService wasn't available.");
         }
 
         [Fact]
@@ -112,14 +112,14 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
+            await context.SetupRolesInDbAsync();
 
             context.ChangeTracker.Clear();
 
             var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+            var status = await service.AddUsersRolesToDatabaseAsync(
                 SetupHelpers.TestUserDefineWithUserId(""));
 
             //VERIFY
@@ -135,14 +135,14 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
+            await context.SetupRolesInDbAsync();
 
             context.ChangeTracker.Clear();
 
             var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions());
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+            var status = await service.AddUsersRolesToDatabaseAsync(
                 SetupHelpers.TestUserDefineWithUserId("Role99"));
 
             //VERIFY
@@ -158,7 +158,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
+            await context.SetupRolesInDbAsync();
             context.SetupTenantsInDb();
 
             context.ChangeTracker.Clear();
@@ -166,7 +166,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+            var status = await service.AddUsersRolesToDatabaseAsync(
                 SetupHelpers.TestUserDefineWithTenants());
 
             //VERIFY
@@ -183,7 +183,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
+            await context.SetupRolesInDbAsync();
             context.SetupTenantsInDb();
 
             context.ChangeTracker.Clear();
@@ -191,7 +191,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+            var status = await service.AddUsersRolesToDatabaseAsync(
                 SetupHelpers.TestUserDefineWithTenants("Tenant99"));
 
             //VERIFY
@@ -207,7 +207,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupRolesInDb();
+            await context.SetupRolesInDbAsync();
             context.SetupTenantsInDb();
 
             context.ChangeTracker.Clear();
@@ -215,7 +215,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadUsersService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseIfEmptyAsync(
+            var status = await service.AddUsersRolesToDatabaseAsync(
                 SetupHelpers.TestUserDefineWithTenants(null));
 
             //VERIFY

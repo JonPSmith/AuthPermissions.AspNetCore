@@ -8,17 +8,17 @@ using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.SetupCode;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupCode
+namespace AuthPermissions.BulkLoadServices.Concrete
 {
     /// <summary>
     /// This setups Tenants from a string containing a line for each tenant
-    /// For non-
     /// non-hierarchical: Tenant1
     /// hierarchical:     Company | West Coast | SanFran 
     /// </summary>
-    public class BulkLoadTenantsService
+    public class BulkLoadTenantsService : IBulkLoadTenantsService
     {
         private readonly AuthPermissionsDbContext _context;
 
@@ -31,8 +31,22 @@ namespace AuthPermissions.SetupCode
             _context = context;
         }
 
-
-        public async Task<IStatusGeneric> AddTenantsToDatabaseIfEmptyAsync(string linesOfText, IAuthPermissionsOptions options)
+        /// <summary>
+        /// This allows you to define tenants in a bulk load from a string. Each line in that string should hold a tenant
+        /// (a line is ended with <see cref="Environment.NewLine"/>)
+        /// If you are using a hierarchical tenant design, then you must define the higher company first
+        /// </summary>
+        /// <param name="linesOfText">If you are using a single layer then each line contains the a tenant name
+        /// If you are using hierarchical tenant, then each line contains the whole hierarchy with '|' as separator, e.g.
+        /// Holding company
+        /// Holding company | USA branch 
+        /// Holding company | USA branch | East Coast 
+        /// Holding company | USA branch | East Coast | Washington
+        /// Holding company | USA branch | East Coast | NewYork
+        /// </param>
+        /// <param name="options">The IAuthPermissionsOptions to check what type of tenant setting you have</param>
+        /// <returns></returns>
+        public async Task<IStatusGeneric> AddTenantsToDatabaseAsync(string linesOfText, IAuthPermissionsOptions options)
         {
             var status = new StatusGenericHandler();
 
@@ -43,13 +57,6 @@ namespace AuthPermissions.SetupCode
             if (options.TenantType == TenantTypes.NotUsingTenants)
                 return status.AddError(
                     $"You must set the options {nameof(AuthPermissionsOptions.TenantType)} to allow tenants to be processed");
-
-            if (_context.Tenants.Any())
-            {
-                status.Message =
-                    "There were already Tenants in the auth database, so didn't add these tenants";
-                return status;
-            }
 
             var lines = linesOfText.Split( Environment.NewLine);
 
@@ -65,57 +72,60 @@ namespace AuthPermissions.SetupCode
                     _context.Add(new Tenant(line.Trim()));
                 }
 
-                await _context.SaveChangesAsync();
+                return await _context.SaveChangesWithUniqueCheckAsync();
             }
-            else //hierarchical
+            
+            //--------------------------------------------------------------------
+            //otherwise hierarchical, which is much more complex.
+            //This decodes the hierarchical tenants
+            var entries = new List<TenantNameDecoded>();
+            for (int i = 0; i < lines.Length; i++)
             {
-                //This decodes the hierarchical tenants
-                var entries = new List<TenantNameDecoded>();
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    if (string.IsNullOrWhiteSpace(lines[i]))
-                        continue;
-                    entries.Add(new TenantNameDecoded(lines[i], i));
-                }
+                if (string.IsNullOrWhiteSpace(lines[i]))
+                    continue;
+                entries.Add(new TenantNameDecoded(lines[i], i));
+            }
 
-                var tenantLookup = new Dictionary<string, Tenant>();
-                //This creates a group with the higher levels first
-                var groupByLayers = entries.GroupBy(x => x.TenantNamesInOrder.Count);
+            var tenantLookup = new Dictionary<string, Tenant>();
+            //This creates a group with the higher levels first
+            var groupByLayers = entries.GroupBy(x => x.TenantNamesInOrder.Count);
 
-                //This uses a transactions because its going to be calling SaveChanges for each layer
-                using(var transaction = await _context.Database.BeginTransactionAsync())
+            //This uses a transactions because its going to be calling SaveChanges for each layer
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                //This will save a layer, so that the next layer down can be saved
+                foreach (var groupByLayer in groupByLayers)
                 {
-                    //This will save a layer, so that the next layer down can be saved
-                    foreach (var groupByLayer in groupByLayers)
+                    var tenantsToAddToDb = new List<Tenant>();
+                    foreach (var tenantNameDecoded in groupByLayer)
                     {
-                        var tenantsToAddToDb = new List<Tenant>();
-                        foreach (var tenantNameDecoded in groupByLayer)
+                        Tenant parent = null;
+                        if (tenantNameDecoded.ParentFullName != null)
                         {
-                            Tenant parent = null;
-                            if (tenantNameDecoded.ParentFullName != null)
-                            {
-                                if (!tenantLookup.TryGetValue(tenantNameDecoded.ParentFullName, out parent))
-                                    status.AddError(
-                                        $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} parent {tenantNameDecoded.ParentFullName} was not found");
-                            }
-
-                            if (tenantLookup.ContainsKey(tenantNameDecoded.TenantFullName))
+                            if (!tenantLookup.TryGetValue(tenantNameDecoded.ParentFullName, out parent))
                                 status.AddError(
-                                    $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} is a duplicate of the same name defined earlier");
-                            var newTenant = Tenant.SetupHierarchicalTenant(tenantNameDecoded.TenantFullName, parent);
-                            tenantsToAddToDb.Add(newTenant);
-                            tenantLookup[tenantNameDecoded.TenantFullName] = newTenant;
+                                    $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} parent {tenantNameDecoded.ParentFullName} was not found");
                         }
-                        if (status.IsValid)
-                        {
-                            //we add all the tenants in this layer
-                            _context.AddRange(tenantsToAddToDb);
-                            await _context.SaveChangesAsync();
-                        }
+
+                        if (tenantLookup.ContainsKey(tenantNameDecoded.TenantFullName))
+                            status.AddError(
+                                $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} is a duplicate of the same name defined earlier");
+                        var newTenant = Tenant.SetupHierarchicalTenant(tenantNameDecoded.TenantFullName, parent);
+                        tenantsToAddToDb.Add(newTenant);
+                        tenantLookup[tenantNameDecoded.TenantFullName] = newTenant;
                     }
+
                     if (status.IsValid)
-                        transaction.Commit();
+                    {
+                        //we add all the tenants in this layer
+                        _context.AddRange(tenantsToAddToDb);
+
+                        status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+                    }
                 }
+
+                if (status.IsValid)
+                    await transaction.CommitAsync();
             }
 
             return status;

@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.JwtTokenCode;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
@@ -32,14 +34,14 @@ namespace Test.TestHelpers
         }
 
 
-        public static void SetupRolesInDb(this AuthPermissionsDbContext context, string lines = null)
+        public static async Task SetupRolesInDbAsync(this AuthPermissionsDbContext context, string lines = null)
         {
             lines ??= @"Role1 : One
 Role2 |my description|: Two
 Role3: Three";
 
             var service = new BulkLoadRolesService(context);
-            var status = service.AddRolesToDatabaseIfEmpty(lines, typeof(TestEnum));
+            var status = await service.AddRolesToDatabaseAsync(lines, typeof(TestEnum));
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
         }

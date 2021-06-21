@@ -17,7 +17,7 @@ namespace AuthPermissions.DataLayer.Classes
     /// This is used for multi-tenant systems
     /// </summary>
     [Index(nameof(TenantName), IsUnique = true)]
-    public class Tenant :TenantBase
+    public class Tenant : TenantBase, INameToShowOnException
     {
         private HashSet<Tenant> _children;
         private string _parentDataKey;
@@ -96,6 +96,14 @@ namespace AuthPermissions.DataLayer.Classes
         /// The optional children
         /// </summary>
         public IReadOnlyCollection<Tenant> Children => _children?.ToList();
+
+        //--------------------------------------------------
+        // Exception Error name
+
+        /// <summary>
+        /// Used when there is an exception
+        /// </summary>
+        public string NameToUseForError => TenantName;
 
     }
 }

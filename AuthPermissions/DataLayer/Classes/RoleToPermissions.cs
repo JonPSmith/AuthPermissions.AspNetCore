@@ -14,7 +14,7 @@ namespace AuthPermissions.DataLayer.Classes
     /// <summary>
     /// This holds each Roles, which are mapped to Permissions
     /// </summary>
-    public class RoleToPermissions
+    public class RoleToPermissions : INameToShowOnException
     {
         private RoleToPermissions() { }
 
@@ -55,18 +55,16 @@ namespace AuthPermissions.DataLayer.Classes
             return $"{RoleName}{desc} has {PackedPermissionsInRole.Length} permissions.";
         }
 
-        public static IStatusGeneric<RoleToPermissions> CreateRoleWithPermissions(string roleName, string description,
-            string packedPermissions, AuthPermissionsDbContext context)
-        {
-            var status = new StatusGenericHandler<RoleToPermissions>();
-            if (context.Find<RoleToPermissions>(roleName) != null)
-            {
-                status.AddError("That role already exists");
-                return status;
-            }
+        //--------------------------------------------------
+        // Exception Error name
 
-            return status.SetResult(new RoleToPermissions(roleName, description, packedPermissions));
-        }
+        /// <summary>
+        /// Used when there is an exception
+        /// </summary>
+        public string NameToUseForError => RoleName;
+
+        //-------------------------------------------------------------
+        //access methods
 
         public void Update(string description, string packedPermissions)
         {
@@ -77,15 +75,18 @@ namespace AuthPermissions.DataLayer.Classes
             Description = description;
         }
 
-        public IStatusGeneric DeleteRole(string roleName, bool removeFromUsers,
-            AuthPermissionsDbContext context)
+        /// <summary>
+        /// Delete this RoleToPermission, with checks/delete of UserToRole from users with this role
+        /// </summary>
+        /// <param name="removeFromUsers">IF true it will delete all UserToRole with this role.
+        /// Otherwise return error if there are users with this role</param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public IStatusGeneric DeleteRole(bool removeFromUsers, AuthPermissionsDbContext context)
         {
             var status = new StatusGenericHandler { Message = "Deleted role successfully." };
-            var roleToUpdate = context.Find<RoleToPermissions>(roleName);
-            if (roleToUpdate == null)
-                return status.AddError("That role doesn't exists");
 
-            var usersWithRoles = context.UserToRoles.Where(x => x.RoleName == roleName).ToList();
+            var usersWithRoles = context.UserToRoles.Where(x => x.RoleName == RoleName).ToList();
             if (usersWithRoles.Any())
             {
                 if (!removeFromUsers)
@@ -95,7 +96,7 @@ namespace AuthPermissions.DataLayer.Classes
                 status.Message = $"Removed role from {usersWithRoles.Count} user and then deleted role successfully.";
             }
 
-            context.Remove(roleToUpdate);
+            context.Remove(this);
             return status;
         }
     }

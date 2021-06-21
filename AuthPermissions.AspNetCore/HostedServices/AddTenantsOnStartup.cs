@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
@@ -31,7 +32,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
 
                 var service = new BulkLoadTenantsService(context);
                 var status =
-                    await service.AddTenantsToDatabaseIfEmptyAsync(authOptions.UserTenantSetupText, authOptions);
+                    await service.AddTenantsToDatabaseAsync(authOptions.UserTenantSetupText, authOptions);
 
                 status.IfErrorsTurnToException();
             }

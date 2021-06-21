@@ -1,14 +1,9 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
-using Microsoft.EntityFrameworkCore;
-using StatusGeneric;
 
 namespace AuthPermissions.DataLayer.Classes
 {
@@ -21,7 +16,13 @@ namespace AuthPermissions.DataLayer.Classes
         {
         } //Needed by EF Core
 
-        public UserToRole(string userId, RoleToPermissions role)
+
+        /// <summary>
+        /// Create a UserToRole - only used by AuthUser class
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="role"></param>
+        internal UserToRole(string userId, RoleToPermissions role)
         {
             UserId = userId;
             Role = role;

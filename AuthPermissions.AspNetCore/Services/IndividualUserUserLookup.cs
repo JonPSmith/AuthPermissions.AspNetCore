@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AuthPermissions.AspNetCore.Services
 {
-    public class IndividualUserUserLookup : IFindUserIdService
+    public class IndividualUserUserLookup : IFindUserInfoService
     {
         private readonly UserManager<IdentityUser> _userManager;
 
@@ -16,10 +16,10 @@ namespace AuthPermissions.AspNetCore.Services
             _userManager = userManager;
         }
 
-        public async Task<string> FindUserIdAsync(string uniqueName)
+        public async Task<FindUserInfoResult> FindUserInfoAsync(string uniqueName)
         {
             var user = await _userManager.FindByNameAsync(uniqueName);
-            return user?.Id;
+            return (new FindUserInfoResult(user?.Id, null));
         }
     }
 }

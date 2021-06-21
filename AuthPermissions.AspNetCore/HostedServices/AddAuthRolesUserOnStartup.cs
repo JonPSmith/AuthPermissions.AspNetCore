@@ -2,8 +2,10 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
@@ -28,16 +30,9 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
                 var authOptions = services.GetRequiredService<IAuthPermissionsOptions>();
-                var findUserIdService = services.GetService<IFindUserIdService>();
+                var findUserIdService = services.GetService<IFindUserInfoService>();
 
-                var roleLoader = new BulkLoadRolesService(context);
-                var status = roleLoader.AddRolesToDatabaseIfEmpty(authOptions.RolesPermissionsSetupText,
-                    authOptions.EnumPermissionsType);
-                if (status.IsValid)
-                {
-                    var userLoader = new BulkLoadUsersService(context, findUserIdService, authOptions);
-                    status = await userLoader.AddUsersRolesToDatabaseIfEmptyAsync(authOptions.UserRolesSetupData);
-                }
+                var status = await context.SeedRolesTenantsUsersIfEmpty(authOptions, findUserIdService);
                 status.IfErrorsTurnToException();
             }
         }

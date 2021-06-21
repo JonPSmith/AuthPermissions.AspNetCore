@@ -2,6 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Test.TestHelpers;
@@ -28,7 +30,7 @@ namespace Test.UnitTests.TestAuthPermissions
         [InlineData("Role1    : Seven", false)]
         [InlineData("Role1: One, Two, Three, Four", false)]
         [InlineData("Role1:", false)]
-        public void TestAddRolesToDatabaseIfEmptyOneLineNoDescription(string line, bool valid)
+        public async Task TestAddRolesToDatabaseIfEmptyOneLineNoDescription(string line, bool valid)
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -38,7 +40,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadRolesService(context);
 
             //ATTEMPT
-            var status = service.AddRolesToDatabaseIfEmpty(line, typeof(TestEnum));
+            var status = await service.AddRolesToDatabaseAsync(line, typeof(TestEnum));
 
             //VERIFY
             if (!status.IsValid)
@@ -52,7 +54,7 @@ namespace Test.UnitTests.TestAuthPermissions
         [InlineData("Role1|Description|: One,Three", true)]
         [InlineData("Role1|Description: Two", false)]
         [InlineData("Role1 Description|: Two", false)]
-        public void TestAddRolesToDatabaseIfEmptyOneLineWithDescription(string line, bool valid)
+        public async Task TestAddRolesToDatabaseIfEmptyOneLineWithDescription(string line, bool valid)
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -62,7 +64,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadRolesService(context);
 
             //ATTEMPT
-            var status = service.AddRolesToDatabaseIfEmpty(line, typeof(TestEnum));
+            var status = await service.AddRolesToDatabaseAsync(line, typeof(TestEnum));
 
             //VERIFY
             if (!status.IsValid)
@@ -73,7 +75,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public void TestAddRolesToDatabaseIfEmpty()
+        public async Task TestAddRolesToDatabaseIfEmpty()
         {
             //SETUP
             //NOTE: A zero in a string causes read problems on SQLite
@@ -90,7 +92,7 @@ Role2 |my description|: One, Two, Two, Three
 Role with space: One";
 
             //ATTEMPT
-            var status = service.AddRolesToDatabaseIfEmpty(lines, typeof(TestEnum));
+            var status = await service.AddRolesToDatabaseAsync(lines, typeof(TestEnum));
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 

@@ -5,14 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupCode;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using EntityFramework.Exceptions.SqlServer;
 
 namespace AuthPermissions
 {
@@ -47,8 +47,12 @@ namespace AuthPermissions
         public static AuthSetupData UsingEfCoreSqlServer(this AuthSetupData setupData, string connectionString)
         {
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(
-                options => options.UseSqlServer(connectionString, dbOptions =>
-                    dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName)));
+                options =>
+                {
+                    options.UseSqlServer(connectionString, dbOptions =>
+                        dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
+                    options.UseExceptionProcessor();
+                });
             setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.SqlServer;
 
             return setupData;
@@ -75,13 +79,16 @@ namespace AuthPermissions
 
         /// <summary>
         /// This allows you to define the name of each tenant by name
-        /// If you are using a hierarchical tenant design, then the whole 
+        /// If you are using a hierarchical tenant design, then you must define the higher company first
         /// </summary>
         /// <param name="setupData"></param>
         /// <param name="linesOfText">If you are using a single layer then each line contains the a tenant name
         /// If you are using hierarchical tenant, then each line contains the whole hierarchy with '|' as separator, e.g.
-        /// Holding company | USA branch | East Coast | New York
+        /// Holding company
+        /// Holding company | USA branch 
+        /// Holding company | USA branch | East Coast 
         /// Holding company | USA branch | East Coast | Washington
+        /// Holding company | USA branch | East Coast | NewYork
         /// </param>
         /// <returns></returns>
         public static AuthSetupData AddTenantsIfEmpty(this AuthSetupData setupData, string linesOfText)
@@ -144,7 +151,7 @@ namespace AuthPermissions
         /// </param>
         /// <returns>AuthSetupData</returns>
         public static AuthSetupData AddUsersRolesIfEmptyWithUserIdLookup<TUserLookup>(this AuthSetupData setupData, 
-            List<DefineUserWithRolesTenant> userRolesSetup) where TUserLookup : class, IFindUserIdService
+            List<DefineUserWithRolesTenant> userRolesSetup) where TUserLookup : class, IFindUserInfoService
         {
             if (setupData.Options.UserRolesSetupData != null)
                 throw new ArgumentException(
@@ -152,7 +159,7 @@ namespace AuthPermissions
                     nameof(userRolesSetup));
 
             setupData.Options.UserRolesSetupData = userRolesSetup;
-            setupData.Services.AddScoped<IFindUserIdService, TUserLookup>();
+            setupData.Services.AddScoped<IFindUserInfoService, TUserLookup>();
             return setupData;
         }
 
@@ -169,27 +176,15 @@ namespace AuthPermissions
             
             var serviceProvider = setupData.Services.BuildServiceProvider();
             var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            var findUserIdService = serviceProvider.GetService<IFindUserIdService>(); //Can be null
-            var roleLoader = new BulkLoadRolesService(context);
-            var status = roleLoader.AddRolesToDatabaseIfEmpty(setupData.Options.RolesPermissionsSetupText,
-                setupData.Options.EnumPermissionsType);
-            if (status.IsValid)
-            {
-                var tenantLoader = new BulkLoadTenantsService(context);
-                status = await tenantLoader.AddTenantsToDatabaseIfEmptyAsync(setupData.Options.UserTenantSetupText,
-                    setupData.Options);
-            }
-            if (status.IsValid)
-            {
-                var userLoader = new BulkLoadUsersService(context, findUserIdService, setupData.Options);
-                status = await userLoader.AddUsersRolesToDatabaseIfEmptyAsync(setupData.Options.UserRolesSetupData);
-            }
+            var findUserIdService = serviceProvider.GetService<IFindUserInfoService>(); //Can be null
+
+            var status = await context.SeedRolesTenantsUsersIfEmpty(setupData.Options, findUserIdService);
 
             status.IfErrorsTurnToException();
 
-            await context.SaveChangesAsync();
-
             return context;
         }
+
+
     }
 }
