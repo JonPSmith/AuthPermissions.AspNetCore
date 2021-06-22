@@ -6,19 +6,21 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace AuthPermissions.PermissionsCode
+namespace AuthPermissions.AdminCode
 {
+    /// <summary>
+    /// This class holds information on one enum in the permissions enum with the various attributes
+    /// It also holds a static method for returning all the permissions for a specific enum type
+    /// </summary>
     public class PermissionDisplay
     {
-        public PermissionDisplay(string permissionName,
-            string groupName, string name, string description,
-            string moduleName)
+        private PermissionDisplay(string permissionName,
+            string groupName, string name, string description)
         {
             PermissionName = permissionName;
             GroupName = groupName;
             ShortName = name ?? throw new ArgumentNullException(nameof(name));
             Description = description ?? throw new ArgumentNullException(nameof(description));
-            ModuleName = moduleName;
         }
 
         /// <summary>
@@ -42,19 +44,23 @@ namespace AuthPermissions.PermissionsCode
         public string PermissionName { get; private set; }
 
         /// <summary>
-        /// Contains an optional paidForModule that this feature is linked to
+        /// Details of the permission names with the extra info provided by the 
         /// </summary>
-        public string ModuleName { get; private set; }
-
+        /// <returns></returns>
         public override string ToString()
         {
             return $"{PermissionName}: Group: {GroupName}, ShortName: {ShortName}, Description: {Description}";
         }
 
+
         /// <summary>
-        /// This returns 
+        /// This returns all the enum permission names with the various display attribute data
+        /// NOTE: It does not show enum names that
+        /// a) don't have an <see cref="DisplayAttribute"/> on them. They are assumed to not 
+        /// b) Which have a <see cref="ObsoleteAttribute"/> applied to that name
         /// </summary>
-        /// <returns></returns>
+        /// <param name="enumType">type of the enum permissions</param>
+        /// <returns>a list of PermissionDisplay classes containing the data</returns>
         public static List<PermissionDisplay> GetPermissionsToDisplay(Type enumType) 
         {
             var result = new List<PermissionDisplay>();
@@ -65,16 +71,13 @@ namespace AuthPermissions.PermissionsCode
                 var obsoleteAttribute = member[0].GetCustomAttribute<ObsoleteAttribute>();
                 if (obsoleteAttribute != null)
                     continue;
+
                 //If there is no DisplayAttribute then the Enum is not used
                 var displayAttribute = member[0].GetCustomAttribute<DisplayAttribute>();
                 if (displayAttribute == null)
                     continue;
 
-                //Gets the optional PaidForModule that a permission can be linked to
-                //var moduleAttribute = member[0].GetCustomAttribute<LinkedToModuleAttribute>();
-
-                result.Add(new PermissionDisplay(permissionName, displayAttribute.GroupName, displayAttribute.Name, displayAttribute.Description,
-                    null));// moduleAttribute?.PaidForModule.ToString()));
+                result.Add(new PermissionDisplay(permissionName, displayAttribute.GroupName, displayAttribute.Name, displayAttribute.Description));
             }
 
             return result;

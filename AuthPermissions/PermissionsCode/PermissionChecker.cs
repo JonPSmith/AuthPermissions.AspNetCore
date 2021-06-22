@@ -10,6 +10,9 @@ using System.Security.Claims;
 [assembly: InternalsVisibleTo("Test")]
 namespace AuthPermissions.PermissionsCode
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class PermissionChecker
     {
         /// <summary>
@@ -24,11 +27,6 @@ namespace AuthPermissions.PermissionsCode
             var permissionClaim =
                 user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.PackedPermissionClaimType);
             return permissionClaim?.Value.UserHasThisPermission(permission) == true;
-        }
-
-        public static string GetUserIdFromClaims(this IEnumerable<Claim> claims)
-        {
-            return claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
         }
 
         /// <summary>

@@ -25,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AdminCode\" />
     <Folder Include="DataKeyCode\" />
     <Folder Include="DataLayer\Migrations\" />
   </ItemGroup>

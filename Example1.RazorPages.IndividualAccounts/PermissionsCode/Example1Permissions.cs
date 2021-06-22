@@ -20,7 +20,8 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
         //This is an example of what to do with permission you don't used anymore.
         //You don't want its number to be reused as it could cause problems 
         //Just mark it as obsolete and the PermissionDisplay code won't show it
-        [Obsolete] [Display(GroupName = "Old", Name = "Not used", Description = "example of old permission")]
+        [Obsolete("Some message to say why obsoleted, e.g. slit into xxx and yyy in version 1.10.0")] 
+        [Display(GroupName = "Old", Name = "Not used", Description = "example of old permission")]
         OldPermissionNotUsed = 100,
 
         [Display(GroupName = "SuperAdmin", Name = "AccessAll", Description = "This allows the user to access every feature")]

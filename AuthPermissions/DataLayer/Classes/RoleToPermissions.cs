@@ -27,7 +27,7 @@ namespace AuthPermissions.DataLayer.Classes
         public RoleToPermissions(string roleName, string description, string packedPermissions)
         {
             RoleName = roleName;
-            Update(description, packedPermissions);
+            Update(packedPermissions, description);
         }
 
         /// <summary>
@@ -49,6 +49,10 @@ namespace AuthPermissions.DataLayer.Classes
         [Required(AllowEmptyStrings = false)] //A role must have at least one role in it
         public string PackedPermissionsInRole { get; private set; }
 
+        /// <summary>
+        /// Useful summary
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             var desc = Description == null ? "" : $" (description = {Description})";
@@ -66,38 +70,13 @@ namespace AuthPermissions.DataLayer.Classes
         //-------------------------------------------------------------
         //access methods
 
-        public void Update(string description, string packedPermissions)
+        public void Update(string packedPermissions, string description = null)
         {
             if (string.IsNullOrEmpty(packedPermissions))
                 throw new AuthPermissionsException("There should be at least one permission associated with a role.");
 
             PackedPermissionsInRole = packedPermissions;
-            Description = description;
-        }
-
-        /// <summary>
-        /// Delete this RoleToPermission, with checks/delete of UserToRole from users with this role
-        /// </summary>
-        /// <param name="removeFromUsers">IF true it will delete all UserToRole with this role.
-        /// Otherwise return error if there are users with this role</param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public IStatusGeneric DeleteRole(bool removeFromUsers, AuthPermissionsDbContext context)
-        {
-            var status = new StatusGenericHandler { Message = "Deleted role successfully." };
-
-            var usersWithRoles = context.UserToRoles.Where(x => x.RoleName == RoleName).ToList();
-            if (usersWithRoles.Any())
-            {
-                if (!removeFromUsers)
-                    return status.AddError($"That role is used by {usersWithRoles.Count} and you didn't ask for them to be updated.");
-
-                context.RemoveRange(usersWithRoles);
-                status.Message = $"Removed role from {usersWithRoles.Count} user and then deleted role successfully.";
-            }
-
-            context.Remove(this);
-            return status;
+            Description = description ?? Description;
         }
     }
 }

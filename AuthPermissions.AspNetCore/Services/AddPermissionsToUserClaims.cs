@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.PermissionsCode;
@@ -39,11 +41,16 @@ namespace AuthPermissions.AspNetCore.Services
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(IdentityUser user)
         {
             var identity = await base.GenerateClaimsAsync(user);
-            var userId = identity.Claims.GetUserIdFromClaims();
+            var userId = GetUserIdFromClaims(identity.Claims);
             var claims = await _claimsCalculator.GetClaimsForAuthUser(userId);
             identity.AddClaims(claims);
 
             return identity;
+        }
+
+        private static string GetUserIdFromClaims(IEnumerable<Claim> claims)
+        {
+            return claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
         }
     }
 

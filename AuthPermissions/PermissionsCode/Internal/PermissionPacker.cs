@@ -6,22 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using AuthPermissions.CommonCode;
+using StatusGeneric;
 
 [assembly: InternalsVisibleTo("Test")]
 namespace AuthPermissions.PermissionsCode.Internal
 {
     internal static class PermissionPacker
     {
-        //private readonly Dictionary<char, string> _enumLookup;
-
-        //public PermissionHandler(Type enumType)
-        //{
-        //    enumType.ThrowExceptionIfEnumIsNotCorrect();
-
-        //    _enumLookup = Enum.GetNames(enumType)
-        //        .ToDictionary(key => (char)((short)Enum.Parse(enumType, key)), value => value);
-        //}
-
         public static string PackCommaDelimitedPermissionsNames(this Type enumPermissionsType, string permissionNames)
         {
             return enumPermissionsType.PackPermissionsNames(permissionNames.Split(',').Select(x => x.Trim()));
@@ -29,9 +20,43 @@ namespace AuthPermissions.PermissionsCode.Internal
 
         public static string PackPermissionsNames(this Type enumPermissionsType, IEnumerable<string> permissionNames)
         {
-            return permissionNames.Aggregate("", (s, permissionName) =>
+            var packedPermissions = permissionNames.Aggregate("", (s, permissionName) =>
                 s + (char)Convert.ChangeType(Enum.Parse(enumPermissionsType, permissionName), typeof(char)));
+            CheckPackedPermissionsDoesNotContainZeroChar(packedPermissions);
+            return packedPermissions;
         }
+
+        /// <summary>
+        /// This converts a list of enum permission names into a packed string. If any permission names are bad it calls the reportError action
+        /// </summary>
+        /// <param name="enumPermissionsType"></param>
+        /// <param name="permissionNames"></param>
+        /// <param name="reportError"></param>
+        /// <returns>the packed permission string</returns>
+        public static string PackPermissionsNamesWithValidation(this Type enumPermissionsType,
+            IEnumerable<string> permissionNames, Action<string> reportError)
+        {
+            var packedPermissions = "";
+            foreach (var permissionName in permissionNames)
+            {
+                try
+                {
+                    Enum.Parse(enumPermissionsType, permissionName);
+                }
+                catch (ArgumentException)
+                {
+                    reportError(permissionName);
+                    continue;
+                }
+
+                packedPermissions +=
+                    (char) Convert.ChangeType(Enum.Parse(enumPermissionsType, permissionName), typeof(char));
+            }
+            CheckPackedPermissionsDoesNotContainZeroChar(packedPermissions);
+            return packedPermissions;
+        }
+
+
 
         /// <summary>
         /// This checks a permissionName is valid for the enumPermissionsType
@@ -51,6 +76,16 @@ namespace AuthPermissions.PermissionsCode.Internal
             }
 
             return true;
+        }
+
+        //----------------------------------------------------------------------
+        // private methods
+
+        private static void CheckPackedPermissionsDoesNotContainZeroChar(string packedPermissions)
+        {
+            if (packedPermissions.Contains((char)0))
+                throw new AuthPermissionsBadDataException(
+                    "A packed permissions string must not contain a char of zero value");
         }
     }
 }

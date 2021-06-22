@@ -1,13 +1,13 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.AdminCode;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestAuthPermissions
+namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestPermissionDisplay
     {

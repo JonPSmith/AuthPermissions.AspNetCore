@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
@@ -10,6 +11,11 @@ using StatusGeneric;
 
 namespace AuthPermissions.DataLayer.EfCode
 {
+    /// <summary>
+    /// This contains extension methods which will call SaveChanges / SaveChangesAsync
+    /// with code to to detect unique constraint errors
+    /// It uses the https://github.com/Giorgi/EntityFramework.Exceptions library as I plan to support SQL Server and PostgreSQL
+    /// </summary>
     public static class SaveChangesExtensions
     {
         public static IStatusGeneric SaveChangesWithUniqueCheck(this DbContext context)
@@ -28,7 +34,7 @@ namespace AuthPermissions.DataLayer.EfCode
 
         public static async Task<IStatusGeneric> SaveChangesWithUniqueCheckAsync(this DbContext context)
         {
-            
+
             try
             {
                 await context.SaveChangesAsync();
@@ -49,7 +55,8 @@ namespace AuthPermissions.DataLayer.EfCode
             if (e.Entries.Any())
             {
                 var name = (e.Entries.First().Entity as INameToShowOnException)?.NameToUseForError ?? "<unknown>";
-                status.AddError($"Duplicate {e.Entries.First().Entity.GetType().Name} found: name = {name}");
+
+                status.AddError($"There is already a {e.Entries.First().Entity.GetType().Name} with a value: name = {name}");
             }
             else
             {

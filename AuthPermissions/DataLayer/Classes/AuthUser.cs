@@ -90,6 +90,16 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         public string NameToUseForError => UserName ?? Email;
 
+        /// <summary>
+        /// Summary of AuthUser
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            var tenantString = TenantId == null ? "" : ", TenantId {TenantId}";
+            return $"UserName = {UserName}, UserId = {UserId}{tenantString}.";
+        }
+
         //--------------------------------------------------
         // Access methods
 

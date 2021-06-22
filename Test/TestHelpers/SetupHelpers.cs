@@ -54,6 +54,23 @@ Role3: Three";
             return user;
         }
 
+        /// <summary>
+        /// This adds AuthUser with an ever increasing number of roles
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="userIdCommaDelimited"></param>
+        public static void AddMultipleUsersWithRolesInDb(this AuthPermissionsDbContext context, string userIdCommaDelimited = "User1,User2,User3")
+        {
+            var rolesInDb = context.RoleToPermissions.OrderBy(x => x.RoleName).ToList();
+            var userIds = userIdCommaDelimited.Split(',');
+            for (int i = 0; i < userIds.Length; i++)
+            {
+                var user = new AuthUser(userIds[i], userIds[i], null, rolesInDb.Take(i+1));
+                context.Add(user);
+            }
+            context.SaveChanges();
+        }
+
         public static void SetupTenantsInDb(this AuthPermissionsDbContext context)
         {
             var t1 = new Tenant("Tenant1");
