@@ -20,9 +20,15 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
         //This is an example of what to do with permission you don't used anymore.
         //You don't want its number to be reused as it could cause problems 
         //Just mark it as obsolete and the PermissionDisplay code won't show it
-        [Obsolete("Some message to say why obsoleted, e.g. slit into xxx and yyy in version 1.10.0")] 
+        [Obsolete("Some message to say why obsoleted, e.g. split into two members xxx and yyy in version 2.10.0")] 
         [Display(GroupName = "Old", Name = "Not used", Description = "example of old permission")]
         OldPermissionNotUsed = 100,
+
+        /// <summary>
+        /// A enum member with no <see cref="DisplayAttribute"/> can be used, but its not shown in the PermissionDisplay
+        /// Useful if are working on new permissions but you don't want it to be used by admin people 
+        /// </summary>
+        AnotherPermission = 200,
 
         [Display(GroupName = "SuperAdmin", Name = "AccessAll", Description = "This allows the user to access every feature")]
         AccessAll = ushort.MaxValue,

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions;
 using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
@@ -71,13 +72,32 @@ Role3: Three";
             context.SaveChanges();
         }
 
-        public static void SetupTenantsInDb(this AuthPermissionsDbContext context)
+        public static void SetupSingleTenantsInDb(this AuthPermissionsDbContext context)
         {
             var t1 = new Tenant("Tenant1");
             var t2 = new Tenant("Tenant2");
             var t3 = new Tenant("Tenant3");
             context.AddRange(t1,t2,t3);
             context.SaveChanges();
+        }
+
+        public static async Task<List<string>> SetupHierarchicalTenantInDb(this AuthPermissionsDbContext context)
+        {
+            var service = new BulkLoadTenantsService(context);
+            var authOptions = new AuthPermissionsOptions {TenantType = TenantTypes.HierarchicalTenant};
+            var lines = @"Company
+Company | West Coast 
+Company | West Coast | SanFran
+Company | West Coast | SanFran | Shop1
+Company | West Coast | SanFran | Shop2
+Company | East Coast
+Company | East Coast | New York 
+Company | East Coast | New York | Shop1
+Company | East Coast | New York | Shop2";
+
+            (await service.AddTenantsToDatabaseAsync(lines, authOptions)).IsValid.ShouldBeTrue();
+
+            return lines.Split(Environment.NewLine).ToList();
         }
 
         public static List<DefineUserWithRolesTenant> TestUserDefineWithUserId(string user2Roles = "Role1,Role2")

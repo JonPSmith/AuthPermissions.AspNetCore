@@ -159,7 +159,7 @@ namespace Test.UnitTests.TestAuthPermissions
             context.Database.EnsureCreated();
 
             await context.SetupRolesInDbAsync();
-            context.SetupTenantsInDb();
+            context.SetupSingleTenantsInDb();
 
             context.ChangeTracker.Clear();
 
@@ -184,7 +184,7 @@ namespace Test.UnitTests.TestAuthPermissions
             context.Database.EnsureCreated();
 
             await context.SetupRolesInDbAsync();
-            context.SetupTenantsInDb();
+            context.SetupSingleTenantsInDb();
 
             context.ChangeTracker.Clear();
 
@@ -208,7 +208,7 @@ namespace Test.UnitTests.TestAuthPermissions
             context.Database.EnsureCreated();
 
             await context.SetupRolesInDbAsync();
-            context.SetupTenantsInDb();
+            context.SetupSingleTenantsInDb();
 
             context.ChangeTracker.Clear();
 

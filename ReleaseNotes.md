@@ -1,12 +1,18 @@
 # Release Notes
 
+## Known bugs
+
+- Bulk load of hierarchical tenants provides a poor error message if a layer out (e.g using Company | West Coast | LA when you haven't defined "West Coast")
+
 ## Examples to add
 
-- Build admin role/permission code, e.g. add a user, add a role, alter a user's Roles
-  - Make bulk load users/roles into services
-- Example3 - an example of using tenants
-- Build admin user/Tenant code, e.g. add a user with tenant, add a tenant, move a tenant
-  - Make bulk load tenants into a service
+- Build admin for 
+  - role/permission
+  - Tenants (with move)
+  - Users
+- Add roles, user admin to Example 1
+- Example3 - an example of using simple tenants with Azure Active Directory (MVC)
+- Example4 - hierarchical tenants with individual users (MVC)
 
 ## Add/improve new features
 
@@ -19,6 +25,16 @@
 - Update AuthUsers with missing users (service and on startup)
 
 - Add checks at the end of registering the data, e.g. if using tenants all user must have a tenant
+
+## Possible Security improvements
+- Option to encrypt the Auth claims in JWT token
+- Add DisableUser to AuthUser - stops adding claims to ClaimsPricipal
+- Add per-HTTP Cookie checker - if the cookie is xxx old, then refresh claims
+- Add SecurityData to AuthUser and provide a method to 
+  - be called when user logs in for the first time
+  - be called whenever the JWT Token refresh (and Cookie xxx old). Allows you to log them out if security issue is found.
+
+
 
 ## Things not in the first release
 

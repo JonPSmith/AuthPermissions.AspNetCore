@@ -110,7 +110,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         if (tenantLookup.ContainsKey(tenantNameDecoded.TenantFullName))
                             status.AddError(
                                 $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} is a duplicate of the same name defined earlier");
-                        var newTenant = Tenant.SetupHierarchicalTenant(tenantNameDecoded.TenantFullName, parent);
+                        var newTenant = new Tenant(tenantNameDecoded.TenantFullName, parent);
                         tenantsToAddToDb.Add(newTenant);
                         tenantLookup[tenantNameDecoded.TenantFullName] = newTenant;
                     }
