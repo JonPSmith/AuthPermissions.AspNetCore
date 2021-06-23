@@ -1,0 +1,12 @@
+﻿SF Dress4U: Flower dress|50, Tiny dress|22
+SF Tie4U: Blue tie|15, Red tie|20, Green tie|10
+SF Shirt4U: White shirt|40, Blue shirt|30
+LA Dress4U: Smart dress|90, Expensive dress|210
+LA Tie4U: Blue tie|15, Red tie|20, Green tie|10
+LA Shirt4U: White shirt|40, Blue shirt|30
+NY Dress4U: Modern dress|65, Nice dress|30 
+Boston Shirt4U: White shirt|40, Blue shirt|30
+Cats Place: Cat food (large)|40, Cat food (small)|10  
+Kitten Place: Scratch pole|60, Play mouse|5, Cat food (small)|12
+Dogs Place: Dog food (large)|25, Chew bone|13
+Puppy Place: Dog lead|7, Dog food (small)|9

@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example2.WebApiWithToken.IndividualAccounts", "Example2.WebApiWithToken.IndividualAccounts\Example2.WebApiWithToken.IndividualAccounts.csproj", "{E2667176-A75B-4182-94AF-43D8F0CF989A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example4.MvcWebApp.IndividualAccounts", "Example4.MvcWebApp.IndividualAccounts\Example4.MvcWebApp.IndividualAccounts.csproj", "{63AE22A3-2804-45B9-A86D-9B301689C5B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,18 @@ Global
 		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|x64.Build.0 = Release|Any CPU
 		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|x86.ActiveCfg = Release|Any CPU
 		{E2667176-A75B-4182-94AF-43D8F0CF989A}.Release|x86.Build.0 = Release|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Debug|x64.Build.0 = Debug|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Debug|x86.Build.0 = Debug|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Release|x64.ActiveCfg = Release|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Release|x64.Build.0 = Release|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Release|x86.ActiveCfg = Release|Any CPU
+		{63AE22A3-2804-45B9-A86D-9B301689C5B3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

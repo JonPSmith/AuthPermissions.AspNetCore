@@ -25,8 +25,8 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
         OldPermissionNotUsed = 100,
 
         /// <summary>
-        /// A enum member with no <see cref="DisplayAttribute"/> can be used, but its not shown in the PermissionDisplay
-        /// Useful if are working on new permissions but you don't want it to be used by admin people 
+        /// A enum member with no <see cref="DisplayAttribute"/> can be used, but its not shown in the PermissionDisplay at all
+        /// Useful if are working on new permissions but you don't want it to be used by anyone yet 
         /// </summary>
         AnotherPermission = 200,
 

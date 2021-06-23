@@ -6,16 +6,14 @@
 
 ## Examples to add
 
-- Build admin for 
-  - role/permission
-  - Tenants (with move)
-  - Users
-- Add roles, user admin to Example 1
-- Example3 - an example of using simple tenants with Azure Active Directory (MVC)
 - Example4 - hierarchical tenants with individual users (MVC)
+  - Add admin services/pages
+- Example3 - an example of using simple tenants with Azure Active Directory (MVC)
 
 ## Add/improve new features
 
+
+- Provide a tenant-only AuthUserAdmin
 - Create an ASP.NET Core "only run once" library using the [madelson/DistributedLock](https://github.com/madelson/DistributedLock) libraries.
 - Provide more configuration options/features
   - Don't migrate the AuthPermission database on startup
@@ -27,14 +25,15 @@
 - Add checks at the end of registering the data, e.g. if using tenants all user must have a tenant
 
 ## Possible Security improvements
+
+- Admin: A user can only add Permission that the actual user has
+- Add logging to everything (especially anything that could go wrong)  
 - Option to encrypt the Auth claims in JWT token
 - Add DisableUser to AuthUser - stops adding claims to ClaimsPricipal
 - Add per-HTTP Cookie checker - if the cookie is xxx old, then refresh claims
 - Add SecurityData to AuthUser and provide a method to 
   - be called when user logs in for the first time
   - be called whenever the JWT Token refresh (and Cookie xxx old). Allows you to log them out if security issue is found.
-
-
 
 ## Things not in the first release
 
