@@ -2,6 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
@@ -72,6 +74,11 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
             setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
+
+            //Admin services
+            setupData.Services.AddTransient<IAuthRolesAdminService, AuthRolesAdminService>();
+            setupData.Services.AddTransient<IAuthTenantAdminService, AuthTenantAdminService>();
+            setupData.Services.AddTransient<IAuthUsersAdminService, AuthUsersAdminService>();
         }
     }
 }

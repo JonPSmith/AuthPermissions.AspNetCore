@@ -37,7 +37,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
 
             //ATTEMPT
             var tenants = service.QueryTenants().ToList();
@@ -59,7 +59,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var status = await service.AddSingleTenantAsync("Tenant4");
@@ -83,7 +83,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var status = await service.AddSingleTenantAsync("Tenant2");
@@ -104,7 +104,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var tenantNames = await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
 
             //ATTEMPT
             var status = await service.AddHierarchicalTenantAsync("LA", "Company | West Coast");
@@ -130,7 +130,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var tenantNames = await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
 
             //ATTEMPT
             var status = await service.AddHierarchicalTenantAsync("West Coast", "Company");
@@ -151,7 +151,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var status = await service.UpdateTenantNameAsync("Tenant2", "New Tenant");
@@ -178,7 +178,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
 
             //ATTEMPT
             var status = await service.UpdateTenantNameAsync("Company | West Coast", "West Area");
@@ -204,7 +204,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();
 
-            var service = new TenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(

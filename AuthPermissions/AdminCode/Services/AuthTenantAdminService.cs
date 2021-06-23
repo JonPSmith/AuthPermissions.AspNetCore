@@ -15,12 +15,12 @@ namespace AuthPermissions.AdminCode.Services
     /// <summary>
     /// This provides CRUD services for tenants
     /// </summary>
-    public class TenantAdminService
+    public class AuthTenantAdminService : IAuthTenantAdminService
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly TenantTypes _tenantType;
 
-        public TenantAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
+        public AuthTenantAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
         {
             _context = context;
             _tenantType = options.TenantType;

@@ -17,7 +17,7 @@ namespace AuthPermissions.AdminCode.Services
     /// <summary>
     /// This provides CRUD access to the Auth's Users
     /// </summary>
-    public class AuthUsersAdminService
+    public class AuthUsersAdminService : IAuthUsersAdminService
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly TenantTypes _tenantType;

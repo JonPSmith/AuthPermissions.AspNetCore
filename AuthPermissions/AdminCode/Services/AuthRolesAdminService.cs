@@ -16,7 +16,7 @@ namespace AuthPermissions.AdminCode.Services
     /// <summary>
     /// This provides CRUD access to the Auth's Roles
     /// </summary>
-    public class RolesAdminService
+    public class AuthRolesAdminService : IAuthRolesAdminService
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly Type _permissionType;
@@ -26,7 +26,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        public RolesAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
+        public AuthRolesAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
         {
             _context = context;
             _permissionType = options.EnumPermissionsType;
@@ -106,7 +106,7 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This deletes a Role. If that Role is already assigned to Auth  users you must set the removeFromUsers to true
+        /// This deletes a Role. If that Role is already assigned to Auth users you must set the removeFromUsers to true
         /// otherwise you will get an error.
         /// </summary>
         /// <param name="roleName">name of role to delete</param>
