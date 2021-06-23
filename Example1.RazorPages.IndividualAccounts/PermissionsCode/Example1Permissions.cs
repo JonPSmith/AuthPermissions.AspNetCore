@@ -30,7 +30,11 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
         /// </summary>
         AnotherPermission = 200,
 
-        [Display(GroupName = "SuperAdmin", Name = "AccessAll", Description = "This allows the user to access every feature")]
+        //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
+        //to admin users who aren't allowed alter this permissions
+        //Useful for multi-tenant applications where you can set up company-level admin users
+        [Display(GroupName = "SuperAdmin", Name = "AccessAll", 
+            Description = "This allows the user to access every feature", AutoGenerateFilter = true)]
         AccessAll = ushort.MaxValue,
     }
 }
