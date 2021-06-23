@@ -27,27 +27,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
-        public async Task TestReadHierarchicalTenantData()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            var tenantNames = await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            //ATTEMPT
-            var tenants = context.Tenants
-                .Include(x => x.Parent)
-                .Include(x => x.Children)
-                .Where(x => x.TenantName.StartsWith("Company | West Coast"))
-                .ToList();
-
-            //VERIFY
-        }
-
-        [Fact]
         public void TestQueryTenantsSingle()
         {
             //SETUP
@@ -221,10 +200,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
-            //var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-            //    builder.UseExceptionProcessor());
-            //using var context = new AuthPermissionsDbContext(options);
-            //context.Database.EnsureClean();
 
             await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();

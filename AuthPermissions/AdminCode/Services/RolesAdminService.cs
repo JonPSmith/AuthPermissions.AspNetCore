@@ -46,7 +46,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         public IQueryable<AuthUser> QueryUsersUsingThisRole(string roleName)
         {
-            return _context.Users.Where(x => x.UserRoles.Any(y => y.RoleName == roleName));
+            return _context.AuthUsers.Where(x => x.UserRoles.Any(y => y.RoleName == roleName));
         }
 
         /// <summary>

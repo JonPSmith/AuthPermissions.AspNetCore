@@ -48,7 +48,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             context.ChangeTracker.Clear();
-            context.Users.Count().ShouldEqual(3);
+            context.AuthUsers.Count().ShouldEqual(3);
             context.RoleToPermissions.Count().ShouldEqual(3);
             context.UserToRoles.Count().ShouldEqual(5);
             context.Tenants.Count().ShouldEqual(0);
@@ -76,7 +76,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             context.ChangeTracker.Clear();
-            context.Users.Count().ShouldEqual(3);
+            context.AuthUsers.Count().ShouldEqual(3);
             context.RoleToPermissions.Count().ShouldEqual(3);
             context.UserToRoles.Count().ShouldEqual(5);
             context.Tenants.Count().ShouldEqual(0);
@@ -171,7 +171,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var users = context.Users.Include(x => x.UserTenant).ToList();
+            var users = context.AuthUsers.Include(x => x.UserTenant).ToList();
             users.Count(x => x.UserTenant != null ).ShouldEqual(3);
         }
 

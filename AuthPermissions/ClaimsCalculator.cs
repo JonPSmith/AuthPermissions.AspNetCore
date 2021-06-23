@@ -79,7 +79,7 @@ namespace AuthPermissions
         /// <returns>Returns the dataKey, or null if not found</returns>
         private async Task<string> GetDataKeyAsync(string userid)
         {
-            var userWithTenant = await _context.Users.Include(x => x.UserTenant)
+            var userWithTenant = await _context.AuthUsers.Include(x => x.UserTenant)
                 .SingleOrDefaultAsync(x => x.UserId == userid);
 
             return userWithTenant?.UserTenant?.TenantDataKey;

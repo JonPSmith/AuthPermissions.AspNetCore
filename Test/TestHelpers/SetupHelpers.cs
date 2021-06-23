@@ -66,7 +66,7 @@ Role3: Three";
             var userIds = userIdCommaDelimited.Split(',');
             for (int i = 0; i < userIds.Length; i++)
             {
-                var user = new AuthUser(userIds[i], userIds[i], null, rolesInDb.Take(i+1));
+                var user = new AuthUser(userIds[i], $"{userIds[i]}@gmail.com", $"first last {i}", rolesInDb.Take(i+1));
                 context.Add(user);
             }
             context.SaveChanges();

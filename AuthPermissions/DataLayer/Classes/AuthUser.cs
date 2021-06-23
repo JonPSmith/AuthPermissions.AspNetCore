@@ -6,11 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
-using Microsoft.EntityFrameworkCore;
-using StatusGeneric;
 
 namespace AuthPermissions.DataLayer.Classes
 {
@@ -18,7 +14,6 @@ namespace AuthPermissions.DataLayer.Classes
     /// This defines a simple user (UserId, email and username) which will hold the roles and tenant data
     /// for this user.
     /// </summary>
-    [Index(nameof(Email), IsUnique = true)]
     public class AuthUser : INameToShowOnException
     {
         private HashSet<UserToRole> _userRoles;
@@ -96,33 +91,61 @@ namespace AuthPermissions.DataLayer.Classes
         /// <returns></returns>
         public override string ToString()
         {
-            var tenantString = TenantId == null ? "" : ", TenantId {TenantId}";
-            return $"UserName = {UserName}, UserId = {UserId}{tenantString}.";
+            var tenantString = TenantId == null ? "" 
+                : (UserTenant == null ? ", has an tenant" : $", linked to {UserTenant.TenantName}");
+            var rolesString = _userRoles == null ? "" : $", roles = {string.Join(", ", _userRoles.Select(x => x.RoleName))}";
+            return $"UserName = {UserName}, UserId = {UserId}{rolesString}{tenantString}.";
         }
 
         //--------------------------------------------------
         // Access methods
 
         /// <summary>
-        /// This finds the  a UserToRole after checks that it is allowable
+        /// Adds a RoleToPermissions to the user
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="roleName"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public async Task<IStatusGeneric> AddRoleToUserWithChecksAsync(string userId, string roleName,
-            AuthPermissionsDbContext context)
+        /// <param name="role"></param>
+        /// <returns>true if added. False if already there</returns>
+        public bool AddRoleToUser(RoleToPermissions role)
         {
-            if (roleName == null) throw new ArgumentNullException(nameof(roleName));
+            if (role == null) throw new ArgumentNullException(nameof(role));
 
-            var status = new StatusGenericHandler<UserToRole>();
-            var roleToAdd = await context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
-            if (roleToAdd == null)
-                return status.AddError($"I could not find the Role '{roleName}'.");
+            if (_userRoles.Any(x => x.RoleName == role.RoleName))
+                return false;
 
-            _userRoles.Add(new UserToRole(userId, roleToAdd));
+            _userRoles.Add(new UserToRole(UserId, role));
+            return true;
+        }
 
-            return status;
+        /// <summary>
+        /// This removes a RoleToPermissions from a user
+        /// </summary>
+        /// <param name="role"></param>
+        /// <returns>true if role was found and removed</returns>
+        public bool RemoveRoleFromUser(RoleToPermissions role)
+        {
+            if (role == null) throw new ArgumentNullException(nameof(role));
+            var foundUserToRole = _userRoles.SingleOrDefault(x => x.RoleName == role.RoleName);
+            return _userRoles.Remove(foundUserToRole);
+        }
+
+        /// <summary>
+        /// This updates a tenant.
+        /// NOTE: A tenant is only valid if the <see cref="AuthPermissionsOptions.TenantType"/> has been set 
+        /// </summary>
+        /// <param name="tenant"></param>
+        public void UpdateUserTenant(Tenant tenant)
+        {
+            UserTenant = tenant;
+        }
+
+        public void ChangeUserName(string userName)
+        {
+            UserName = userName;
+        }
+
+        public void ChangeEmail(string newEmail)
+        {
+            Email = newEmail;
         }
     }
 }

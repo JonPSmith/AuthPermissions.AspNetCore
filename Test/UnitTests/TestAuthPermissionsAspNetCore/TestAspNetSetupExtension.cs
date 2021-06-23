@@ -183,7 +183,7 @@ Role3: One")
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
             authContext.RoleToPermissions.Count().ShouldEqual(3);
             authContext.UserToRoles.Count().ShouldEqual(5);
-            var superUser = authContext.Users.First(x => x.UserName == "Super@g1.com");
+            var superUser = authContext.AuthUsers.First(x => x.UserName == "Super@g1.com");
             superUser.UserId.Length.ShouldBeInRange(25,40);
             using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             userManager.Users.Count().ShouldEqual(1);
@@ -224,7 +224,7 @@ Tenant3")
             {
                 _output.WriteLine(userToRole.ToString());
             }
-            authContext.Users.Count().ShouldEqual(3);
+            authContext.AuthUsers.Count().ShouldEqual(3);
             authContext.RoleToPermissions.Count().ShouldEqual(3);
             authContext.UserToRoles.Count().ShouldEqual(5);
             authContext.Tenants.Count().ShouldEqual(3);
