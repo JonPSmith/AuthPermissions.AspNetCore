@@ -52,8 +52,8 @@ namespace Test.UnitTests.TestExamples
             context.AuthUsers.Count().ShouldBeInRange(15,30);
             context.RoleToPermissions.Count().ShouldBeInRange(4, 15);
             context.UserToRoles.Count().ShouldBeInRange(20, 40);
-            context.Tenants.Count().ShouldBeInRange(20, 40);
-            context.AuthUsers.Count(x => x.TenantId != null).ShouldEqual(3);
+            context.Tenants.Count().ShouldBeInRange(10, 30);
+            context.AuthUsers.Count(x => x.TenantId == null).ShouldEqual(2);
         }
 
 

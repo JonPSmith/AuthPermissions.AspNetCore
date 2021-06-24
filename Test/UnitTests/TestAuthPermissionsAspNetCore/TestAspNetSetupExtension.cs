@@ -113,9 +113,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
-            await startupServices[1].StartAsync(default);
+            startupServices.Count.ShouldEqual(2);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -129,7 +127,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
-                .UsingInMemoryDatabase(inMemoryName)
+                .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
@@ -140,11 +138,9 @@ Role3: One")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
+            startupServices.Count.ShouldEqual(2);
+            startupServices[1].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
-            await startupServices[2].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -159,7 +155,7 @@ Role3: One")
             var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
-                .UsingInMemoryDatabase(inMemoryName)
+                .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
@@ -171,11 +167,9 @@ Role3: One")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(4);
+            startupServices.Count.ShouldEqual(3);
             startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser>();
             await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<SetupDatabaseOnStartup>();
-            await startupServices[2].StartAsync(default);
             startupServices[3].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[3].StartAsync(default);
 
@@ -196,7 +190,7 @@ Role3: One")
             var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleTenant)
-                .UsingInMemoryDatabase(inMemoryName)
+                .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
@@ -210,11 +204,9 @@ Tenant3")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
+            startupServices.Count.ShouldEqual(2);
+            startupServices[1].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
-            await startupServices[2].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();

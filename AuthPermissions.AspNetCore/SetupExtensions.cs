@@ -61,7 +61,10 @@ namespace AuthPermissions.AspNetCore
             setupData.RegisterCommonServices();
 
             //NOTE: when I add the database locking I need run all of these within the lock
-            setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
+            if (setupData.Options.DatabaseType != AuthPermissionsOptions.DatabaseTypes.SqliteInMemory)
+            {
+                setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
+            }
             setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 

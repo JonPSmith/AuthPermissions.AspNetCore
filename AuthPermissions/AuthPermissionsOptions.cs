@@ -12,7 +12,7 @@ namespace AuthPermissions
         /// <summary>
         /// The different database types that AuthPermissions supports
         /// </summary>
-        public enum DatabaseTypes { NotSet, InMemory, SqlServer }
+        public enum DatabaseTypes { NotSet, SqliteInMemory, SqlServer }
 
 
         //--------------------------------------------------

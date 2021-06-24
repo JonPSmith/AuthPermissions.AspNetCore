@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,10 +28,12 @@ namespace AuthPermissions.AspNetCore.HostedServices
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
+                var options = services.GetRequiredService<IAuthPermissionsOptions>();
                 try
                 {
-                    if (context.Database.IsInMemory())
-                        await context.Database.EnsureCreatedAsync(cancellationToken);
+                    if (options.DatabaseType == AuthPermissionsOptions.DatabaseTypes.SqliteInMemory)
+                        throw new AuthPermissionsException(
+                            $"The in-memory database is created with in the {nameof(AuthPermissions.SetupExtensions)}");
                     else
                         await context.Database.MigrateAsync(cancellationToken);
                 }

@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using EntityFramework.Exceptions.SqlServer;
+using Microsoft.Data.Sqlite;
 
 namespace AuthPermissions
 {
@@ -51,7 +50,7 @@ namespace AuthPermissions
                 {
                     options.UseSqlServer(connectionString, dbOptions =>
                         dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
-                    options.UseExceptionProcessor();
+                    EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
                 });
             setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.SqlServer;
 
@@ -62,19 +61,32 @@ namespace AuthPermissions
         /// This registers an in-memory database. The data added to this database will be lost when the app/unit test stops
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="inMemoryDbName">optional: Use when debugging to obtain the same InMemory database</param>
         /// <returns></returns>
-        public static AuthSetupData UsingInMemoryDatabase(this AuthSetupData setupData, string inMemoryDbName = null)
+        public static AuthSetupData UsingInMemoryDatabase(this AuthSetupData setupData)
         {
-            setupData.Services.AddDbContext<AuthPermissionsDbContext>(opt =>
-                opt.UseInMemoryDatabase(inMemoryDbName ?? Guid.NewGuid().ToString()));
-            setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.InMemory;
+            var inMemoryConnection = SetupSqliteInMemoryConnection();
+            setupData.Services.AddDbContext<AuthPermissionsDbContext>(dbOptions =>
+            {
+                dbOptions.UseSqlite(inMemoryConnection);
+                EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions);
+            });
+                
+            setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.SqliteInMemory;
 
             using var serviceProvider = setupData.Services.BuildServiceProvider();
             using var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
             context.Database.EnsureCreated();
 
             return setupData;
+        }
+
+        private static SqliteConnection SetupSqliteInMemoryConnection()
+        {
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
+            var connectionString = connectionStringBuilder.ToString();
+            var connection = new SqliteConnection(connectionString);
+            connection.Open();  //see https://github.com/aspnet/EntityFramework/issues/6968
+            return connection;
         }
 
         /// <summary>
@@ -170,12 +182,13 @@ namespace AuthPermissions
         /// <returns></returns>
         public static async Task<AuthPermissionsDbContext> SetupForUnitTestingAsync(this AuthSetupData setupData)
         {
-            if (setupData.Options.DatabaseType != AuthPermissionsOptions.DatabaseTypes.InMemory)
+            if (setupData.Options.DatabaseType != AuthPermissionsOptions.DatabaseTypes.SqliteInMemory)
                 throw new AuthPermissionsException(
                     $"You can only call the {nameof(SetupForUnitTestingAsync)} if you used the {nameof(UsingInMemoryDatabase)} method.");
             
             var serviceProvider = setupData.Services.BuildServiceProvider();
             var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            context.Database.EnsureCreated();
             var findUserIdService = serviceProvider.GetService<IFindUserInfoService>(); //Can be null
 
             var status = await context.SeedRolesTenantsUsersIfEmpty(setupData.Options, findUserIdService);
