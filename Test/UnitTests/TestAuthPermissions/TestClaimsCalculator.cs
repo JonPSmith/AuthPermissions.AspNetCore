@@ -117,7 +117,7 @@ namespace Test.UnitTests.TestAuthPermissions
             claims.Count.ShouldEqual(2);
             claims.First().Type.ShouldEqual(PermissionConstants.PackedPermissionClaimType);
             claims.Last().Type.ShouldEqual(PermissionConstants.DataKeyClaimType);
-            claims.Last().Value.ShouldEqual(tenant.TenantDataKey);
+            claims.Last().Value.ShouldEqual(tenant.GetTenantDataKey());
         }
 
         [Fact]

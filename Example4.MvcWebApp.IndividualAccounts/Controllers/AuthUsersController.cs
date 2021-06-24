@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.DataKeyCode;
+using AuthPermissions.DataLayer.Classes;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 {
     public class AuthUsersController : Controller
     {
-        private IAuthUsersAdminService _authUsersAdmin;
+        private readonly IAuthUsersAdminService _authUsersAdmin;
 
         public AuthUsersController(IAuthUsersAdminService authUsersAdmin)
         {
@@ -27,16 +28,14 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<ActionResult> Index()
         {
             var authDataKey = User.GetAuthDataKey();
-            var userQuery = _authUsersAdmin.QueryAuthUsers();
-            if (authDataKey != null)
-                userQuery = userQuery.Where(x => x.UserTenant.TenantDataKey.StartsWith(authDataKey));
+            var userQuery = _authUsersAdmin.QueryAuthUsers(authDataKey);
             var usersToShow = await AuthUserDisplay.SelectQuery(userQuery.OrderBy(x => x.Email)).ToListAsync();
 
             return View(usersToShow);
         }
 
         // GET: AuthUsersController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(string id)
         {
             return View();
         }
@@ -62,17 +61,24 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             }
         }
 
-        // GET: AuthUsersController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> EditInfo(string userId)
         {
-            return View();
+            var authUser = await _authUsersAdmin.FindAuthUserByUserIdAsync(userId);
+            if (authUser == null)
+                return RedirectToAction(nameof(ErrorDisplay), new  {errorMessage = "Could not find the Auth User you asked for." });
+
+            return View(AuthUserDisplay.DisplayUserInfo(authUser));
         }
 
-        // POST: AuthUsersController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult EditInfo(AuthUserDisplay input)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(input);
+            }
+
             try
             {
                 return RedirectToAction(nameof(Index));
@@ -102,6 +108,11 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             {
                 return View();
             }
+        }
+
+        public ActionResult ErrorDisplay(string errorMessage)
+        {
+            return View(errorMessage);
         }
     }
 }

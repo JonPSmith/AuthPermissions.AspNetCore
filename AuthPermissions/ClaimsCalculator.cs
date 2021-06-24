@@ -82,7 +82,7 @@ namespace AuthPermissions
             var userWithTenant = await _context.AuthUsers.Include(x => x.UserTenant)
                 .SingleOrDefaultAsync(x => x.UserId == userid);
 
-            return userWithTenant?.UserTenant?.TenantDataKey;
+            return userWithTenant?.UserTenant?.GetTenantDataKey();
         }
     }
 }

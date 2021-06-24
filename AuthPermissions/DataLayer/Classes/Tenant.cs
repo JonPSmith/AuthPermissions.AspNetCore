@@ -9,15 +9,16 @@ using System.Linq;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
+
 namespace AuthPermissions.DataLayer.Classes
 {
     /// <summary>
     /// This is used for multi-tenant systems
     /// </summary>
-    public class Tenant : TenantBase, INameToShowOnException
+    public class Tenant : INameToShowOnException
     {
         private HashSet<Tenant> _children;
-        private string _parentDataKey;
+        
 
         private Tenant() //Needed by EF Core
         {
@@ -47,19 +48,21 @@ namespace AuthPermissions.DataLayer.Classes
                 throw new AuthPermissionsException(
                     "The parent in the hierarchical setup doesn't have a valid primary key");
 
-            _parentDataKey = parent?.TenantDataKey;
+            ParentDataKey = parent?.GetTenantDataKey();
             Parent = parent;
             IsHierarchical = true;
         }
 
         /// <summary>
-        /// Easy way to see the tenant and its key
+        /// Tenant primary key
         /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"{TenantName}: Key = {TenantDataKey}";
-        }
+        public int TenantId { get; private set; }
+
+        /// <summary>
+        /// This the combines primary key of all parents (can be null)
+        /// </summary>
+        [MaxLength(AuthDbConstants.TenantDataKeySize)]
+        public string ParentDataKey { get; private set; }
 
         /// <summary>
         /// This is the name defined for this tenant. This is unique 
@@ -67,15 +70,6 @@ namespace AuthPermissions.DataLayer.Classes
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.TenantNameSize)]
         public string TenantName { get; private set; }
-
-        /// <summary>
-        /// This contains the data key for this tenant.
-        /// If it is a single layer multi-tenant it will by the TenantId as a string
-        /// If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId
-        /// </summary>
-        [Required(AllowEmptyStrings = false)]
-        [MaxLength(AuthDbConstants.TenantDataKeySize)]
-        public string TenantDataKey => _parentDataKey + $".{TenantId}";
 
         /// <summary>
         /// This is true if the tenant is an hierarchical 
@@ -101,6 +95,15 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         public IReadOnlyCollection<Tenant> Children => _children?.ToList();
 
+        /// <summary>
+        /// Easy way to see the tenant and its key
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{TenantName}: Key = {GetTenantDataKey()}";
+        }
+
         //--------------------------------------------------
         // Exception Error name
 
@@ -109,8 +112,16 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         public string NameToUseForError => TenantName;
 
+
         //----------------------------------------------------
         //access methods
+
+        /// <summary>
+        /// This calculates the data key for this tenant.
+        /// If it is a single layer multi-tenant it will by the TenantId as a string
+        /// If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId in the parents as well
+        /// </summary>
+        public string GetTenantDataKey() => ParentDataKey + $".{TenantId}";
 
         /// <summary>
         /// This is the official way to combine the parent name and the individual tenant name
@@ -165,13 +176,13 @@ namespace AuthPermissions.DataLayer.Classes
                 throw new AuthPermissionsException("The children must be loaded to move a hierarchical tenant");
 
             TenantName = CombineParentNameWithTenantName(ExtractEndLevelTenantName(this), newParentTenant?.TenantName);
-            _parentDataKey = newParentTenant?.TenantDataKey;
+            ParentDataKey = newParentTenant?.GetTenantDataKey();
 
             RecursivelyChangeChildNames(this, Children, (parent, child) =>
             {
                 var thisLevelTenantName = ExtractEndLevelTenantName(child);
                 child.TenantName = CombineParentNameWithTenantName(thisLevelTenantName, parent.TenantName);
-                child._parentDataKey = parent?.TenantDataKey;
+                child.ParentDataKey = parent?.GetTenantDataKey();
             });
         }
 

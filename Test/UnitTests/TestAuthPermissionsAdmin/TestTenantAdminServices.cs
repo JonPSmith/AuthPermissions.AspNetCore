@@ -115,7 +115,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var newTenant = tenants.SingleOrDefault(x => x.TenantName == "Company | West Coast | LA");
             tenants.Count.ShouldEqual(10);
             newTenant.ShouldNotBeNull();
-            newTenant.TenantDataKey.ShouldEqual(".1.2.10");
+            newTenant.GetTenantDataKey().ShouldEqual(".1.2.10");
         }
 
         [Fact]
@@ -186,7 +186,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var tenants = context.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.TenantDataKey))
+            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
             {
                 _output.WriteLine(tenant.ToString());
             }
@@ -213,7 +213,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var tenants = context.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.TenantDataKey))
+            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
             {
                 _output.WriteLine(tenant.ToString());
             }

@@ -5,11 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.BulkLoadServices.Concrete;
+using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using Example4.MvcWebApp.IndividualAccounts.Models;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Test.DiTestHelpers;
 using Test.TestHelpers;
@@ -54,6 +57,33 @@ namespace Test.UnitTests.TestExamples
             context.UserToRoles.Count().ShouldBeInRange(20, 40);
             context.Tenants.Count().ShouldBeInRange(10, 30);
             context.AuthUsers.Count(x => x.TenantId == null).ShouldEqual(2);
+        }
+
+        [Fact]
+        public async Task TestExample4FilterBy()
+        {
+            //SETUP
+            var services = new ServiceCollection();
+            var context = await services.RegisterAuthPermissions<Example4Permissions>(options =>
+                {
+                    options.TenantType = TenantTypes.HierarchicalTenant;
+                })
+                .UsingInMemoryDatabase()
+                .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
+                .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
+                .AddUsersRolesIfEmptyWithUserIdLookup<StubIFindUserInfo>(Example4AppAuthSetupData.UsersRolesDefinition)
+                .SetupForUnitTestingAsync();
+
+            //ATTEMPT
+            var dataKey = ".2.5";
+            var userQuery = context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey+x.TenantId).StartsWith(dataKey));
+            var usersToShow = userQuery.ToList();
+            var allUsers = context.AuthUsers.ToList();
+
+            //VERIFY
+            var xx = userQuery.ToQueryString();
+
+
         }
 
 

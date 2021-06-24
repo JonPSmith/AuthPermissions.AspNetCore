@@ -36,11 +36,7 @@ namespace AuthPermissions.DataLayer.EfCode
                 .HasIndex(x => x.TenantName)
                 .IsUnique();
             modelBuilder.Entity<Tenant>()
-                .Property("_parentDataKey")
-                .HasColumnName("ParentDataKey");
-            //modelBuilder.Entity<Tenant>()
-            //    .HasMany(x => x.Children)
-            //    .WithOne(x => x.Parent);
+                .HasIndex(x => x.ParentDataKey);
 
             modelBuilder.Entity<RefreshToken>()
                 .Property(x => x.TokenValue)

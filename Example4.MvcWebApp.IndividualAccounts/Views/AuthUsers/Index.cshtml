@@ -1,5 +1,6 @@
 ﻿@using AuthPermissions.PermissionsCode
 @using Example4.MvcWebApp.IndividualAccounts.PermissionsCode
+@using Microsoft.AspNetCore.Routing.Template
 @model IEnumerable<Example4.MvcWebApp.IndividualAccounts.Models.AuthUserDisplay>
 
 @{
@@ -54,9 +55,25 @@
                 @Html.DisplayFor(modelItem => item.HasTenant)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @if (User.UserHasThisPermission(Example4Permissions.UserInfoChange))
+                {
+                    @Html.ActionLink("Edit info", "EditInfo", new { item.UserId })
+                    @Html.Raw(" | ")
+                }
+                @if (User.UserHasThisPermission(Example4Permissions.UserRolesChange))
+                {
+                    @Html.ActionLink("Edit roles", "Edit", new { id = item.UserId })
+                    @Html.Raw(" | ")
+                }
+                @if (User.UserHasThisPermission(Example4Permissions.UserChangeTenant))
+                {
+                    @Html.ActionLink("Edit Tenant", "Edit", new { id = item.UserId })
+                    @Html.Raw(" | ")
+                }
+                @if (User.UserHasThisPermission(Example4Permissions.UserRemove))
+                {
+                    @Html.ActionLink("Delete", "Delete", new { id = item.UserId })
+                }
             </td>
         </tr>
 }

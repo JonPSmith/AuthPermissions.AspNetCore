@@ -26,6 +26,7 @@ namespace AuthPermissions.AdminCode.Services
         /// ctor
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="options">auth options</param>
         public AuthUsersAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
         {
             _context = context;
@@ -33,16 +34,19 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This simply returns a IQueryable of AuthUser
+        /// This returns a IQueryable of AuthUser, with optional filtering by dataKey (useful for tenant admin
         /// </summary>
+        /// <param name="dataKey">optional dataKey. If provided then it only returns AuthUsers that fall within that dataKey</param>
         /// <returns>query on the database</returns>
-        public IQueryable<AuthUser> QueryAuthUsers()
+        public IQueryable<AuthUser> QueryAuthUsers(string dataKey = null)
         {
-            return _context.AuthUsers;
+            return dataKey == null
+                ? _context.AuthUsers
+                : _context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey + x.TenantId).StartsWith(dataKey));
         }
 
         /// <summary>
-        /// Find a AuthUser via its UserId
+        /// Finds a AuthUser via its UserId
         /// </summary>
         /// <param name="userId"></param>
         /// <returns>AuthUser with UserRoles and UserTenant</returns>
