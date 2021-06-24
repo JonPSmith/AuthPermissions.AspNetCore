@@ -38,7 +38,7 @@ namespace AuthPermissions.DataLayer.EfCode
     * The steps are:
     * a) Make sure the default project is AuthPermissions
     * b) Use the PMC command
-    *    Add-Migration NameForMigration -Context AuthPermissionsDbContext -OutputDir DataLayer/Migrations
+    *    Add-Migration Initial -Context AuthPermissionsDbContext -OutputDir DataLayer/Migrations
     * c) Don't migrate the database using the Update-database, but use the AddDatabaseOnStartup extension
     *    method when registering the AuthPermissions in ASP.NET Core.
     *    

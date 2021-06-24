@@ -219,8 +219,10 @@ namespace Test.UnitTests.TestAuthPermissions
                 SetupHelpers.TestUserDefineWithTenants(null));
 
             //VERIFY
-            status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldStartWith("Line/index 1: You have defined this is a multi-tenant application, but user User2 has no tenant name");
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            var users = context.AuthUsers.Include(x => x.UserTenant).ToList();
+            users.Count.ShouldEqual(3);
+            users.Count(x => x.UserTenant != null).ShouldEqual(2);
         }
 
     }

@@ -45,7 +45,7 @@ namespace AuthPermissions.DataLayer.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Users");
+                    b.ToTable("AuthUsers");
                 });
 
             modelBuilder.Entity("AuthPermissions.DataLayer.Classes.RefreshToken", b =>
@@ -98,6 +98,9 @@ namespace AuthPermissions.DataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsHierarchical")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("ParentTenantId")
                         .HasColumnType("int");

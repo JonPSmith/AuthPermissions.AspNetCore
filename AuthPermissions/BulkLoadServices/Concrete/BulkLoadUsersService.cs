@@ -65,7 +65,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             var status = new StatusGenericHandler();
 
             var rolesToPermissions = new List<RoleToPermissions>();
-            userDefine.RoleNamesCommaDelimited.DecodeCodeNameWithTrimming(0, 
+            userDefine.RoleNamesCommaDelimited.DecodeCommaDelimitedNameWithCheck(0, 
                 (name, startOfName) => 
                 {
                     var roleToPermission = _context.RoleToPermissions.SingleOrDefault(x => x.RoleName == name);
@@ -99,13 +99,8 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                     (_findUserInfoService == null ? " wasn't available." : " couldn't find it either.")));
 
             Tenant userTenant = null;
-            if (_options.TenantType != TenantTypes.NotUsingTenants)
+            if (_options.TenantType != TenantTypes.NotUsingTenants && !string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
             {
-                if(string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
-                    return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
-                        $"You have defined this is a multi-tenant application, but user {userName} has no tenant name defined in the {nameof(userDefine.TenantNameForDataKey)}."));
-
-
                 userTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == userDefine.TenantNameForDataKey);
                 if (userTenant == null)
                     return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,

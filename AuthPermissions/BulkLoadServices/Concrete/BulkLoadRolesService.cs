@@ -85,7 +85,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 description = line.Substring(indexFirstBar+1, indexLastBar - (indexFirstBar + 1));
 
                 roleName = line.Substring(0, indexFirstBar).Trim();
-                charNum = indexLastBar + 1;
+                charNum = indexLastBar + 2;
             }
             else
             {
@@ -93,7 +93,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 charNum = indexColon + 2;
             }
 
-            var validPermissionNames = line.DecodeCodeNameWithTrimming(charNum,
+            var validPermissionNames = line.DecodeCommaDelimitedNameWithCheck(charNum,
                 (name, startOfName) =>
                 {
                     if (!enumPermissionType.PermissionsNameIsValid(name))

@@ -54,9 +54,9 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 })
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection")) 
-                .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
-                .AddTenantsIfEmpty(AppAuthSetupData.BulkHierarchicalTenants)
-                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualUserUserLookup>(AppAuthSetupData.UsersRolesDefinition)
+                .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
+                .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
+                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualUserUserLookup>(Example4AppAuthSetupData.UsersRolesDefinition)
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
         }

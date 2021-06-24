@@ -48,6 +48,7 @@ namespace AuthPermissions.DataLayer.Migrations
                     TenantId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TenantName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsHierarchical = table.Column<bool>(type: "bit", nullable: false),
                     ParentTenantId = table.Column<int>(type: "int", nullable: true),
                     ParentDataKey = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -64,7 +65,7 @@ namespace AuthPermissions.DataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "AuthUsers",
                 schema: "authp",
                 columns: table => new
                 {
@@ -75,9 +76,9 @@ namespace AuthPermissions.DataLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.PrimaryKey("PK_AuthUsers", x => x.UserId);
                     table.ForeignKey(
-                        name: "FK_Users_Tenants_TenantId",
+                        name: "FK_AuthUsers_Tenants_TenantId",
                         column: x => x.TenantId,
                         principalSchema: "authp",
                         principalTable: "Tenants",
@@ -98,20 +99,33 @@ namespace AuthPermissions.DataLayer.Migrations
                 {
                     table.PrimaryKey("PK_UserToRoles", x => new { x.UserId, x.RoleName });
                     table.ForeignKey(
+                        name: "FK_UserToRoles_AuthUsers_AuthUserUserId",
+                        column: x => x.AuthUserUserId,
+                        principalSchema: "authp",
+                        principalTable: "AuthUsers",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_UserToRoles_RoleToPermissions_RoleName",
                         column: x => x.RoleName,
                         principalSchema: "authp",
                         principalTable: "RoleToPermissions",
                         principalColumn: "RoleName",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserToRoles_Users_AuthUserUserId",
-                        column: x => x.AuthUserUserId,
-                        principalSchema: "authp",
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthUsers_Email",
+                schema: "authp",
+                table: "AuthUsers",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthUsers_TenantId",
+                schema: "authp",
+                table: "AuthUsers",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tenants_ParentTenantId",
@@ -125,19 +139,6 @@ namespace AuthPermissions.DataLayer.Migrations
                 table: "Tenants",
                 column: "TenantName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
-                schema: "authp",
-                table: "Users",
-                column: "Email",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_TenantId",
-                schema: "authp",
-                table: "Users",
-                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserToRoles_AuthUserUserId",
@@ -163,11 +164,11 @@ namespace AuthPermissions.DataLayer.Migrations
                 schema: "authp");
 
             migrationBuilder.DropTable(
-                name: "RoleToPermissions",
+                name: "AuthUsers",
                 schema: "authp");
 
             migrationBuilder.DropTable(
-                name: "Users",
+                name: "RoleToPermissions",
                 schema: "authp");
 
             migrationBuilder.DropTable(

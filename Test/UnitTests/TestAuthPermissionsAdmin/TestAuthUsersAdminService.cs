@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -11,7 +10,6 @@ using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.EntityFrameworkCore;
-using StatusGeneric;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

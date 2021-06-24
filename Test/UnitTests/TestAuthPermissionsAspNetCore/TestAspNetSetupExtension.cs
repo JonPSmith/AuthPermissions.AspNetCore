@@ -67,7 +67,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             //ATTEMPT
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
             startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<AddAuthRolesUserOnStartup>();
+            startupServices.Last().ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices.Last().StartAsync(default);
 
             //VERIFY
@@ -143,7 +143,7 @@ Role3: One")
             startupServices.Count.ShouldEqual(3);
             startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
             await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<AddAuthRolesUserOnStartup>();
+            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[2].StartAsync(default);
 
             //VERIFY
@@ -176,7 +176,7 @@ Role3: One")
             await startupServices[1].StartAsync(default);
             startupServices[2].ShouldBeType<SetupDatabaseOnStartup>();
             await startupServices[2].StartAsync(default);
-            startupServices[3].ShouldBeType<AddAuthRolesUserOnStartup>();
+            startupServices[3].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[3].StartAsync(default);
 
             //VERIFY
@@ -210,13 +210,11 @@ Tenant3")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(4);
+            startupServices.Count.ShouldEqual(3);
             startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
             await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<AddTenantsOnStartup>();
+            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[2].StartAsync(default);
-            startupServices[3].ShouldBeType<AddAuthRolesUserOnStartup>();
-            await startupServices[3].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();

@@ -14,11 +14,11 @@ using Microsoft.Extensions.Hosting;
 
 namespace AuthPermissions.AspNetCore.HostedServices
 {
-    public class AddAuthRolesUserOnStartup : IHostedService
+    public class AddRolesTenantsUsersIfEmptyOnStartup : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public AddAuthRolesUserOnStartup(IServiceProvider serviceProvider)
+        public AddRolesTenantsUsersIfEmptyOnStartup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }

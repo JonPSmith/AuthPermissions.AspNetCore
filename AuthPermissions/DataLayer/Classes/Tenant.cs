@@ -19,7 +19,10 @@ namespace AuthPermissions.DataLayer.Classes
         private HashSet<Tenant> _children;
         private string _parentDataKey;
 
-        private Tenant() {} //Needed by EF Core
+        private Tenant() //Needed by EF Core
+        {
+
+        } 
 
         /// <summary>
         /// This defines a tenant in a single tenant multi-tenant system.

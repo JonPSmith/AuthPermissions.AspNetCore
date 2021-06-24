@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthPermissions.DataLayer.Migrations
 {
     [DbContext(typeof(AuthPermissionsDbContext))]
-    [Migration("20210618100546_Initial")]
+    [Migration("20210624091107_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,7 +47,7 @@ namespace AuthPermissions.DataLayer.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Users");
+                    b.ToTable("AuthUsers");
                 });
 
             modelBuilder.Entity("AuthPermissions.DataLayer.Classes.RefreshToken", b =>
@@ -100,6 +100,9 @@ namespace AuthPermissions.DataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsHierarchical")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("ParentTenantId")
                         .HasColumnType("int");

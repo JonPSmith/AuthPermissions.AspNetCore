@@ -43,7 +43,7 @@ namespace AuthPermissions.AspNetCore
         {
             setupData.RegisterCommonServices();
             if (addRolesUsersOnStartup)
-                setupData.Services.AddHostedService<AddAuthRolesUserOnStartup>();
+                setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 
         /// <summary>
@@ -62,9 +62,7 @@ namespace AuthPermissions.AspNetCore
 
             //NOTE: when I add the database locking I need run all of these within the lock
             setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
-            if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)
-                setupData.Services.AddHostedService<AddTenantsOnStartup>();
-            setupData.Services.AddHostedService<AddAuthRolesUserOnStartup>();
+            setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 
         private static void RegisterCommonServices(this AuthSetupData setupData)

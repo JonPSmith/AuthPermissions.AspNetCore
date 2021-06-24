@@ -10,7 +10,7 @@ using StatusGeneric;
 namespace AuthPermissions.SetupCode
 {
     /// <summary>
-    /// This adds roles/permissions, tenants and Users only if 
+    /// This adds roles/permissions, tenants and Users only if the database is empty
     /// </summary>
     public static class BulkLoadOnStartup
     {
@@ -25,7 +25,7 @@ namespace AuthPermissions.SetupCode
             IAuthPermissionsOptions options,
             IFindUserInfoService findUserInfoService)
         {
-            IStatusGeneric status = null;
+            IStatusGeneric status = new StatusGenericHandler();
             if (!context.RoleToPermissions.Any())
             {
                 var roleLoader = new BulkLoadRolesService(context);

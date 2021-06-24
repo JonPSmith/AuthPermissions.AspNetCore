@@ -61,13 +61,14 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             var lines = linesOfText.Split( Environment.NewLine);
 
             //Check for duplicate tenant names
-            var dups = lines.GroupBy(line => line).Where(name => name.Count() > 1).ToList();
+            var dups = lines.Where(x => !string.IsNullOrWhiteSpace(x))
+                .GroupBy(line => line).Where(name => name.Count() > 1).ToList();
             if (dups.Any())
                 return status.AddError("There were tenants with duplicate names, they are: " + string.Join(Environment.NewLine, dups.Select(x => x.Key)));
 
             if (options.TenantType == TenantTypes.SingleTenant)
             {
-                foreach (var line in lines)
+                foreach (var line in lines.Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
                     _context.Add(new Tenant(line.Trim()));
                 }

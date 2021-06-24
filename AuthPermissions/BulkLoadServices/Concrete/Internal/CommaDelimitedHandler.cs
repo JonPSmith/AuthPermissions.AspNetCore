@@ -8,29 +8,25 @@ namespace AuthPermissions.BulkLoadServices.Concrete.Internal
 {
     internal static class CommaDelimitedHandler
     {
-        public static List<string> DecodeCodeNameWithTrimming(this string line, int charNum, Action<string, int> checkValid)
+        public static List<string> DecodeCommaDelimitedNameWithCheck(this string line, int charNum, Action<string, int> checkValid)
         {
             var trimmedNames = new List<string>();
             while (charNum < line.Length)
             {
-                if (!char.IsLetterOrDigit(line[charNum]))
-                {
-                    charNum++;
-                    continue;
-                }
-
                 var foundName = "";
                 var startOfName = charNum;
-                while (charNum < line.Length && char.IsLetterOrDigit(line[charNum]))
+                while (charNum < line.Length && line[charNum] != ',')
                 {
                     foundName += line[charNum];
                     charNum++;
                 }
                 if (foundName.Length > 0)
                 {
-                    checkValid(foundName, startOfName);
-                    trimmedNames.Add(foundName);
+                    var trimmedName = foundName.Trim();
+                    checkValid(trimmedName, startOfName);
+                    trimmedNames.Add(trimmedName);
                 }
+                charNum++;
             }
 
             return trimmedNames;
