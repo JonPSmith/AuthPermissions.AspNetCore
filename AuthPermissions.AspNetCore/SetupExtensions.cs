@@ -34,6 +34,21 @@ namespace AuthPermissions.AspNetCore
         }
 
         /// <summary>
+        /// Use this to provide the <see cref="ISyncAuthenticationUsers"/> service which AuthP uses to synchronize its user database
+        /// against the users in the application's Authentication Provider. Used in the <see cref="AuthUsersAdminService"/> sync code.
+        /// </summary>
+        /// <typeparam name="TSyncProviderReader"></typeparam>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData RegisterAuthenticationProviderReader<TSyncProviderReader>(this AuthSetupData setupData)
+            where TSyncProviderReader : class, ISyncAuthenticationUsers
+        {
+            setupData.Services.AddTransient<ISyncAuthenticationUsers, TSyncProviderReader>();
+
+            return setupData;
+        }
+
+        /// <summary>
         /// This will finalize the setting up of the AuthPermissions parts needed by ASP.NET Core
         /// NOTE: It assumes the AuthPermissions database has been created and has the current migration applied
         /// </summary>

@@ -1,0 +1,37 @@
+﻿@model List<AuthPermissions.AdminCode.SyncAuthUserWithChange>
+
+@{
+    ViewData["Title"] = "SyncUsers";
+}
+
+@if (!@Model.Any())
+{
+    <p>There are no changes to apply to the AuthUsers</p>
+    return;
+}
+
+<h1>Changes to apply to the AuthUsers</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Change type</th>
+            <th>Changes</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) 
+{
+    <tr>
+        <td>@item.ConfirmChange</td>
+        <td>@item.ToString()</td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new {/* id=item.PrimaryKey */}) |
+            @Html.ActionLink("Details", "Details", new {/* id=item.PrimaryKey */}) |
+            @Html.ActionLink("Delete", "Delete", new {/* id=item.PrimaryKey */})
+        </td>
+    </tr>
+}
+    </tbody>
+</table>

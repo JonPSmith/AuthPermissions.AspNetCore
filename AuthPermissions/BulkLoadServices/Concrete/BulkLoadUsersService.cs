@@ -88,8 +88,8 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             if (userId == null && _findUserInfoService != null)
             {
                 var userInfo = await _findUserInfoService.FindUserInfoAsync(userDefine.UniqueUserName);
-                userId =  userInfo.UserId;
-                if (userInfo.UserName != null)
+                userId =  userInfo?.UserId;
+                if (userInfo?.UserName != null)
                     //we override the AuthUser username
                     userName = userInfo.UserName;
             }

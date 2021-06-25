@@ -57,6 +57,7 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
                 .AddUsersRolesIfEmptyWithUserIdLookup<IndividualUserUserLookup>(Example4AppAuthSetupData.UsersRolesDefinition)
+                .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
         }

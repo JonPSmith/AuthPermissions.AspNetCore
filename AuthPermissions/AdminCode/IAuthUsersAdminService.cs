@@ -9,6 +9,9 @@ using StatusGeneric;
 
 namespace AuthPermissions.AdminCode
 {
+    /// <summary>
+    /// This provides CRUD access to the Auth's Users
+    /// </summary>
     public interface IAuthUsersAdminService
     {
         /// <summary>
@@ -19,7 +22,7 @@ namespace AuthPermissions.AdminCode
         IQueryable<AuthUser> QueryAuthUsers(string dataKey = null);
 
         /// <summary>
-        /// Find a AuthUser via its UserId
+        /// Finds a AuthUser via its UserId
         /// </summary>
         /// <param name="userId"></param>
         /// <returns>AuthUser with UserRoles and UserTenant</returns>
@@ -33,14 +36,20 @@ namespace AuthPermissions.AdminCode
         Task<AuthUser> FindAuthUserByEmailAsync(string email);
 
         /// <summary>
-        /// This adds a new Auth User with its Auth roles
+        /// This compares the users in the authentication provider against the user's in the AuthP's database.
+        /// It creates a list of all the changes (add, update, remove) than need to be applied to the AuthUsers.
+        /// This is shown to the admin user to check, and fill in the Roles/Tenant parts for new users
         /// </summary>
-        /// <param name="userId">This comes from the authentication provider (must be unique)</param>
-        /// <param name="email">The email for this user (must be unique)</param>
-        /// <param name="userName">Optional user name</param>
-        /// <param name="roleNames">List of names of auth roles</param>
+        /// <returns>Status, if valid then it contains a list of <see cref="SyncAuthUserWithChange"/>to display</returns>
+        Task<List<SyncAuthUserWithChange>> SyncAndShowChangesAsync();
+
+        /// <summary>
+        /// This receives a list of <see cref="SyncAuthUserWithChange"/> and applies them to the AuthP database.
+        /// This uses the <see cref="SyncAuthUserWithChange.ConfirmChange"/> parameter to define what to change
+        /// </summary>
+        /// <param name="changesToApply"></param>
         /// <returns>Status</returns>
-        Task<IStatusGeneric> AddNewUserWithRolesAsync(string userId, string email, string userName, List<string> roleNames);
+        Task<IStatusGeneric> ApplySyncChangesAsync(List<SyncAuthUserWithChange> changesToApply);
 
         /// <summary>
         /// This will set the UserName property in the AuthUser
@@ -75,7 +84,7 @@ namespace AuthPermissions.AdminCode
         Task<IStatusGeneric> RemoveRoleToUser(AuthUser authUser, string roleName);
 
         /// <summary>
-        /// This allows you to add or change a tenant to a Auth User
+        /// This allows you to add or change a tenant to a AuthP User
         /// NOTE: you must have set the <see cref="AuthPermissionsOptions.TenantType"/> to a valid tenant type for this to work
         /// </summary>
         /// <param name="authUser"></param>

@@ -55,11 +55,6 @@
                 @Html.DisplayFor(modelItem => item.HasTenant)
             </td>
             <td>
-                @if (User.UserHasThisPermission(Example4Permissions.UserInfoChange))
-                {
-                    @Html.ActionLink("Edit info", "EditInfo", new { item.UserId })
-                    @Html.Raw(" | ")
-                }
                 @if (User.UserHasThisPermission(Example4Permissions.UserRolesChange))
                 {
                     @Html.ActionLink("Edit roles", "Edit", new { id = item.UserId })
@@ -69,10 +64,6 @@
                 {
                     @Html.ActionLink("Edit Tenant", "Edit", new { id = item.UserId })
                     @Html.Raw(" | ")
-                }
-                @if (User.UserHasThisPermission(Example4Permissions.UserRemove))
-                {
-                    @Html.ActionLink("Delete", "Delete", new { id = item.UserId })
                 }
             </td>
         </tr>

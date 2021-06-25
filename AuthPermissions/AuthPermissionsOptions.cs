@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using AuthPermissions.AdminCode;
 using AuthPermissions.SetupCode;
 
 namespace AuthPermissions

@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
@@ -149,6 +150,30 @@ Role3: One")
         }
 
         [Fact]
+        public void TestSetupAspNetCoreRegisterAuthenticationProviderReader()
+        {
+            //SETUP
+            var inMemoryName = Guid.NewGuid().ToString();
+            var services = this.SetupServicesForTest();
+            services.RegisterAuthPermissions<TestEnum>()
+                .UsingInMemoryDatabase()
+                .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
+Role2 |my description|: One, Two, Two, Three
+Role3: One")
+                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .RegisterAuthenticationProviderReader<StubSyncAuthenticationUsers>()
+                .SetupAuthDatabaseOnStartup();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            //ATTEMPT
+            var syncServices = serviceProvider.GetRequiredService<ISyncAuthenticationUsers>();
+
+            //VERIFY
+            syncServices.ShouldNotBeNull();
+        }
+
+        [Fact]
         public async Task TestSetupAspNetCoreSuperUserAddRolesPermissionsUsersIfEmpty()
         {
             //SETUP
@@ -170,8 +195,8 @@ Role3: One")
             startupServices.Count.ShouldEqual(3);
             startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser>();
             await startupServices[1].StartAsync(default);
-            startupServices[3].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
-            await startupServices[3].StartAsync(default);
+            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
+            await startupServices[2].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -218,7 +243,6 @@ Tenant3")
             authContext.RoleToPermissions.Count().ShouldEqual(3);
             authContext.UserToRoles.Count().ShouldEqual(5);
             authContext.Tenants.Count().ShouldEqual(3);
-
         }
     }
 }

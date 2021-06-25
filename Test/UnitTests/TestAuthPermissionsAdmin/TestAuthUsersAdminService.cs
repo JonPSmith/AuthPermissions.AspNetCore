@@ -39,7 +39,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
 
             //ATTEMPT
             var users = service.QueryAuthUsers()
@@ -69,7 +69,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var authUser = await service.FindAuthUserByUserIdAsync("User1");
@@ -90,7 +90,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var authUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
@@ -99,10 +99,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             authUser.ShouldNotBeNull();
         }
 
-        [Theory]
-        [InlineData("Role2", true)]
-        [InlineData("Role99", false)]
-        public async Task TestAddNewUserWithRolesAsyncOk(string roleName, bool isValid)
+        [Fact]
+        public async Task TestSyncAndShowChangesAsyncOk()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -113,41 +111,50 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var authenticationService = new StubSyncAuthenticationUsers();
+            var service = new AuthUsersAdminService(context, authenticationService, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
-            var status = await service.AddNewUserWithRolesAsync("User9","User9@gmail.com", "User9 name",
-                new List<string>{ "Role1", roleName });
+            var changes = await service.SyncAndShowChangesAsync();
 
             //VERIFY
-            status.IsValid.ShouldEqual(isValid);
-            _output.WriteLine(status.Message);
-            if (!isValid)
-                status.GetAllErrors().ShouldEqual("The following role names were not found: Role99");
+            foreach (var synChange in changes)
+            {
+                _output.WriteLine(synChange.ToString());
+            }
+            changes.Select(x => x.ProviderChange.ToString()).ShouldEqual(new []{ "Update", "Add", "Remove" });
         }
 
         [Fact]
-        public async Task TestAddNewUserWithRolesAsyncDuplicate()
+        public async Task TestApplySyncChangesAsyncOk()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureCreated();
 
             await context.SetupRolesInDbAsync();
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var authenticationService = new StubSyncAuthenticationUsers();
+            var service = new AuthUsersAdminService(context, authenticationService, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var changes = await service.SyncAndShowChangesAsync();
 
             //ATTEMPT
-            var status = await service.AddNewUserWithRolesAsync("User2", "User2@gmail.com", "User2 name",
-                new List<string> { "Role1" });
+            var status = await service.ApplySyncChangesAsync(changes);
 
             //VERIFY
-            status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldEqual("There is already a AuthUser with a value: name = User2 name");
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            _output.WriteLine(status.Message);
+            context.ChangeTracker.Clear();
+            var authUsers = context.AuthUsers.OrderBy(x => x.Email).ToList();
+            foreach (var authUser in authUsers)
+            {
+                _output.WriteLine(authUser.ToString());
+            }
+            authUsers.Select(x => x.Email).ShouldEqual(new []{ "User1@gmail.com", "User2@gmail.com", "User99@gmail.com" });
+            authUsers.Select(x => x.UserName).ShouldEqual(new[] { "first last 0", "new name", "user 99" });
         }
 
         [Fact]
@@ -162,7 +169,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
             var authUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
 
             //ATTEMPT
@@ -190,7 +197,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
             var authUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
 
             //ATTEMPT
@@ -218,7 +225,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
             var authUser = await service.FindAuthUserByEmailAsync("User2@gmail.com");
 
             //ATTEMPT
@@ -246,7 +253,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
             var authUser = await service.FindAuthUserByEmailAsync("User2@gmail.com");
 
             //ATTEMPT
@@ -274,7 +281,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
             var authUser = await service.FindAuthUserByEmailAsync("User2@gmail.com");
 
             //ATTEMPT

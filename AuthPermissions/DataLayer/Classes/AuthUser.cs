@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
 namespace AuthPermissions.DataLayer.Classes
@@ -94,7 +95,7 @@ namespace AuthPermissions.DataLayer.Classes
             var tenantString = TenantId == null ? "" 
                 : (UserTenant == null ? ", has an tenant" : $", linked to {UserTenant.TenantName}");
             var rolesString = _userRoles == null ? "" : $", roles = {string.Join(", ", _userRoles.Select(x => x.RoleName))}";
-            return $"UserName = {UserName}, UserId = {UserId}{rolesString}{tenantString}.";
+            return $"UserName = {UserName}, Email = {Email}, UserId = {UserId}{rolesString}{tenantString}.";
         }
 
         //--------------------------------------------------
@@ -108,6 +109,9 @@ namespace AuthPermissions.DataLayer.Classes
         public bool AddRoleToUser(RoleToPermissions role)
         {
             if (role == null) throw new ArgumentNullException(nameof(role));
+
+            if (_userRoles == null)
+                throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
 
             if (_userRoles.Any(x => x.RoleName == role.RoleName))
                 return false;
@@ -124,8 +128,23 @@ namespace AuthPermissions.DataLayer.Classes
         public bool RemoveRoleFromUser(RoleToPermissions role)
         {
             if (role == null) throw new ArgumentNullException(nameof(role));
+            if (_userRoles == null)
+                throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
+
             var foundUserToRole = _userRoles.SingleOrDefault(x => x.RoleName == role.RoleName);
             return _userRoles.Remove(foundUserToRole);
+        }
+
+        /// <summary>
+        /// This will replace all the Roles for this AuthUser
+        /// </summary>
+        /// <param name="roles">List of roles to replace the current user's roles</param>
+        public void ReplaceAllRoles(IEnumerable<RoleToPermissions> roles)
+        {
+            if (_userRoles == null)
+                throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
+
+            _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(UserId, x)));
         }
 
         /// <summary>

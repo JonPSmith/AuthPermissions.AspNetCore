@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.DataKeyCode;
-using AuthPermissions.DataLayer.Classes;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
@@ -35,21 +33,22 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         }
 
         // GET: AuthUsersController/Details/5
-        public ActionResult Details(string id)
+        public async Task<ActionResult> Details(string id)
         {
+
             return View();
         }
 
-        // GET: AuthUsersController/Create
-        public ActionResult Create()
+        public async Task<ActionResult> SyncUsers()
         {
-            return View();
+            var syncChanges = await _authUsersAdmin.SyncAndShowChangesAsync();
+            return View(syncChanges);
         }
 
         // POST: AuthUsersController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult SyncUsers(List<SyncAuthUserChanges> changes)
         {
             try
             {
@@ -65,7 +64,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         {
             var authUser = await _authUsersAdmin.FindAuthUserByUserIdAsync(userId);
             if (authUser == null)
-                return RedirectToAction(nameof(ErrorDisplay), new  {errorMessage = "Could not find the Auth User you asked for." });
+                return RedirectToAction(nameof(ErrorDisplay), new  {errorMessage = "Could not find the AuthP User you asked for." });
 
             return View(AuthUserDisplay.DisplayUserInfo(authUser));
         }

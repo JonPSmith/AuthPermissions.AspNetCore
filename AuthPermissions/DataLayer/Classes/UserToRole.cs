@@ -13,8 +13,7 @@ namespace AuthPermissions.DataLayer.Classes
     public class UserToRole
     {
         private UserToRole()
-        {
-        } //Needed by EF Core
+        { } //Needed by EF Core
 
 
         /// <summary>

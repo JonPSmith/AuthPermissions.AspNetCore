@@ -11,12 +11,12 @@ namespace AuthPermissions.SetupCode
     public interface IFindUserInfoService
     {
         /// <summary>
-        /// When adding a AuthUser to the Auth database you might not know the UserId
+        /// When adding a AuthUser to the AuthP database you might not know the UserId
         /// You can write a service that that can take the uniqueName of the AuthUser (normally the email)
         /// and return the UserId, and optionally the user name (Azure Active Directory has a user name)
         /// </summary>
         /// <param name="uniqueName">The unique name you provide in your AuthUser setup data</param>
-        /// <returns>a class containing a UserIf and UserName property</returns>
+        /// <returns>a class containing a UserIf and UserName property, or null if not found</returns>
         public Task<FindUserInfoResult> FindUserInfoAsync(string uniqueName);
     }
 }

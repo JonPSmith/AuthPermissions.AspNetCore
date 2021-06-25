@@ -42,7 +42,7 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This returns a query containing all the Auth users that have the given role name
+        /// This returns a query containing all the AuthP users that have the given role name
         /// </summary>
         public IQueryable<AuthUser> QueryUsersUsingThisRole(string roleName)
         {
@@ -106,11 +106,11 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This deletes a Role. If that Role is already assigned to Auth users you must set the removeFromUsers to true
+        /// This deletes a Role. If that Role is already assigned to AuthP users you must set the removeFromUsers to true
         /// otherwise you will get an error.
         /// </summary>
         /// <param name="roleName">name of role to delete</param>
-        /// <param name="removeFromUsers">If false it will fail if any Auth user have that role.
+        /// <param name="removeFromUsers">If false it will fail if any AuthP user have that role.
         /// If true it will delete the role from all the users that have it.</param>
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteRoleAsync(string roleName, bool removeFromUsers)

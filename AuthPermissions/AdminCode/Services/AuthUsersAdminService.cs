@@ -20,16 +20,19 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthUsersAdminService : IAuthUsersAdminService
     {
         private readonly AuthPermissionsDbContext _context;
+        private readonly ISyncAuthenticationUsers _syncAuthenticationUsers;
         private readonly TenantTypes _tenantType;
 
         /// <summary>
         /// ctor
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="syncAuthenticationUsers">The authentication sync provider</param>
         /// <param name="options">auth options</param>
-        public AuthUsersAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
+        public AuthUsersAdminService(AuthPermissionsDbContext context, ISyncAuthenticationUsers syncAuthenticationUsers, IAuthPermissionsOptions options)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _syncAuthenticationUsers = syncAuthenticationUsers; //Can be null
             _tenantType = options.TenantType;
         }
 
@@ -72,42 +75,137 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This adds a new Auth User with its Auth roles
+        /// This compares the users in the authentication provider against the user's in the AuthP's database.
+        /// It creates a list of all the changes (add, update, remove) than need to be applied to the AuthUsers.
+        /// This is shown to the admin user to check, and fill in the Roles/Tenant parts for new users
         /// </summary>
-        /// <param name="userId">This comes from the authentication provider (must be unique)</param>
-        /// <param name="email">The email for this user (must be unique)</param>
-        /// <param name="userName">Optional user name</param>
-        /// <param name="roleNames">List of names of auth roles</param>
-        /// <returns>Status</returns>
-        public async Task<IStatusGeneric> AddNewUserWithRolesAsync(string userId, string email, string userName, List<string> roleNames)
+        /// <returns>Status, if valid then it contains a list of <see cref="SyncAuthUserWithChange"/>to display</returns>
+        public async Task<List<SyncAuthUserWithChange>> SyncAndShowChangesAsync()
         {
-            if (string.IsNullOrEmpty(userId)) 
-                throw new AuthPermissionsBadDataException("Cannot be null or an empty string", nameof(userId));
-            if (string.IsNullOrEmpty(email)) 
-                throw new AuthPermissionsBadDataException("Cannot be null or an empty string", (nameof(email)));
-            if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
+            if (_syncAuthenticationUsers == null)
+                throw new AuthPermissionsException(
+                    $"You must register a {nameof(ISyncAuthenticationUsers)} service via the RegisterAuthenticationProviderReader extension.");
 
-            var status = new StatusGenericHandler { Message = $"Successfully added a new auth user {userName ?? email}." };
+            var authenticationUsers = await _syncAuthenticationUsers.GetAllActiveUserInfoAsync();
+            var authUserDictionary = await _context.AuthUsers
+                .Include(x => x.UserRoles)
+                .Include(x => x.UserTenant)
+                .ToDictionaryAsync(x => x.UserId);
 
-            var roles = await _context.RoleToPermissions.Where(x => roleNames.Contains(x.RoleName))
+            var result = new List<SyncAuthUserWithChange>();
+            foreach (var authenticationUser in authenticationUsers)
+            {
+                if (authUserDictionary.TryGetValue(authenticationUser.UserId, out var authUser))
+                {
+                    //check if its a change or not
+                    var syncChange = new SyncAuthUserWithChange(authenticationUser, authUser);
+                    if (syncChange.ProviderChange == SyncAuthUserChanges.Update)
+                        //The two are different so add to the result
+                        result.Add(syncChange); 
+                    //Removed the authUser as has been handled
+                    authUserDictionary.Remove(authenticationUser.UserId);
+                }
+                else
+                {
+                    //A new AuthUser should be created
+                    result.Add(new SyncAuthUserWithChange(authenticationUser, null));
+                }
+            }
+
+            //All the authUsers still in the authUserDictionary are not in the authenticationUsers, so mark as remove
+            result.AddRange(authUserDictionary.Values.Select(x => new SyncAuthUserWithChange(null, x)));
+
+            return result;
+        }
+
+        /// <summary>
+        /// This receives a list of <see cref="SyncAuthUserWithChange"/> and applies them to the AuthP database.
+        /// This uses the <see cref="SyncAuthUserWithChange.ConfirmChange"/> parameter to define what to change
+        /// </summary>
+        /// <param name="changesToApply"></param>
+        /// <returns>Status</returns>
+        public async Task<IStatusGeneric> ApplySyncChangesAsync(List<SyncAuthUserWithChange> changesToApply)
+        {
+            var status = new StatusGenericHandler();
+
+            foreach (var syncChange in changesToApply)
+            {
+                switch (syncChange.ConfirmChange)
+                {
+                    case SyncAuthUserChanges.NoChange:
+                        continue;
+                    case SyncAuthUserChanges.Add:
+                        status.CombineStatuses(await AddUpdateAuthUserAsync(syncChange, false));
+                        break;
+                    case SyncAuthUserChanges.Update:
+                        status.CombineStatuses(await AddUpdateAuthUserAsync(syncChange, true));
+                        break;
+                    case SyncAuthUserChanges.Remove:
+                        var authUserToRemove = await FindAuthUserByUserIdAsync(syncChange.UserId);
+                        if (authUserToRemove == null)
+                            throw new AuthPermissionsException(
+                                $"This should have loaded a AuthUser with the userId of {syncChange.UserId}");
+                        _context.Remove(authUserToRemove);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            //Build useful summary
+            var changeStrings = Enum.GetValues<SyncAuthUserChanges>().ToList()
+                .Select(x => $"{x} = {changesToApply.Count(y => y.ConfirmChange == x)}");
+            status.Message = $"Sync successful: {(string.Join(", ", changeStrings))}";
+
+            return status;
+        }
+
+        private async Task<IStatusGeneric> AddUpdateAuthUserAsync(SyncAuthUserWithChange newUserData, bool update)
+        {
+            var status = new StatusGenericHandler();
+            var roles = newUserData.RoleNames == null
+                ? new List<RoleToPermissions>()
+                : await _context.RoleToPermissions.Where(x => newUserData.RoleNames.Contains(x.RoleName))
                 .ToListAsync();
 
-            if (roles.Count < roleNames.Count)
+            if (roles.Count < (newUserData.RoleNames?.Count ?? 0))
             {
                 //Could not find one or more Roles
-                var missingRoleNames = roleNames;
+                var missingRoleNames = newUserData.RoleNames;
                 roles.ForEach(x => missingRoleNames.Remove(x.RoleName));
 
                 return status.AddError(
                     $"The following role names were not found: {string.Join(", ", missingRoleNames)}");
             }
 
-            _context.Add(new AuthUser(userId, email, userName, roles));
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            Tenant tenant = null;         
+            if (newUserData.TenantName != null)
+            {
+                tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == newUserData.TenantName);
+                if (tenant == null)
+                    return status.AddError($"Could not find the tenant {newUserData.TenantName}");
+            }
 
+            //If all ok then we can add/update
+            if(!update)
+                //Simple add
+                _context.Add(new AuthUser(newUserData.UserId, newUserData.Email, newUserData.UserName, roles, tenant));
+            else
+            {
+                var existingAuthUser = await FindAuthUserByUserIdAsync(newUserData.UserId);
+                if (existingAuthUser == null)
+                    throw new AuthPermissionsException(
+                        $"This should have loaded a AuthUser with the userId of {newUserData.UserId}");
+                existingAuthUser.ChangeEmail(newUserData.Email); //if same then ignored
+                existingAuthUser.ChangeUserName(newUserData.UserName);//if same then ignored
+                existingAuthUser.UpdateUserTenant(tenant);//if same then ignored
+                if (newUserData.RoleNames.OrderBy(x => x) == existingAuthUser.UserRoles.Select(x => x.RoleName).OrderBy(x => x))
+                    //Roles have changed
+                    existingAuthUser.ReplaceAllRoles(roles);
+            }
             return status;
         }
-
 
         /// <summary>
         /// This will set the UserName property in the AuthUser
@@ -214,7 +312,7 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This allows you to add or change a tenant to a Auth User
+        /// This allows you to add or change a tenant to a AuthP User
         /// NOTE: you must have set the <see cref="AuthPermissionsOptions.TenantType"/> to a valid tenant type for this to work
         /// </summary>
         /// <param name="authUser"></param>
