@@ -27,13 +27,14 @@ namespace AuthPermissions.AspNetCore.Services
         }
 
         /// <summary>
-        /// This returns the userId, email and UserName of all the active (e.g. <see cref="IdentityUser.LockoutEnabled"/> is false)
+        /// This returns the userId, email and UserName of all the active
         /// </summary>
         /// <returns>collection of SyncAuthenticationUser</returns>
         public async Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
         {
+            var xx =  _userManager.Users.ToList();
+
             return await _userManager.Users
-                .Where(x => !x.LockoutEnabled)
                 .Select(x => new SyncAuthenticationUser(x.Id, x.Email, x.UserName)).ToListAsync();
         }
     }
