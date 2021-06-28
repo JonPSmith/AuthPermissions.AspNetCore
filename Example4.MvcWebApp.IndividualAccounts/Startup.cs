@@ -56,7 +56,7 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection")) 
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
-                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualUserUserLookup>(Example4AppAuthSetupData.UsersRolesDefinition)
+                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualAccountUserLookup>(Example4AppAuthSetupData.UsersRolesDefinition)
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();

@@ -34,7 +34,8 @@
 
 - Create an ASP.NET Core "only run once" library using the [madelson/DistributedLock](https://github.com/madelson/DistributedLock) libraries.
 - Add `HaveLoggedOut` event so that a logout on app using JWT will cause the refresh token to be removed.
-- Encript JWT claims
+- JWT Token: Encrypt added claims to JWT Token
+  - How do we set up the encryption in general (look at IS)
 
 ----
 

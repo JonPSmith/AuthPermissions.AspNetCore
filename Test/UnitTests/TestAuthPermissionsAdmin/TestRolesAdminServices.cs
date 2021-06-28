@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.PermissionsCode.Services;
 using EntityFramework.Exceptions.SqlServer;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -29,7 +30,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions{EnumPermissionsType = typeof(TestEnum)});
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
             var roles = service.QueryRoleToPermissions().ToList();
@@ -54,7 +55,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions{EnumPermissionsType = typeof(TestEnum)});
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
             var authUsers = service.QueryUsersUsingThisRole(roleName).ToList();
@@ -76,7 +77,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { EnumPermissionsType = typeof(TestEnum) });
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
             var status = await service.AddRoleToPermissionsAsync("Role4", "another role", new[] { "One", enumMemberName, "Three" });
@@ -104,7 +105,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { EnumPermissionsType = typeof(TestEnum) });
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
             var status = await service.AddRoleToPermissionsAsync("Role2", "another role", new[] { "One", "Two", "Three" });
@@ -128,7 +129,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { EnumPermissionsType = typeof(TestEnum) });
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
             var status = await service.UpdateRoleToPermissionsAsync(roleName,  new[] { "One" }, "different description");
@@ -156,7 +157,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { EnumPermissionsType = typeof(TestEnum) });
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
             var status = await service.DeleteRoleAsync(roleName, false);
@@ -184,7 +185,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { EnumPermissionsType = typeof(TestEnum) });
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
             var status = await service.DeleteRoleAsync("Role2", removeFromUser);

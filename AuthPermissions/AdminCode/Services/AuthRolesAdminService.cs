@@ -29,7 +29,7 @@ namespace AuthPermissions.AdminCode.Services
         public AuthRolesAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
         {
             _context = context;
-            _permissionType = options.EnumPermissionsType;
+            _permissionType = options.InternalData.EnumPermissionsType;
         }
 
         /// <summary>

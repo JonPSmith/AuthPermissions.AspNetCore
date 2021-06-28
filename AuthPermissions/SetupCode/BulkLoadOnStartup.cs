@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.BulkLoadServices.Concrete;
@@ -25,24 +26,27 @@ namespace AuthPermissions.SetupCode
             IAuthPermissionsOptions options,
             IFindUserInfoService findUserInfoService)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (options == null) throw new ArgumentNullException(nameof(options));
+
             IStatusGeneric status = new StatusGenericHandler();
             if (!context.RoleToPermissions.Any())
             {
                 var roleLoader = new BulkLoadRolesService(context);
-                status = await roleLoader.AddRolesToDatabaseAsync(options.RolesPermissionsSetupText,
-                    options.EnumPermissionsType);
+                status = await roleLoader.AddRolesToDatabaseAsync(options.InternalData.RolesPermissionsSetupText,
+                    options.InternalData.EnumPermissionsType);
             }
 
             if (status is { IsValid: true } && options.TenantType != TenantTypes.NotUsingTenants && !context.Tenants.Any())
             {
                 var tenantLoader = new BulkLoadTenantsService(context);
-                status = await tenantLoader.AddTenantsToDatabaseAsync(options.UserTenantSetupText, options);
+                status = await tenantLoader.AddTenantsToDatabaseAsync(options.InternalData.UserTenantSetupText, options);
             }
 
             if (status is { IsValid: true } && !context.UserToRoles.Any())
             {
                 var userLoader = new BulkLoadUsersService(context, findUserInfoService, options);
-                status = await userLoader.AddUsersRolesToDatabaseAsync(options.UserRolesSetupData);
+                status = await userLoader.AddUsersRolesToDatabaseAsync(options.InternalData.UserRolesSetupData);
             }
 
             return status;

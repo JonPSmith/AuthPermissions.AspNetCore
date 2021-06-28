@@ -184,7 +184,7 @@ Role3: One")
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
-                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualUserUserLookup>(SetupHelpers.TestUserDefineWithSuperUser())
+                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualAccountUserLookup>(SetupHelpers.TestUserDefineWithSuperUser())
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
 

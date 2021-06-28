@@ -24,8 +24,8 @@ namespace Test.UnitTests.TestAuthPermissions
                 new Claim(PermissionConstants.PackedPermissionClaimType, packed),
             }, "TestAuthentication"));
 
-            var service = new UsersPermissionsService(new AuthPermissionsOptions
-                {EnumPermissionsType = typeof(TestEnum)});
+            var options = new AuthPermissionsOptions {InternalData = {EnumPermissionsType = typeof(TestEnum)}};
+            var service = new UsersPermissionsService(options);
 
             //ATTEMPT
             var names = service.PermissionsFromClaims(user);

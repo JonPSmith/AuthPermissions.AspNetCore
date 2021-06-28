@@ -10,14 +10,6 @@ namespace AuthPermissions
 {
     public class AuthPermissionsOptions : IAuthPermissionsOptions
     {
-        /// <summary>
-        /// The different database types that AuthPermissions supports
-        /// </summary>
-        public enum DatabaseTypes { NotSet, SqliteInMemory, SqlServer }
-
-
-        //--------------------------------------------------
-        //Tenant settings
 
         /// <summary>
         /// This defines whether tenant code is activated, and whether the
@@ -29,31 +21,9 @@ namespace AuthPermissions
         //internal set properties/handles
 
         /// <summary>
-        /// Internal: holds the type of the Enum Permissions 
+        /// This holds data that is set up during the 
         /// </summary>
-        public Type EnumPermissionsType { get; internal set; }
+        public SetupInternalData InternalData { get; private set; } = new SetupInternalData();
 
-        /// <summary>
-        /// Internal: This contains the type of database used
-        /// </summary>
-        public DatabaseTypes DatabaseType { get; internal set; }
-
-        /// <summary>
-        /// Internal: This holds the a string containing the definition of the tenants
-        /// See the <see cref="SetupExtensions.AddTenantsIfEmpty"/> method for the format of the lines
-        /// </summary>
-        public string UserTenantSetupText { get; internal set; }
-
-        /// <summary>
-        /// Internal: This holds the a string containing the definition of the RolesToPermission database class
-        /// See the <see cref="SetupExtensions.AddRolesPermissionsIfEmpty"/> method for the format of the lines
-        /// </summary>
-        public string RolesPermissionsSetupText { get; internal set; }
-
-        /// <summary>
-        /// Internal: This holds the definition for a user, with its various parts
-        /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
-        /// </summary>
-        public List<DefineUserWithRolesTenant> UserRolesSetupData { get; internal set; }
     }
 }

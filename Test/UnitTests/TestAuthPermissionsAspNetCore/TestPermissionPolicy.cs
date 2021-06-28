@@ -47,10 +47,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 new Claim(PermissionConstants.PackedPermissionClaimType, packed),
             }, "TestAuthentication"));
 
-            var authOptions = new AuthPermissionsOptions
-            {
-                EnumPermissionsType = typeof(TestEnum)
-            };
+            var authOptions = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } };
 
             var policyHandler = new PermissionPolicyHandler(authOptions);
             var requirement = new PermissionRequirement( $"{enumToTest}");

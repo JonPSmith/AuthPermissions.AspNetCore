@@ -36,7 +36,7 @@ namespace AuthPermissions.PermissionsCode.Services
 
             foreach (var permissionChar in packedPermissions)
             {
-                var enumName = Enum.GetName(_options.EnumPermissionsType, (ushort) permissionChar);
+                var enumName = Enum.GetName(_options.InternalData.EnumPermissionsType, (ushort) permissionChar);
                 if (enumName != null)
                     permissionNames.Add( enumName);
             }

@@ -30,8 +30,8 @@ namespace AuthPermissions
         {
             var authOptions = new AuthPermissionsOptions();
             options?.Invoke(authOptions);
-            authOptions.EnumPermissionsType = typeof(TEnumPermissions);
-            authOptions.EnumPermissionsType.ThrowExceptionIfEnumIsNotCorrect();
+            authOptions.InternalData.EnumPermissionsType = typeof(TEnumPermissions);
+            authOptions.InternalData.EnumPermissionsType.ThrowExceptionIfEnumIsNotCorrect();
 
             return new AuthSetupData(services, authOptions);
         }
@@ -52,7 +52,7 @@ namespace AuthPermissions
                         dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
                     EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
                 });
-            setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.SqlServer;
+            setupData.Options.InternalData.DatabaseType = SetupInternalData.DatabaseTypes.SqlServer;
 
             return setupData;
         }
@@ -71,10 +71,13 @@ namespace AuthPermissions
                 EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions);
             });
                 
-            setupData.Options.DatabaseType = AuthPermissionsOptions.DatabaseTypes.SqliteInMemory;
+            setupData.Options.InternalData.DatabaseType = SetupInternalData.DatabaseTypes.SqliteInMemory;
 
-            using var serviceProvider = setupData.Services.BuildServiceProvider();
-            using var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            //We build a local AuthPermissionsDbContext and create the database
+            var builder = new DbContextOptionsBuilder<AuthPermissionsDbContext>()
+                .UseSqlite(inMemoryConnection);
+            EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(builder);
+            using var context = new AuthPermissionsDbContext(builder.Options);
             context.Database.EnsureCreated();
 
             return setupData;
@@ -105,7 +108,7 @@ namespace AuthPermissions
         /// <returns></returns>
         public static AuthSetupData AddTenantsIfEmpty(this AuthSetupData setupData, string linesOfText)
         {
-            setupData.Options.UserTenantSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
+            setupData.Options.InternalData.UserTenantSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
             return setupData;
         }
 
@@ -121,7 +124,7 @@ namespace AuthPermissions
         /// <returns>AuthSetupData</returns>
         public static AuthSetupData AddRolesPermissionsIfEmpty(this AuthSetupData setupData, string linesOfText)
         {
-            setupData.Options.RolesPermissionsSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
+            setupData.Options.InternalData.RolesPermissionsSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
             return setupData;
         }
 
@@ -143,12 +146,12 @@ namespace AuthPermissions
                                             Environment.NewLine + string.Join(", ", badUserIds.Select(x => x.UserName))
                     ,nameof(userRolesSetup));
 
-            if (setupData.Options.UserRolesSetupData != null)
+            if (setupData.Options.InternalData.UserRolesSetupData != null)
                 throw new ArgumentException(
                     $"The data has already been set. Did you already call this method or the {nameof(AddUsersRolesIfEmptyWithUserIdLookup)} method?",
                     nameof(userRolesSetup));
 
-            setupData.Options.UserRolesSetupData = userRolesSetup;
+            setupData.Options.InternalData.UserRolesSetupData = userRolesSetup;
             return setupData;
         }
 
@@ -165,12 +168,12 @@ namespace AuthPermissions
         public static AuthSetupData AddUsersRolesIfEmptyWithUserIdLookup<TUserLookup>(this AuthSetupData setupData, 
             List<DefineUserWithRolesTenant> userRolesSetup) where TUserLookup : class, IFindUserInfoService
         {
-            if (setupData.Options.UserRolesSetupData != null)
+            if (setupData.Options.InternalData.UserRolesSetupData != null)
                 throw new ArgumentException(
                     $"The data has already been set. Did you already call this method or the {nameof(AddUsersRolesIfEmpty)} method?",
                     nameof(userRolesSetup));
 
-            setupData.Options.UserRolesSetupData = userRolesSetup;
+            setupData.Options.InternalData.UserRolesSetupData = userRolesSetup;
             setupData.Services.AddScoped<IFindUserInfoService, TUserLookup>();
             return setupData;
         }
@@ -182,7 +185,7 @@ namespace AuthPermissions
         /// <returns></returns>
         public static async Task<AuthPermissionsDbContext> SetupForUnitTestingAsync(this AuthSetupData setupData)
         {
-            if (setupData.Options.DatabaseType != AuthPermissionsOptions.DatabaseTypes.SqliteInMemory)
+            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
                 throw new AuthPermissionsException(
                     $"You can only call the {nameof(SetupForUnitTestingAsync)} if you used the {nameof(UsingInMemoryDatabase)} method.");
             

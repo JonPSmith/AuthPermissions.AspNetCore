@@ -2,9 +2,8 @@
 
 ## Known bugs
 
-- Remove the creation of service provider in setup - use direct create of Context
 - Bulk load of hierarchical tenants provides a poor error message if a layer out (e.g using Company | West Coast | LA when you haven't defined "West Coast")
-- If ISyncAuthenticationUsers not registered, then provide null (or factory)
+- Provide a ISyncAuthenticationUsersFactory
 
 ### Features
 

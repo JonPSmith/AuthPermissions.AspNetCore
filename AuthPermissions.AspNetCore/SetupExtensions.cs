@@ -71,14 +71,14 @@ namespace AuthPermissions.AspNetCore
         /// <param name="setupData"></param>
         public static void SetupAuthDatabaseOnStartup(this AuthSetupData setupData)
         {
-            if (setupData.Options.DatabaseType == AuthPermissionsOptions.DatabaseTypes.NotSet)
+            if (setupData.Options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.NotSet)
                 throw new InvalidOperationException(
                     $"You must define which database type you want before you call the {nameof(SetupAuthDatabaseOnStartup)} method.");
             
             setupData.RegisterCommonServices();
 
             //NOTE: when I add the database locking I need run all of these within the lock
-            if (setupData.Options.DatabaseType != AuthPermissionsOptions.DatabaseTypes.SqliteInMemory)
+            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
             {
                 setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
             }
