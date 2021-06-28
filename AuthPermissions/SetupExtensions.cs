@@ -5,10 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SetupCode.Factories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.Sqlite;
@@ -139,68 +142,8 @@ namespace AuthPermissions
         /// <returns>AuthSetupData</returns>
         public static AuthSetupData AddUsersRolesIfEmpty(this AuthSetupData setupData, List<DefineUserWithRolesTenant> userRolesSetup)
         {
-            var badUserIds = userRolesSetup.Where(x => x.UserId == null).ToList();
-            if (badUserIds.Any())
-                throw new ArgumentException($"{badUserIds.Count} user definitions didn't have a UserId. " +
-                                            $"Use the {nameof(AddUsersRolesIfEmptyWithUserIdLookup)} method with a usersId lookup service. Here are the name of the username without a UserId" +
-                                            Environment.NewLine + string.Join(", ", badUserIds.Select(x => x.UserName))
-                    ,nameof(userRolesSetup));
-
-            if (setupData.Options.InternalData.UserRolesSetupData != null)
-                throw new ArgumentException(
-                    $"The data has already been set. Did you already call this method or the {nameof(AddUsersRolesIfEmptyWithUserIdLookup)} method?",
-                    nameof(userRolesSetup));
-
             setupData.Options.InternalData.UserRolesSetupData = userRolesSetup;
             return setupData;
         }
-
-        /// <summary>
-        /// TThis allows you to add what roles a user has, but only if the auth database doesn't have any UserToRoles in the database
-        /// It uses the <see cref="TUserLookup"/> service to look up UserIds for user definitions that have a null UserId
-        /// This allows you add users+roles with a service to link your users to the AuthPermission's UserToRole
-        /// </summary>
-        /// <param name="setupData"></param>
-        /// <param name="userRolesSetup">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have.
-        /// If the UserId in the given data is null, then it will 
-        /// </param>
-        /// <returns>AuthSetupData</returns>
-        public static AuthSetupData AddUsersRolesIfEmptyWithUserIdLookup<TUserLookup>(this AuthSetupData setupData, 
-            List<DefineUserWithRolesTenant> userRolesSetup) where TUserLookup : class, IFindUserInfoService
-        {
-            if (setupData.Options.InternalData.UserRolesSetupData != null)
-                throw new ArgumentException(
-                    $"The data has already been set. Did you already call this method or the {nameof(AddUsersRolesIfEmpty)} method?",
-                    nameof(userRolesSetup));
-
-            setupData.Options.InternalData.UserRolesSetupData = userRolesSetup;
-            setupData.Services.AddScoped<IFindUserInfoService, TUserLookup>();
-            return setupData;
-        }
-
-        /// <summary>
-        /// This will set up the basic AppPermissions parts and and any roles, tenants and users in the in-memory database
-        /// </summary>
-        /// <param name="setupData"></param>
-        /// <returns></returns>
-        public static async Task<AuthPermissionsDbContext> SetupForUnitTestingAsync(this AuthSetupData setupData)
-        {
-            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
-                throw new AuthPermissionsException(
-                    $"You can only call the {nameof(SetupForUnitTestingAsync)} if you used the {nameof(UsingInMemoryDatabase)} method.");
-            
-            var serviceProvider = setupData.Services.BuildServiceProvider();
-            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            context.Database.EnsureCreated();
-            var findUserIdService = serviceProvider.GetService<IFindUserInfoService>(); //Can be null
-
-            var status = await context.SeedRolesTenantsUsersIfEmpty(setupData.Options, findUserIdService);
-
-            status.IfErrorsTurnToException();
-
-            return context;
-        }
-
-
     }
 }

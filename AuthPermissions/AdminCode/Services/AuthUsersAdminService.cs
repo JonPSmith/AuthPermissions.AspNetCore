@@ -9,6 +9,7 @@ using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SetupCode.Factories;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -20,19 +21,19 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthUsersAdminService : IAuthUsersAdminService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly ISyncAuthenticationUsers _syncAuthenticationUsers;
+        private readonly ISyncAuthenticationUsersFactory _syncAuthenticationUsersFactory;
         private readonly TenantTypes _tenantType;
 
         /// <summary>
         /// ctor
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="syncAuthenticationUsers">The authentication sync provider</param>
+        /// <param name="syncAuthenticationUsersFactory">A factory to create an authentication sync provider</param>
         /// <param name="options">auth options</param>
-        public AuthUsersAdminService(AuthPermissionsDbContext context, ISyncAuthenticationUsers syncAuthenticationUsers, IAuthPermissionsOptions options)
+        public AuthUsersAdminService(AuthPermissionsDbContext context, ISyncAuthenticationUsersFactory syncAuthenticationUsersFactory, IAuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            _syncAuthenticationUsers = syncAuthenticationUsers; //Can be null
+            _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
             _tenantType = options.TenantType;
         }
 
@@ -82,11 +83,10 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status, if valid then it contains a list of <see cref="SyncAuthUserWithChange"/>to display</returns>
         public async Task<List<SyncAuthUserWithChange>> SyncAndShowChangesAsync()
         {
-            if (_syncAuthenticationUsers == null)
-                throw new AuthPermissionsException(
-                    $"You must register a {nameof(ISyncAuthenticationUsers)} service via the RegisterAuthenticationProviderReader extension.");
 
-            var authenticationUsers = await _syncAuthenticationUsers.GetAllActiveUserInfoAsync();
+            var syncAuthenticationUsers = _syncAuthenticationUsersFactory.GetRequiredService();
+
+            var authenticationUsers = await syncAuthenticationUsers.GetAllActiveUserInfoAsync();
             var authUserDictionary = await _context.AuthUsers
                 .Include(x => x.UserRoles)
                 .Include(x => x.UserTenant)

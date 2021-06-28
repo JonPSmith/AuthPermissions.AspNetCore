@@ -10,6 +10,7 @@ using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SetupCode.Factories;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -21,13 +22,13 @@ namespace AuthPermissions.BulkLoadServices.Concrete
     public class BulkLoadUsersService : IBulkLoadUsersService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly IFindUserInfoService _findUserInfoService;
+        private readonly IFindUserInfoServiceFactory _findUserInfoServiceFactory;
         private readonly IAuthPermissionsOptions _options;
 
-        public BulkLoadUsersService(AuthPermissionsDbContext context, IFindUserInfoService findUserInfoService, IAuthPermissionsOptions options)
+        public BulkLoadUsersService(AuthPermissionsDbContext context, IFindUserInfoServiceFactory findUserInfoServicefactory, IAuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            _findUserInfoService = findUserInfoService;
+            _findUserInfoServiceFactory = findUserInfoServicefactory;
             _options = options;
         }
 
@@ -62,6 +63,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
 
         private async Task<IStatusGeneric> CreateUserTenantAndAddToDbAsync(DefineUserWithRolesTenant userDefine, int index)
         {
+            var findUserInfoService = _findUserInfoServiceFactory.GetOptionalService();
             var status = new StatusGenericHandler();
 
             var rolesToPermissions = new List<RoleToPermissions>();
@@ -85,9 +87,9 @@ namespace AuthPermissions.BulkLoadServices.Concrete
 
             var userId = userDefine.UserId;
             var userName = userDefine.UserName;
-            if (userId == null && _findUserInfoService != null)
+            if (userId == null && findUserInfoService != null)
             {
-                var userInfo = await _findUserInfoService.FindUserInfoAsync(userDefine.UniqueUserName);
+                var userInfo = await findUserInfoService.FindUserInfoAsync(userDefine.UniqueUserName);
                 userId =  userInfo?.UserId;
                 if (userInfo?.UserName != null)
                     //we override the AuthUser username
@@ -96,7 +98,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             if (userId == null)
                 return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
                     $"The user {userName} didn't have a userId and the {nameof(IFindUserInfoService)}" +
-                    (_findUserInfoService == null ? " wasn't available." : " couldn't find it either.")));
+                    (findUserInfoService == null ? " wasn't available." : " couldn't find it either.")));
 
             Tenant userTenant = null;
             if (_options.TenantType != TenantTypes.NotUsingTenants && !string.IsNullOrEmpty(userDefine.TenantNameForDataKey))

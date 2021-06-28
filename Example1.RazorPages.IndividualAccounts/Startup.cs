@@ -51,7 +51,8 @@ namespace Example1.RazorPages.IndividualAccounts
             services.RegisterAuthPermissions<Example1Permissions>()
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
-                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualAccountUserLookup>(AppAuthSetupData.UsersRolesDefinition)
+                .AddUsersRolesIfEmpty(AppAuthSetupData.UsersRolesDefinition)
+                .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
         }

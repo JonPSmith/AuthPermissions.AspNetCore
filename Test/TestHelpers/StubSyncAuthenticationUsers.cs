@@ -5,21 +5,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
+using AuthPermissions.SetupCode.Factories;
 
 namespace Test.TestHelpers
 {
-    public class StubSyncAuthenticationUsers : ISyncAuthenticationUsers
+    public class StubSyncAuthenticationUsersFactory : ISyncAuthenticationUsersFactory
     {
-        public Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
+        public ISyncAuthenticationUsers GetRequiredService()
         {
-            var result = new List<SyncAuthenticationUser>
-            {
-                new SyncAuthenticationUser( "User1", "User1@gmail.com", "first last 0"), //No change
-                new SyncAuthenticationUser("User2", "User2@gmail.com", "new name"), //change of username
-                new SyncAuthenticationUser("User99", "User99@gmail.com", "user 99"),
-            };
-
-            return Task.FromResult(result.AsEnumerable());
+            return new StubSyncAuthenticationUsers();
         }
+
+        public class StubSyncAuthenticationUsers : ISyncAuthenticationUsers
+        {
+            public Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
+            {
+                var result = new List<SyncAuthenticationUser>
+                {
+                    new SyncAuthenticationUser( "User1", "User1@gmail.com", "first last 0"), //No change
+                    new SyncAuthenticationUser("User2", "User2@gmail.com", "new name"), //change of username
+                    new SyncAuthenticationUser("User99", "User99@gmail.com", "user 99"),
+                };
+
+                return Task.FromResult(result.AsEnumerable());
+            }
+        }
+
+
     }
 }

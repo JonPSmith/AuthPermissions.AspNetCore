@@ -2,14 +2,18 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.CommonCode;
+using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.PermissionsCode.Services;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SetupCode.Factories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,21 +35,6 @@ namespace AuthPermissions.AspNetCore
         public static AuthSetupData IndividualAccountsAddSuperUser(this AuthSetupData setupData)
         {
             setupData.Services.AddHostedService<IndividualAccountsAddSuperUser>();
-
-            return setupData;
-        }
-
-        /// <summary>
-        /// Use this to provide the <see cref="ISyncAuthenticationUsers"/> service which AuthP uses to synchronize its user database
-        /// against the users in the application's Authentication Provider. Used in the <see cref="AuthUsersAdminService"/> sync code.
-        /// </summary>
-        /// <typeparam name="TSyncProviderReader"></typeparam>
-        /// <param name="setupData"></param>
-        /// <returns></returns>
-        public static AuthSetupData RegisterAuthenticationProviderReader<TSyncProviderReader>(this AuthSetupData setupData)
-            where TSyncProviderReader : class, ISyncAuthenticationUsers
-        {
-            setupData.Services.AddTransient<ISyncAuthenticationUsers, TSyncProviderReader>();
 
             return setupData;
         }
@@ -85,6 +74,33 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 
+
+        /// <summary>
+        /// This will set up the basic AppPermissions parts and and any roles, tenants and users in the in-memory database
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static async Task<AuthPermissionsDbContext> SetupForUnitTestingAsync(this AuthSetupData setupData)
+        {
+            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
+                throw new AuthPermissionsException(
+                    $"You can only call the {nameof(SetupForUnitTestingAsync)} if you used the {nameof(AuthPermissions.SetupExtensions.UsingInMemoryDatabase)} method.");
+
+            setupData.RegisterCommonServices();
+
+            var serviceProvider = setupData.Services.BuildServiceProvider();
+            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            context.Database.EnsureCreated();
+
+            var findUserIdService = serviceProvider.GetService<IFindUserInfoServiceFactory>();
+
+            var status = await context.SeedRolesTenantsUsersIfEmpty(setupData.Options, findUserIdService);
+
+            status.IfErrorsTurnToException();
+
+            return context;
+        }
+
         private static void RegisterCommonServices(this AuthSetupData setupData)
         {
             setupData.Services.AddSingleton<IAuthPermissionsOptions>(setupData.Options);
@@ -93,6 +109,10 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
+
+            //The factories for the optional services
+            setupData.Services.AddTransient<ISyncAuthenticationUsersFactory, SyncAuthenticationUsersFactory>();
+            setupData.Services.AddTransient<IFindUserInfoServiceFactory, FindUserInfoServiceFactory>();
 
             //Admin services
             setupData.Services.AddTransient<IAuthRolesAdminService, AuthRolesAdminService>();

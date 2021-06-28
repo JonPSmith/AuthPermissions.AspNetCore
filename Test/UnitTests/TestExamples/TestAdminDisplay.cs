@@ -4,6 +4,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
@@ -47,7 +49,8 @@ namespace Test.UnitTests.TestExamples
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
-                .AddUsersRolesIfEmptyWithUserIdLookup<StubIFindUserInfo>(Example4AppAuthSetupData.UsersRolesDefinition)
+                .AddUsersRolesIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
+                .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .SetupForUnitTestingAsync();
 
             //VERIFY
@@ -71,7 +74,8 @@ namespace Test.UnitTests.TestExamples
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
-                .AddUsersRolesIfEmptyWithUserIdLookup<StubIFindUserInfo>(Example4AppAuthSetupData.UsersRolesDefinition)
+                .AddUsersRolesIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
+                .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .SetupForUnitTestingAsync();
 
             //ATTEMPT

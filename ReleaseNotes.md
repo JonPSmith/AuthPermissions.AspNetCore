@@ -22,7 +22,6 @@
 - Add concurrency checks to all AuthP entities + add to SaveChangesWithChecks
 - IAddExtraClaims: Allow the user to create service that adds extra claims to Cookie/JWT 
 - Tidy up: Create a JwtData within the AuthPermissionsOptions (means AuthP is not relient on the JwtData class)
-- Tidy up: Move internal set params in AuthPermissionsOptions into deeper Internal type
 - Finish the sync user example in Example4
 
 ## Documanation etc. still needed

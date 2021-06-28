@@ -3,14 +3,32 @@
 
 using System.Threading.Tasks;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SetupCode.Factories;
 
 namespace Test.TestHelpers
 {
-    public class StubIFindUserInfo : IFindUserInfoService
+
+    public class StubIFindUserInfoFactory : IFindUserInfoServiceFactory
     {
-        public Task<FindUserInfoResult> FindUserInfoAsync(string uniqueName)
+        private readonly bool _returnNullService;
+
+        public StubIFindUserInfoFactory(bool returnNullService)
         {
-            return Task.FromResult(new FindUserInfoResult(uniqueName, null));
+            _returnNullService = returnNullService;
+        }
+
+
+        public IFindUserInfoService GetOptionalService()
+        {
+            return _returnNullService ? null : new StubIFindUserInfo();
+        }
+
+        public class StubIFindUserInfo : IFindUserInfoService
+        {
+            public Task<FindUserInfoResult> FindUserInfoAsync(string uniqueName)
+            {
+                return Task.FromResult(new FindUserInfoResult(uniqueName, null));
+            }
         }
     }
 }

@@ -111,8 +111,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var authenticationService = new StubSyncAuthenticationUsers();
-            var service = new AuthUsersAdminService(context, authenticationService, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
+            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var changes = await service.SyncAndShowChangesAsync();
@@ -137,8 +137,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var authenticationService = new StubSyncAuthenticationUsers();
-            var service = new AuthUsersAdminService(context, authenticationService, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
+            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
             var changes = await service.SyncAndShowChangesAsync();
 
             //ATTEMPT

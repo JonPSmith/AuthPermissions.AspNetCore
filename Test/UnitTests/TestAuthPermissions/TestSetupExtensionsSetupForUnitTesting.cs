@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AspNetCore;
 using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Test.TestHelpers;
@@ -76,6 +77,7 @@ Role3: One";
             var context = await services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(lines)
+                .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithUserId())
                 .SetupForUnitTestingAsync();
 
@@ -107,6 +109,7 @@ Tenant3";
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(rolesLines)
                 .AddTenantsIfEmpty(tenantLines)
+                .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithTenants())
                 .SetupForUnitTestingAsync();
 

@@ -9,6 +9,7 @@ using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SetupCode.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -30,9 +31,9 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
                 var authOptions = services.GetRequiredService<IAuthPermissionsOptions>();
-                var findUserIdService = services.GetService<IFindUserInfoService>();
+                var findUserIdServiceFactory = services.GetRequiredService<IFindUserInfoServiceFactory>();
 
-                var status = await context.SeedRolesTenantsUsersIfEmpty(authOptions, findUserIdService);
+                var status = await context.SeedRolesTenantsUsersIfEmpty(authOptions, findUserIdServiceFactory);
                 status.IfErrorsTurnToException();
             }
         }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.SetupCode.Factories;
 using StatusGeneric;
 
 namespace AuthPermissions.SetupCode
@@ -20,11 +21,11 @@ namespace AuthPermissions.SetupCode
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        /// <param name="findUserInfoService"></param>
+        /// <param name="findUserInfoServiceFactory"></param>
         /// <returns></returns>
         public static async Task<IStatusGeneric> SeedRolesTenantsUsersIfEmpty(this AuthPermissionsDbContext context,
             IAuthPermissionsOptions options,
-            IFindUserInfoService findUserInfoService)
+            IFindUserInfoServiceFactory findUserInfoServiceFactory)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (options == null) throw new ArgumentNullException(nameof(options));
@@ -45,7 +46,7 @@ namespace AuthPermissions.SetupCode
 
             if (status is { IsValid: true } && !context.UserToRoles.Any())
             {
-                var userLoader = new BulkLoadUsersService(context, findUserInfoService, options);
+                var userLoader = new BulkLoadUsersService(context, findUserInfoServiceFactory, options);
                 status = await userLoader.AddUsersRolesToDatabaseAsync(options.InternalData.UserRolesSetupData);
             }
 

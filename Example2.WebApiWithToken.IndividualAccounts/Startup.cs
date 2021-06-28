@@ -91,7 +91,8 @@ namespace Example2.WebApiWithToken.IndividualAccounts
             services.RegisterAuthPermissions<Example2Permissions>()
                 .UsingEfCoreSqlServer(connectionString) //NOTE: This uses the same database as the individual accounts DB
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
-                .AddUsersRolesIfEmptyWithUserIdLookup<IndividualAccountUserLookup>(AppAuthSetupData.UsersRolesDefinition)
+                .AddUsersRolesIfEmpty(AppAuthSetupData.UsersRolesDefinition)
+                .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
 
