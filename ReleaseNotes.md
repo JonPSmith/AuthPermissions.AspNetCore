@@ -2,42 +2,43 @@
 
 ## Known bugs
 
+- Remove the creation of service provider in setup - use direct create of Context
 - Bulk load of hierarchical tenants provides a poor error message if a layer out (e.g using Company | West Coast | LA when you haven't defined "West Coast")
+- If ISyncAuthenticationUsers not registered, then provide null (or factory)
 
-## Examples to add
+### Features
 
-- Example4 - hierarchical tenants with individual users (MVC)
-  - Add admin services/pages
-- Example3 - an example of using simple tenants with Azure Active Directory (MVC)
+- Provide Role-to-Permissions authorization
+- Proide multi-tenant features
+- Implements an JTW refresh token approach
 
-## Add/improve new features
+### Limitations of this release
 
+- Preview only: looking for feedback.
+- Only meant for single instance of the web app (i.e. no scale out) *NOTE: Version 2 will fix this.*
 
-- Provide a tenant-only AuthUserAdmin
-- Create an ASP.NET Core "only run once" library using the [madelson/DistributedLock](https://github.com/madelson/DistributedLock) libraries.
-- Provide more configuration options/features
-  - Don't migrate the AuthPermission database on startup
-  - Delete Expired Refresh Tokens on startup
-  - Optional Encript claims in JWT Token
-- Improve IFindUserId to IFindUser (ID and name)
-- Update AuthUsers with missing users (service and on startup)
+### Code still needed
 
-- Add checks at the end of registering the data, e.g. if using tenants all user must have a tenant
+- Turn on/off applying migrations on startup
+- Add concurrency checks to all AuthP entities + add to SaveChangesWithChecks
+- IAddExtraClaims: Allow the user to create service that adds extra claims to Cookie/JWT 
+- Tidy up: Create a JwtData within the AuthPermissionsOptions (means AuthP is not relient on the JwtData class)
+- Tidy up: Move internal set params in AuthPermissionsOptions into deeper Internal type
+- Finish the sync user example in Example4
 
-## Possible Security improvements
+## Documanation etc. still needed
 
-- Admin: A user can only add Permission that the actual user has
-- Add logging to everything (especially anything that could go wrong)  
-- Option to encrypt the Auth claims in JWT token
-- Add DisableUser to AuthUser - stops adding claims to ClaimsPricipal
-- Add per-HTTP Cookie checker - if the cookie is xxx old, then refresh claims
-- Add SecurityData to AuthUser and provide a method to 
-  - be called when user logs in for the first time
-  - be called whenever the JWT Token refresh (and Cookie xxx old). Allows you to log them out if security issue is found.
+- Article 1 - Roles/Permissions - based on Example 1
+- Article 2 - JWT token with refresh - based on Example 2
+- Good overall README
+- Example 1,2,4 READMEs
+- Example 1 web site
+  - Add NavBar: Show all users, show user's claims, show user's permissions  
+- Example 4 web site
+  - Add NavBar: 
+    - If Admin: Show all users, show user's claims, show user's permissions 
+    - If Tenant: Show shop, show user's claims
+  - Home Index - explain what the application does 
+  - AuthUsers - get sync users working
+- List of limitations and roadmap
 
-## Things not in the first release
-
-- A user having multiple tenants: this needs
-  - An three-step login code with tenant selection
-- A user can have different roles on different tenants  
-(the code is available in the UserToRoles, but the `DefineUserWithRolesTenant` class needs a `TenantNameForRoles` properly)
