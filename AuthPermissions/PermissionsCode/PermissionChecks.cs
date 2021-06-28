@@ -13,8 +13,9 @@ namespace AuthPermissions.PermissionsCode
     /// <summary>
     /// 
     /// </summary>
-    public static class PermissionChecker
+    public static class PermissionChecks
     {
+
         /// <summary>
         /// This returns true if the current user has the permission
         /// </summary>

@@ -3,6 +3,7 @@
 
 using System.Linq;
 using AuthPermissions.AdminCode;
+using AuthPermissions.PermissionsCode;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Xunit;
 using Xunit.Abstractions;

@@ -62,7 +62,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                         ValidAudience = jwtData.Audience,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SigningKey)),
-                        ClockSkew = TimeSpan.Zero //The default is 5 minutes, but we want a quick 
+                        ClockSkew = TimeSpan.Zero //The default is 5 minutes, but we want a quick expires for JTW refresh
                     };
 
                     //This code came from https://www.blinkingcaret.com/2018/05/30/refresh-tokens-in-asp-net-core-web-api/

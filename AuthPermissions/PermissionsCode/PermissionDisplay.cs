@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace AuthPermissions.AdminCode
+namespace AuthPermissions.PermissionsCode
 {
     /// <summary>
     /// This class holds information on one enum in the permissions enum with the various attributes

@@ -24,30 +24,6 @@ namespace AuthPermissions.AdminCode
 
         public SyncAuthUserWithChange(SyncAuthenticationUser authenticationUser, AuthUser authUser)
         {
-            if (authenticationUser != null & authUser != null)
-            {
-                if (authenticationUser.Email == authUser.Email &&
-                    authenticationUser.UserName == authUser.UserName)
-                {
-                    ProviderChange = SyncAuthUserChanges.NoChange;
-                    return;
-                }
-                ProviderChange = SyncAuthUserChanges.Update;
-            }
-
-            if (authenticationUser == null)
-                ProviderChange = SyncAuthUserChanges.Remove;
-            else if (authUser == null)
-                ProviderChange = SyncAuthUserChanges.Add;
-
-            ConfirmChange = ProviderChange;
-
-            if (authenticationUser != null)
-            {
-                UserId = authenticationUser.UserId;
-                Email = authenticationUser.Email;
-                UserName = authenticationUser.UserName;
-            }
             if (authUser != null)
             {
                 UserId = authUser.UserId;
@@ -57,6 +33,29 @@ namespace AuthPermissions.AdminCode
                 RoleNames = authUser.UserRoles.Select(x => x.RoleName).ToList();
                 TenantName = authUser.UserTenant?.TenantName;
             }
+
+            if (authenticationUser != null)
+            {
+                UserId = authenticationUser.UserId;
+                Email = authenticationUser.Email;
+                //Special handling of username
+                //If the authenticationUser's UserName is same as its Email (or null), and the AuthUser has a value then don't update
+                UserName = authenticationUser.UserName == null || (authenticationUser.UserName == authenticationUser.Email && OldUserName != null)
+                    ? OldUserName
+                    : authenticationUser.UserName;
+            }
+
+            //Now work out what the change is
+            if (Email == OldEmail &&  UserName == OldUserName)
+                ProviderChange = SyncAuthUserChanges.NoChange;
+            else if (authenticationUser == null)
+                ProviderChange = SyncAuthUserChanges.Remove;
+            else if (authUser == null)
+                ProviderChange = SyncAuthUserChanges.Add;
+            else
+                ProviderChange = SyncAuthUserChanges.Update;
+
+            ConfirmChange = ProviderChange;
         }
 
         /// <summary>

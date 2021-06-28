@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore.JwtTokenCode;
+using AuthPermissions.PermissionsCode;
 using Example2.WebApiWithToken.IndividualAccounts.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -106,7 +108,17 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
             return StatusCode(result.HttpStatusCode);
         }
 
-
+        /// <summary>
+        /// This returns the permission names for the current user
+        /// </summary>
+        /// <param name="service"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("refreshauthentication")]
+        public ActionResult<List<string>> GetUsersPermissions([FromServices] IUsersPermissionsService service)
+        {
+            return service.PermissionsFromClaims(User);
+        }
 
     }
 }
