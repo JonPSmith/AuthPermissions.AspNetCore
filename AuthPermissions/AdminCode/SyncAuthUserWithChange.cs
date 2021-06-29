@@ -22,7 +22,7 @@ namespace AuthPermissions.AdminCode
     {
         public SyncAuthUserWithChange () {}
 
-        public SyncAuthUserWithChange(SyncAuthenticationUser authenticationUser, AuthUser authUser)
+        internal SyncAuthUserWithChange(SyncAuthenticationUser authenticationUser, AuthUser authUser)
         {
             if (authUser != null)
             {
@@ -47,26 +47,19 @@ namespace AuthPermissions.AdminCode
 
             //Now work out what the change is
             if (Email == OldEmail &&  UserName == OldUserName)
-                ProviderChange = SyncAuthUserChanges.NoChange;
+                FoundChange = SyncAuthUserChanges.NoChange;
             else if (authenticationUser == null)
-                ProviderChange = SyncAuthUserChanges.Remove;
+                FoundChange = SyncAuthUserChanges.Remove;
             else if (authUser == null)
-                ProviderChange = SyncAuthUserChanges.Add;
+                FoundChange = SyncAuthUserChanges.Add;
             else
-                ProviderChange = SyncAuthUserChanges.Update;
-
-            ConfirmChange = ProviderChange;
+                FoundChange = SyncAuthUserChanges.Update;
         }
 
         /// <summary>
         /// This is set to the difference between authentication provider's user and the AuthPermission's AuthUser
         /// </summary>
-        public SyncAuthUserChanges ProviderChange { get; set; }
-
-        /// <summary>
-        /// This is set by the admin person
-        /// </summary>
-        public SyncAuthUserChanges ConfirmChange { get; set; }
+        public SyncAuthUserChanges FoundChange { get; set; }
 
         /// <summary>
         /// The userId of the user (NOTE: this is not show 
@@ -77,11 +70,14 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         public string Email { get; set; }
         public string OldEmail { get; set; }
+        public bool EmailChanged => Email != OldEmail;
         /// <summary>
         /// The user's name
         /// </summary>
         public string UserName { get; set; }
         public string OldUserName { get; set; }
+
+        public bool UserNameChanged => UserName != OldUserName;
 
         //---------------------------------------------------
         //Auth parts
@@ -91,25 +87,29 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         public List<string> RoleNames { set; get; }
 
+        public string NumRoles => RoleNames == null ? "not set" : RoleNames.Count.ToString();
+
         /// <summary>
         /// The name of the AuthP Tenant for this AuthUser (can be null)
         /// </summary>
         public string TenantName { set; get; }
 
+        public bool HasTenant => !string.IsNullOrEmpty(TenantName);
+
         //---------------------------------------------------
 
         /// <summary>
-        /// Useful summary for debugging
+        /// Summary to 
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            switch (ProviderChange)
+            switch (FoundChange)
             {
                 case SyncAuthUserChanges.NoChange:
                     throw new AuthPermissionsException("Shouldn't have this in the list");
                 case SyncAuthUserChanges.Add:
-                    return $"ADD: Email = {Email}, UserName = {UserName}"; ;
+                    return $"ADD: Email = {Email}, UserName = {UserName}";
                 case SyncAuthUserChanges.Update:
                     return $"UPDATE: Email {(Email == OldEmail ? "CHANGED" : "same")}, UserName {(UserName == OldUserName ? "CHANGED" : "same")}";
                 case SyncAuthUserChanges.Remove:

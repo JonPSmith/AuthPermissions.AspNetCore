@@ -54,10 +54,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
         //40_000 - User admin
         [Display(GroupName = "UserAdmin", Name = "Read users", Description = "Can list User")]
         UserRead = 40_000,
-        [Display(GroupName = "UserAdmin", Name = "Add new user", Description = "Can add a new User")]
-        UserAdd = 40_001,
-        [Display(GroupName = "UserAdmin", Name = "Alter user's info", Description = "Can update the User email/name")]
-        UserInfoChange = 40_002,
+        [Display(GroupName = "UserAdmin", Name = "Sync users", Description = "Syncs authorization provider with AuthUsers")]
+        UserSync = 40_001,
+        [Display(GroupName = "UserAdmin", Name = "Alter users", Description = "Can access the user update")]
+        UserChange = 40_002,
         [Display(GroupName = "UserAdmin", Name = "Alter user's roles", Description = "Can add/remove roles from a user")]
         UserRolesChange = 40_003,
         [Display(GroupName = "UserAdmin", Name = "Move a user to another tenant", Description = "Can control what tenant they are in")]

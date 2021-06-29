@@ -120,7 +120,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 _output.WriteLine(synChange.ToString());
             }
-            changes.Select(x => x.ProviderChange.ToString()).ShouldEqual(new []{ "Update", "Add", "Remove" });
+            changes.Select(x => x.FoundChange.ToString()).ShouldEqual(new []{ "Update", "Add", "Remove" });
         }
 
         [Fact]
@@ -155,32 +155,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             authUsers.Select(x => x.UserName).ShouldEqual(new[] { "first last 0", "new name", "user 99" });
         }
 
-        [Fact]
-        public async Task TestChangeUserNameAsyncOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            await context.SetupRolesInDbAsync();
-            context.AddMultipleUsersWithRolesInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
-            var authUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
-
-            //ATTEMPT
-            var status = await service.ChangeUserNameAsync(authUser, "new user name");
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            _output.WriteLine(status.Message);
-            context.ChangeTracker.Clear();
-            var rereadUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
-            rereadUser.UserName.ShouldEqual("new user name");
-        }
-
         [Theory]
         [InlineData("User1@gmail.com", true)]
         [InlineData("bad.email", false)]
@@ -199,13 +173,19 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var authUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
 
             //ATTEMPT
-            var status = await service.ChangeEmailAsync(authUser, email);
+            var status = await service.ChangeUserNameAndEmailAsync(authUser, "new user name", email);
 
             //VERIFY
             status.IsValid.ShouldEqual(isValid);
             _output.WriteLine(status.Message);
             if (!isValid)
                 status.GetAllErrors().ShouldEqual("The email 'bad.email' is not a valid email.");
+            else
+            {
+                context.ChangeTracker.Clear();
+                var rereadUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
+                rereadUser.UserName.ShouldEqual("new user name");
+            }
         }
 
         [Theory]

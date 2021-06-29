@@ -97,19 +97,18 @@ namespace AuthPermissions.DataLayer.Migrations
                 {
                     UserId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     RoleName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    AuthUserUserId = table.Column<string>(type: "nvarchar(256)", nullable: true),
                     ConcurrencyToken = table.Column<byte[]>(type: "ROWVERSION", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserToRoles", x => new { x.UserId, x.RoleName });
                     table.ForeignKey(
-                        name: "FK_UserToRoles_AuthUsers_AuthUserUserId",
-                        column: x => x.AuthUserUserId,
+                        name: "FK_UserToRoles_AuthUsers_UserId",
+                        column: x => x.UserId,
                         principalSchema: "authp",
                         principalTable: "AuthUsers",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserToRoles_RoleToPermissions_RoleName",
                         column: x => x.RoleName,
@@ -150,12 +149,6 @@ namespace AuthPermissions.DataLayer.Migrations
                 table: "Tenants",
                 column: "TenantName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserToRoles_AuthUserUserId",
-                schema: "authp",
-                table: "UserToRoles",
-                column: "AuthUserUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserToRoles_RoleName",

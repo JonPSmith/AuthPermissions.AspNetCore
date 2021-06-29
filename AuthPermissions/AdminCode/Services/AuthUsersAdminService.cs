@@ -99,7 +99,7 @@ namespace AuthPermissions.AdminCode.Services
                 {
                     //check if its a change or not
                     var syncChange = new SyncAuthUserWithChange(authenticationUser, authUser);
-                    if (syncChange.ProviderChange == SyncAuthUserChanges.Update)
+                    if (syncChange.FoundChange == SyncAuthUserChanges.Update)
                         //The two are different so add to the result
                         result.Add(syncChange); 
                     //Removed the authUser as has been handled
@@ -130,7 +130,7 @@ namespace AuthPermissions.AdminCode.Services
 
             foreach (var syncChange in changesToApply)
             {
-                switch (syncChange.ConfirmChange)
+                switch (syncChange.FoundChange)
                 {
                     case SyncAuthUserChanges.NoChange:
                         continue;
@@ -155,7 +155,7 @@ namespace AuthPermissions.AdminCode.Services
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
             //Build useful summary
             var changeStrings = Enum.GetValues<SyncAuthUserChanges>().ToList()
-                .Select(x => $"{x} = {changesToApply.Count(y => y.ConfirmChange == x)}");
+                .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChange == x)}");
             status.Message = $"Sync successful: {(string.Join(", ", changeStrings))}";
 
             return status;
@@ -197,8 +197,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (existingAuthUser == null)
                     throw new AuthPermissionsException(
                         $"This should have loaded a AuthUser with the userId of {newUserData.UserId}");
-                existingAuthUser.ChangeEmail(newUserData.Email); //if same then ignored
-                existingAuthUser.ChangeUserName(newUserData.UserName);//if same then ignored
+                existingAuthUser.ChangeUserNameAndEmail(newUserData.UserName, newUserData.Email); //if same then ignored
                 existingAuthUser.UpdateUserTenant(tenant);//if same then ignored
                 if (newUserData.RoleNames.OrderBy(x => x) == existingAuthUser.UserRoles.Select(x => x.RoleName).OrderBy(x => x))
                     //Roles have changed
@@ -208,42 +207,23 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This will set the UserName property in the AuthUser
+        /// This will set the UserName and email properties in the AuthUser
         /// </summary>
         /// <param name="authUser"></param>
         /// <param name="userName">new user name</param>
+        /// <param name="email"></param>
         /// <returns></returns>
-        public async Task<IStatusGeneric> ChangeUserNameAsync(AuthUser authUser, string userName)
+        public async Task<IStatusGeneric> ChangeUserNameAndEmailAsync(AuthUser authUser, string userName, string email)
         {
             if (authUser == null) throw new ArgumentNullException(nameof(authUser));
             if (string.IsNullOrEmpty(userName))
                 throw new AuthPermissionsBadDataException("Cannot be null or an empty string", nameof(userName));
-
             var status = new StatusGenericHandler { Message = $"Successfully changed the UserName from {authUser.UserName} to {userName}." };
-            authUser.ChangeUserName(userName);
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-
-            return status;
-        }
-
-        /// <summary>
-        /// This will set the Email property in the AuthUser
-        /// </summary>
-        /// <param name="authUser"></param>
-        /// <param name="email">new user name</param>
-        /// <returns></returns>
-        public async Task<IStatusGeneric> ChangeEmailAsync(AuthUser authUser, string email)
-        {
-            if (authUser == null) throw new ArgumentNullException(nameof(authUser));
-            if (string.IsNullOrEmpty(email))
-                throw new AuthPermissionsBadDataException("Cannot be null or an empty string", nameof(email));
-
-            var status = new StatusGenericHandler { Message = $"Successfully changed the email from {authUser.Email} to {email}."};
 
             if (!email.IsValidEmail())
                 return status.AddError($"The email '{email}' is not a valid email.");
 
-            authUser.ChangeEmail(email);
+            authUser.ChangeUserNameAndEmail(userName, email);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;

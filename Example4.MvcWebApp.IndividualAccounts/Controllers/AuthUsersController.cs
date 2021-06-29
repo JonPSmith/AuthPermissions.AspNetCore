@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.AspNetCore;
 using AuthPermissions.DataKeyCode;
+using AuthPermissions.DataLayer.EfCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
-using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
@@ -15,29 +13,56 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
     public class AuthUsersController : Controller
     {
         private readonly IAuthUsersAdminService _authUsersAdmin;
+        private readonly AuthPermissionsDbContext _context;
 
-        public AuthUsersController(IAuthUsersAdminService authUsersAdmin)
+        public AuthUsersController(IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
             _authUsersAdmin = authUsersAdmin;
+            _context = context;
         }
 
         // List users filtered by authUser tenant
-        [HasPermission(Example4Permissions.UserRead)]
-        public async Task<ActionResult> Index()
+        //[HasPermission(Example4Permissions.UserRead)]
+        public async Task<ActionResult> Index(string message)
         {
             var authDataKey = User.GetAuthDataKey();
             var userQuery = _authUsersAdmin.QueryAuthUsers(authDataKey);
             var usersToShow = await AuthUserDisplay.SelectQuery(userQuery.OrderBy(x => x.Email)).ToListAsync();
 
+            ViewBag.Message = message;
+
             return View(usersToShow);
         }
 
-        // GET: AuthUsersController/Details/5
-        public async Task<ActionResult> Details(string id)
+        public async Task<ActionResult> Edit(string userId)
         {
+            var status = await AuthUserUpdate.BuildAuthUserUpdateAsync(userId,_authUsersAdmin, _context);
+            if(status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
 
-            return View();
+            return View(status.Result);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(AuthUserUpdate input)
+        {
+            if (!ModelState.IsValid)
+            {
+                await input.SetupAllRoleNamesAsync(_context);//refresh dropdown
+                return View(input);
+            }
+            
+            var status = await input.UpdateAuthUserFromDataAsync(_authUsersAdmin, _context);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return RedirectToAction(nameof(Index), new {message = status.Message});
+
+        }
+
 
         public async Task<ActionResult> SyncUsers()
         {
@@ -45,10 +70,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             return View(syncChanges);
         }
 
-        // POST: AuthUsersController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SyncUsers(List<SyncAuthUserChanges> changes)
+        public ActionResult SyncUsers(AuthUserUpdate data)
         {
             try
             {
@@ -60,33 +84,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             }
         }
 
-        public async Task<ActionResult> EditInfo(string userId)
-        {
-            var authUser = await _authUsersAdmin.FindAuthUserByUserIdAsync(userId);
-            if (authUser == null)
-                return RedirectToAction(nameof(ErrorDisplay), new  {errorMessage = "Could not find the AuthP User you asked for." });
 
-            return View(AuthUserDisplay.DisplayUserInfo(authUser));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditInfo(AuthUserDisplay input)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(input);
-            }
-
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
 
         // GET: AuthUsersController/Delete/5
         public ActionResult Delete(int id)
@@ -111,7 +109,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public ActionResult ErrorDisplay(string errorMessage)
         {
-            return View(errorMessage);
+            return View((object) errorMessage);
         }
     }
 }

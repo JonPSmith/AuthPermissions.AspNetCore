@@ -157,14 +157,10 @@ namespace AuthPermissions.DataLayer.Classes
             UserTenant = tenant;
         }
 
-        public void ChangeUserName(string userName)
+        public void ChangeUserNameAndEmail(string userName, string newEmail)
         {
             UserName = userName;
-        }
-
-        public void ChangeEmail(string newEmail)
-        {
-            Email = newEmail;
+            Email = newEmail ?? throw new ArgumentNullException(nameof(newEmail));
         }
     }
 }

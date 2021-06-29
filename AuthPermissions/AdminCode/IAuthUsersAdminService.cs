@@ -52,20 +52,13 @@ namespace AuthPermissions.AdminCode
         Task<IStatusGeneric> ApplySyncChangesAsync(List<SyncAuthUserWithChange> changesToApply);
 
         /// <summary>
-        /// This will set the UserName property in the AuthUser
+        /// This will set the UserName and email properties in the AuthUser
         /// </summary>
         /// <param name="authUser"></param>
         /// <param name="userName">new user name</param>
+        /// <param name="email"></param>
         /// <returns></returns>
-        Task<IStatusGeneric> ChangeUserNameAsync(AuthUser authUser, string userName);
-
-        /// <summary>
-        /// This will set the Email property in the AuthUser
-        /// </summary>
-        /// <param name="authUser"></param>
-        /// <param name="email">new user name</param>
-        /// <returns></returns>
-        Task<IStatusGeneric> ChangeEmailAsync(AuthUser authUser, string email);
+        public Task<IStatusGeneric> ChangeUserNameAndEmailAsync(AuthUser authUser, string userName, string email);
 
         /// <summary>
         /// This adds a auth role to the auth user

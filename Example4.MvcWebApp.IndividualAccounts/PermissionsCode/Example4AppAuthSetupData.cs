@@ -10,9 +10,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
     {
         public const string BulkLoadRolesWithPermissions = @"
 SuperAdmin: AccessAll,
-App Admin: UserRead, UserAdd, UserInfoChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantRead, TenantCreate, TenantUpdate
+App Admin: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantRead, TenantCreate, TenantUpdate
 
-Tenant Admin: EmployeeRead, UserRead, UserAdd, UserInfoChange, RoleRead
+Tenant Admin: EmployeeRead, UserRead, UserSync, UserChange, RoleRead
 Tenant Director: EmployeeRead
 Area Manager: StockRead, SalesRead
 Store Manager: StockRead, StockAddNew, StockRemove, SalesRead, SalesSell, SalesReturn

@@ -41,7 +41,8 @@ namespace Example4.MvcWebApp.IndividualAccounts
             services.AddDefaultIdentity<IdentityUser>(options => 
                     options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation();
 
             //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered

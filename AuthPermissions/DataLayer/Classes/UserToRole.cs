@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
@@ -23,8 +24,9 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="role"></param>
         internal UserToRole(string userId, RoleToPermissions role)
         {
-            UserId = userId;
-            Role = role;
+            UserId = userId ?? throw new ArgumentNullException(nameof(userId));
+            Role = role ?? throw new ArgumentNullException(nameof(role));
+            RoleName = role.RoleName;
         }
 
         /// <summary>

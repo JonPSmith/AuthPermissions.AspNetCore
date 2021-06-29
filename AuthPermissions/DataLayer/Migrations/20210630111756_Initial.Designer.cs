@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthPermissions.DataLayer.Migrations
 {
     [DbContext(typeof(AuthPermissionsDbContext))]
-    [Migration("20210629111859_Initial")]
+    [Migration("20210630111756_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,17 +158,12 @@ namespace AuthPermissions.DataLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("AuthUserUserId")
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<byte[]>("ConcurrencyToken")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("ROWVERSION");
 
                     b.HasKey("UserId", "RoleName");
-
-                    b.HasIndex("AuthUserUserId");
 
                     b.HasIndex("RoleName");
 
@@ -195,13 +190,15 @@ namespace AuthPermissions.DataLayer.Migrations
 
             modelBuilder.Entity("AuthPermissions.DataLayer.Classes.UserToRole", b =>
                 {
-                    b.HasOne("AuthPermissions.DataLayer.Classes.AuthUser", null)
-                        .WithMany("UserRoles")
-                        .HasForeignKey("AuthUserUserId");
-
                     b.HasOne("AuthPermissions.DataLayer.Classes.RoleToPermissions", "Role")
                         .WithMany()
                         .HasForeignKey("RoleName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthPermissions.DataLayer.Classes.AuthUser", null)
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

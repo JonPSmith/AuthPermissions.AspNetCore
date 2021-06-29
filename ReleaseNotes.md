@@ -17,13 +17,13 @@
 
 ### Code still needed
 
-- Turn on/off applying migrations on startup
-- Add concurrency checks to all AuthP entities + add to SaveChangesWithChecks
-- IAddExtraClaims: Allow the user to create service that adds extra claims to Cookie/JWT 
 - Finish the sync user example in Example4
+- Turn on/off applying migrations on startup
+- IAddExtraClaims: Allow the user to create service that adds extra claims to Cookie/JWT 
 
 ## Documanation etc. still needed
 
+- Look at how to build documentation
 - Article 1 - Roles/Permissions - based on Example 1
 - Article 2 - JWT token with refresh - based on Example 2
 - Good overall README

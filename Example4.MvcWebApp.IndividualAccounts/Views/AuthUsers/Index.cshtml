@@ -4,17 +4,21 @@
 @model IEnumerable<Example4.MvcWebApp.IndividualAccounts.Models.AuthUserDisplay>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Auth Users";
 }
 
-<h1>Index</h1>
-
-@if (User.UserHasThisPermission(Example4Permissions.UserAdd))
+@if (!string.IsNullOrEmpty(ViewBag.Message))
 {
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
+<h3 class="text-success">@ViewBag.Message</h3>
 }
+
+<h1>Auth Users</h1>
+
+
+<p>
+    <a asp-action="SyncUsers">Sync with authentication provider's users</a>
+</p>
+
 <table class="table">
     <thead>
         <tr>
@@ -24,16 +28,13 @@
             <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
-            @*<th>
-                @Html.DisplayNameFor(model => model.UserId)
-            </th>*@
             <th>
                 @Html.DisplayNameFor(model => model.NumRoles)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.HasTenant)
             </th>
-            <th></th>
+            <th>Change / Delete</th>
         </tr>
     </thead>
     <tbody>
@@ -45,9 +46,6 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
-            @*<td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>*@
             <td>
                 @Html.DisplayFor(modelItem => item.NumRoles)
             </td>
@@ -55,16 +53,8 @@
                 @Html.DisplayFor(modelItem => item.HasTenant)
             </td>
             <td>
-                @if (User.UserHasThisPermission(Example4Permissions.UserRolesChange))
-                {
-                    @Html.ActionLink("Edit roles", "Edit", new { id = item.UserId })
-                    @Html.Raw(" | ")
-                }
-                @if (User.UserHasThisPermission(Example4Permissions.UserChangeTenant))
-                {
-                    @Html.ActionLink("Edit Tenant", "Edit", new { id = item.UserId })
-                    @Html.Raw(" | ")
-                }
+                @Html.ActionLink("Edit User", "Edit", new { userId= item.UserId }) |
+                @Html.ActionLink("Delete User", "Delete", new { UserId = item.UserId })
             </td>
         </tr>
 }

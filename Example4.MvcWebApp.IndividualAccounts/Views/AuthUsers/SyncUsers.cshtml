@@ -1,4 +1,5 @@
-﻿@model List<AuthPermissions.AdminCode.SyncAuthUserWithChange>
+﻿@using AuthPermissions.AdminCode
+@model List<AuthPermissions.AdminCode.SyncAuthUserWithChange>
 
 @{
     ViewData["Title"] = "SyncUsers";
@@ -11,27 +12,54 @@
 }
 
 <h1>Changes to apply to the AuthUsers</h1>
-
 <table class="table">
     <thead>
-        <tr>
-            <th>Change type</th>
-            <th>Changes</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>Change type</th>
+        <th>Email</th>
+        <th>UserName</th>
+        <th>Roles Count</th>
+        <th>Has tenant</th>
+        <th>Edit this</th>
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) 
-{
-    <tr>
-        <td>@item.ConfirmChange</td>
-        <td>@item.ToString()</td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new {/* id=item.PrimaryKey */}) |
-            @Html.ActionLink("Details", "Details", new {/* id=item.PrimaryKey */}) |
-            @Html.ActionLink("Delete", "Delete", new {/* id=item.PrimaryKey */})
-        </td>
-    </tr>
-}
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.FoundChange</td>
+            <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.Email</td>
+            <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.UserName</td>
+            <td>@item.NumRoles</td>
+            <td>@item.HasTenant</td>
+            <td>
+                <form id="@item.UserId" asp-action="SyncUsers" method="post">
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChange), item.FoundChange)
+                    <button type="submit" onclick="myFunction('@item.UserId')">Edit this</button>
+                </form>
+            </td>
+        </tr>
+    }
+
     </tbody>
 </table>
+
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        function myFunction(elementId) {
+            document.getElementById(elementId).submit();
+        }
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+

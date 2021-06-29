@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "bootstrap-multiselect@0.9.16",
+      "destination": "wwwroot/lib/bootstrap-multiselect/"
+    }
+  ]
+}
