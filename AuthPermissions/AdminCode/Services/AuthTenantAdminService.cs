@@ -49,7 +49,7 @@ namespace AuthPermissions.AdminCode.Services
                     $"You cannot add a single tenant because the tenant configuration is {_tenantType}");
 
             _context.Add(new Tenant(tenantName));
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }
@@ -83,7 +83,7 @@ namespace AuthPermissions.AdminCode.Services
             var fullTenantName = Tenant.CombineParentNameWithTenantName(thisLevelTenantName, parentTenant?.TenantName);
 
             _context.Add(new Tenant(fullTenantName, parentTenant));
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             status.Message = $"Successfully added the new hierarchical tenant {fullTenantName}.";
 
@@ -124,7 +124,7 @@ namespace AuthPermissions.AdminCode.Services
 
             existingTenantWithChildren.UpdateTenantName(newTenantLevelName);
 
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
             status.Message = $"Successfully updated the tenant name the new hierarchical tenant {existingTenantWithChildren.TenantName}.";
 
             return status;
@@ -168,7 +168,7 @@ namespace AuthPermissions.AdminCode.Services
 
             existingTenantWithChildren.MoveTenantToNewParent(newParentTenant);
 
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             status.Message = $"Successfully moved the new hierarchical tenant to {existingTenantWithChildren.TenantName}.";
 

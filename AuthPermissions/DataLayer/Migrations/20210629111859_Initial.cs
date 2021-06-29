@@ -19,7 +19,8 @@ namespace AuthPermissions.DataLayer.Migrations
                     UserId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     JwtId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsInvalid = table.Column<bool>(type: "bit", nullable: false),
-                    AddedDateUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    AddedDateUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ConcurrencyToken = table.Column<byte[]>(type: "ROWVERSION", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -33,7 +34,8 @@ namespace AuthPermissions.DataLayer.Migrations
                 {
                     RoleName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PackedPermissionsInRole = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PackedPermissionsInRole = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ConcurrencyToken = table.Column<byte[]>(type: "ROWVERSION", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -47,10 +49,11 @@ namespace AuthPermissions.DataLayer.Migrations
                 {
                     TenantId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ParentDataKey = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     TenantName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IsHierarchical = table.Column<bool>(type: "bit", nullable: false),
                     ParentTenantId = table.Column<int>(type: "int", nullable: true),
-                    ParentDataKey = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ConcurrencyToken = table.Column<byte[]>(type: "ROWVERSION", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -72,7 +75,8 @@ namespace AuthPermissions.DataLayer.Migrations
                     UserId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
-                    TenantId = table.Column<int>(type: "int", nullable: true)
+                    TenantId = table.Column<int>(type: "int", nullable: true),
+                    ConcurrencyToken = table.Column<byte[]>(type: "ROWVERSION", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -93,7 +97,8 @@ namespace AuthPermissions.DataLayer.Migrations
                 {
                     UserId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     RoleName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    AuthUserUserId = table.Column<string>(type: "nvarchar(256)", nullable: true)
+                    AuthUserUserId = table.Column<string>(type: "nvarchar(256)", nullable: true),
+                    ConcurrencyToken = table.Column<byte[]>(type: "ROWVERSION", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -126,6 +131,12 @@ namespace AuthPermissions.DataLayer.Migrations
                 schema: "authp",
                 table: "AuthUsers",
                 column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tenants_ParentDataKey",
+                schema: "authp",
+                table: "Tenants",
+                column: "ParentDataKey");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tenants_ParentTenantId",

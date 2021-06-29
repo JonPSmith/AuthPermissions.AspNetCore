@@ -4,6 +4,7 @@
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AuthPermissions.DataLayer.EfCode
 {
@@ -23,6 +24,17 @@ namespace AuthPermissions.DataLayer.EfCode
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("authp");
+            
+            //Add concurrency token to every entity 
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                entityType.AddProperty("ConcurrencyToken", typeof(byte[]))
+                    .SetColumnType("ROWVERSION");
+                entityType.FindProperty("ConcurrencyToken")
+                    .ValueGenerated = ValueGenerated.OnAddOrUpdate;
+                entityType.FindProperty("ConcurrencyToken")
+                    .IsConcurrencyToken = true;
+            }
 
             modelBuilder.Entity<AuthUser>()
                 .HasIndex(x => x.Email)

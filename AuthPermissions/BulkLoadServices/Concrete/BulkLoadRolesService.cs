@@ -53,7 +53,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             }
 
             if (status.IsValid)
-                status = await _context.SaveChangesWithUniqueCheckAsync();
+                status = await _context.SaveChangesWithChecksAsync();
 
             status.Message = $"Added {lines.Length} new RoleToPermissions to the auth database"; //If there is an error this message is removed
             return status;

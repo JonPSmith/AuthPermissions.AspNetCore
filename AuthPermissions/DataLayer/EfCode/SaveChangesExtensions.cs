@@ -2,11 +2,13 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using EntityFramework.Exceptions.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StatusGeneric;
 
 namespace AuthPermissions.DataLayer.EfCode
@@ -18,7 +20,7 @@ namespace AuthPermissions.DataLayer.EfCode
     /// </summary>
     public static class SaveChangesExtensions
     {
-        public static IStatusGeneric SaveChangesWithUniqueCheck(this DbContext context)
+        public static IStatusGeneric SaveChangesWithChecks(this DbContext context)
         {
             try
             {
@@ -26,41 +28,60 @@ namespace AuthPermissions.DataLayer.EfCode
             }
             catch (UniqueConstraintException e)
             {
-                return ConvertExceptionToStatus(e);
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.Duplicate);
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError);
             }
 
             return new StatusGenericHandler();
         }
 
-        public static async Task<IStatusGeneric> SaveChangesWithUniqueCheckAsync(this DbContext context)
+        public static async Task<IStatusGeneric> SaveChangesWithChecksAsync(this DbContext context)
         {
-
             try
             {
                 await context.SaveChangesAsync();
             }
             catch (UniqueConstraintException e)
             {
-                return ConvertExceptionToStatus(e);
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.Duplicate);
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError);
             }
 
             return new StatusGenericHandler();
         }
 
-        private static IStatusGeneric ConvertExceptionToStatus(this UniqueConstraintException e)
+        private enum ExceptionTypes {Duplicate, ConcurrencyError}
+
+        private static IStatusGeneric ConvertExceptionToStatus(this IReadOnlyList<EntityEntry> entities, ExceptionTypes exceptionType)
         {
             var status = new StatusGenericHandler();
 
-            //NOTE: At this time the e.Entries only has one error
-            if (e.Entries.Any())
+            //NOTE: These is only one entity in an exception
+            if (entities.Any())
             {
-                var name = (e.Entries.First().Entity as INameToShowOnException)?.NameToUseForError ?? "<unknown>";
+                var name = (entities.First().Entity as INameToShowOnException)?.NameToUseForError ?? "<unknown>";
+                var typeName = entities.First().Entity.GetType().Name;
 
-                status.AddError($"There is already a {e.Entries.First().Entity.GetType().Name} with a value: name = {name}");
+                switch (exceptionType)
+                {
+                    case ExceptionTypes.Duplicate:
+                        return status.AddError($"There is already a {typeName} with a value: name = {name}");
+                    case ExceptionTypes.ConcurrencyError:
+                        return status.AddError($"Another user changed the {typeName} with the name = {name}. Please re-read the entity and add you change again.");
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(exceptionType), exceptionType, null);
+                }
             }
             else
             {
-                status.AddError("There was a duplicate of an auth class.");
+                //This shouldn't happen, but just in case
+                status.AddError($"There was a {exceptionType} on an auth class.");
             }
 
             return status;

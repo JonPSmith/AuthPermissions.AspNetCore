@@ -152,7 +152,7 @@ namespace AuthPermissions.AdminCode.Services
                 }
             }
 
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
             //Build useful summary
             var changeStrings = Enum.GetValues<SyncAuthUserChanges>().ToList()
                 .Select(x => $"{x} = {changesToApply.Count(y => y.ConfirmChange == x)}");
@@ -221,7 +221,7 @@ namespace AuthPermissions.AdminCode.Services
 
             var status = new StatusGenericHandler { Message = $"Successfully changed the UserName from {authUser.UserName} to {userName}." };
             authUser.ChangeUserName(userName);
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }
@@ -244,7 +244,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status.AddError($"The email '{email}' is not a valid email.");
 
             authUser.ChangeEmail(email);
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }
@@ -271,7 +271,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status.AddError($"Could not find the role {roleName}");
 
             var added = authUser.AddRoleToUser(role);
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             status.Message = added
                 ? $"Successfully added the role {roleName} to auth user {authUser.UserName ?? authUser.Email}."
@@ -302,7 +302,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status.AddError($"Could not find the role {roleName}");
 
             var removed = authUser.RemoveRoleFromUser(role);
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             status.Message = removed
                 ? $"Successfully removed the role {roleName} to auth user {authUser.UserName ?? authUser.Email}."
@@ -337,7 +337,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status.AddError($"Could not find the tenant {tenantFullName}");
 
             authUser.UpdateUserTenant(tenant);
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }

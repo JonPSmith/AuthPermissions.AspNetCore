@@ -26,6 +26,11 @@ namespace AuthPermissions.DataLayer.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<byte[]>("ConcurrencyToken")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("ROWVERSION");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -58,6 +63,11 @@ namespace AuthPermissions.DataLayer.Migrations
                     b.Property<DateTime>("AddedDateUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<byte[]>("ConcurrencyToken")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("ROWVERSION");
+
                     b.Property<bool>("IsInvalid")
                         .HasColumnType("bit");
 
@@ -80,6 +90,11 @@ namespace AuthPermissions.DataLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<byte[]>("ConcurrencyToken")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("ROWVERSION");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -99,8 +114,17 @@ namespace AuthPermissions.DataLayer.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<byte[]>("ConcurrencyToken")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("ROWVERSION");
+
                     b.Property<bool>("IsHierarchical")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ParentDataKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("ParentTenantId")
                         .HasColumnType("int");
@@ -110,11 +134,9 @@ namespace AuthPermissions.DataLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("_parentDataKey")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ParentDataKey");
-
                     b.HasKey("TenantId");
+
+                    b.HasIndex("ParentDataKey");
 
                     b.HasIndex("ParentTenantId");
 
@@ -136,6 +158,11 @@ namespace AuthPermissions.DataLayer.Migrations
 
                     b.Property<string>("AuthUserUserId")
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<byte[]>("ConcurrencyToken")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("ROWVERSION");
 
                     b.HasKey("UserId", "RoleName");
 

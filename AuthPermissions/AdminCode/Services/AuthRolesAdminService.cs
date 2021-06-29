@@ -70,7 +70,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status.AddError("You must provide at least one permission name.");
 
             _context.Add(new RoleToPermissions(roleName, description, packedPermissions));
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }
@@ -100,7 +100,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status.AddError("You must provide at least one permission name.");
 
             existingRolePermission.Update(packedPermissions, description);
-            status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }

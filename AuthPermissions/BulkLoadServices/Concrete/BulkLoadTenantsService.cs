@@ -73,7 +73,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                     _context.Add(new Tenant(line.Trim()));
                 }
 
-                return await _context.SaveChangesWithUniqueCheckAsync();
+                return await _context.SaveChangesWithChecksAsync();
             }
             
             //--------------------------------------------------------------------
@@ -121,7 +121,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         //we add all the tenants in this layer
                         _context.AddRange(tenantsToAddToDb);
 
-                        status.CombineStatuses(await _context.SaveChangesWithUniqueCheckAsync());
+                        status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
                     }
                 }
 
