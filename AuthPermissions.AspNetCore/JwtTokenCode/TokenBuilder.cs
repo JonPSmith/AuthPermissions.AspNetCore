@@ -22,7 +22,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
     /// </summary>
     public class TokenBuilder : ITokenBuilder
     {
-        private readonly JwtData _jwtData;
+        private readonly AuthPermissionsOptions _options;
         private readonly IClaimsCalculator _claimsCalculator;
         private readonly AuthPermissionsDbContext _context;
         private readonly ILogger _logger;
@@ -30,18 +30,18 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="jwtData"></param>
+        /// <param name="options"></param>
         /// <param name="claimsCalculator"></param>
         /// <param name="context"></param>
         /// <param name="logger"></param>
-        public TokenBuilder(IOptions<JwtData> jwtData, 
+        public TokenBuilder(AuthPermissionsOptions options, 
             IClaimsCalculator claimsCalculator,
             AuthPermissionsDbContext context,
             ILogger<TokenBuilder> logger)
         {
+            _options = options;
             _context = context;
             _claimsCalculator = claimsCalculator;
-            _jwtData = jwtData.Value;
             _logger = logger;
         }
 
@@ -111,10 +111,10 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
                 _logger.LogWarning($"The refresh token in the database was marked as {nameof(refreshTokenFromDb.IsInvalid)}. Token = {tokenAndRefresh.Token}");
                 return (null, 401); //Unauthorized - need to log in again
             }
-            if (refreshTokenFromDb.AddedDateUtc.Add(_jwtData.RefreshTokenExpires) < DateTime.UtcNow)
+            if (refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureJwtToken.RefreshTokenExpires) < DateTime.UtcNow)
             {
                 //Refresh token was out of date
-                var howFarOutOfDate = refreshTokenFromDb.AddedDateUtc.Add(_jwtData.RefreshTokenExpires)
+                var howFarOutOfDate = refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureJwtToken.RefreshTokenExpires)
                     .Subtract(DateTime.UtcNow);
                 _logger.LogInformation($"Refresh token had expired by {howFarOutOfDate:g}. Token = {tokenAndRefresh.Token}");
                 return (null, 401); //Unauthorized - need to log in again
@@ -159,13 +159,13 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             GenerateJwtTokenHandler(string userId, IEnumerable<Claim> claims)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtData.SigningKey);
+            var key = Encoding.ASCII.GetBytes(_options.ConfigureJwtToken.SigningKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, userId) }),
-                Issuer = _jwtData.Issuer,
-                Audience = _jwtData.Audience,
-                Expires = DateTime.UtcNow.Add(_jwtData.TokenExpires),
+                Issuer = _options.ConfigureJwtToken.Issuer,
+                Audience = _options.ConfigureJwtToken.Audience,
+                Expires = DateTime.UtcNow.Add(_options.ConfigureJwtToken.TokenExpires),
                 SigningCredentials =
                     new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Claims = claims.ToDictionary(x => x.Type, y => (object)y.Value)
@@ -184,11 +184,11 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = _jwtData.Issuer,
+                ValidIssuer = _options.ConfigureJwtToken.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _jwtData.Audience,
+                ValidAudience = _options.ConfigureJwtToken.Audience,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtData.SigningKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_options.ConfigureJwtToken.SigningKey)),
                 ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
             };
 

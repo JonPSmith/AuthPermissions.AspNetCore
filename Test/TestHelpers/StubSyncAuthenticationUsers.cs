@@ -11,6 +11,13 @@ namespace Test.TestHelpers
 {
     public class StubSyncAuthenticationUsersFactory : IAuthPServiceFactory<ISyncAuthenticationUsers>
     {
+        private readonly bool _returnNullService;
+
+        public StubSyncAuthenticationUsersFactory(bool returnNullService = false)
+        {
+            _returnNullService = returnNullService;
+        }
+
         public class StubSyncAuthenticationUsers : ISyncAuthenticationUsers
         {
             public Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
@@ -29,7 +36,7 @@ namespace Test.TestHelpers
 
         public ISyncAuthenticationUsers GetService(bool throwExceptionIfNull = true, string callingMethod = "")
         {
-            return new StubSyncAuthenticationUsers();
+            return _returnNullService ? null : new StubSyncAuthenticationUsers();
         }
     }
 }

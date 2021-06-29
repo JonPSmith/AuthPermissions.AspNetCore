@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AuthPermissions;
 using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.Extensions.Logging;
@@ -26,15 +27,16 @@ namespace Test.UnitTests.TestAuthPermissions
             {
                 _context = context;
 
-                var jwtOptions = SetupHelpers.CreateJwtDataOptions(expiresIn);
-                JwtData = jwtOptions.Value;
+                var options = new AuthPermissionsOptions
+                    {ConfigureJwtToken = SetupHelpers.CreateTestJwtSetupData(expiresIn)};
+                JwtSetupData = options.ConfigureJwtToken;
                 var claimsCalc = new StubClaimsCalculator("This:That");
                 var logger = new Logger<TokenBuilder>(new LoggerFactory(new[] { new MyLoggerProviderActionOut(Logs.Add) }));
-                TokenBuilder = new TokenBuilder(jwtOptions, claimsCalc, context, logger);
+                TokenBuilder = new TokenBuilder(options, claimsCalc, context, logger);
             }
 
             public ITokenBuilder TokenBuilder { get; }
-            public JwtData JwtData { get; }
+            public JwtSetupData JwtSetupData { get; }
             public List<LogOutput> Logs { get; } = new List<LogOutput>();
 
         }
@@ -49,7 +51,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var token = await setup.TokenBuilder.GenerateJwtTokenAsync("User1");
 
             //VERIFY
-            var claims = setup.JwtData.TestGetPrincipalFromToken(token).Claims.ToList();
+            var claims = setup.JwtSetupData.TestGetPrincipalFromToken(token).Claims.ToList();
             claims.ClaimsShouldContains(ClaimTypes.NameIdentifier, "User1");
             claims.ClaimsShouldContains("This:That");
         }
@@ -71,7 +73,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             context.ChangeTracker.Clear();
-            var claims = setup.JwtData.TestGetPrincipalFromToken(tokenAndRefresh.Token).Claims.ToList();
+            var claims = setup.JwtSetupData.TestGetPrincipalFromToken(tokenAndRefresh.Token).Claims.ToList();
             claims.ClaimsShouldContains(ClaimTypes.NameIdentifier, "User1");
 
             context.RefreshTokens.Count().ShouldEqual(1);

@@ -8,7 +8,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
     /// <summary>
     /// This contains the data that the JWT token (and optional RefreshToken)
     /// </summary>
-    public class JwtData
+    public class JwtSetupData
     {
         /// <summary>
         /// This identifies provider that issued the JWT

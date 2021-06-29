@@ -11,18 +11,16 @@ using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
-using Microsoft.CodeAnalysis.Options;
-using Microsoft.Extensions.Options;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers
 {
     public static class SetupHelpers
     {
-        public static IOptions<JwtData> CreateJwtDataOptions(TimeSpan expiresIn = default)
+        public static JwtSetupData CreateTestJwtSetupData(TimeSpan expiresIn = default)
         {
 
-            var data = new JwtData
+            var data = new JwtSetupData
             {
                 Issuer = "issuer",
                 Audience = "audience",
@@ -31,7 +29,7 @@ namespace Test.TestHelpers
                 RefreshTokenExpires = expiresIn == default ? new TimeSpan(0, 0, 50) : expiresIn,
             };
 
-            return Options.Create(data);
+            return data;
         }
 
 

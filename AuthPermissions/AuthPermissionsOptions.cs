@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using AuthPermissions.AdminCode;
+using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.SetupCode;
 
 namespace AuthPermissions
@@ -16,6 +17,11 @@ namespace AuthPermissions
         /// multi-tenant is is a single layer, or many layers (hierarchical)
         /// </summary>
         public TenantTypes TenantType { get; set; }
+
+        /// <summary>
+        /// This is where you configure the JwtToken
+        /// </summary>
+        public JwtSetupData ConfigureJwtToken { get; set; }
 
         //-------------------------------------------------
         //internal set properties/handles

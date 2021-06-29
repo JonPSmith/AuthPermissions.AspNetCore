@@ -42,9 +42,9 @@ namespace Example2.WebApiWithToken.IndividualAccounts
 
 
             // Configure Authentication using JWT token with refresh capability
-            var jwtData = new JwtData();
-            Configuration.Bind(nameof(JwtData), jwtData);
-            services.Configure<JwtData>(Configuration.GetSection(nameof(JwtData)));
+            var jwtData = new JwtSetupData();
+            Configuration.Bind(nameof(JwtSetupData), jwtData);
+            services.Configure<JwtSetupData>(Configuration.GetSection(nameof(JwtSetupData)));
             services.AddAuthentication(auth =>
                 {
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -88,7 +88,10 @@ namespace Example2.WebApiWithToken.IndividualAccounts
             services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
             services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json
 
-            services.RegisterAuthPermissions<Example2Permissions>()
+            services.RegisterAuthPermissions<Example2Permissions>( options =>
+                {
+                    options.ConfigureJwtToken = jwtData;
+                })
                 .UsingEfCoreSqlServer(connectionString) //NOTE: This uses the same database as the individual accounts DB
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddUsersRolesIfEmpty(AppAuthSetupData.UsersRolesDefinition)
