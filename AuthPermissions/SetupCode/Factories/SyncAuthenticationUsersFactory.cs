@@ -7,41 +7,38 @@ using AuthPermissions.CommonCode;
 
 namespace AuthPermissions.SetupCode.Factories
 {
-    public interface ISyncAuthenticationUsersFactory
-    {
-        /// <summary>
-        /// Only call this if you need a service that implements the <see cref="ISyncAuthenticationUsers"/> interface.
-        /// This service will return all the active users in the authentication provider in your application
-        /// </summary>
-        /// <returns></returns>
-        ISyncAuthenticationUsers GetRequiredService();
-    }
 
     /// <summary>
-    /// Factory to cover the <see cref="ISyncAuthenticationUsers"/>, which is optional
+    /// Factory to cover the <see cref="ISyncAuthenticationUsers"/> service
     /// </summary>
-    public class SyncAuthenticationUsersFactory : ISyncAuthenticationUsersFactory
+    public class SyncAuthenticationUsersFactory : IAuthPServiceFactory<ISyncAuthenticationUsers>
     {
         private readonly IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// Needs IServiceProvider
+        /// </summary>
+        /// <param name="serviceProvider"></param>
         public SyncAuthenticationUsersFactory(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
 
         /// <summary>
-        /// Only call this if you need a service that implements the <see cref="ISyncAuthenticationUsers"/> interface.
+        /// Returned a service which provides all the active users in the authentication provider in your application
         /// </summary>
-        /// <returns>The returned service will return all the active users in the authentication provider in your application</returns>
-        public ISyncAuthenticationUsers GetRequiredService()
+        /// <param name="throwExceptionIfNull">If no service found and this is true, then throw an exception</param>
+        /// <param name="callingMethod">This contains the name of the calling method</param>
+        /// <returns>The service, or null </returns>
+        public ISyncAuthenticationUsers GetService(bool throwExceptionIfNull = true, string callingMethod = "")
         {
-            var result = (ISyncAuthenticationUsers) _serviceProvider.GetService(typeof(ISyncAuthenticationUsers));
-            if (result == null)
+            var service = (ISyncAuthenticationUsers)_serviceProvider.GetService(typeof(ISyncAuthenticationUsers));
+            if (service == null && throwExceptionIfNull)
                 throw new AuthPermissionsException(
-                    $"A service needed the {nameof(ISyncAuthenticationUsers)} service, but you haven't registered it." +
+                    $"A service (method {callingMethod}) needed the {nameof(ISyncAuthenticationUsers)} service, but you haven't registered it." +
                     $"You can do this using the {nameof(RegisterExtensions.RegisterAuthenticationProviderReader)} configuration method.");
 
-            return result;
+            return service;
         }
     }
 }

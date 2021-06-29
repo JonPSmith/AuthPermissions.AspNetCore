@@ -8,7 +8,7 @@ using AuthPermissions.SetupCode.Factories;
 namespace Test.TestHelpers
 {
 
-    public class StubIFindUserInfoFactory : IFindUserInfoServiceFactory
+    public class StubIFindUserInfoFactory : IAuthPServiceFactory<IFindUserInfoService>
     {
         private readonly bool _returnNullService;
 
@@ -17,18 +17,17 @@ namespace Test.TestHelpers
             _returnNullService = returnNullService;
         }
 
-
-        public IFindUserInfoService GetOptionalService()
-        {
-            return _returnNullService ? null : new StubIFindUserInfo();
-        }
-
         public class StubIFindUserInfo : IFindUserInfoService
         {
             public Task<FindUserInfoResult> FindUserInfoAsync(string uniqueName)
             {
                 return Task.FromResult(new FindUserInfoResult(uniqueName, null));
             }
+        }
+
+        public IFindUserInfoService GetService(bool throwExceptionIfNull = true, string callingMethod = "")
+        {
+            return _returnNullService ? null : new StubIFindUserInfo();
         }
     }
 }

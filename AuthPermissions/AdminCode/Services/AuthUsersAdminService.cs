@@ -21,7 +21,7 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthUsersAdminService : IAuthUsersAdminService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly ISyncAuthenticationUsersFactory _syncAuthenticationUsersFactory;
+        private readonly IAuthPServiceFactory<ISyncAuthenticationUsers> _syncAuthenticationUsersFactory;
         private readonly TenantTypes _tenantType;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="context"></param>
         /// <param name="syncAuthenticationUsersFactory">A factory to create an authentication sync provider</param>
         /// <param name="options">auth options</param>
-        public AuthUsersAdminService(AuthPermissionsDbContext context, ISyncAuthenticationUsersFactory syncAuthenticationUsersFactory, IAuthPermissionsOptions options)
+        public AuthUsersAdminService(AuthPermissionsDbContext context, IAuthPServiceFactory<ISyncAuthenticationUsers> syncAuthenticationUsersFactory, IAuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
@@ -83,8 +83,8 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status, if valid then it contains a list of <see cref="SyncAuthUserWithChange"/>to display</returns>
         public async Task<List<SyncAuthUserWithChange>> SyncAndShowChangesAsync()
         {
-
-            var syncAuthenticationUsers = _syncAuthenticationUsersFactory.GetRequiredService();
+            //This throws an exception if the developer hasn't configured the service
+            var syncAuthenticationUsers = _syncAuthenticationUsersFactory.GetService();
 
             var authenticationUsers = await syncAuthenticationUsers.GetAllActiveUserInfoAsync();
             var authUserDictionary = await _context.AuthUsers

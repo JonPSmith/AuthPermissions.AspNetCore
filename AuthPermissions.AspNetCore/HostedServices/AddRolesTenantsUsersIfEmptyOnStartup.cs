@@ -31,7 +31,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
                 var authOptions = services.GetRequiredService<IAuthPermissionsOptions>();
-                var findUserIdServiceFactory = services.GetRequiredService<IFindUserInfoServiceFactory>();
+                var findUserIdServiceFactory = services.GetRequiredService<IAuthPServiceFactory<IFindUserInfoService>>();
 
                 var status = await context.SeedRolesTenantsUsersIfEmpty(authOptions, findUserIdServiceFactory);
                 status.IfErrorsTurnToException();

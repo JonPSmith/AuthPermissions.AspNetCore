@@ -3,7 +3,6 @@
 ## Known bugs
 
 - Bulk load of hierarchical tenants provides a poor error message if a layer out (e.g using Company | West Coast | LA when you haven't defined "West Coast")
-- Provide a ISyncAuthenticationUsersFactory
 
 ### Features
 

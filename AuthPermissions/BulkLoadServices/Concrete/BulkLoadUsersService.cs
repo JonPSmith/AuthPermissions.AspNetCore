@@ -22,10 +22,10 @@ namespace AuthPermissions.BulkLoadServices.Concrete
     public class BulkLoadUsersService : IBulkLoadUsersService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly IFindUserInfoServiceFactory _findUserInfoServiceFactory;
+        private readonly IAuthPServiceFactory<IFindUserInfoService> _findUserInfoServiceFactory;
         private readonly IAuthPermissionsOptions _options;
 
-        public BulkLoadUsersService(AuthPermissionsDbContext context, IFindUserInfoServiceFactory findUserInfoServicefactory, IAuthPermissionsOptions options)
+        public BulkLoadUsersService(AuthPermissionsDbContext context, IAuthPServiceFactory<IFindUserInfoService> findUserInfoServicefactory, IAuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _findUserInfoServiceFactory = findUserInfoServicefactory;
@@ -63,7 +63,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
 
         private async Task<IStatusGeneric> CreateUserTenantAndAddToDbAsync(DefineUserWithRolesTenant userDefine, int index)
         {
-            var findUserInfoService = _findUserInfoServiceFactory.GetOptionalService();
+            var findUserInfoService = _findUserInfoServiceFactory.GetService(throwExceptionIfNull: false);
             var status = new StatusGenericHandler();
 
             var rolesToPermissions = new List<RoleToPermissions>();

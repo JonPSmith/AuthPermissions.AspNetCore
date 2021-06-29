@@ -9,13 +9,8 @@ using AuthPermissions.SetupCode.Factories;
 
 namespace Test.TestHelpers
 {
-    public class StubSyncAuthenticationUsersFactory : ISyncAuthenticationUsersFactory
+    public class StubSyncAuthenticationUsersFactory : IAuthPServiceFactory<ISyncAuthenticationUsers>
     {
-        public ISyncAuthenticationUsers GetRequiredService()
-        {
-            return new StubSyncAuthenticationUsers();
-        }
-
         public class StubSyncAuthenticationUsers : ISyncAuthenticationUsers
         {
             public Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
@@ -32,5 +27,9 @@ namespace Test.TestHelpers
         }
 
 
+        public ISyncAuthenticationUsers GetService(bool throwExceptionIfNull = true, string callingMethod = "")
+        {
+            return new StubSyncAuthenticationUsers();
+        }
     }
 }

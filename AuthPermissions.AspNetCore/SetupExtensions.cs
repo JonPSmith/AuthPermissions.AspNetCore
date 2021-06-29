@@ -92,7 +92,7 @@ namespace AuthPermissions.AspNetCore
             var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
             context.Database.EnsureCreated();
 
-            var findUserIdService = serviceProvider.GetService<IFindUserInfoServiceFactory>();
+            var findUserIdService = serviceProvider.GetService<IAuthPServiceFactory<IFindUserInfoService>>();
 
             var status = await context.SeedRolesTenantsUsersIfEmpty(setupData.Options, findUserIdService);
 
@@ -111,8 +111,8 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
 
             //The factories for the optional services
-            setupData.Services.AddTransient<ISyncAuthenticationUsersFactory, SyncAuthenticationUsersFactory>();
-            setupData.Services.AddTransient<IFindUserInfoServiceFactory, FindUserInfoServiceFactory>();
+            setupData.Services.AddTransient<IAuthPServiceFactory<ISyncAuthenticationUsers>, SyncAuthenticationUsersFactory>();
+            setupData.Services.AddTransient<IAuthPServiceFactory<IFindUserInfoService>, FindUserInfoServiceFactory>();
 
             //Admin services
             setupData.Services.AddTransient<IAuthRolesAdminService, AuthRolesAdminService>();
