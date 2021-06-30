@@ -50,29 +50,43 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// Finds a AuthUser via its UserId
+        /// Finds a AuthUser via its UserId. Returns a status with an error if not found
         /// </summary>
         /// <param name="userId"></param>
-        /// <returns>AuthUser with UserRoles and UserTenant</returns>
-        public async Task<AuthUser> FindAuthUserByUserIdAsync(string userId)
+        /// <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        public async Task<IStatusGeneric<AuthUser>> FindAuthUserByUserIdAsync(string userId)
         {
-            return await _context.AuthUsers
+            var status = new StatusGenericHandler<AuthUser>();
+
+            var authUser = await _context.AuthUsers
                 .Include(x => x.UserRoles)
                 .Include(x => x.UserTenant)
                 .SingleOrDefaultAsync(x => x.UserId == userId);
+
+            if (authUser == null)
+                status.AddError("Could not find the AuthP User you asked for.");
+
+            return status.SetResult(authUser);
         }
 
         /// <summary>
-        /// Find a AuthUser via its email
+        /// Find a AuthUser via its email. Returns a status with an error if not found
         /// </summary>
         /// <param name="email"></param>
-        /// <returns>AuthUser with UserRoles and UserTenant</returns>
-        public async Task<AuthUser> FindAuthUserByEmailAsync(string email)
+        /// <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        public async Task<IStatusGeneric<AuthUser>> FindAuthUserByEmailAsync(string email)
         {
-            return await _context.AuthUsers
+            var status = new StatusGenericHandler<AuthUser>();
+
+            var authUser = await _context.AuthUsers
                 .Include(x => x.UserRoles)
                 .Include(x => x.UserTenant)
                 .SingleOrDefaultAsync(x => x.Email == email);
+
+            if (authUser == null)
+                status.AddError($"Could not find the AuthP User with the email of {email}.");
+
+            return status.SetResult(authUser);
         }
 
         /// <summary>
@@ -120,7 +134,7 @@ namespace AuthPermissions.AdminCode.Services
 
         /// <summary>
         /// This receives a list of <see cref="SyncAuthUserWithChange"/> and applies them to the AuthP database.
-        /// This uses the <see cref="SyncAuthUserWithChange.ConfirmChange"/> parameter to define what to change
+        /// This uses the <see cref="SyncAuthUserWithChange.FoundChange"/> parameter to define what to change
         /// </summary>
         /// <param name="changesToApply"></param>
         /// <returns>Status</returns>
@@ -141,11 +155,11 @@ namespace AuthPermissions.AdminCode.Services
                         status.CombineStatuses(await AddUpdateAuthUserAsync(syncChange, true));
                         break;
                     case SyncAuthUserChanges.Remove:
-                        var authUserToRemove = await FindAuthUserByUserIdAsync(syncChange.UserId);
-                        if (authUserToRemove == null)
-                            throw new AuthPermissionsException(
-                                $"This should have loaded a AuthUser with the userId of {syncChange.UserId}");
-                        _context.Remove(authUserToRemove);
+                        var authUserStatus = await FindAuthUserByUserIdAsync(syncChange.UserId);
+                        if (status.CombineStatuses(authUserStatus).HasErrors)
+                            return status;
+
+                        _context.Remove(authUserStatus.Result);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -193,15 +207,15 @@ namespace AuthPermissions.AdminCode.Services
                 _context.Add(new AuthUser(newUserData.UserId, newUserData.Email, newUserData.UserName, roles, tenant));
             else
             {
-                var existingAuthUser = await FindAuthUserByUserIdAsync(newUserData.UserId);
-                if (existingAuthUser == null)
-                    throw new AuthPermissionsException(
-                        $"This should have loaded a AuthUser with the userId of {newUserData.UserId}");
-                existingAuthUser.ChangeUserNameAndEmail(newUserData.UserName, newUserData.Email); //if same then ignored
-                existingAuthUser.UpdateUserTenant(tenant);//if same then ignored
-                if (newUserData.RoleNames.OrderBy(x => x) == existingAuthUser.UserRoles.Select(x => x.RoleName).OrderBy(x => x))
+                var getUserStatus = await FindAuthUserByUserIdAsync(newUserData.UserId);
+                if (status.CombineStatuses(getUserStatus).HasErrors)
+                    return status;
+
+                getUserStatus.Result.ChangeUserNameAndEmail(newUserData.UserName, newUserData.Email); //if same then ignored
+                getUserStatus.Result.UpdateUserTenant(tenant);//if same then ignored
+                if (newUserData.RoleNames.OrderBy(x => x) == getUserStatus.Result.UserRoles.Select(x => x.RoleName).OrderBy(x => x))
                     //Roles have changed
-                    existingAuthUser.ReplaceAllRoles(roles);
+                    getUserStatus.Result.ReplaceAllRoles(roles);
             }
             return status;
         }

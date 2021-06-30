@@ -22,18 +22,18 @@ namespace AuthPermissions.AdminCode
         IQueryable<AuthUser> QueryAuthUsers(string dataKey = null);
 
         /// <summary>
-        /// Finds a AuthUser via its UserId
+        /// Finds a AuthUser via its UserId. Returns a status with an error if not found
         /// </summary>
         /// <param name="userId"></param>
-        /// <returns>AuthUser with UserRoles and UserTenant</returns>
-        Task<AuthUser> FindAuthUserByUserIdAsync(string userId);
+        /// <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        Task<IStatusGeneric<AuthUser>> FindAuthUserByUserIdAsync(string userId);
 
         /// <summary>
-        /// Find a AuthUser via its email
+        /// Find a AuthUser via its email. Returns a status with an error if not found
         /// </summary>
         /// <param name="email"></param>
-        /// <returns>AuthUser with UserRoles and UserTenant</returns>
-        Task<AuthUser> FindAuthUserByEmailAsync(string email);
+        /// <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        Task<IStatusGeneric<AuthUser>> FindAuthUserByEmailAsync(string email);
 
         /// <summary>
         /// This compares the users in the authentication provider against the user's in the AuthP's database.
@@ -45,7 +45,7 @@ namespace AuthPermissions.AdminCode
 
         /// <summary>
         /// This receives a list of <see cref="SyncAuthUserWithChange"/> and applies them to the AuthP database.
-        /// This uses the <see cref="SyncAuthUserWithChange.ConfirmChange"/> parameter to define what to change
+        /// This uses the <see cref="SyncAuthUserWithChange.FoundChange"/> parameter to define what to change
         /// </summary>
         /// <param name="changesToApply"></param>
         /// <returns>Status</returns>

@@ -60,7 +60,6 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                     new { errorMessage = status.GetAllErrors() });
 
             return RedirectToAction(nameof(Index), new {message = status.Message});
-
         }
 
 
@@ -87,7 +86,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
 
         // GET: AuthUsersController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int userId)
         {
             return View();
         }

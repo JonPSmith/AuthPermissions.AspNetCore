@@ -117,7 +117,7 @@ namespace Test.UnitTests.TestExamples
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             cAnds.context.ChangeTracker.Clear();
-            var rereadUser = await adminUserService.FindAuthUserByUserIdAsync(userId);
+            var rereadUser = (await adminUserService.FindAuthUserByUserIdAsync(userId)).Result;
             rereadUser.Email.ShouldEqual(userId);
             rereadUser.UserName.ShouldEqual(userId);
             rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });

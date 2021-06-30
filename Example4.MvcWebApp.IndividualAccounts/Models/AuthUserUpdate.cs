@@ -56,7 +56,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
         public static async Task<IStatusGeneric<AuthUserUpdate>> BuildAuthUserUpdateAsync(string userId, IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
             var status = new StatusGenericHandler<AuthUserUpdate>();
-            var authUserStatus = await GetAuthUserAsync(userId, authUsersAdmin);
+            var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(userId);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
 
@@ -86,7 +86,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
         public async Task<IStatusGeneric> UpdateAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
             var status = new StatusGenericHandler {Message = $"Successfully updated the user {UserName ?? Email}"};
-            var authUserStatus = await GetAuthUserAsync(UserId, authUsersAdmin);
+            var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(UserId);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
 
@@ -127,16 +127,6 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
         public async Task SetupAllRoleNamesAsync(AuthPermissionsDbContext context)
         {
             AllRoleNames = await context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
-        }
-
-        private static async Task<IStatusGeneric<AuthUser>> GetAuthUserAsync(string userId, IAuthUsersAdminService authUsersAdmin)
-        {
-            var status = new StatusGenericHandler<AuthUser>();
-            var authUser = await authUsersAdmin.FindAuthUserByUserIdAsync(userId);
-            if (authUser == null)
-                status.AddError("Could not find the AuthP User you asked for.");
-
-            return status.SetResult(authUser);
         }
     }
 }

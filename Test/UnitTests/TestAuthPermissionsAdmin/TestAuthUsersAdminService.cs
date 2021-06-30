@@ -70,10 +70,11 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
-            var authUser = await service.FindAuthUserByUserIdAsync("User1");
+            var status = await service.FindAuthUserByUserIdAsync("User1");
 
             //VERIFY
-            authUser.ShouldNotBeNull();
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            status.Result.ShouldNotBeNull();
         }
 
         [Fact]
@@ -91,10 +92,11 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
-            var authUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
+            var status = await service.FindAuthUserByEmailAsync("User1@gmail.com");
 
             //VERIFY
-            authUser.ShouldNotBeNull();
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            status.Result.ShouldNotBeNull();
         }
 
         [Fact]
@@ -170,7 +172,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
-            var authUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
+            var authUser = (await service.FindAuthUserByEmailAsync("User1@gmail.com")).Result;
 
             //ATTEMPT
             var status = await service.ChangeUserNameAndEmailAsync(authUser, "new user name", email);
@@ -183,7 +185,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             else
             {
                 context.ChangeTracker.Clear();
-                var rereadUser = await service.FindAuthUserByEmailAsync("User1@gmail.com");
+                var rereadUser = (await service.FindAuthUserByEmailAsync("User1@gmail.com")).Result;
                 rereadUser.UserName.ShouldEqual("new user name");
             }
         }
@@ -204,7 +206,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
-            var authUser = await service.FindAuthUserByEmailAsync("User2@gmail.com");
+            var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
             var status = await service.AddRoleToUser(authUser, roleName);
@@ -232,7 +234,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
-            var authUser = await service.FindAuthUserByEmailAsync("User2@gmail.com");
+            var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
             var status = await service.RemoveRoleToUser(authUser, roleName);
@@ -260,7 +262,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
-            var authUser = await service.FindAuthUserByEmailAsync("User2@gmail.com");
+            var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
             var status = await service.ChangeTenantToUserAsync(authUser, tenantName);
