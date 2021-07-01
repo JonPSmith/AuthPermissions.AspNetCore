@@ -34,13 +34,13 @@
                 <td>@item.NumRoles</td>
                 <td>@item.HasTenant</td>
                 <td>
-                    <form id="@item.UserId" asp-action="Edit" method="post">
+                    <form id="@item.UserId" asp-action="EditFromSync" method="get">
                         @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
                         @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
                         @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
                         @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChange), item.FoundChange)
-                        <button type="submit">Edit this</button>
-                        <button type="button" onclick="SetIgnore('#@item.UserId', this)">Ignore this</button>
+                        <button type="submit" class="btn-sm btn-primary">Edit this</button>
+                        <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore this</button>
                     </form>
                 </td>
             </tr>
@@ -51,7 +51,7 @@
 
 
 <input id="btnSubmit" type="submit" onclick="CreateFormAndSubmit()" value="Update all" class="btn btn-primary" />
-
+@Html.AntiForgeryToken()
 
 @section Scripts{
 
@@ -89,6 +89,8 @@
 
             for (var i = 0; i < forms.length; i++) {
                 params['data[' + i + '].UserId'] = $(forms[i]).find('#UserId').val();
+                params['data[' + i + '].Email'] = $(forms[i]).find('#Email').val();
+                params['data[' + i + '].UserName'] = $(forms[i]).find('#UserName').val();
                 params['data[' + i + '].FoundChange'] = $(forms[i]).find('#FoundChange').val();
             };
             params['__RequestVerificationToken'] = $('input:hidden[name="__RequestVerificationToken"]').val();
@@ -102,8 +104,10 @@
     //}
 
     function SetIgnore(elementId, button) {
-        //Change the text to Ignored
+        //Change the text to Ignored and change the color
         $(button).text('Ignored');
+        $(button).removeClass('btn-primary');
+        $(button).addClass('btn-warning');
         //Change FoundChange to 'NoChange'
         $(elementId).find('#FoundChange').val('NoChange');
         //Change the format of the parent td to grey

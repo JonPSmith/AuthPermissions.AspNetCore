@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
@@ -53,6 +54,8 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public List<string> AllRoleNames { get; set; }
 
+        public List<string> AllTenantNames { get; set; }
+
         public static async Task<IStatusGeneric<AuthUserChange>> BuildAuthUserUpdateAsync(string userId, IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
             var status = new StatusGenericHandler<AuthUserChange>();
@@ -72,7 +75,7 @@ namespace ExamplesCommonCode.CommonAdmin
 
                 AllRoleNames = await context.RoleToPermissions.Select(x => x.RoleName).ToListAsync()
             };
-            await result.SetupAllRoleNamesAsync(context);
+            await result.SetupDropDownListsAsync(context);
 
             return status.SetResult(result);
         }
@@ -97,10 +100,10 @@ namespace ExamplesCommonCode.CommonAdmin
                 throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
 
             //Find the tenant
-            var foundTenant = string.IsNullOrEmpty(TenantName)
+            var foundTenant = string.IsNullOrEmpty(TenantName) || TenantName == CommonConstants.EmptyTenantName
                 ? null
                 : await context.Tenants.SingleOrDefaultAsync(x => x.TenantName == TenantName);
-            if (!string.IsNullOrEmpty(TenantName) && foundTenant == null)
+            if (!string.IsNullOrEmpty(TenantName) && TenantName != CommonConstants.EmptyTenantName && foundTenant == null)
                 return status.AddError($"A tenant with the name {TenantName} wasn't found.");
 
             if (FoundChange == SyncAuthUserChanges.Add)
@@ -136,9 +139,11 @@ namespace ExamplesCommonCode.CommonAdmin
             return status;
         }
 
-        public async Task SetupAllRoleNamesAsync(AuthPermissionsDbContext context)
+        public async Task SetupDropDownListsAsync(AuthPermissionsDbContext context)
         {
             AllRoleNames = await context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
+            AllTenantNames = await context.Tenants.Select(x => x.TenantName).ToListAsync();
+            AllTenantNames.Insert(0, CommonConstants.EmptyTenantName);
         }
     }
 }

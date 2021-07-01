@@ -138,7 +138,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="changesToApply"></param>
         /// <returns>Status</returns>
-        public async Task<IStatusGeneric> ApplySyncChangesAsync(List<SyncAuthUserWithChange> changesToApply)
+        public async Task<IStatusGeneric> ApplySyncChangesAsync(IEnumerable<SyncAuthUserWithChange> changesToApply)
         {
             var status = new StatusGenericHandler();
 
@@ -194,7 +194,7 @@ namespace AuthPermissions.AdminCode.Services
             }
 
             Tenant tenant = null;         
-            if (newUserData.TenantName != null)
+            if (newUserData.TenantName != null && newUserData.TenantName != CommonConstants.EmptyTenantName)
             {
                 tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == newUserData.TenantName);
                 if (tenant == null)
@@ -213,8 +213,9 @@ namespace AuthPermissions.AdminCode.Services
 
                 getUserStatus.Result.ChangeUserNameAndEmail(newUserData.UserName, newUserData.Email); //if same then ignored
                 getUserStatus.Result.UpdateUserTenant(tenant);//if same then ignored
-                if (newUserData.RoleNames.OrderBy(x => x) == getUserStatus.Result.UserRoles.Select(x => x.RoleName).OrderBy(x => x))
-                    //Roles have changed
+                if (newUserData.RoleNames != null &&
+                    newUserData.RoleNames.OrderBy(x => x) == getUserStatus.Result.UserRoles.Select(x => x.RoleName).OrderBy(x => x))
+                    //The RoleNames were filled in and the roles are different have changed
                     getUserStatus.Result.ReplaceAllRoles(roles);
             }
             return status;

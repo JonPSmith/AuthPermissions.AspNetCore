@@ -46,13 +46,30 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             return View(status.Result);
         }
 
+        public async Task<ActionResult> EditFromSync(AuthUserChange input)
+        {
+            if (input.FoundChange == SyncAuthUserChanges.Add)
+            {
+                await input.SetupDropDownListsAsync(_context);
+                input.RoleNames = new List<string>();
+                return View(nameof(Edit), input);
+            }
+
+            var status = await AuthUserChange.BuildAuthUserUpdateAsync(input.UserId, _authUsersAdmin, _context);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return View(nameof(Edit), status.Result);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(AuthUserChange input)
         {
             if (!ModelState.IsValid)
             {
-                await input.SetupAllRoleNamesAsync(_context);//refresh dropdown
+                await input.SetupDropDownListsAsync(_context);//refresh dropdown
                 return View(input);
             }
             
@@ -72,18 +89,16 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult SyncUsers(IEnumerable<AuthIdAndChange> data)
-        //public ActionResult SyncUsers(IFormCollection collection)
+        [ValidateAntiForgeryToken]        
+        //NOTE: the input be called "data" because we are using JavaScript to send that info back
+        public async Task<ActionResult> SyncUsers(IEnumerable<SyncAuthUserWithChange> data)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var status = await _authUsersAdmin.ApplySyncChangesAsync(data);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors()});
+
+            return RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
 
