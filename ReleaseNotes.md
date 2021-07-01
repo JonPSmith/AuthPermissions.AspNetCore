@@ -17,8 +17,10 @@
 
 ### Code still needed
 
-- Finish the sync user example in Example4
+- Finish the sync user example in Example4 (sync apply, delete left)
+- Check that each call to SaveChanges uses the ...WithChecks version
 - Turn on/off applying migrations on startup
+- Optional encryption of JWT claims
 - IAddExtraClaims: Allow the user to create service that adds extra claims to Cookie/JWT 
 
 ## Documanation etc. still needed

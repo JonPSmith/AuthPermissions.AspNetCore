@@ -11,6 +11,7 @@ using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
+using ExamplesCommonCode.CommonAdmin;
 using Microsoft.Extensions.DependencyInjection;
 using Test.TestHelpers;
 using Xunit;
@@ -89,7 +90,7 @@ namespace Test.UnitTests.TestExamples
             var userId = "admin@4uInc.com";
 
             //ATTEMPT
-            var status = await AuthUserUpdate.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context);
+            var status = await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -102,17 +103,17 @@ namespace Test.UnitTests.TestExamples
         }
 
         [Fact]
-        public async Task TestExample4AuthUserUpdateUpdateAuthUserFromDataAsyncAllOkNoChange()
+        public async Task TestExample4AuthUserUpdateChangeAuthUserFromDataAsyncAllOkNoChange()
         {
             //SETUP
             var cAnds = await SetupExample4DataAsync();
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
             var userId = "admin@4uInc.com";
-            var authUserUpdate = (await AuthUserUpdate.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
-            var status = await authUserUpdate.UpdateAuthUserFromDataAsync(adminUserService, cAnds.context);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -124,7 +125,74 @@ namespace Test.UnitTests.TestExamples
             rereadUser.UserTenant.TenantName.ShouldEqual("4U Inc.");
         }
 
+        [Fact]
+        public async Task TestExample4AuthUserUpdateChangeAuthUserFromDataAsyncChangeRoles()
+        {
+            //SETUP
+            var cAnds = await SetupExample4DataAsync();
 
+            var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
+            var userId = "admin@4uInc.com";
+            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+
+            //ATTEMPT
+            authUserUpdate.RoleNames = new List<string> {"Area Manager", "App Admin"};
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            cAnds.context.ChangeTracker.Clear();
+            var rereadUser = (await adminUserService.FindAuthUserByUserIdAsync(userId)).Result;
+            rereadUser.Email.ShouldEqual(userId);
+            rereadUser.UserName.ShouldEqual(userId);
+            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "App Admin", "Area Manager" });
+            rereadUser.UserTenant.TenantName.ShouldEqual("4U Inc.");
+        }
+
+        [Fact]
+        public async Task TestExample4AuthUserUpdateChangeAuthUserFromDataAsyncAddNewUser()
+        {
+            //SETUP
+            var cAnds = await SetupExample4DataAsync();
+
+            var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
+            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync("admin@4uInc.com", adminUserService, cAnds.context)).Result;
+
+            //ATTEMPT
+            authUserUpdate.FoundChange = SyncAuthUserChanges.Add;
+            authUserUpdate.UserId = "newuser@gmail.com";
+            authUserUpdate.Email = "newuser@gmail.com";
+            authUserUpdate.UserName = "newuser@gmail.com";
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            cAnds.context.ChangeTracker.Clear();
+            var rereadUser = (await adminUserService.FindAuthUserByUserIdAsync("newuser@gmail.com")).Result;
+            rereadUser.Email.ShouldEqual("newuser@gmail.com");
+            rereadUser.UserName.ShouldEqual("newuser@gmail.com");
+            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });
+            rereadUser.UserTenant.TenantName.ShouldEqual("4U Inc.");
+        }
+
+        [Fact]
+        public async Task TestExample4AuthUserUpdateChangeAuthUserFromDataAsyncBadTenantName()
+        {
+            //SETUP
+            var cAnds = await SetupExample4DataAsync();
+
+            var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
+            var userId = "admin@4uInc.com";
+            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+
+            //ATTEMPT
+            authUserUpdate.TenantName = "Bad tenant name";
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.GetAllErrors().ShouldEqual("A tenant with the name Bad tenant name wasn't found.");
+        }
 
 
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.DataKeyCode;
 using AuthPermissions.DataLayer.EfCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
+using ExamplesCommonCode.CommonAdmin;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
@@ -36,7 +38,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> Edit(string userId)
         {
-            var status = await AuthUserUpdate.BuildAuthUserUpdateAsync(userId,_authUsersAdmin, _context);
+            var status = await AuthUserChange.BuildAuthUserUpdateAsync(userId,_authUsersAdmin, _context);
             if(status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
@@ -46,7 +48,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(AuthUserUpdate input)
+        public async Task<ActionResult> Edit(AuthUserChange input)
         {
             if (!ModelState.IsValid)
             {
@@ -54,7 +56,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return View(input);
             }
             
-            var status = await input.UpdateAuthUserFromDataAsync(_authUsersAdmin, _context);
+            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, _context);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
@@ -71,7 +73,8 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SyncUsers(AuthUserUpdate data)
+        public ActionResult SyncUsers(IEnumerable<AuthIdAndChange> data)
+        //public ActionResult SyncUsers(IFormCollection collection)
         {
             try
             {
