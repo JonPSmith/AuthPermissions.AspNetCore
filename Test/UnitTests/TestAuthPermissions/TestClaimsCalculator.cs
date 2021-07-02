@@ -7,6 +7,7 @@ using AuthPermissions;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
+using AuthPermissions.SetupCode;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -16,7 +17,7 @@ namespace Test.UnitTests.TestAuthPermissions
     public class TestClaimsCalculator
     {
         [Fact]
-        public async Task TestCalcAllowedPermissionsSimple()
+        public async Task TestCalcAllowedPermissionsNoTenant()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -34,7 +35,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new ClaimsCalculator(context);
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants });
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("User1");
@@ -64,7 +65,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new ClaimsCalculator(context);
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants });
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("User1");
@@ -83,7 +84,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new ClaimsCalculator(context);
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants });
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("User1");
@@ -108,7 +109,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new ClaimsCalculator(context);
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("User1");
@@ -128,7 +129,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new ClaimsCalculator(context);
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUser("NoUser");

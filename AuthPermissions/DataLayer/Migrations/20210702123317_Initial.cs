@@ -132,6 +132,13 @@ namespace AuthPermissions.DataLayer.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_AddedDateUtc",
+                schema: "authp",
+                table: "RefreshTokens",
+                column: "AddedDateUtc",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tenants_ParentDataKey",
                 schema: "authp",
                 table: "Tenants",

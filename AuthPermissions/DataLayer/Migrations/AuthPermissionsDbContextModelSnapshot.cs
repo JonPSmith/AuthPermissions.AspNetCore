@@ -81,6 +81,9 @@ namespace AuthPermissions.DataLayer.Migrations
 
                     b.HasKey("TokenValue");
 
+                    b.HasIndex("AddedDateUtc")
+                        .IsUnique();
+
                     b.ToTable("RefreshTokens");
                 });
 

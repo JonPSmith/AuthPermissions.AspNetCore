@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthPermissions.DataLayer.Migrations
 {
     [DbContext(typeof(AuthPermissionsDbContext))]
-    [Migration("20210630111756_Initial")]
+    [Migration("20210702123317_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,6 +82,9 @@ namespace AuthPermissions.DataLayer.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("TokenValue");
+
+                    b.HasIndex("AddedDateUtc")
+                        .IsUnique();
 
                     b.ToTable("RefreshTokens");
                 });

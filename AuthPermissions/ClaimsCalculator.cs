@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupCode;
@@ -18,11 +17,13 @@ namespace AuthPermissions
     /// </summary>
     public class ClaimsCalculator : IClaimsCalculator
     {
+        private readonly AuthPermissionsOptions _options;
         private readonly AuthPermissionsDbContext _context;
 
-        public ClaimsCalculator(AuthPermissionsDbContext context)
+        public ClaimsCalculator(AuthPermissionsDbContext context, AuthPermissionsOptions options)
         {
             _context = context;
+            _options = options;
         }
 
         /// <summary>
@@ -76,9 +77,12 @@ namespace AuthPermissions
         /// This return the multi-tenant data key if one is found
         /// </summary>
         /// <param name="userid"></param>
-        /// <returns>Returns the dataKey, or null if not found</returns>
+        /// <returns>Returns the dataKey, or null if a) tenant isn't turned on, or b) the user doesn't have a tenant</returns>
         private async Task<string> GetDataKeyAsync(string userid)
         {
+            if (_options.TenantType == TenantTypes.NotUsingTenants)
+                return null;
+
             var userWithTenant = await _context.AuthUsers.Include(x => x.UserTenant)
                 .SingleOrDefaultAsync(x => x.UserId == userid);
 
