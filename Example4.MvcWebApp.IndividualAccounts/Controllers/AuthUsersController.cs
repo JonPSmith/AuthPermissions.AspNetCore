@@ -104,24 +104,33 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
 
         // GET: AuthUsersController/Delete/5
-        public ActionResult Delete(int userId)
+        public async Task<ActionResult> Delete(string userId)
         {
-            return View();
+            var status = await _authUsersAdmin.FindAuthUserByUserIdAsync(userId);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return View(AuthUserDisplay.DisplayUserInfo(status.Result));
         }
 
         // POST: AuthUsersController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(AuthUserDisplay user)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var status1 = await _authUsersAdmin.FindAuthUserByUserIdAsync(user.UserId);
+            if (status1.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status1.GetAllErrors() });
+
+            _context.Remove(status1.Result);
+            var status2 = await _context.SaveChangesWithChecksAsync();
+            if (status1.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status1.GetAllErrors() });
+
+            return RedirectToAction(nameof(Index), new { message = $"Successfully deleted the user {user.UserName ?? user.Email}" });
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

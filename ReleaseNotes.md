@@ -17,9 +17,6 @@
 
 ### Code still needed
 
-- NEEDS new migration (index on date refresh token)
-- Finish the sync user example in Example4 (delete)
-- Check that each call to SaveChanges uses the ...WithChecks version
 - Turn on/off applying migrations on startup
 - Optional encryption of JWT claims
 - IAddExtraClaims: Allow the user to create service that adds extra claims to Cookie/JWT 

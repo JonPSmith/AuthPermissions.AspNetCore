@@ -56,6 +56,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
         public async Task<IStatusGeneric<AuthUser>> FindAuthUserByUserIdAsync(string userId)
         {
+            if (userId == null) throw new ArgumentNullException(nameof(userId));
             var status = new StatusGenericHandler<AuthUser>();
 
             var authUser = await _context.AuthUsers
@@ -76,6 +77,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
         public async Task<IStatusGeneric<AuthUser>> FindAuthUserByEmailAsync(string email)
         {
+            if (email == null) throw new ArgumentNullException(nameof(email));
             var status = new StatusGenericHandler<AuthUser>();
 
             var authUser = await _context.AuthUsers

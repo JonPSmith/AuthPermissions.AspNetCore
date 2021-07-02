@@ -17,10 +17,10 @@ namespace AuthPermissions
     /// </summary>
     public class ClaimsCalculator : IClaimsCalculator
     {
-        private readonly AuthPermissionsOptions _options;
         private readonly AuthPermissionsDbContext _context;
+        private readonly IAuthPermissionsOptions _options;
 
-        public ClaimsCalculator(AuthPermissionsDbContext context, AuthPermissionsOptions options)
+        public ClaimsCalculator(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
         {
             _context = context;
             _options = options;
