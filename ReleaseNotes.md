@@ -17,7 +17,7 @@
 
 ### Code still needed
 
-- Finish the sync user example in Example4 (sync apply, delete left)
+- Finish the sync user example in Example4 (delete)
 - Check that each call to SaveChanges uses the ...WithChecks version
 - Turn on/off applying migrations on startup
 - Optional encryption of JWT claims

@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore.JwtTokenCode;
+using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.Extensions.Logging;
 using Test.TestHelpers;
@@ -17,7 +18,7 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestAuthPermissions
 {
-    public class TestTokenBuilder
+    public class TestTokenBuilderAndRefresh
     {
         private class SetupTokenBuilder
         {
@@ -28,15 +29,15 @@ namespace Test.UnitTests.TestAuthPermissions
                 _context = context;
 
                 var options = new AuthPermissionsOptions
-                    {ConfigureJwtToken = SetupHelpers.CreateTestJwtSetupData(expiresIn)};
-                JwtSetupData = options.ConfigureJwtToken;
+                    {ConfigureAuthJwtToken = SetupHelpers.CreateTestJwtSetupData(expiresIn)};
+                AuthJwtConfiguration = options.ConfigureAuthJwtToken;
                 var claimsCalc = new StubClaimsCalculator("This:That");
                 var logger = new Logger<TokenBuilder>(new LoggerFactory(new[] { new MyLoggerProviderActionOut(Logs.Add) }));
                 TokenBuilder = new TokenBuilder(options, claimsCalc, context, logger);
             }
 
             public ITokenBuilder TokenBuilder { get; }
-            public JwtSetupData JwtSetupData { get; }
+            public AuthJwtConfiguration AuthJwtConfiguration { get; }
             public List<LogOutput> Logs { get; } = new List<LogOutput>();
 
         }
@@ -51,7 +52,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var token = await setup.TokenBuilder.GenerateJwtTokenAsync("User1");
 
             //VERIFY
-            var claims = setup.JwtSetupData.TestGetPrincipalFromToken(token).Claims.ToList();
+            var claims = setup.AuthJwtConfiguration.TestGetPrincipalFromToken(token).Claims.ToList();
             claims.ClaimsShouldContains(ClaimTypes.NameIdentifier, "User1");
             claims.ClaimsShouldContains("This:That");
         }
@@ -73,7 +74,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             context.ChangeTracker.Clear();
-            var claims = setup.JwtSetupData.TestGetPrincipalFromToken(tokenAndRefresh.Token).Claims.ToList();
+            var claims = setup.AuthJwtConfiguration.TestGetPrincipalFromToken(tokenAndRefresh.Token).Claims.ToList();
             claims.ClaimsShouldContains(ClaimTypes.NameIdentifier, "User1");
 
             context.RefreshTokens.Count().ShouldEqual(1);
@@ -176,6 +177,32 @@ namespace Test.UnitTests.TestAuthPermissions
             context.ChangeTracker.Clear();
             tokensAndStatus.HttpStatusCode.ShouldEqual(401);
             setup.Logs.Single().Message.ShouldStartWith("Refresh token had expired by");
+        }
+
+        [Fact]
+        public async Task TestMarkJwtRefreshTokenAsUsedAsync()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var setup = new SetupTokenBuilder(context);
+            await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
+
+            var beforeToken = context.RefreshTokens.Single();
+            beforeToken.IsInvalid.ShouldBeFalse();
+
+            context.ChangeTracker.Clear();
+            var service = new DisableJwtRefreshToken(context);
+
+            //ATTEMPT
+            await service.MarkJwtRefreshTokenAsUsedAsync("User1");
+
+            //VERIFY
+            context.ChangeTracker.Clear();
+            var afterToken = context.RefreshTokens.Single();
+            afterToken.IsInvalid.ShouldBeTrue();
         }
 
 

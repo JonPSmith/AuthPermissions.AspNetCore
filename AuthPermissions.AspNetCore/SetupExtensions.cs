@@ -8,6 +8,8 @@ using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.BulkLoadServices;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
@@ -103,6 +105,7 @@ namespace AuthPermissions.AspNetCore
 
         private static void RegisterCommonServices(this AuthSetupData setupData)
         {
+            //Internal services
             setupData.Services.AddSingleton<IAuthPermissionsOptions>(setupData.Options);
             setupData.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
@@ -118,6 +121,12 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddTransient<IAuthRolesAdminService, AuthRolesAdminService>();
             setupData.Services.AddTransient<IAuthTenantAdminService, AuthTenantAdminService>();
             setupData.Services.AddTransient<IAuthUsersAdminService, AuthUsersAdminService>();
+            setupData.Services.AddTransient<IBulkLoadRolesService, BulkLoadRolesService>();
+            setupData.Services.AddTransient<IBulkLoadTenantsService, BulkLoadTenantsService>();
+            setupData.Services.AddTransient<IBulkLoadUsersService, BulkLoadUsersService>();
+
+            //Other services
+            setupData.Services.AddTransient<IDisableJwtRefreshToken, DisableJwtRefreshToken>();
         }
     }
 }

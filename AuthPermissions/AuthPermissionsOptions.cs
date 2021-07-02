@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using AuthPermissions.AdminCode;
-using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.SetupCode;
 
 namespace AuthPermissions
@@ -21,7 +20,7 @@ namespace AuthPermissions
         /// <summary>
         /// This is where you configure the JwtToken
         /// </summary>
-        public JwtSetupData ConfigureJwtToken { get; set; }
+        public AuthJwtConfiguration ConfigureAuthJwtToken { get; set; }
 
         //-------------------------------------------------
         //internal set properties/handles

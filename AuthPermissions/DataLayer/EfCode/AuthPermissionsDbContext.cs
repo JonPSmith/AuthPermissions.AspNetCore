@@ -62,6 +62,11 @@ namespace AuthPermissions.DataLayer.EfCode
 
             modelBuilder.Entity<RefreshToken>()
                 .HasKey(x => x.TokenValue);
+
+            modelBuilder.Entity<RefreshToken>()
+                .HasIndex(x => x.TokenValue)
+                .IsUnique();
+
         }
     }
 }

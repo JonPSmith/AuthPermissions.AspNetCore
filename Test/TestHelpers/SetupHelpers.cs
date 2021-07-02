@@ -17,10 +17,10 @@ namespace Test.TestHelpers
 {
     public static class SetupHelpers
     {
-        public static JwtSetupData CreateTestJwtSetupData(TimeSpan expiresIn = default)
+        public static AuthJwtConfiguration CreateTestJwtSetupData(TimeSpan expiresIn = default)
         {
 
-            var data = new JwtSetupData
+            var data = new AuthJwtConfiguration
             {
                 Issuer = "issuer",
                 Audience = "audience",

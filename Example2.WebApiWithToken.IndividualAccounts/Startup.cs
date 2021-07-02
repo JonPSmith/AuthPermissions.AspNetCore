@@ -43,8 +43,8 @@ namespace Example2.WebApiWithToken.IndividualAccounts
 
             // Configure Authentication using JWT token with refresh capability
             var jwtData = new JwtSetupData();
-            Configuration.Bind(nameof(JwtSetupData), jwtData);
-            services.Configure<JwtSetupData>(Configuration.GetSection(nameof(JwtSetupData)));
+            Configuration.Bind("JwtData", jwtData);
+            services.Configure<AuthJwtConfiguration>(Configuration.GetSection(nameof(AuthJwtConfiguration)));
             services.AddAuthentication(auth =>
                 {
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -90,7 +90,14 @@ namespace Example2.WebApiWithToken.IndividualAccounts
 
             services.RegisterAuthPermissions<Example2Permissions>( options =>
                 {
-                    options.ConfigureJwtToken = jwtData;
+                    options.ConfigureAuthJwtToken = new AuthJwtConfiguration
+                    {
+                        Issuer = jwtData.Issuer,
+                        Audience = jwtData.Audience,
+                        SigningKey = jwtData.SigningKey,
+                        TokenExpires = new TimeSpan(0,2,0), //Quick Token expiration because we use a refresh token
+                        RefreshTokenExpires = new TimeSpan(1,0,0,0) //Refresh token is valid for one day
+                    };
                 })
                 .UsingEfCoreSqlServer(connectionString) //NOTE: This uses the same database as the individual accounts DB
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
