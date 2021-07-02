@@ -17,6 +17,7 @@
 
 ### Code still needed
 
+- NEEDS new migration (index on date refresh token)
 - Finish the sync user example in Example4 (delete)
 - Check that each call to SaveChanges uses the ...WithChecks version
 - Turn on/off applying migrations on startup

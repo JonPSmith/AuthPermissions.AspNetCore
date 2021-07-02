@@ -71,7 +71,8 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
 
             var refreshToken = RefreshToken.CreateNewRefreshToken(userId, token.Id);
             _context.Add(refreshToken);
-            await _context.SaveChangesAsync();
+            var status = await _context.SaveChangesWithChecksAsync();
+            status.IfErrorsTurnToException();
 
             return new TokenAndRefreshToken
             {
@@ -135,8 +136,10 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             refreshTokenFromDb.MarkAsInvalid();
             //d) Create a new RefreshToken and write to the database
             var newRefreshToken = RefreshToken.CreateNewRefreshToken(userId, token.Id);
+
             _context.Add(newRefreshToken);
-            await _context.SaveChangesAsync();
+            var status = await _context.SaveChangesWithChecksAsync();
+            status.IfErrorsTurnToException();
 
             return (new TokenAndRefreshToken
             {

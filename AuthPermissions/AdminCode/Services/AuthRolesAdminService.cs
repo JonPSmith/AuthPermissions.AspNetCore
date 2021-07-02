@@ -136,7 +136,7 @@ namespace AuthPermissions.AdminCode.Services
 
 
             _context.Remove(existingRolePermission);
-            await _context.SaveChangesAsync();
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }
