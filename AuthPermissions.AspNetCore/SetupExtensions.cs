@@ -68,8 +68,17 @@ namespace AuthPermissions.AspNetCore
             
             setupData.RegisterCommonServices();
 
-            //NOTE: when I add the database locking I need run all of these within the lock
-            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
+            if (setupData.Options.MigrateAuthPermissionsDbOnStartup == null &&
+                setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
+                throw new AuthPermissionsException(
+                    $"You have not set the {nameof(AuthPermissionsOptions.MigrateAuthPermissionsDbOnStartup)}. Your options are:{Environment.NewLine}" +
+                    $"false:You will have to create/migrate the {nameof(AuthPermissionsDbContext)} database before you run your application.{Environment.NewLine}" +
+                    $"true: AuthP will create/migrate the {nameof(AuthPermissionsDbContext)} database on startup.{Environment.NewLine}" +
+                    $"NOTE: Letting AuthP create/migrate that database can have bad effects if the migration contains breaking changes.");
+
+
+            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory &&
+                setupData.Options.MigrateAuthPermissionsDbOnStartup == true)
             {
                 setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
             }

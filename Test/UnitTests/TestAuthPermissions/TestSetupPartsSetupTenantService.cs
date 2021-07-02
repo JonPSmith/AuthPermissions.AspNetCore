@@ -25,12 +25,14 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseIfEmptyEmptyString()
+        public async Task TestAddTenantsToDatabaseEmptyString()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
 
             var service = new BulkLoadTenantsService(context);
 
@@ -42,12 +44,14 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseIfEmptyDuplicateTenantName()
+        public async Task TestAddTenantsToDatabaseDuplicateTenantName()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
 
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
@@ -69,12 +73,14 @@ Tenant3";
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseIfEmptySingleTenant()
+        public async Task TestAddTenantsToDatabaseSingleTenant()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
 
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
@@ -94,12 +100,14 @@ Tenant3";
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseIfEmptySingleTenantDuplicate()
+        public async Task TestAddTenantsToDatabaseSingleTenantDuplicate()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
 
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
@@ -122,12 +130,14 @@ Tenant3";
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseIfEmptyHierarchicalTenant()
+        public async Task TestAddTenantsToDatabaseHierarchicalTenant()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
 
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
@@ -158,12 +168,14 @@ Company | West Coast | LA | Shop2";
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseIfEmptyHierarchicalTenantBadName()
+        public async Task TestAddTenantsToDatabaseHierarchicalTenantBadName()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
 
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
@@ -185,9 +197,40 @@ Company | West Coast | LA | Shop2";
             //VERIFY
             status.IsValid.ShouldBeFalse(); 
             status.Errors.Count.ShouldEqual(3);
-            status.Errors[0].ToString().ShouldEqual("The tenant Company | XX Coast | SanFran | Shop1 on line 3 parent Company | XX Coast | SanFran was not found");
-            status.Errors[1].ToString().ShouldEqual("The tenant Company | West Coast | SanFran | Shop2 on line 4 parent Company | West Coast | SanFran was not found");
-            status.Errors[2].ToString().ShouldEqual("The tenant Company | YY Coast | LA | Shop1 on line 6 parent Company | YY Coast | LA was not found");
+            status.Errors[0].ToString().ShouldStartWith("The tenant Company | XX Coast | SanFran | Shop1 on line 3 parent Company | XX Coast | SanFran was not found");
+            status.Errors[1].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran | Shop2 on line 4 parent Company | West Coast | SanFran was not found");
+            status.Errors[2].ToString().ShouldStartWith("The tenant Company | YY Coast | LA | Shop1 on line 6 parent Company | YY Coast | LA was not found");
+        }
+
+        [Fact]
+        public async Task TestAddTenantsToDatabaseHierarchicalTenantMissingName()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
+
+            var service = new BulkLoadTenantsService(context);
+            var authOptions = new AuthPermissionsOptions
+            {
+                TenantType = TenantTypes.HierarchicalTenant
+            };
+            var lines = @"Company
+Company | West Coast | SanFran
+Company | West Coast | SanFran | Shop1
+Company | West Coast | SanFran | Shop2";
+
+            //ATTEMPT
+            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.Errors.Count.ShouldEqual(3);
+            status.Errors[0].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran on line 1 parent Company | West Coast was not found.");
+            status.Errors[1].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran | Shop1 on line 2 parent Company | West Coast | SanFran was not found");
+            status.Errors[2].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran | Shop2 on line 3 parent Company | West Coast | SanFran was not found");
         }
     }
 }

@@ -1,25 +1,19 @@
 # Release Notes
 
-## Known bugs
-
-- Bulk load of hierarchical tenants provides a poor error message if a layer out (e.g using Company | West Coast | LA when you haven't defined "West Coast")
-
-### Features
+## Features
 
 - Provide Role-to-Permissions authorization
 - Proide multi-tenant features
 - Implements an JTW refresh token approach
 
-### Limitations of this release
+## Limitations of this release
 
 - Preview only: looking for feedback.
 - Only meant for single instance of the web app (i.e. no scale out) *NOTE: Version 2 will fix this.*
 
-### Code still needed
+## Code still needed
 
-- Turn on/off applying migrations on startup
-- Optional encryption of JWT claims
-- IAddExtraClaims: Allow the user to create service that adds extra claims to Cookie/JWT 
+All done. 
 
 ## Documanation etc. still needed
 

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
@@ -105,12 +106,20 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         {
                             if (!tenantLookup.TryGetValue(tenantNameDecoded.ParentFullName, out parent))
                                 status.AddError(
-                                    $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} parent {tenantNameDecoded.ParentFullName} was not found");
+                                    $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} parent {tenantNameDecoded.ParentFullName} was not found.  Make sure you defined that tenant earlier in the list.");
+
+                            if (parent != null && parent.TenantId == default)
+                                status.AddError(
+                                    $"The tenant {parent.TenantName} used on line {tenantNameDecoded.LineNum} hasn't been added to the database. Make sure you defined that tenant earlier in the list.");
                         }
 
                         if (tenantLookup.ContainsKey(tenantNameDecoded.TenantFullName))
                             status.AddError(
                                 $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} is a duplicate of the same name defined earlier");
+                        
+                        if (status.HasErrors)
+                            continue;
+
                         var newTenant = new Tenant(tenantNameDecoded.TenantFullName, parent);
                         tenantsToAddToDb.Add(newTenant);
                         tenantLookup[tenantNameDecoded.TenantFullName] = newTenant;
