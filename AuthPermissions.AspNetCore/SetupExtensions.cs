@@ -74,7 +74,7 @@ namespace AuthPermissions.AspNetCore
                     $"You have not set the {nameof(AuthPermissionsOptions.MigrateAuthPermissionsDbOnStartup)}. Your options are:{Environment.NewLine}" +
                     $"false:You will have to create/migrate the {nameof(AuthPermissionsDbContext)} database before you run your application.{Environment.NewLine}" +
                     $"true: AuthP will create/migrate the {nameof(AuthPermissionsDbContext)} database on startup.{Environment.NewLine}" +
-                    $"NOTE: Letting AuthP create/migrate that database can have bad effects if the migration contains breaking changes.");
+                    $"NOTE: Letting AuthP create/migrate that database can have bad effects multiple instances of of the app are all trying to migrate the same database.");
 
 
             if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory &&

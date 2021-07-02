@@ -22,8 +22,7 @@ namespace AuthPermissions
         /// null: You haven't filled it in so you get an exception explaining your options
         /// false: You will have to create/migrate the <see cref="AuthPermissionsDbContext"/> database before you run your application
         /// true: AuthP will create/migrate the <see cref="AuthPermissionsDbContext"/> database on startup.
-        ///       WARNING: this will FAIL in various situations, such as a migration with breaking changes in it and the application is still running
-        ///       (But as I am in charge of this database I will endeavour to not have a breaking change, and if I do I'll let you know.
+        ///       WARNING: this will FAIL in various situations, such as multiple instances of the app trying to all trying to migrate the same database.
         /// </summary>
         bool? MigrateAuthPermissionsDbOnStartup { get; set; }
 
