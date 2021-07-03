@@ -1,22 +1,25 @@
 ﻿# Example2.WebApiWithToken.IndividualAccounts
 
-This project contains a example of using the AuthPermissions.AspNetCore library in ASP.NET Core web api where the authentication/authorization is held in a JWT token. This example shows how the AuthPermissions.AspNetCore library can work with tokens.
+This project contains a example of using the AuthPermissions.AspNetCore library in ASP.NET Core web api where the authentication/authorization is held in a JWT token. This example shows how the AuthPermissions.AspNetCore library can work with JWT tokens and provide a way improve security.
+
+This article (!!! LINK !!!) details how this example was built, and how it works.
 
 - **Application**: ASP.NET Core web API
-- **AuthenticationType**: JWT Token
-- **Users**: ASP.NET Core's individual accounts
-- **Roles**: Handled by AuthPermissions
-- **DataKey**: not used
-- **Database type**: SQL Server
-- **Databases**: The ASP.NET Core individual users ApplicationDbContext and the PermissionsDbContext are mapped.
-- **Special features**: This version includes a refresh token which allows you to have short-lived JWT Token which can be regenerated without the user needing to log in again.
+- **AuthorizationProvider**: ASP.NET Core's individual accounts
+- **CookieOrToken**: JWT Token
+- **MultiTenant**: not used
+- **Databases**: One SQL Server database uses by two parts
+  - Individual accounts
+  - AuthPermissions.
+- **Focused on**: The basics of the AuthPermissions authorization system.
+- **Special features**: JWT Token with refresh feature.
 
 The ASP.NET Core project was created via Create new project > ASP.NET Core Web API with no Authentication. Then I added:
 
 1. Startup.ConfigureServices method:
    1. Added Individual Accounts, e.g. add `AddDefaultIdentity<IdentityUser>...`
    2. Added JWT authentication, e.g. add `services.AddAuthentication(auth => ... JWTBearer`
-   3. Added RegisterAuthPermissions, e.g. add `services.RegisterAuthPermissions<YourPermissionEnum>...`
+   3. Added RegisterAuthPermissions, e.g. add `services.RegisterAuthPermissions<YourPermissionEnum>...` etc.
    4. Updated the Swagger code to allow the JWT Token can be added to the Swagger Authorize button.
 2. Startup.Configure method:
    1. Added `app.UseAuthentication();`
