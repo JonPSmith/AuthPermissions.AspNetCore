@@ -39,7 +39,7 @@ namespace Test.UnitTests.TestAuthPermissions
             }, "TestAuthentication"));
 
             //ATTEMPT
-            var result = user.UserHasThisPermission(enumToTest);
+            var result = user.HasPermission(enumToTest);
 
             //VERIFY
             result.ShouldEqual(isAllowed);

@@ -3,7 +3,6 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using Example1.RazorPages.IndividualAccounts.Data;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
-using Microsoft.EntityFrameworkCore.InMemory;
 using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

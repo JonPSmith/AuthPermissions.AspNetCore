@@ -6,11 +6,14 @@ namespace Example1.RazorPages.IndividualAccounts.Model
     public class AppSummary
     {
         public string Application { get; } = "ASP.NET Core, Razor Pages";
-        public string AuthenticationType { get; } = "Cookies";
-        public string Users { get; } = "ASP.NET Core's individual accounts";
-        public string Roles { get; } = "Handled by AuthPermissions";
-        public string DataKey { get; } = "ASP.NET Core, Razor Pages";
-        public string Databases { get; } = "ASP.NET Core, Razor Pages";
-        public string Note { get; } =  "Also has ASP.NET Core's individual account roles, to show how AuThPermissions is uses role differently";
+        public string AuthorizationProvider { get; } = "ASP.NET Core's individual accounts";
+        public string CookieOrToken { get; } = "Cookie";
+        public string DataKey { get; } = "- not used -";
+        public string[] Databases { get; } = new []
+        {
+            "Individual accounts: InMemoryDatabase",
+            "AuthPermissions: In-memory database (uses SQLite in-memory)"
+        };
+        public string Note { get; } =  "This is a basic example of AuthPermissions Roles and permissions.";
     }
 }

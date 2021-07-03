@@ -13,10 +13,10 @@
     {
         public IActionResult OnGet()
         {
-        if (!User.UserHasThisPermission(Example1Permissions.Permission2))
-            return Challenge();
+            if (!User.HasPermission(Example1Permissions.Permission2))
+                return Challenge();
 
-        return Page();
+            return Page();
         }
     }
 </code></pre>

@@ -13,7 +13,7 @@
 
 ## Code still needed
 
-All done. 
+- Implment the Hierarchical Tenant shop in Example4
 
 ## Documanation etc. still needed
 

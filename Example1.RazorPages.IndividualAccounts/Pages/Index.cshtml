@@ -7,21 +7,26 @@
 
 <h3>Welcome to example 1 of using the AuthPermissions library</h3>
 <p>
-    This example shows how to manage authorization in an <strong>ASP.NET Core razor pages</strong> web application
-    use both the in-built ASP.NET Core authorization features and then using the AuthPermissions library.
-    <br/>
-    See <a href="https://docs.microsoft.com/en-us/aspnet/core/security/authorization/secure-data">
-        ASP.NET Core documentation on building razor page web app individual accounts authorization
-    </a>.
+    This ASP.NET Core razor pages web site provides an example of <strong>
+        how the AuthPermissions library handles authorization
+    </strong>,
+    that is controlling what pages and methods a user can access.
 </p>
 <h4>Application summary</h4>
 <ul>
     <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.AppSummary.Application</li>
-    <li><strong>@nameof(AppSummary.AuthenticationType)</strong>:&nbsp;@Model.AppSummary.AuthenticationType</li>
-    <li><strong>@nameof(AppSummary.Users)</strong>:&nbsp;@Model.AppSummary.Users</li>
-    <li><strong>@nameof(AppSummary.Roles)</strong>:&nbsp;@Model.AppSummary.Roles</li>
+    <li><strong>@nameof(AppSummary.AuthorizationProvider)</strong>:&nbsp;@Model.AppSummary.AuthorizationProvider</li>
+    <li><strong>@nameof(AppSummary.CookieOrToken)</strong>:&nbsp;@Model.AppSummary.CookieOrToken</li>
     <li><strong>@nameof(AppSummary.DataKey)</strong>:&nbsp;@Model.AppSummary.DataKey</li>
-    <li><strong>@nameof(AppSummary.Databases)</strong>:&nbsp;@Model.AppSummary.Databases</li>
+    <li>
+        <strong>@nameof(AppSummary.Databases)</strong>:&nbsp;
+        <ul>
+            @foreach (var database in Model.AppSummary.Databases)
+            {
+                <li>@database</li>
+            }
+        </ul>
+    </li>
     @if (@Model.AppSummary.Note != null)
     {
         <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.AppSummary.Note</li>
@@ -39,63 +44,94 @@
     }
 </ul>
 
-<br/>
+<br />
 
-<p><strong>Click the links to see what happens</strong></p>
+
+<h3>AuthPermissions authorization approaches</h3>
+<p>
+    In summary, AuthPermissions roles are contain a series of <i>Permissions</i>.
+    This means that a user can have roles, but if you want to what change what a
+    role does, then you don't need to edit your code - you just change the Role's
+    permissions in the AuthPermissions database.
+</p>
+<p>
+    In this example:
+</p>
+<ul>
+    <li>The Trainee user has no AuthP roles, so they can't access the two pages below</li>
+    <li>The Staff user, has a Role1, which only has Permission1, so they can't open the second link</li>
+    <li>The Manager user, has a Role2, which has Permission1 and Permission2, so they open both links</li>
+</ul>
 <table class="table">
     <thead>
-    <tr>
-        <th>Link to razor page</th>
-        <th>Access</th>
-        <th>Auth type</th>
-    </tr>
+        <tr>
+            <th>Link to razor page</th>
+            <th>Access</th>
+            <th>Auth type</th>
+        </tr>
     </thead>
     <tbody>
-    <tr>
-        <td>
-            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/Public">Public page</a>
-        </td>
-        <td>Anyone</td>
-        <td>default</td>
-    </tr>
-    <tr>
-        <td>
-            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/LoggedInConfigure">Logged in page</a>
-        </td>
-        <td>Must be logged in</td>
-        <td>
-            <code>Configure</code>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/LoggedInAuthorize">Logged in page</a>
-        </td>
-        <td>Must be logged in</td>
-        <td>
-            <code>[Authorize]</code>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/LoggedInUser">Logged in page</a>
-        </td>
-        <td>Must be logged in</td>
-        <td>Test <code>User</code> instance</td>
-    </tr>
-    <tr>
-        <td>
-            <a class="nav-link text-primary" asp-area="" asp-page="/AuthPermissions/NeedsPermission1">Logged in page</a>
-        </td>
-        <td>User must have Permission1</td>
-        <td><code>[HasPermission(Example1Permissions.Permission1)]</code></td>
-    </tr>
-    <tr>
-        <td>
-            <a class="nav-link text-primary" asp-area="" asp-page="/AuthPermissions/NeedsPermission2">Logged in page</a>
-        </td>
-        <td>User must have Permission2</td>
-        <td><code>User.UserHasThisPermission(Example1Permissions.Permission2)</code></td>
-    </tr>
+        <tr>
+            <td>
+                <a class="nav-link text-primary" asp-area="" asp-page="/AuthPermissions/NeedsPermission1">Logged in page</a>
+            </td>
+            <td>User must have Permission1</td>
+            <td>
+                Add <code>[HasPermission(Example1Permissions.Permission1)]</code> to the Razor Page method
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a class="nav-link text-primary" asp-area="" asp-page="/AuthPermissions/NeedsPermission2">Logged in page</a>
+            </td>
+            <td>User must have Permission2</td>
+            <td>
+                Test the user with <code>User.HasPermission(Example1Permissions.Permission2)</code> 
+                <hr />
+                The <code>HasPermission</code> method is useful in Blazor and razor pages
+            </td>
+        </tr>
     </tbody>
+</table>
+
+<h3>The normal ASP.NET Core authorization approaches</h3>
+<p>Compare this with ASP.NET Core authorization approaches</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Link to razor page</th>
+            <th>Access</th>
+            <th>Auth type</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/Public">Public page</a>
+            </td>
+            <td>Anyone</td>
+            <td>Same with with AuthPermissions</td>
+        </tr>
+        <tr>
+            <td>
+                <a class="nav-link text-primary" asp-area="" asp-page="/AuthBuiltIn/LoggedInAuthorize">Logged in page</a>
+            </td>
+            <td>Must be logged in</td>
+            <td>
+                Using <code>[Authorize]</code> attribute on the Razor Page method.
+                      <hr />
+                Same with with AuthPermissions.
+            </td>
+        </tr>
+    <tr>
+            <td>
+                Not shown
+            </td>
+            <td>Must have individual accounts' "Manager" role</td>
+            <td>
+                Using <code>[Authorize(Roles = "Manager"]</code> attribute on the Razor Page method
+                <hr/>
+                DIFFERENT in AuthPermissions. No need to edit/redeploy your app if Role change
+            </td>
+        </tr>
 </table>

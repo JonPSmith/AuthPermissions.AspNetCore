@@ -22,12 +22,12 @@ namespace AuthPermissions.PermissionsCode
         /// <param name="user"></param>
         /// <param name="permission"></param>
         /// <returns></returns>
-        public static bool UserHasThisPermission<TEnumPermissions>(this ClaimsPrincipal user, TEnumPermissions permission)
+        public static bool HasPermission<TEnumPermissions>(this ClaimsPrincipal user, TEnumPermissions permission)
             where TEnumPermissions : Enum
         {
             var permissionClaim =
                 user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.PackedPermissionClaimType);
-            return permissionClaim?.Value.UserHasThisPermission(permission) == true;
+            return permissionClaim?.Value.HasPermission(permission) == true;
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace AuthPermissions.PermissionsCode
 
         //-------------------------------------------------------
         //private methods
-        private static bool UserHasThisPermission<TEnumPermissions>(this string packedPermissions, TEnumPermissions permissionToCheck)
+        private static bool HasPermission<TEnumPermissions>(this string packedPermissions, TEnumPermissions permissionToCheck)
             where TEnumPermissions : Enum
         {
             var permissionAsChar = (char)Convert.ChangeType(permissionToCheck, typeof(char));

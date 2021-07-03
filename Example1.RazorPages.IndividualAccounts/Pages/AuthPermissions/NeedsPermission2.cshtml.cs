@@ -13,7 +13,7 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthPermissions
     {
         public IActionResult OnGet()
         {
-            if (!User.UserHasThisPermission(Example1Permissions.Permission2))
+            if (!User.HasPermission(Example1Permissions.Permission2))
                 return Challenge();
 
             return Page();
