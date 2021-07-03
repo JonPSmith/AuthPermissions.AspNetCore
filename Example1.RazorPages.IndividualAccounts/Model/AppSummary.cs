@@ -8,7 +8,7 @@ namespace Example1.RazorPages.IndividualAccounts.Model
         public string Application { get; } = "ASP.NET Core, Razor Pages";
         public string AuthorizationProvider { get; } = "ASP.NET Core's individual accounts";
         public string CookieOrToken { get; } = "Cookie";
-        public string DataKey { get; } = "- not used -";
+        public string MultiTenant { get; } = "- not used -";
         public string[] Databases { get; } = new []
         {
             "Individual accounts: InMemoryDatabase",

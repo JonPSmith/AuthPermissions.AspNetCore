@@ -2,13 +2,16 @@
 
 This project contains a example of using the AuthPermissions.AspNetCore library in ASP.NET Core razor page web app with user data provided by the individual accounts approach. This is one of the simplest approaches using:
 
+This article (!!! LINK !!!) details how this example was built, and how it works.
+
 - **Application**: ASP.NET Core, Razor Pages
 - **AuthorizationProvider**: ASP.NET Core's individual accounts
 - **CookieOrToken**: Cookie
-- **DataKey**: not used
+- **MultiTenant**: not used
 - **Databases**: Two databases
   - Individual accounts: InMemoryDatabase:
   - AuthPermissions: In-memory database (uses SQLite in-memory).
+- **Focused on**: The basics of the AuthPermissions authorization system.
 
 The ASP.NET Core code comes comes from the [ASP.NET Core documentation on building razor page web app individual accounts authorization](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/secure-data), but the handling of the visibilty of the contact manager features are handled by the AuthPermissions.AspNetCore library.
 
@@ -20,8 +23,6 @@ The AuthPermissions.AspNetCore code/features used in this example
 - Authorization in razor pages via the `[HasPermission(<enum permission>)]` attribute on the `PageModel` class.
 - Authorization in razor pages via the `User.HasPermission(<enum permission>)` method.
 - Add SuperUser on startup feature.
-
-This article (!!! LINK !!!) details how this example was built, and how it works.
 
 NOTE: This example does not include the admin pages for 
 

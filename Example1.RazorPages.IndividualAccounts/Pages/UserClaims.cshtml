@@ -1,0 +1,20 @@
+﻿@page
+@model UserClaimsModel
+
+<p>Current logged in user claims.</p>
+
+@if (Model.ThisUser?.Identity.IsAuthenticated == true)
+{
+    <h4>User '@User.Identity.Name'</h4>
+    <ul>
+
+        @foreach (var claim in @Model.ThisUser.Claims)
+        {
+            <li>@claim.ToString()</li>
+        }
+    </ul>
+}
+else
+{
+    <h4>No user is logged in.</h4>
+}
