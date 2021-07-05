@@ -20,7 +20,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View(new AppSummary());
         }
 
         public IActionResult Privacy()

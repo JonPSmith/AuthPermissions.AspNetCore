@@ -9,11 +9,14 @@
 ## Limitations of this release
 
 - Preview only: looking for feedback.
-- Only meant for single instance of the web app (i.e. no scale out) *NOTE: Version 2 will fix this.*
+- Only meant for single instance of the web app (i.e. no scale out) _NOTE: Version 2 will fix this._
 
 ## Code still needed
 
-- Implment the Hierarchical Tenant shop in Example4
+- Example4
+  - List users (email, roles, tenant name)
+  - Implement the Hierarchical Tenant shop in Example4
+- 
 
 ## Documanation etc. still needed
 

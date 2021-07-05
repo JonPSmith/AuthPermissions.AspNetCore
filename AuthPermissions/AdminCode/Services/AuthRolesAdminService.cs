@@ -14,7 +14,7 @@ using StatusGeneric;
 namespace AuthPermissions.AdminCode.Services
 {
     /// <summary>
-    /// This provides CRUD access to the Auth's Roles
+    /// This provides CRUD access to the AuthP's Roles
     /// </summary>
     public class AuthRolesAdminService : IAuthRolesAdminService
     {

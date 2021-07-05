@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AuthPermissions.CommonCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -40,16 +41,11 @@ namespace AuthPermissions.AspNetCore.Services
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(IdentityUser user)
         {
             var identity = await base.GenerateClaimsAsync(user);
-            var userId = GetUserIdFromClaims(identity.Claims);
+            var userId = identity.Claims.GetUserIdFromClaims();
             var claims = await _claimsCalculator.GetClaimsForAuthUser(userId);
             identity.AddClaims(claims);
 
             return identity;
-        }
-
-        private static string GetUserIdFromClaims(IEnumerable<Claim> claims)
-        {
-            return claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
         }
     }
 

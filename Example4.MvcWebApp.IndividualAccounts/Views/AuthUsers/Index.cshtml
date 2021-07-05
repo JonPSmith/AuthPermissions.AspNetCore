@@ -9,15 +9,16 @@
 
 @if (!string.IsNullOrEmpty(ViewBag.Message))
 {
-<h3 class="text-success">@ViewBag.Message</h3>
+    <h3 class="text-success">@ViewBag.Message</h3>
 }
 
 <h1>Auth Users</h1>
 
-
-<p>
-    <a asp-action="SyncUsers">Sync with authentication provider's users</a>
-</p>
+@if (User.HasPermission(Example4Permissions.UserSync))
+{
+    <a asp-action="SyncUsers" class="btn btn-primary">Sync with authentication provider's users</a>
+    <p> </p>
+}
 
 <table class="table">
     <thead>
@@ -29,34 +30,52 @@
                 @Html.DisplayNameFor(model => model.Email)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NumRoles)
+                AuthRoles
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.HasTenant)
             </th>
-            <th>Change / Delete</th>
+            <th>
+                @if (User.HasPermission(Example4Permissions.UserChange))
+                {
+                    Html.Raw(" Change |");
+                }
+                @if (User.HasPermission(Example4Permissions.UserChange))
+                {
+                    Html.Raw(" Delete");
+                }
+            </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NumRoles)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HasTenant)
-            </td>
-            <td>
-                @Html.ActionLink("Edit User", "Edit", new { userId= item.UserId }) |
-                @Html.ActionLink("Delete User", "Delete", new { UserId = item.UserId })
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @string.Join(", ", item.RoleNames)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HasTenant)
+                </td>
+                <td>
+                    @if (User.HasPermission(Example4Permissions.UserChange))
+                    {
+                        @Html.ActionLink("Edit User", "Edit", new { userId = item.UserId });
+                        @Html.Raw(" |");
+                    }
+
+                    @if (User.HasPermission(Example4Permissions.UserChange))
+                    {
+                        @Html.ActionLink("Delete User", "Delete", new { UserId = item.UserId })
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

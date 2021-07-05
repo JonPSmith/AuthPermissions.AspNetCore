@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataKeyCode;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
@@ -27,7 +27,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         //[HasPermission(Example4Permissions.UserRead)]
         public async Task<ActionResult> Index(string message)
         {
-            var authDataKey = User.GetAuthDataKey();
+            var authDataKey = User.GetAuthDataKeyFromUser();
             var userQuery = _authUsersAdmin.QueryAuthUsers(authDataKey);
             var usersToShow = await AuthUserDisplay.SelectQuery(userQuery.OrderBy(x => x.Email)).ToListAsync();
 

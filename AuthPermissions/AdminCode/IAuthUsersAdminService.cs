@@ -11,7 +11,7 @@ using StatusGeneric;
 namespace AuthPermissions.AdminCode
 {
     /// <summary>
-    /// This provides CRUD access to the Auth's Users
+    /// This provides CRUD access to the AuthP's Users
     /// </summary>
     public interface IAuthUsersAdminService
     {

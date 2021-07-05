@@ -20,10 +20,7 @@ namespace AuthPermissions.DataLayer.Classes
         private HashSet<Tenant> _children;
         
 
-        private Tenant() //Needed by EF Core
-        {
-
-        } 
+        private Tenant() { } //Needed by EF Core
 
         /// <summary>
         /// This defines a tenant in a single tenant multi-tenant system.
@@ -112,7 +109,6 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         public string NameToUseForError => TenantName;
 
-
         //----------------------------------------------------
         //access methods
 
@@ -122,6 +118,13 @@ namespace AuthPermissions.DataLayer.Classes
         /// If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId in the parents as well
         /// </summary>
         public string GetTenantDataKey() => ParentDataKey + $".{TenantId}";
+
+        /// <summary>
+        /// This will provide a single tenant name.
+        /// If its an hierarchical tenant, then it will be the last name in the hierarchy
+        /// </summary>
+        /// <returns></returns>
+        public string GetTenantLastName() => ExtractEndLevelTenantName(this);
 
         /// <summary>
         /// This is the official way to combine the parent name and the individual tenant name

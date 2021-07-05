@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using AuthPermissions.CommonCode;
 
 [assembly: InternalsVisibleTo("Test")]
 namespace AuthPermissions.PermissionsCode
@@ -20,14 +21,16 @@ namespace AuthPermissions.PermissionsCode
         /// This returns true if the current user has the permission
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="permission"></param>
+        /// <param name="permissionToCheck"></param>
         /// <returns></returns>
-        public static bool HasPermission<TEnumPermissions>(this ClaimsPrincipal user, TEnumPermissions permission)
+        public static bool HasPermission<TEnumPermissions>(this ClaimsPrincipal user, TEnumPermissions permissionToCheck)
             where TEnumPermissions : Enum
         {
-            var permissionClaim =
-                user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.PackedPermissionClaimType);
-            return permissionClaim?.Value.HasPermission(permission) == true;
+            var packedPermissions = user.GetPackedPermissionsFromUser();
+            if (packedPermissions == null)
+                return false;
+            var permissionAsChar = (char)Convert.ChangeType(permissionToCheck, typeof(char));
+            return packedPermissions.IsThisPermissionAllowed(permissionAsChar);
         }
 
         /// <summary>
@@ -40,20 +43,14 @@ namespace AuthPermissions.PermissionsCode
         public static bool ThisPermissionIsAllowed(this Type enumPermissionType, string packedPermissions, string permissionName)
         {
             var permissionAsChar = (char)Convert.ChangeType(Enum.Parse(enumPermissionType, permissionName), typeof(char));
-            return IsThisPermissionAllowed(packedPermissions, permissionAsChar);
+            return packedPermissions.IsThisPermissionAllowed(permissionAsChar);
         }
 
 
         //-------------------------------------------------------
         //private methods
-        private static bool HasPermission<TEnumPermissions>(this string packedPermissions, TEnumPermissions permissionToCheck)
-            where TEnumPermissions : Enum
-        {
-            var permissionAsChar = (char)Convert.ChangeType(permissionToCheck, typeof(char));
-            return IsThisPermissionAllowed(packedPermissions, permissionAsChar);
-        }
 
-        private static bool IsThisPermissionAllowed(string packedPermissions, char permissionAsChar)
+        private static bool IsThisPermissionAllowed(this string packedPermissions, char permissionAsChar)
         {
             return packedPermissions.Contains(permissionAsChar) ||
                    packedPermissions.Contains(PermissionConstants.PackedAccessAllPermission);

@@ -14,6 +14,7 @@ using AuthPermissions.DataLayer.EfCode;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using AuthPermissions.CommonCode;
 
 namespace AuthPermissions.AspNetCore.JwtTokenCode
 {
@@ -123,7 +124,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
 
             //Success, so we ...
             //a) get the UserId
-            var userId = claimsPrincipal.Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var userId = claimsPrincipal.Claims.GetUserIdFromClaims();
             if (userId == null)
             {
                 throw new AuthPermissionsException(

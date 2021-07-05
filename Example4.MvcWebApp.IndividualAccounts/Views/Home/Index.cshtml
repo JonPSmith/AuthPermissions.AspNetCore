@@ -1,8 +1,68 @@
-﻿@{
+﻿@model AppSummary
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1>Example4.MvcWebApp.IndividualAccounts</h1>
 </div>
+<p>
+    This example web application contains a lot of the AuthPermissions.AspNetCore library. They are:
+</p>
+<ul>
+    <li>It contains a more comprehensive set of AuthPermissions' roles and permissions.</li>
+    <li>It implements a <code>AuthUser</code> controller with control over the AuthPermissions' users.</li>
+    <li>It uses AuthPermissions' hierarchical multi-tenant feature to implement SaaS application for managing a shop's stock and sales.</li>
+</ul>
+<p>The list of articles below describe how AuthPermissions works.</p>
+<ul>
+    <li><a href="#">not written yet!</a></li>
+</ul>
+
+<h4>Application summary</h4>
+<ul>
+    <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.Application</li>
+    <li><strong>@nameof(AppSummary.AuthorizationProvider)</strong>:&nbsp;@Model.AuthorizationProvider</li>
+    <li><strong>@nameof(AppSummary.CookieOrToken)</strong>:&nbsp;@Model.CookieOrToken</li>
+    <li><strong>@nameof(AppSummary.MultiTenant)</strong>:&nbsp;@Model.MultiTenant</li>
+    <li>
+        <strong>@nameof(AppSummary.Databases)</strong>:&nbsp;
+        <ul>
+            @foreach (var database in Model.Databases)
+            {
+                <li>@database</li>
+            }
+        </ul>
+    </li>
+    @if (@Model.Note != null)
+    {
+        <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.Note</li>
+    }
+</ul>
+
+<h2>How to use use this application</h2>
+<p>
+    <ol>
+        <li>
+            Log in using one of the demo users <a asp-area="" asp-controller="Users" asp-action="Users">found here</a>.
+            NOTE: The email is also the password.
+            <ul>
+                <li>Pick a user that has a <strong>SaleManager</strong> (good choice!) or SalesAssistant role if you want to sell something. </li>
+                <li>Pick a user that has a AreaManger if you want to see data for all shops. </li>
+            </ul>
+        </li>
+        <li>
+            Once you have logged in then a menu should have a "Shop" dropdown - pick one of the following.
+            <ul>
+                <li><strong>Till</strong> to sell something (not present if AreaManager).</li>
+                <li><strong>Stock</strong> to see what stock the shop has.</li>
+                <li><strong>Sales</strong> to see what sales the shop has done (not present if SalesAssistant).</li>
+            </ul>
+        </li>
+        <li>When log in you can see your claims, permissions and other user/role ifo via the "Users" menu button.</li>
+        <li>Also look at <a asp-area="" asp-controller="Company" asp-action="Index">Company</a> for a list of the hierarchical data.</li>
+        <li>Go to the <a asp-area="" asp-controller="AuthUsers" asp-action="Index">Toggle Role</a> to see/change a user's Roles and Tenants</li>
+        <li>To test user impersonation feature log in as the SuperAdmin user go to <a asp-area="" asp-controller="Impersonate" asp-action="Index">Impersonation->Pick User</a> to see this in action. <i>NOTE: UpdateCookieOnChange must be set to true in appsettings.json</i></li>
+    </ol>
+</p>
+
