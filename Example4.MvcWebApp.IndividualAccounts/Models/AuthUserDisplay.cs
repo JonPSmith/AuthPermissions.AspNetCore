@@ -30,7 +30,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
                 Email = x.Email,
                 UserId = x.UserId,
                 RoleNames = x.UserRoles.Select(y => y.RoleName).ToArray(),
-                TenantName = x.UserTenant.TenantName
+                TenantName = x.UserTenant.TenantFullName
             });
         }
 
@@ -41,7 +41,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
                 UserName = authUser.UserName,
                 Email = authUser.Email,
                 UserId = authUser.UserId,
-                TenantName = authUser.UserTenant?.TenantName
+                TenantName = authUser.UserTenant?.TenantFullName
             };
             if (authUser.UserRoles != null)
                 result.RoleNames = authUser.UserRoles.Select(y => y.RoleName).ToArray();

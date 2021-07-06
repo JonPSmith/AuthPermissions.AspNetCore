@@ -122,7 +122,7 @@ namespace Test.UnitTests.TestExamples
             rereadUser.Email.ShouldEqual(userId);
             rereadUser.UserName.ShouldEqual(userId);
             rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });
-            rereadUser.UserTenant.TenantName.ShouldEqual("4U Inc.");
+            rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace Test.UnitTests.TestExamples
             rereadUser.Email.ShouldEqual(userId);
             rereadUser.UserName.ShouldEqual(userId);
             rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "App Admin", "Area Manager" });
-            rereadUser.UserTenant.TenantName.ShouldEqual("4U Inc.");
+            rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");
         }
 
         [Fact]
@@ -172,7 +172,7 @@ namespace Test.UnitTests.TestExamples
             rereadUser.Email.ShouldEqual("newuser@gmail.com");
             rereadUser.UserName.ShouldEqual("newuser@gmail.com");
             rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });
-            rereadUser.UserTenant.TenantName.ShouldEqual("4U Inc.");
+            rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");
         }
 
         [Fact]

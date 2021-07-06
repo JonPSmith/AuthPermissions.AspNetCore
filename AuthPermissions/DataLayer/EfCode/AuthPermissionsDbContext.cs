@@ -49,7 +49,7 @@ namespace AuthPermissions.DataLayer.EfCode
 
             modelBuilder.Entity<Tenant>().HasKey(x => x.TenantId);
             modelBuilder.Entity<Tenant>()
-                .HasIndex(x => x.TenantName)
+                .HasIndex(x => x.TenantFullName)
                 .IsUnique();
             modelBuilder.Entity<Tenant>()
                 .HasIndex(x => x.ParentDataKey);

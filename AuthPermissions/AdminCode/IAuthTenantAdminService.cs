@@ -8,6 +8,9 @@ using StatusGeneric;
 
 namespace AuthPermissions.AdminCode
 {
+    /// <summary>
+    /// interface of the AuthP Tenant admin services
+    /// </summary>
     public interface IAuthTenantAdminService
     {
         /// <summary>
@@ -15,6 +18,12 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         /// <returns>query on the database</returns>
         IQueryable<Tenant> QueryTenants();
+
+        /// <summary>
+        /// This query returns all the end leaf Tenants, which is the bottom of the hierarchy (i.e. no children below it)
+        /// </summary>
+        /// <returns>query on the AuthP database</returns>
+        IQueryable<Tenant> QueryEndLeafTenants();
 
         /// <summary>
         /// This adds a new, non-Hierarchical Tenant
@@ -42,7 +51,7 @@ namespace AuthPermissions.AdminCode
 
         /// <summary>
         /// This moves a hierarchical tenant to a new parent (which might be null)
-        /// This changes the TenantName and the TenantDataKey of the selected tenant and all of its children
+        /// This changes the TenantFullName and the TenantDataKey of the selected tenant and all of its children
         /// </summary>
         /// <param name="fullTenantName">The full name of the tenant to move to another parent </param>
         /// <param name="newParentFullName">he full name of the new parent tenant (can be null, in which case the tenant moved to the top level</param>

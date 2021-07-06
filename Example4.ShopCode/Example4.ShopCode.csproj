@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EfCore.GenericServices" Version="5.0.0" />
+    <PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="NetCore.AutoRegisterDi" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
+  </ItemGroup>
+
+</Project>

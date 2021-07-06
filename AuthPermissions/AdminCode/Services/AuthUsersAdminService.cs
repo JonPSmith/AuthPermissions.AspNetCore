@@ -198,7 +198,7 @@ namespace AuthPermissions.AdminCode.Services
             Tenant tenant = null;         
             if (newUserData.TenantName != null && newUserData.TenantName != CommonConstants.EmptyTenantName)
             {
-                tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == newUserData.TenantName);
+                tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == newUserData.TenantName);
                 if (tenant == null)
                     return status.AddError($"Could not find the tenant {newUserData.TenantName}");
             }
@@ -329,7 +329,7 @@ namespace AuthPermissions.AdminCode.Services
             if (_tenantType == TenantTypes.NotUsingTenants)
                 return status.AddError($"You have not configured the {nameof(AuthPermissionsOptions.TenantType)} to use tenants.");
 
-            var tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == tenantFullName);
+            var tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == tenantFullName);
             if (tenant == null)
                 return status.AddError($"Could not find the tenant {tenantFullName}");
 

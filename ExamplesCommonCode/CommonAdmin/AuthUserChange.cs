@@ -71,7 +71,7 @@ namespace ExamplesCommonCode.CommonAdmin
                 UserName = authUser.UserName,
                 Email = authUser.Email,
                 RoleNames = authUser.UserRoles.Select(x => x.RoleName).ToList(),
-                TenantName = authUser.UserTenant?.TenantName,
+                TenantName = authUser.UserTenant?.TenantFullName,
 
                 AllRoleNames = await context.RoleToPermissions.Select(x => x.RoleName).ToListAsync()
             };
@@ -102,7 +102,7 @@ namespace ExamplesCommonCode.CommonAdmin
             //Find the tenant
             var foundTenant = string.IsNullOrEmpty(TenantName) || TenantName == CommonConstants.EmptyTenantName
                 ? null
-                : await context.Tenants.SingleOrDefaultAsync(x => x.TenantName == TenantName);
+                : await context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == TenantName);
             if (!string.IsNullOrEmpty(TenantName) && TenantName != CommonConstants.EmptyTenantName && foundTenant == null)
                 return status.AddError($"A tenant with the name {TenantName} wasn't found.");
 
@@ -129,7 +129,7 @@ namespace ExamplesCommonCode.CommonAdmin
                         RoleNames.OrderBy(x => x))
                     //The roles are different so 
                     authUser.ReplaceAllRoles(foundRoles);
-                if (authUser.UserTenant?.TenantName != TenantName)
+                if (authUser.UserTenant?.TenantFullName != TenantName)
                 {
                     authUser.UpdateUserTenant(string.IsNullOrEmpty(TenantName) ? null : foundTenant);
                 }
@@ -142,7 +142,7 @@ namespace ExamplesCommonCode.CommonAdmin
         public async Task SetupDropDownListsAsync(AuthPermissionsDbContext context)
         {
             AllRoleNames = await context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
-            AllTenantNames = await context.Tenants.Select(x => x.TenantName).ToListAsync();
+            AllTenantNames = await context.Tenants.Select(x => x.TenantFullName).ToListAsync();
             AllTenantNames.Insert(0, CommonConstants.EmptyTenantName);
         }
     }

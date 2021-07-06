@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
@@ -15,7 +16,7 @@ namespace AuthPermissions.DataLayer.Classes
     /// <summary>
     /// This is used for multi-tenant systems
     /// </summary>
-    public class Tenant : INameToShowOnException
+    public class Tenant : INameToShowOnException, ITenantPartsToExport
     {
         private HashSet<Tenant> _children;
         
@@ -28,7 +29,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="tenantName"></param>
         public Tenant(string tenantName)
         {
-            TenantName = tenantName ?? throw new ArgumentNullException(nameof(tenantName));
+            TenantFullName = tenantName ?? throw new ArgumentNullException(nameof(tenantName));
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="parent"></param>
         public Tenant(string tenantName, Tenant parent)
         {
-            TenantName = tenantName ?? throw new ArgumentNullException(nameof(tenantName));
+            TenantFullName = tenantName ?? throw new ArgumentNullException(nameof(tenantName));
             //We check that the higher layer has a primary key
             if (parent?.TenantId == (int)default)
                 throw new AuthPermissionsException(
@@ -65,8 +66,8 @@ namespace AuthPermissions.DataLayer.Classes
         /// This is the name defined for this tenant. This is unique 
         /// </summary>
         [Required(AllowEmptyStrings = false)]
-        [MaxLength(AuthDbConstants.TenantNameSize)]
-        public string TenantName { get; private set; }
+        [MaxLength(AuthDbConstants.TenantFullNameSize)]
+        public string TenantFullName { get; private set; }
 
         /// <summary>
         /// This is true if the tenant is an hierarchical 
@@ -98,7 +99,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{TenantName}: Key = {GetTenantDataKey()}";
+            return $"{TenantFullName}: Key = {GetTenantDataKey()}";
         }
 
         //--------------------------------------------------
@@ -107,7 +108,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <summary>
         /// Used when there is an exception
         /// </summary>
-        public string NameToUseForError => TenantName;
+        public string NameToUseForError => TenantFullName;
 
         //----------------------------------------------------
         //access methods
@@ -117,14 +118,21 @@ namespace AuthPermissions.DataLayer.Classes
         /// If it is a single layer multi-tenant it will by the TenantId as a string
         /// If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId in the parents as well
         /// </summary>
-        public string GetTenantDataKey() => ParentDataKey + $".{TenantId}";
+        public string GetTenantDataKey()
+        {
+            if (TenantId == default)
+                throw new AuthPermissionsException(
+                    "The Tenant DataKey is only correct if the tenant primary key is set");
+
+            return ParentDataKey + $".{TenantId}";
+        }
 
         /// <summary>
         /// This will provide a single tenant name.
         /// If its an hierarchical tenant, then it will be the last name in the hierarchy
         /// </summary>
         /// <returns></returns>
-        public string GetTenantLastName() => ExtractEndLevelTenantName(this);
+        public string GetTenantEndLeafName() => ExtractEndLeftTenantName(TenantFullName);
 
         /// <summary>
         /// This is the official way to combine the parent name and the individual tenant name
@@ -146,7 +154,7 @@ namespace AuthPermissions.DataLayer.Classes
         {
             if (!IsHierarchical)
             {
-                TenantName = newNameAtThisLevel;
+                TenantFullName = newNameAtThisLevel;
                 return;
             }
 
@@ -157,12 +165,12 @@ namespace AuthPermissions.DataLayer.Classes
                 throw new AuthPermissionsBadDataException("The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order", 
                     nameof(newNameAtThisLevel));
 
-            TenantName = CombineParentNameWithTenantName(newNameAtThisLevel, Parent?.TenantName);
+            TenantFullName = CombineParentNameWithTenantName(newNameAtThisLevel, Parent?.TenantFullName);
 
             RecursivelyChangeChildNames(this, Children, (parent, child) =>
             {
-                var thisLevelTenantName = ExtractEndLevelTenantName(child);
-                child.TenantName = CombineParentNameWithTenantName(thisLevelTenantName, parent.TenantName);
+                var thisLevelTenantName = ExtractEndLeftTenantName(child.TenantFullName);
+                child.TenantFullName = CombineParentNameWithTenantName(thisLevelTenantName, parent.TenantFullName);
             });
 
         }
@@ -178,15 +186,27 @@ namespace AuthPermissions.DataLayer.Classes
             if (Children == null)
                 throw new AuthPermissionsException("The children must be loaded to move a hierarchical tenant");
 
-            TenantName = CombineParentNameWithTenantName(ExtractEndLevelTenantName(this), newParentTenant?.TenantName);
+            TenantFullName = CombineParentNameWithTenantName(ExtractEndLeftTenantName(this.TenantFullName), newParentTenant?.TenantFullName);
             ParentDataKey = newParentTenant?.GetTenantDataKey();
 
             RecursivelyChangeChildNames(this, Children, (parent, child) =>
             {
-                var thisLevelTenantName = ExtractEndLevelTenantName(child);
-                child.TenantName = CombineParentNameWithTenantName(thisLevelTenantName, parent.TenantName);
+                var thisLevelTenantName = ExtractEndLeftTenantName(child.TenantFullName);
+                child.TenantFullName = CombineParentNameWithTenantName(thisLevelTenantName, parent.TenantFullName);
                 child.ParentDataKey = parent?.GetTenantDataKey();
             });
+        }
+
+        /// <summary>
+        /// This will return a single tenant name. If it's hierarchical it returns the final name
+        /// </summary>
+        /// <param name="fullTenantName"></param>
+        /// <returns></returns>
+        public static string ExtractEndLeftTenantName(string fullTenantName)
+        {
+            var lastIndex = fullTenantName.LastIndexOf('|');
+            var thisLevelTenantName = lastIndex < 0 ? fullTenantName : fullTenantName.Substring(lastIndex + 1).Trim();
+            return thisLevelTenantName;
         }
 
         //-------------------------------------------------------
@@ -208,12 +228,6 @@ namespace AuthPermissions.DataLayer.Classes
             }
         }
 
-        private static string ExtractEndLevelTenantName(Tenant tenant)
-        {
-            var lastIndex = tenant.TenantName.LastIndexOf('|');
-            var thisLevelTenantName = lastIndex < 0 ? tenant.TenantName : tenant.TenantName.Substring(lastIndex+1).Trim();
-            return thisLevelTenantName;
-        }
 
     }
 }

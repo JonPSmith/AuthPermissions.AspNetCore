@@ -16,11 +16,11 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestExamples
 {
-    public class TestExample4
+    public class TestExample4SetupAuthPermissions
     {
         private readonly ITestOutputHelper _output;
 
-        public TestExample4(ITestOutputHelper output)
+        public TestExample4SetupAuthPermissions(ITestOutputHelper output)
         {
             _output = output;
         }

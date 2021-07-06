@@ -25,9 +25,9 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
         /// </summary>
         public const int RoleNameSize = 100;
         /// <summary>
-        /// Max size of the TenantName string
+        /// Max size of the TenantFullName string
         /// </summary>
-        public const int TenantNameSize = 100;
+        public const int TenantFullNameSize = 100;
         /// <summary>
         /// Max size of the TenantDataKey string
         /// </summary>

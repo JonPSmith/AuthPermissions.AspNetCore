@@ -8,7 +8,6 @@ using AuthPermissions.AdminCode.Services;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using EntityFramework.Exceptions.SqlServer;
-using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -44,7 +43,28 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             tenants.Count.ShouldEqual(3);
-            tenants.Select(x => x.TenantName).ShouldEqual(new[]{ "Tenant1", "Tenant2", "Tenant3" });
+            tenants.Select(x => x.TenantFullName).ShouldEqual(new[]{ "Tenant1", "Tenant2", "Tenant3" });
+        }
+
+        [Fact]
+        public void TestQueryEndLeafTenantsSingle()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupSingleTenantsInDb();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+
+            //ATTEMPT
+            var tenants = service.QueryEndLeafTenants().ToList();
+
+            //VERIFY
+            tenants.Count.ShouldEqual(3);
+            tenants.Select(x => x.TenantFullName).ShouldEqual(new[] { "Tenant1", "Tenant2", "Tenant3" });
         }
 
 
@@ -68,7 +88,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var tenants = context.Tenants.ToList();
             tenants.Count.ShouldEqual(4);
-            tenants.Last().TenantName.ShouldEqual("Tenant4");
+            tenants.Last().TenantFullName.ShouldEqual("Tenant4");
         }
 
         [Fact]
@@ -94,6 +114,28 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
+        public async Task TestQueryEndLeafTenantsHierarchical()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            await context.SetupHierarchicalTenantInDb();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+
+            //ATTEMPT
+            var tenants = service.QueryEndLeafTenants().ToList();
+
+            //VERIFY
+            tenants.Count.ShouldEqual(4);
+            tenants.Select(x => x.GetTenantEndLeafName()).OrderBy(x => x).ToArray()
+                .ShouldEqual(new[] { "Shop1", "Shop2", "Shop3", "Shop4" });
+        }
+
+        [Fact]
         public async Task TestAddHierarchicalTenantAsyncOk()
         {
             //SETUP
@@ -112,7 +154,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var tenants = context.Tenants.ToList();
-            var newTenant = tenants.SingleOrDefault(x => x.TenantName == "Company | West Coast | LA");
+            var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "Company | West Coast | LA");
             tenants.Count.ShouldEqual(10);
             newTenant.ShouldNotBeNull();
             newTenant.GetTenantDataKey().ShouldEqual(".1.2.10");
@@ -160,7 +202,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var tenants = context.Tenants.ToList();
             tenants.Count.ShouldEqual(3);
-            tenants.Select(x => x.TenantName).ShouldEqual(new[] { "Tenant1", "New Tenant", "Tenant3" });
+            tenants.Select(x => x.TenantFullName).ShouldEqual(new[] { "Tenant1", "New Tenant", "Tenant3" });
         }
 
         [Fact]
@@ -190,7 +232,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 _output.WriteLine(tenant.ToString());
             }
-            tenants.Count(x => x.TenantName.StartsWith("Company | West Area")).ShouldEqual(4);
+            tenants.Count(x => x.TenantFullName.StartsWith("Company | West Area")).ShouldEqual(4);
         }
 
         [Fact]
@@ -217,7 +259,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 _output.WriteLine(tenant.ToString());
             }
-            tenants.Count(x => x.TenantName.StartsWith("Company | East Coast | SanFran")).ShouldEqual(3);
+            tenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | SanFran")).ShouldEqual(3);
         }
     }
 }

@@ -93,7 +93,7 @@ namespace AuthPermissions.DataLayer.Classes
         public override string ToString()
         {
             var tenantString = TenantId == null ? "" 
-                : (UserTenant == null ? ", has an tenant" : $", linked to {UserTenant.TenantName}");
+                : (UserTenant == null ? ", has an tenant" : $", linked to {UserTenant.TenantFullName}");
             var rolesString = _userRoles == null ? "" : $", roles = {string.Join(", ", _userRoles.Select(x => x.RoleName))}";
             return $"UserName = {UserName}, Email = {Email}, UserId = {UserId}{rolesString}{tenantString}.";
         }

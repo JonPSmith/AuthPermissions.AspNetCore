@@ -20,6 +20,11 @@ namespace AuthPermissions.AdminCode.Services
         private readonly AuthPermissionsDbContext _context;
         private readonly TenantTypes _tenantType;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="options"></param>
         public AuthTenantAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
         {
             _context = context;
@@ -29,10 +34,21 @@ namespace AuthPermissions.AdminCode.Services
         /// <summary>
         /// This simply returns a IQueryable of Tenants
         /// </summary>
-        /// <returns>query on the database</returns>
+        /// <returns>query on the AuthP database</returns>
         public IQueryable<Tenant> QueryTenants()
         {
             return _context.Tenants;
+        }
+
+        /// <summary>
+        /// This query returns all the end leaf Tenants, which is the bottom of the hierarchy (i.e. no children below it)
+        /// </summary>
+        /// <returns>query on the AuthP database</returns>
+        public IQueryable<Tenant> QueryEndLeafTenants()
+        {
+            return _tenantType == TenantTypes.SingleTenant
+                ? QueryTenants()
+                : _context.Tenants.Where(x => !x.Children.Any());
         }
 
         /// <summary>
@@ -75,12 +91,12 @@ namespace AuthPermissions.AdminCode.Services
             if (parentTenantName != null)
             {
                 //We need to find the parent
-                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == parentTenantName);
+                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == parentTenantName);
                 if (parentTenant == null)
                     return status.AddError($"Could not find the parent tenant with the name {parentTenantName}");
             }
 
-            var fullTenantName = Tenant.CombineParentNameWithTenantName(thisLevelTenantName, parentTenant?.TenantName);
+            var fullTenantName = Tenant.CombineParentNameWithTenantName(thisLevelTenantName, parentTenant?.TenantFullName);
 
             _context.Add(new Tenant(fullTenantName, parentTenant));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -113,11 +129,11 @@ namespace AuthPermissions.AdminCode.Services
             var tenantsWithChildren = await _context.Tenants
                 .Include(x => x.Parent)
                 .Include(x => x.Children)
-                .Where(x => x.TenantName.StartsWith(fullTenantName))
+                .Where(x => x.TenantFullName.StartsWith(fullTenantName))
                 .ToListAsync();
 
             var existingTenantWithChildren = tenantsWithChildren
-                .SingleOrDefault(x => x.TenantName == fullTenantName);
+                .SingleOrDefault(x => x.TenantFullName == fullTenantName);
 
             if (existingTenantWithChildren == null)
                 return status.AddError($"Could not find the tenant with the name {fullTenantName}");
@@ -125,14 +141,14 @@ namespace AuthPermissions.AdminCode.Services
             existingTenantWithChildren.UpdateTenantName(newTenantLevelName);
 
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-            status.Message = $"Successfully updated the tenant name the new hierarchical tenant {existingTenantWithChildren.TenantName}.";
+            status.Message = $"Successfully updated the tenant name the new hierarchical tenant {existingTenantWithChildren.TenantFullName}.";
 
             return status;
         }
 
         /// <summary>
         /// This moves a hierarchical tenant to a new parent (which might be null)
-        /// This changes the TenantName and the TenantDataKey of the selected tenant and all of its children
+        /// This changes the TenantFullName and the TenantDataKey of the selected tenant and all of its children
         /// </summary>
         /// <param name="fullTenantName">The full name of the tenant to move to another parent </param>
         /// <param name="newParentFullName">he full name of the new parent tenant (can be null, in which case the tenant moved to the top level</param>
@@ -148,11 +164,11 @@ namespace AuthPermissions.AdminCode.Services
             var tenantsWithChildren = await _context.Tenants
                 .Include(x => x.Parent)
                 .Include(x => x.Children)
-                .Where(x => x.TenantName.StartsWith(fullTenantName))
+                .Where(x => x.TenantFullName.StartsWith(fullTenantName))
                 .ToListAsync();
 
             var existingTenantWithChildren = tenantsWithChildren
-                .SingleOrDefault(x => x.TenantName == fullTenantName);
+                .SingleOrDefault(x => x.TenantFullName == fullTenantName);
 
             if (existingTenantWithChildren == null)
                 return status.AddError($"Could not find the tenant with the name {fullTenantName}");
@@ -161,7 +177,7 @@ namespace AuthPermissions.AdminCode.Services
             if (newParentFullName != null)
             {
                 //We need to find the parent
-                newParentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == newParentFullName);
+                newParentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == newParentFullName);
                 if (newParentTenant == null)
                     return status.AddError($"Could not find the parent tenant with the name {newParentFullName}");
             }
@@ -170,7 +186,7 @@ namespace AuthPermissions.AdminCode.Services
 
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
-            status.Message = $"Successfully moved the new hierarchical tenant to {existingTenantWithChildren.TenantName}.";
+            status.Message = $"Successfully moved the new hierarchical tenant to {existingTenantWithChildren.TenantFullName}.";
 
             return status;
         }

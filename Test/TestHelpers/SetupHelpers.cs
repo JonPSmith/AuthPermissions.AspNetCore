@@ -90,8 +90,8 @@ Company | West Coast | SanFran | Shop1
 Company | West Coast | SanFran | Shop2
 Company | East Coast
 Company | East Coast | New York 
-Company | East Coast | New York | Shop1
-Company | East Coast | New York | Shop2";
+Company | East Coast | New York | Shop3
+Company | East Coast | New York | Shop4";
 
             (await service.AddTenantsToDatabaseAsync(lines, authOptions)).IsValid.ShouldBeTrue();
 

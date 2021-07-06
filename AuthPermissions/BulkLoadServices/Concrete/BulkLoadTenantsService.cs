@@ -110,7 +110,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
 
                             if (parent != null && parent.TenantId == default)
                                 status.AddError(
-                                    $"The tenant {parent.TenantName} used on line {tenantNameDecoded.LineNum} hasn't been added to the database. Make sure you defined that tenant earlier in the list.");
+                                    $"The tenant {parent.TenantFullName} used on line {tenantNameDecoded.LineNum} hasn't been added to the database. Make sure you defined that tenant earlier in the list.");
                         }
 
                         if (tenantLookup.ContainsKey(tenantNameDecoded.TenantFullName))

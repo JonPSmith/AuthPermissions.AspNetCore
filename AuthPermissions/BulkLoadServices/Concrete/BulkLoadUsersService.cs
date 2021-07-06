@@ -103,7 +103,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             Tenant userTenant = null;
             if (_options.TenantType != TenantTypes.NotUsingTenants && !string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
             {
-                userTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantName == userDefine.TenantNameForDataKey);
+                userTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == userDefine.TenantNameForDataKey);
                 if (userTenant == null)
                     return status.AddError(userDefine.UniqueUserName.FormErrorString(index - 1, -1,
                         $"The user {userName} has a tenant name of {userDefine.TenantNameForDataKey} which wasn't found in the auth database."));
