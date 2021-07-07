@@ -10,7 +10,7 @@ namespace Example4.ShopCode.Shop
     {
         public int ShopSaleId { get; set; }
 
-        public string StockItemName { get; set; }
+        public string StockItemStockName { get; set; }
 
         public decimal StockItemRetailPrice { get; set; }
 
@@ -24,6 +24,6 @@ namespace Example4.ShopCode.Shop
         /// </summary>
         public string ReturnReason { get; set; }
 
-        public string StockItemShopName { get; set; }
+        public string StockItemShopShortName { get; set; }
     }
 }

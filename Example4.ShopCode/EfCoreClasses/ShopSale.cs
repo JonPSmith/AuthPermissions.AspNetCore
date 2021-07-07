@@ -61,7 +61,7 @@ namespace Example4.ShopCode.EfCoreClasses
         public static IStatusGeneric<ShopSale> CreateSellAndUpdateStock(int numBought, ShopStock foundStock, string stockName)
         {
             if (numBought < 0) throw new ArgumentException("must be positive", nameof(numBought));
-            var status = new StatusGenericHandler<ShopSale>();
+            var status = new StatusGenericHandler<ShopSale> {Message = $"Successfully bought a {(foundStock?.StockName ?? stockName)}"};
 
             if (foundStock == null)
                 return status.AddError($"Could not find any stock of: {stockName}.");

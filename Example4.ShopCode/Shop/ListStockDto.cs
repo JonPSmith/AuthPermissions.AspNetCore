@@ -9,10 +9,10 @@ namespace Example4.ShopCode.Shop
     public class ListStockDto : ILinkToEntity<ShopStock>
     {
         public int ShopStockId { get; set; }
-        public string Name { get; set; }
+        public string StockName { get; set; }
         public decimal RetailPrice { get; set; }
         public int NumInStock { get; set; }
 
-        public string ShopName { get; set; }
+        public string ShopShortName { get; set; }
     }
 }

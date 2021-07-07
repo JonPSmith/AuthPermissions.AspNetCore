@@ -11,13 +11,18 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
+using Example4.ShopCode.AppStart;
+using Example4.ShopCode.EfCoreCode;
+using Example4.ShopCode.Shop;
 using ExamplesCommonCode.DemoSetupCode;
+using GenericServices.Setup;
 
 namespace Example4.MvcWebApp.IndividualAccounts
 {
@@ -63,6 +68,12 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
+
+            //This registers all the code to handle the shop part of the demo
+            //Register RetailDbContext database and some services (included hosted services)
+            services.RegisterExample4ShopCode(Configuration);
+            //Add GenericServices (after registering the RetailDbContext context
+            services.GenericServicesSimpleSetup<RetailDbContext>(Assembly.GetAssembly(typeof(ListSalesDto)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

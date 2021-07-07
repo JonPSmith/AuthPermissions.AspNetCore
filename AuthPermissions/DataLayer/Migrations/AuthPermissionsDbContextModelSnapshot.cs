@@ -132,7 +132,7 @@ namespace AuthPermissions.DataLayer.Migrations
                     b.Property<int?>("ParentTenantId")
                         .HasColumnType("int");
 
-                    b.Property<string>("TenantName")
+                    b.Property<string>("TenantFullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -143,7 +143,7 @@ namespace AuthPermissions.DataLayer.Migrations
 
                     b.HasIndex("ParentTenantId");
 
-                    b.HasIndex("TenantName")
+                    b.HasIndex("TenantFullName")
                         .IsUnique();
 
                     b.ToTable("Tenants");

@@ -13,7 +13,7 @@ SuperAdmin: AccessAll,
 App Admin: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantRead, TenantCreate, TenantUpdate
 
 Tenant Admin: EmployeeRead, UserRead, UserSync, UserChange, RoleRead
-Tenant Director: EmployeeRead
+Tenant Director: EmployeeRead, StockRead, SalesRead
 Area Manager: StockRead, SalesRead
 Store Manager: StockRead, StockAddNew, StockRemove, SalesRead, SalesSell, SalesReturn
 Sales Assistant: StockRead, SalesSell";

@@ -12,21 +12,23 @@ namespace Example4.ShopCode.Shop
     {
         public List<StockSelectDto> DropdownData { get; set; }
 
-        public int ShopStockId { get; set; }
-
-        public int NumBought { get; set; } = 1;
-
-        public int TenantItemId { get; set; }
-
         /// <summary>
         /// This holds the PK of the created ShopSale
         /// </summary>
         public int ShopSaleId { get; set; }
 
+        /// <summary>
+        /// This holds the 
+        /// </summary>
+        public int ShopStockId { get; set; }
+
+        public int NumBought { get; set; } = 1;
+
+
+
         public void SetResetDto(List<StockSelectDto> stockList)
         {
             DropdownData = stockList;
-            TenantItemId = stockList.FirstOrDefault()?.TenantItemId ?? 0;
         }
     }
 }

@@ -10,6 +10,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace ExamplesCommonCode.DemoSetupCode
 {
+    /// <summary>
+    /// This will migrate the TContext on startup (WARNING: Only works for single instance of the ASP.NET Core app)
+    /// </summary>
+    /// <typeparam name="TContext"></typeparam>
     public class HostedServiceEnsureCreatedDb<TContext> : IHostedService where TContext : DbContext 
     {
         private readonly IServiceProvider _serviceProvider;

@@ -2,25 +2,26 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.DataLayer.EfCode;
+using Example4.ShopCode.AppStart;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace AuthPermissions.DataLayer.EfCode
+namespace Example4.ShopCode.EfCoreCode
 {
-    public class DesignTimeContextFactory : IDesignTimeDbContextFactory<AuthPermissionsDbContext>
+    public class ShopDesignTimeContextFactory : IDesignTimeDbContextFactory<RetailDbContext>          
     {
         private const string connectionString =
-            "Server=(localdb)\\mssqllocaldb;Database=aspnet-Example4.MvcWebApp.IndividualAccounts-39EF2337-4CA7-4EA1-8FC5-2344A6027538;Trusted_Connection=True;MultipleActiveResultSets=true";
+            "Server=(localdb)\\mssqllocaldb;Database=AuthPermissions;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-        public AuthPermissionsDbContext CreateDbContext(string[] args)   
+        public RetailDbContext CreateDbContext(string[] args)   
         {
             var optionsBuilder =                              
-                new DbContextOptionsBuilder<AuthPermissionsDbContext>(); 
+                new DbContextOptionsBuilder<RetailDbContext>(); 
             optionsBuilder.UseSqlServer(connectionString, dbOptions =>
-                dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));    
+                dbOptions.MigrationsHistoryTable(StartupExtensions.RetailDbContextHistoryName));    
 
-            return new AuthPermissionsDbContext(optionsBuilder.Options); 
+            return new RetailDbContext(optionsBuilder.Options, null); 
         }
     }
     /******************************************************************************
@@ -36,9 +37,9 @@ namespace AuthPermissions.DataLayer.EfCode
     * 
     * 2. Using Package Manager Console commands
     * The steps are:
-    * a) Make sure the default project is AuthPermissions
+    * a) Make sure the default project is Example4.ShopCode
     * b) Use the PMC command
-    *    Add-Migration Initial -Context AuthPermissionsDbContext -OutputDir DataLayer/Migrations
+    *    Add-Migration Initial -Context RetailDbContext -OutputDir EfCoreCode/Migrations
     * c) Don't migrate the database using the Update-database, but use the AddDatabaseOnStartup extension
     *    method when registering the AuthPermissions in ASP.NET Core.
     *    

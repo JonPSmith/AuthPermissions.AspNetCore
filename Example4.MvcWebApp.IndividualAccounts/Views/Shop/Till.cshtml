@@ -1,0 +1,35 @@
+﻿@model Example4.ShopCode.Shop.SellItemDto
+
+@{
+    ViewBag.Title = "Till";
+}
+
+<h2>Shop Sale</h2>
+
+<div class="form-horizontal">
+    <form asp-controller="Shop" asp-action="Till" method="post">
+        <!-- Input and Submit elements -->
+
+        <div class="form-group">
+            <label class="control-label">Select Item</label>
+            <select asp-for="ShopStockId" 
+                    class="form-control col-sm-4"
+                    asp-items="@(new SelectList(Model.DropdownData, "ShopStockId", "DisplayText"))">
+            </select>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label class="control-label">How many</label>
+            </div>
+            <input asp-for="NumBought" class="form-control col-sm-4" />
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit">BUY</button>
+            </div>
+        </div>
+
+    </form>
+</div>

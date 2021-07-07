@@ -50,7 +50,7 @@ namespace AuthPermissions.DataLayer.Migrations
                     TenantId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ParentDataKey = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    TenantName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TenantFullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IsHierarchical = table.Column<bool>(type: "bit", nullable: false),
                     ParentTenantId = table.Column<int>(type: "int", nullable: true),
                     ConcurrencyToken = table.Column<byte[]>(type: "ROWVERSION", rowVersion: true, nullable: true)
@@ -151,10 +151,10 @@ namespace AuthPermissions.DataLayer.Migrations
                 column: "ParentTenantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tenants_TenantName",
+                name: "IX_Tenants_TenantFullName",
                 schema: "authp",
                 table: "Tenants",
-                column: "TenantName",
+                column: "TenantFullName",
                 unique: true);
 
             migrationBuilder.CreateIndex(

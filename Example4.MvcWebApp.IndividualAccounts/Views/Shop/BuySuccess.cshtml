@@ -1,0 +1,11 @@
+﻿@model System.Tuple<Example4.ShopCode.Shop.ListSalesDto,string>
+
+@{
+    ViewBag.Title = "title";
+}
+
+<h4>@Model.Item2</h4>
+
+<label>Invoice number:</label>
+
+@Html.DisplayFor(e => e.Item1.ShopSaleId)

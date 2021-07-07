@@ -1,0 +1,38 @@
+﻿@model Tuple<List<Example4.ShopCode.Shop.ListStockDto>, bool>
+@{
+    ViewData["Title"] = "Shop Stock";
+}
+
+@if (!Model.Item1.Any())
+{
+    <h3>No stock found</h3>
+}
+else
+{
+    var displayThis = Model.Item2 ? "for shop" + Model.Item1.First().ShopShortName : "(by shop)";
+    
+    <h3>List Stock @displayThis</h3>
+    <table class="table">
+        <tr>
+            @if (!Model.Item2)
+            {
+                <th>Shop</th>
+            }
+            <th>Stock name</th>
+            <th>#In stock</th>
+            <th>Retail price</th>
+        </tr>
+        @foreach (var stock in @Model.Item1)
+        {
+            <tr>
+                @if (!Model.Item2)
+                {
+                    <td>@stock.ShopShortName</td>
+                }
+                <td>@stock.StockName</td>
+                <td>@stock.NumInStock</td>
+                <td>@stock.RetailPrice</td>
+            </tr>
+        }
+    </table>
+}

@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EfCore.GenericServices" Version="5.0.0" />
+    <PackageReference Include="EfCore.GenericServices.AspNetCore" Version="4.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.7" />
@@ -18,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AuthPermissions.AspNetCore\AuthPermissions.AspNetCore.csproj" />
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
+    <ProjectReference Include="..\Example4.ShopCode\Example4.ShopCode.csproj" />
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />
   </ItemGroup>
 

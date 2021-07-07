@@ -2,10 +2,14 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Example4.ShopCode.EfCoreClasses;
 using Example4.ShopCode.EfCoreCode;
+using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
+using TestSupport.Attributes;
 using TestSupport.EfHelpers;
+using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -19,6 +23,26 @@ namespace Test.UnitTests.TestExamples
         public TestExample4RetailDbContext(ITestOutputHelper output)
         {
             _output = output;
+        }
+
+        [RunnableInDebugOnly]
+        public void TestRetailDbContextMigrate()
+        {
+            //SETUP
+            //var options = SqliteInMemory.CreateOptions<RetailDbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<RetailDbContext>();
+            optionsBuilder.UseSqlServer(this.GetUniqueDatabaseConnectionString("XX"),
+            x => x.MigrationsHistoryTable("NotTheNormalName"));
+
+            using var context = new RetailDbContext(optionsBuilder.Options, new StubGetDataKeyFilter("."));
+            context.Database.EnsureClean(false);
+
+            //ATTEMPT
+            context.Database.Migrate();
+
+            //VERIFY
+            context.ChangeTracker.Clear();
+            context.RetailOutlets.Count().ShouldEqual(0);
         }
 
         [Theory]

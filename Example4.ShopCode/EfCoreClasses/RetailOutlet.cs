@@ -2,10 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.Classes;
 using Example4.ShopCode.EfCoreClasses.SupportTypes;
 using Microsoft.EntityFrameworkCore;
 
