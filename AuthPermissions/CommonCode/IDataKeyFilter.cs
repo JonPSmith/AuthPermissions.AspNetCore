@@ -1,21 +1,18 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
+using AuthPermissions.DataLayer.EfCode;
 
 namespace AuthPermissions.CommonCode
 {
     /// <summary>
-    /// A AuthPermissions for internal errors
+    /// This is the interface used by the GetDataKeyFilterFromUser and <see cref="DataKeyQueryExtension"/>
     /// </summary>
-    public class AuthPermissionsException : Exception
+    public interface IDataKeyFilter
     {
         /// <summary>
-        /// Must contain a message
+        /// The DataKey to be used for multi-tenant applications
         /// </summary>
-        /// <param name="message"></param>
-        public AuthPermissionsException(string message)
-            : base(message)
-        {}
+        string DataKey { get; }
     }
 }

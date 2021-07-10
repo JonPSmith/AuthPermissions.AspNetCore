@@ -25,7 +25,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        public AuthTenantAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
+        public AuthTenantAdminService(AuthPermissionsDbContext context, AuthPermissionsOptions options)
         {
             _context = context;
             _tenantType = options.TenantType;

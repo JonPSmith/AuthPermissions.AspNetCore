@@ -5,8 +5,16 @@ using System.Text.RegularExpressions;
 //Thanks to https://docs.microsoft.com/en-us/dotnet/standard/base-types/how-to-verify-that-strings-are-in-valid-email-format
 namespace AuthPermissions.CommonCode
 {
+    /// <summary>
+    /// Contains a extension method to check an email
+    /// </summary>
     public static class RegexUtilities
     {
+        /// <summary>
+        /// Checks that the email is valid
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns>true is valid email</returns>
         public static bool IsValidEmail(this string email)
         {
             if (string.IsNullOrWhiteSpace(email))

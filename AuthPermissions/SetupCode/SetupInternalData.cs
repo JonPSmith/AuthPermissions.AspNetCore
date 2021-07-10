@@ -14,7 +14,21 @@ namespace AuthPermissions.SetupCode
         /// <summary>
         /// The different database types that AuthPermissions supports
         /// </summary>
-        public enum DatabaseTypes { NotSet, SqliteInMemory, SqlServer }
+        public enum DatabaseTypes
+        {
+            /// <summary>
+            /// This is the default - AuthPermissions will throw an exception to say you must define the database type
+            /// </summary>
+            NotSet,
+            /// <summary>
+            /// This is a in-memory database - useful for unit testing
+            /// </summary>
+            SqliteInMemory, 
+            /// <summary>
+            /// SQL Server database is used
+            /// </summary>
+            SqlServer
+        }
 
 
         //--------------------------------------------------

@@ -23,9 +23,9 @@ namespace AuthPermissions.BulkLoadServices.Concrete
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly IAuthPServiceFactory<IFindUserInfoService> _findUserInfoServiceFactory;
-        private readonly IAuthPermissionsOptions _options;
+        private readonly AuthPermissionsOptions _options;
 
-        public BulkLoadUsersService(AuthPermissionsDbContext context, IAuthPServiceFactory<IFindUserInfoService> findUserInfoServicefactory, IAuthPermissionsOptions options)
+        public BulkLoadUsersService(AuthPermissionsDbContext context, IAuthPServiceFactory<IFindUserInfoService> findUserInfoServicefactory, AuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _findUserInfoServiceFactory = findUserInfoServicefactory;
@@ -33,7 +33,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         }
 
         /// <summary>
-        /// This allows you to add a series of users with their roles and the tenant (if <see cref="IAuthPermissionsOptions.TenantType"/> says tenants are used
+        /// This allows you to add a series of users with their roles and the tenant (if <see cref="AuthPermissions.AuthPermissionsOptions.TenantType"/> says tenants are used
         /// </summary>
         /// <param name="userDefinitions">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have.
         /// In this case the UserId must be filled in with the authorized users' UserId, or the <see cref="IFindUserInfoService"/> can find a user's ID

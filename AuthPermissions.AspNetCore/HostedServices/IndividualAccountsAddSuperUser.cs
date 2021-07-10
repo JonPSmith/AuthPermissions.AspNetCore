@@ -6,26 +6,34 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.HostedServices.Internal;
-using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.DataLayer.EfCode;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace AuthPermissions.AspNetCore.HostedServices
 {
+    /// <summary>
+    /// This adds a user to the ASP.NET Core's Individual Accounts authentication provider
+    /// using data taken from the appsettings file
+    /// </summary>
     public class IndividualAccountsAddSuperUser : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="serviceProvider"></param>
         public IndividualAccountsAddSuperUser(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
 
+        /// <summary>
+        /// Add the 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             using (var scope = _serviceProvider.CreateScope())

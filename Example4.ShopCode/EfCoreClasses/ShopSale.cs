@@ -3,7 +3,8 @@
 
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using Example4.ShopCode.EfCoreClasses.SupportTypes;
+using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.CommonCode;
 using StatusGeneric;
 
 namespace Example4.ShopCode.EfCoreClasses

@@ -13,9 +13,9 @@ namespace AuthPermissions.PermissionsCode.Services
     /// </summary>
     public class UsersPermissionsService : IUsersPermissionsService
     {
-        private readonly IAuthPermissionsOptions _options;
+        private readonly AuthPermissionsOptions _options;
 
-        public UsersPermissionsService(IAuthPermissionsOptions options)
+        public UsersPermissionsService(AuthPermissionsOptions options)
         {
             _options = options;
         }

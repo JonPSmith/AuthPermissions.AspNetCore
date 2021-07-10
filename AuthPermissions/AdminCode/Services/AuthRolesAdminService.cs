@@ -26,7 +26,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        public AuthRolesAdminService(AuthPermissionsDbContext context, IAuthPermissionsOptions options)
+        public AuthRolesAdminService(AuthPermissionsDbContext context, AuthPermissionsOptions options)
         {
             _context = context;
             _permissionType = options.InternalData.EnumPermissionsType;

@@ -20,6 +20,10 @@ namespace AuthPermissions.BulkLoadServices.Concrete
     {
         private readonly AuthPermissionsDbContext _context;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="context"></param>
         public BulkLoadRolesService(AuthPermissionsDbContext context)
         {
             _context = context;

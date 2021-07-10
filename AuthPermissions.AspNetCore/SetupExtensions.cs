@@ -115,12 +115,14 @@ namespace AuthPermissions.AspNetCore
         private static void RegisterCommonServices(this AuthSetupData setupData)
         {
             //Internal services
-            setupData.Services.AddSingleton<IAuthPermissionsOptions>(setupData.Options);
+            setupData.Services.AddSingleton<AuthPermissionsOptions>(setupData.Options);
             setupData.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
             setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
+            if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)
+                setupData.Services.AddScoped<IDataKeyFilter, GetDataKeyFilterFromUser>();
 
             //The factories for the optional services
             setupData.Services.AddTransient<IAuthPServiceFactory<ISyncAuthenticationUsers>, SyncAuthenticationUsersFactory>();

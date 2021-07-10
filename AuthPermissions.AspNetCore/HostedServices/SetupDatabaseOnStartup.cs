@@ -29,7 +29,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<AuthPermissionsDbContext>();
-                var options = services.GetRequiredService<IAuthPermissionsOptions>();
+                var options = services.GetRequiredService<AuthPermissionsOptions>();
                 try
                 {
                     if (options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.SqliteInMemory)

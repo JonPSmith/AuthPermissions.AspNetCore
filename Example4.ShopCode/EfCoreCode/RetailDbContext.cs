@@ -1,8 +1,9 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.CommonCode;
+using AuthPermissions.DataLayer.EfCode;
 using Example4.ShopCode.EfCoreClasses;
-using Example4.ShopCode.EfCoreClasses.SupportTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.ShopCode.EfCoreCode
@@ -12,7 +13,9 @@ namespace Example4.ShopCode.EfCoreCode
         public RetailDbContext(DbContextOptions<RetailDbContext> options, IDataKeyFilter dataKeyFilter)
             : base(options)
         {
-            DataKey = dataKeyFilter?.DataKey;
+            DataKey = dataKeyFilter?.DataKey 
+                      ?? "."; //this means AuthP's uses with no tenant can access all the data (useful for admin users)
+                              //The alternative is return GUID string if the DataKey is null, which would deny users without a tenant to access the data
         }
 
         public DbSet<RetailOutlet> RetailOutlets { get; set; }
@@ -28,7 +31,7 @@ namespace Example4.ShopCode.EfCoreCode
             {
                 if (typeof(IDataKeyFilter).IsAssignableFrom(entityType.ClrType))
                 {
-                    entityType.AddUserIdQueryFilter(this);
+                    entityType.AddStartsWithQueryFilter(this);
                 }
 
                 foreach (var mutableProperty in entityType.GetProperties())

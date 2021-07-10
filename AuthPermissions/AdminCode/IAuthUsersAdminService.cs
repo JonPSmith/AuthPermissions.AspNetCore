@@ -79,7 +79,7 @@ namespace AuthPermissions.AdminCode
 
         /// <summary>
         /// This allows you to add or change a tenant to a AuthP User
-        /// NOTE: you must have set the <see cref="AuthPermissionsOptions.TenantType"/> to a valid tenant type for this to work
+        /// NOTE: you must have set the <see cref="AuthPermissions.AuthPermissionsOptions.TenantType"/> to a valid tenant type for this to work
         /// </summary>
         /// <param name="authUser"></param>
         /// <param name="tenantFullName">The full name of the tenant</param>

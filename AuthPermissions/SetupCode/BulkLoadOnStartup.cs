@@ -24,7 +24,7 @@ namespace AuthPermissions.SetupCode
         /// <param name="findUserInfoServiceFactory"></param>
         /// <returns></returns>
         public static async Task<IStatusGeneric> SeedRolesTenantsUsersIfEmpty(this AuthPermissionsDbContext context,
-            IAuthPermissionsOptions options,
+            AuthPermissionsOptions options,
             IAuthPServiceFactory<IFindUserInfoService> findUserInfoServiceFactory)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));

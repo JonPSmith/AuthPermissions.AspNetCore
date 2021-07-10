@@ -8,6 +8,12 @@ namespace AuthPermissions.AdminCode
     /// </summary>
     public class SyncAuthenticationUser
     {
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="email"></param>
+        /// <param name="userName"></param>
         public SyncAuthenticationUser(string userId, string email, string userName)
         {
             UserId = userId;

@@ -70,6 +70,11 @@ namespace AuthPermissions.DataLayer.Classes
         //-------------------------------------------------------------
         //access methods
 
+        /// <summary>
+        /// This updates the permissions in a AuthP Role
+        /// </summary>
+        /// <param name="packedPermissions"></param>
+        /// <param name="description"></param>
         public void Update(string packedPermissions, string description = null)
         {
             if (string.IsNullOrEmpty(packedPermissions))

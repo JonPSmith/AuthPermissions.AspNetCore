@@ -7,6 +7,9 @@ using StatusGeneric;
 
 namespace AuthPermissions.CommonCode
 {
+    /// <summary>
+    /// Various error reporting extensions for the AuthP code
+    /// </summary>
     public static class ErrorReportingExtensions
     {
         /// <summary>

@@ -8,19 +8,45 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AuthPermissions.DataLayer.EfCode
 {
+    /// <summary>
+    /// This forms the AuthP's EF Core database
+    /// </summary>
     public class AuthPermissionsDbContext : DbContext
     {
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="options"></param>
         public AuthPermissionsDbContext(DbContextOptions<AuthPermissionsDbContext> options)
             : base(options)
         { }
 
+        /// <summary>
+        /// The list of AuthUsers defining what roles and tenant that user has
+        /// </summary>
         public DbSet<AuthUser> AuthUsers { get; set; }
+        /// <summary>
+        /// A list of all the AuthP's Roles, each with the permissions in each Role
+        /// </summary>
         public DbSet<RoleToPermissions> RoleToPermissions { get; set; }
+        /// <summary>
+        /// When using AuthP's multi-tenant feature these define each tenant and the DataKey to access data in that tenant
+        /// </summary>
         public DbSet<Tenant> Tenants { get; set; }
+        /// <summary>
+        /// This links AuthP's Roles to a AuthUser
+        /// </summary>
         public DbSet<UserToRole> UserToRoles { get; set; }
+        /// <summary>
+        /// If you use AuthP's JWT refresh token, then the tokens are held in this entity
+        /// </summary>
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
 
+        /// <summary>
+        /// Set up AuthP's setup
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("authp");

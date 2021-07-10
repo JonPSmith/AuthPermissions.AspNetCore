@@ -6,7 +6,7 @@ using AuthPermissions.SetupCode;
 
 namespace AuthPermissions
 {
-    public class AuthPermissionsOptions : IAuthPermissionsOptions
+    public class AuthPermissionsOptions
     {
 
         /// <summary>

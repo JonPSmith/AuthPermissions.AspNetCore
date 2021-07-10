@@ -9,6 +9,9 @@ using StatusGeneric;
 
 namespace AuthPermissions.AdminCode
 {
+    /// <summary>
+    /// This is the interface for the AuthP's Roles admin 
+    /// </summary>
     public interface IAuthRolesAdminService
     {
         /// <summary>

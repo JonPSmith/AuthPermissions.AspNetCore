@@ -44,7 +44,7 @@
 <p>
     <ol>
         <li>
-            Log in using one of the demo users <a asp-area="" asp-controller="Users" asp-action="Users">found here</a>.
+            Log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
             NOTE: The email is also the password.
             <ul>
                 <li>Pick a user that has a <strong>SaleManager</strong> (good choice!) or SalesAssistant role if you want to sell something. </li>
@@ -59,10 +59,12 @@
                 <li><strong>Sales</strong> to see what sales the shop has done (not present if SalesAssistant).</li>
             </ul>
         </li>
-        <li>When log in you can see your claims, permissions and other user/role ifo via the "Users" menu button.</li>
-        <li>Also look at <a asp-area="" asp-controller="Company" asp-action="Index">Company</a> for a list of the hierarchical data.</li>
-        <li>Go to the <a asp-area="" asp-controller="AuthUsers" asp-action="Index">Toggle Role</a> to see/change a user's Roles and Tenants</li>
-        <li>To test user impersonation feature log in as the SuperAdmin user go to <a asp-area="" asp-controller="Impersonate" asp-action="Index">Impersonation->Pick User</a> to see this in action. <i>NOTE: UpdateCookieOnChange must be set to true in appsettings.json</i></li>
+        <li>When log in you can see your claims, permissions and other user/role info via the "User Admin" menu button.</li>
+        <li>
+            Go to the <a asp-area="" asp-controller="AuthUsers" asp-action="Index">User Admin -> List all users</a> to see the users.
+            This would normally be only avaiable to admin users, but for this demo anyone can see it.
+            <i>NOTE: if you log in as an 'admin' user, or Super@g1.com to change the user's roles.</i>
+        </li>
     </ol>
 </p>
 

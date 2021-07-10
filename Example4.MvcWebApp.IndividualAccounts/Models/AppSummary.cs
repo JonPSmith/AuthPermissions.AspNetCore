@@ -13,10 +13,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
         {
             "One SQL Server database shared by:",
             "- ASP.NET Core Individual accounts database",
-            "- AuthPermissions' database",
-            "- multi-tenant database"
+            "- AuthPermissions' database - tables have a schema of 'authp'",
+            "- multi-tenant retail database - tables have a schema of 'retail'"
         };
         public string Note { get; } =  "This is more like a real application, with lots of users and roles/permissions. " +
-                                       "It also has a hierarchical multi-tenant setup and a AuthUsers controller using AuthPermissions' AuthUsersAdminService.";
+                                       "It also has admin of users and their roles plus an example hierarchical multi-tenant retail system.";
     }
 }

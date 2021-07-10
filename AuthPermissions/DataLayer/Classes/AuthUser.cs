@@ -149,7 +149,7 @@ namespace AuthPermissions.DataLayer.Classes
 
         /// <summary>
         /// This updates a tenant.
-        /// NOTE: A tenant is only valid if the <see cref="AuthPermissionsOptions.TenantType"/> has been set 
+        /// NOTE: A tenant is only valid if the <see cref="AuthPermissions.AuthPermissionsOptions.TenantType"/> has been set 
         /// </summary>
         /// <param name="tenant"></param>
         public void UpdateUserTenant(Tenant tenant)

@@ -18,6 +18,9 @@ using Microsoft.Data.Sqlite;
 
 namespace AuthPermissions
 {
+    /// <summary>
+    /// These are a series of extension methods to register/configure the AuthPermission library
+    /// </summary>
     public static class SetupExtensions
     {
         /// <summary>

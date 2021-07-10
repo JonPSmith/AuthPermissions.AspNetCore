@@ -4,15 +4,27 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Example4.ShopCode.EfCoreClasses.SupportTypes;
+using AuthPermissions.CommonCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Example4.ShopCode.EfCoreCode
+namespace AuthPermissions.DataLayer.EfCode
 {
+    /// <summary>
+    /// Contains code to allow you to automate the adding of a multi-tenant query filter to your application's DbContext
+    /// See the Example4.ShopCode project with its hierarchical multi-tenant database (RetailDbContext)
+    /// This more secure as you can't forget to add a multi-tenant query filter, which would let anyone access that data
+    /// </summary>
     public static class DataKeyQueryExtension
     {
-        public static void AddUserIdQueryFilter(this IMutableEntityType entityData,
+
+        /// <summary>
+        /// This method will set up a multi-tenant query filter using the "startswith" query filter
+        /// See the Example4.ShopCode project with its hierarchical multi-tenant database (RetailDbContext)
+        /// </summary>
+        /// <param name="entityData"></param>
+        /// <param name="dataKeyFilterProvider"></param>
+        public static void AddStartsWithQueryFilter(this IMutableEntityType entityData,
             IDataKeyFilter dataKeyFilterProvider)
         {
             var methodToCall = typeof(DataKeyQueryExtension)
@@ -27,7 +39,8 @@ namespace Example4.ShopCode.EfCoreCode
         private static LambdaExpression SetupMultiTenantQueryFilter<TEntity>(IDataKeyFilter dataKeyFilterProvider)
             where TEntity : class, IDataKeyFilter
         {
-            Expression<Func<TEntity, bool>> filter = x => x.DataKey.StartsWith(dataKeyFilterProvider.DataKey);
+            Expression<Func<TEntity, bool>> filter = x => x.DataKey.StartsWith(
+                dataKeyFilterProvider.DataKey);
             return filter;
         }
     }

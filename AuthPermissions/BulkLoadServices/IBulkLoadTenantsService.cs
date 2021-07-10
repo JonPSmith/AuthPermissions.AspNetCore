@@ -25,8 +25,8 @@ namespace AuthPermissions.BulkLoadServices
         /// Holding company | USA branch | East Coast | Washington
         /// Holding company | USA branch | East Coast | NewYork
         /// </param>
-        /// <param name="options">The IAuthPermissionsOptions to check what type of tenant setting you have</param>
+        /// <param name="options">The AuthPermissionsOptions to check what type of tenant setting you have</param>
         /// <returns></returns>
-        Task<IStatusGeneric> AddTenantsToDatabaseAsync(string linesOfText, IAuthPermissionsOptions options);
+        Task<IStatusGeneric> AddTenantsToDatabaseAsync(string linesOfText, AuthPermissionsOptions options);
     }
 }

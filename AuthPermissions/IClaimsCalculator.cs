@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace AuthPermissions
 {
+    /// <summary>
+    /// Defines the interface to the code that calcs the AuthP claims
+    /// </summary>
     public interface IClaimsCalculator
     {
         /// <summary>
-        /// This will return the 
+        /// This will return the AuthP claims to be added to the Cookie or JWT token
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>

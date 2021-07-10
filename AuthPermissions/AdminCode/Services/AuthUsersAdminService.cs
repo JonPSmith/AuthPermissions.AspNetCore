@@ -30,7 +30,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="context"></param>
         /// <param name="syncAuthenticationUsersFactory">A factory to create an authentication sync provider</param>
         /// <param name="options">auth options</param>
-        public AuthUsersAdminService(AuthPermissionsDbContext context, IAuthPServiceFactory<ISyncAuthenticationUsers> syncAuthenticationUsersFactory, IAuthPermissionsOptions options)
+        public AuthUsersAdminService(AuthPermissionsDbContext context, IAuthPServiceFactory<ISyncAuthenticationUsers> syncAuthenticationUsersFactory, AuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
@@ -310,7 +310,7 @@ namespace AuthPermissions.AdminCode.Services
 
         /// <summary>
         /// This allows you to add or change a tenant to a AuthP User
-        /// NOTE: you must have set the <see cref="AuthPermissionsOptions.TenantType"/> to a valid tenant type for this to work
+        /// NOTE: you must have set the <see cref="AuthPermissions.AuthPermissionsOptions.TenantType"/> to a valid tenant type for this to work
         /// </summary>
         /// <param name="authUser"></param>
         /// <param name="tenantFullName">The full name of the tenant</param>

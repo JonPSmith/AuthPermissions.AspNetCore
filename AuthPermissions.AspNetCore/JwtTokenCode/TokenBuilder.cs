@@ -12,9 +12,7 @@ using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using AuthPermissions.CommonCode;
 
 namespace AuthPermissions.AspNetCore.JwtTokenCode
 {
@@ -23,7 +21,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
     /// </summary>
     public class TokenBuilder : ITokenBuilder
     {
-        private readonly IAuthPermissionsOptions _options;
+        private readonly AuthPermissionsOptions _options;
         private readonly IClaimsCalculator _claimsCalculator;
         private readonly AuthPermissionsDbContext _context;
         private readonly ILogger _logger;
@@ -35,7 +33,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
         /// <param name="claimsCalculator"></param>
         /// <param name="context"></param>
         /// <param name="logger"></param>
-        public TokenBuilder(IAuthPermissionsOptions options, 
+        public TokenBuilder(AuthPermissionsOptions options, 
             IClaimsCalculator claimsCalculator,
             AuthPermissionsDbContext context,
             ILogger<TokenBuilder> logger)

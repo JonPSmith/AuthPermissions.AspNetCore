@@ -18,8 +18,10 @@ namespace AuthPermissions.DataLayer.Classes
     /// </summary>
     public class Tenant : INameToShowOnException, ITenantPartsToExport
     {
-        private HashSet<Tenant> _children;
-        
+#pragma warning disable 649
+        // ReSharper disable once CollectionNeverUpdated.Local
+        private HashSet<Tenant> _children; //filled in by EF Core
+#pragma warning restore 649
 
         private Tenant() { } //Needed by EF Core
 

@@ -3,7 +3,8 @@
 
 using System;
 using AuthPermissions.AdminCode;
-using Example4.ShopCode.EfCoreClasses.SupportTypes;
+using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.CommonCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.ShopCode.EfCoreClasses

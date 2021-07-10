@@ -15,7 +15,7 @@ namespace AuthPermissions.AspNetCore.PolicyCode
     {
         private readonly Type _enumPermissionType;
 
-        public PermissionPolicyHandler(IAuthPermissionsOptions options)
+        public PermissionPolicyHandler(AuthPermissionsOptions options)
         {
             _enumPermissionType = options.InternalData.EnumPermissionsType;
         }
