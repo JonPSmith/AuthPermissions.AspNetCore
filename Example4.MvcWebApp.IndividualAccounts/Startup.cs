@@ -66,7 +66,7 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .AddUsersRolesIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
-                .IndividualAccountsAddSuperUser()
+                .IndividualAccountsAddSuperUserIfNoUsers()
                 .SetupAuthDatabaseOnStartup();
 
             //This registers all the code to handle the shop part of the demo

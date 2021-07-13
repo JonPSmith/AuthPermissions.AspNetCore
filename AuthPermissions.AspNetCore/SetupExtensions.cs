@@ -30,13 +30,13 @@ namespace AuthPermissions.AspNetCore
         /// <summary>
         /// This will add a single user to ASP.NET Core individual accounts identity system using data in the appsettings.json file.
         /// This is here to allow you add a super-admin user when you first start up the application on a new system
-        /// NOTE: for security reasons this will only add a new user if there isn't a user with the AccessAll permission
+        /// NOTE: for security reasons this will only add a new user if there aren't any users already in the individual accounts database
         /// </summary>
         /// <param name="setupData"></param>
         /// <returns></returns>
-        public static AuthSetupData IndividualAccountsAddSuperUser(this AuthSetupData setupData)
+        public static AuthSetupData IndividualAccountsAddSuperUserIfNoUsers(this AuthSetupData setupData)
         {
-            setupData.Services.AddHostedService<IndividualAccountsAddSuperUser>();
+            setupData.Services.AddHostedService<IndividualAccountsAddSuperUserIfNoUsers>();
 
             return setupData;
         }

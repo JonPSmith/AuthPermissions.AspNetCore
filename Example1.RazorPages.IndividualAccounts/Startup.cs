@@ -52,7 +52,7 @@ namespace Example1.RazorPages.IndividualAccounts
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddUsersRolesIfEmpty(AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
-                .IndividualAccountsAddSuperUser()
+                .IndividualAccountsAddSuperUserIfNoUsers()
                 .SetupAuthDatabaseOnStartup();
         }
 

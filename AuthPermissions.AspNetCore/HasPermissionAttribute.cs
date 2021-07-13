@@ -23,7 +23,6 @@ namespace AuthPermissions.AspNetCore
             if (permission == null) throw new ArgumentNullException(nameof(permission));
 
             permission.GetType().ThrowExceptionIfEnumIsNotCorrect();
-                throw new ArgumentException("Must be an enum");
         }
     }
    

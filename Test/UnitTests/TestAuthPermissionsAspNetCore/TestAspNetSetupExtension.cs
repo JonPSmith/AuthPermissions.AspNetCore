@@ -85,7 +85,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .IndividualAccountsAddSuperUser()
+                .IndividualAccountsAddSuperUserIfNoUsers()
                 .SetupAspNetCorePart();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -93,7 +93,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUser>();
+            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUserIfNoUsers>();
             await startupServices.Last().StartAsync(default);
 
             //VERIFY
@@ -187,7 +187,7 @@ Role2 |my description|: One, Two, Two, Three
 Role3: One")
                 .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithSuperUser())
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
-                .IndividualAccountsAddSuperUser()
+                .IndividualAccountsAddSuperUserIfNoUsers()
                 .SetupAuthDatabaseOnStartup();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -195,7 +195,7 @@ Role3: One")
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser>();
+            startupServices[1].ShouldBeType<IndividualAccountsAddSuperUserIfNoUsers>();
             await startupServices[1].StartAsync(default);
             startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[2].StartAsync(default);
