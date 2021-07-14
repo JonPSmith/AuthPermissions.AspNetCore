@@ -33,7 +33,6 @@ namespace Example1.RazorPages.IndividualAccounts
 
             services.AddDefaultIdentity<IdentityUser>(
                     options => options.SignIn.RequireConfirmedAccount = false)
-                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             //Example of configure a page as only shown if you log in

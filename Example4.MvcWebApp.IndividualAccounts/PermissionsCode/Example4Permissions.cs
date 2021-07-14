@@ -24,7 +24,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
         [Display(GroupName = "Stock", Name = "Remove", Description = "Can remove stock")]
         StockRemove = 14,
 
-        [Display(GroupName = "Sales", Name = "Read", Description = "Can read stock items")]
+        [Display(GroupName = "Sales", Name = "Read", Description = "Can read any sales")]
         SalesRead = 20,
         [Display(GroupName = "Sales", Name = "Sell", Description = "Can sell items from stock")]
         SalesSell = 21,

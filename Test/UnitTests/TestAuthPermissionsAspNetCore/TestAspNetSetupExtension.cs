@@ -11,11 +11,13 @@ using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Test.DiTestHelpers;
 using Test.TestHelpers;
+using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -102,19 +104,47 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreSetupAuthDatabaseOnStartup()
+        public async Task TestSetupAspNetCoreIndividualAccountsAddSuperUserOnlyAddsIfNoUser()
         {
             //SETUP
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
+                .IndividualAccountsAddSuperUserIfNoUsers()
+                .SetupAspNetCorePart();
+
+            var serviceProvider = services.BuildServiceProvider();
+            using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            await userManager.CheckAddNewUserAsync("me@gmail.com", "PaSSw0rd!");
+
+            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+
+            //ATTEMPT
+            startupServices.Count.ShouldEqual(2);
+            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUserIfNoUsers>();
+            await startupServices.Last().StartAsync(default);
+
+            //VERIFY
+            userManager.Users.Select(x => x.Email).ToArray().ShouldEqual(new []{ "me@gmail.com" });
+        }
+
+        [Fact]
+        public async Task TestSetupAspNetCoreSetupAuthDatabaseOnStartup()
+        {
+            //SETUP
+            var aspNetConnectionString = this.GetUniqueDatabaseConnectionString();
+            var services = this.SetupServicesForTest();
+            services.RegisterAuthPermissions<TestEnum>(options => options.MigrateAuthPermissionsDbOnStartup = true)
+                .UsingEfCoreSqlServer(aspNetConnectionString)
                 .SetupAuthDatabaseOnStartup();
 
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
+            startupServices.Count.ShouldEqual(3);
+            startupServices[1].ShouldBeType<SetupDatabaseOnStartup>();
+            await startupServices[1].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -125,7 +155,6 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
         public async Task TestSetupAspNetCoreAddRolesPermissionsUsersIfEmpty()
         {
             //SETUP
-            var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
