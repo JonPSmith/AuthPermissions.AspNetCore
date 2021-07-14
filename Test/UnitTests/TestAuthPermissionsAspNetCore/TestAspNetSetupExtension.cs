@@ -87,7 +87,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .IndividualAccountsAddSuperUserIfNoUsers()
+                .IndividualAccountsAddSuperUser()
                 .SetupAspNetCorePart();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -95,37 +95,12 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUserIfNoUsers>();
+            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUser>();
             await startupServices.Last().StartAsync(default);
 
             //VERIFY
             using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             userManager.Users.Count().ShouldEqual(1);
-        }
-
-        [Fact]
-        public async Task TestSetupAspNetCoreIndividualAccountsAddSuperUserOnlyAddsIfNoUser()
-        {
-            //SETUP
-            var services = this.SetupServicesForTest();
-            services.RegisterAuthPermissions<TestEnum>()
-                .UsingInMemoryDatabase()
-                .IndividualAccountsAddSuperUserIfNoUsers()
-                .SetupAspNetCorePart();
-
-            var serviceProvider = services.BuildServiceProvider();
-            using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            await userManager.CheckAddNewUserAsync("me@gmail.com", "PaSSw0rd!");
-
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
-
-            //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUserIfNoUsers>();
-            await startupServices.Last().StartAsync(default);
-
-            //VERIFY
-            userManager.Users.Select(x => x.Email).ToArray().ShouldEqual(new []{ "me@gmail.com" });
         }
 
         [Fact]
@@ -216,7 +191,7 @@ Role2 |my description|: One, Two, Two, Three
 Role3: One")
                 .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithSuperUser())
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
-                .IndividualAccountsAddSuperUserIfNoUsers()
+                .IndividualAccountsAddSuperUser()
                 .SetupAuthDatabaseOnStartup();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -224,7 +199,7 @@ Role3: One")
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<IndividualAccountsAddSuperUserIfNoUsers>();
+            startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser>();
             await startupServices[1].StartAsync(default);
             startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[2].StartAsync(default);

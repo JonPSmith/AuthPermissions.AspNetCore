@@ -16,11 +16,8 @@ namespace AuthPermissions.AspNetCore.HostedServices
     /// This hosted service is designed to add a user to the Individual Accounts
     /// authentication provider  when the application is deployed with a new database.
     /// It takes the new user's email and password from the appsettings file
-    ///
-    /// It will NOT add a new user if there are already users in the Individual Accounts database.
-    /// It does this to ensure there security loophole where a new user could be added later.
     /// </summary>
-    public class IndividualAccountsAddSuperUserIfNoUsers : IHostedService
+    public class IndividualAccountsAddSuperUser : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -28,7 +25,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
         /// ctor
         /// </summary>
         /// <param name="serviceProvider"></param>
-        public IndividualAccountsAddSuperUserIfNoUsers(IServiceProvider serviceProvider)
+        public IndividualAccountsAddSuperUser(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -45,11 +42,6 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 var services = scope.ServiceProvider;
 
                 var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-
-                if (userManager.Users.Any())
-                    //If there are any users already in the Individual Accounts it does not add a super user
-                    //This is to ensure that other users can be added this way.
-                    return;
 
                 var superUserInfo = services.GetSuperUserConfigData();
                 if (!string.IsNullOrEmpty(superUserInfo.email))
@@ -68,7 +60,11 @@ namespace AuthPermissions.AspNetCore.HostedServices
         /// <returns></returns>
         private static async Task<IdentityUser> CheckAddNewUserAsync(UserManager<IdentityUser> userManager, string email, string password)
         {
-            var user = new IdentityUser { UserName = email, Email = email };
+            var user = await userManager.FindByEmailAsync(email);
+            if (user != null)
+                return user;
+
+            user = new IdentityUser { UserName = email, Email = email };
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {

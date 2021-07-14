@@ -3,7 +3,7 @@
 ## Features
 
 - Provide Role-to-Permissions authorization
-- Proide multi-tenant features
+- Provide multi-tenant features
 - Implements an JTW refresh token approach
 
 ## Limitations of this release
@@ -11,9 +11,9 @@
 - Preview only: looking for feedback.
 - Only meant for single instance of the web app (i.e. no scale out) _NOTE: Version 2 will fix this._
 
-## Documanation etc. still needed
+## Documentation etc. still needed
 
-- Look at how to build documentation
+- Build Wiki documentation using /docs folder
 - Article 1 - Roles/Permissions - based on Example 1
 - Article 2 - JWT token with refresh - based on Example 2
 - Good overall README

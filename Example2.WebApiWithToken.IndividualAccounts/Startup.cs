@@ -83,7 +83,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
             //This is used when someone logs in to return a jwt token
             services.AddTransient<ITokenBuilder, TokenBuilder>();
 
-            //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
+            //These methods come from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered
             services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
             services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json
@@ -101,10 +101,10 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                     };
                 })
                 .UsingEfCoreSqlServer(connectionString) //NOTE: This uses the same database as the individual accounts DB
+                .IndividualAccountsAddSuperUser()
+                .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddUsersRolesIfEmpty(AppAuthSetupData.UsersRolesDefinition)
-                .RegisterFindUserInfoService<IndividualAccountUserLookup>()
-                .IndividualAccountsAddSuperUserIfNoUsers()
                 .SetupAuthDatabaseOnStartup();
 
             services.AddControllers();

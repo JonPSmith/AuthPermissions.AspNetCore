@@ -1,25 +1,31 @@
 # Roadmap
 
-## Phase 1 - First release of AuthPemissions
+## Preview - 1.0.0-preview
+
+First release of the AuthPermissions.AspNetCore library. looking for feedback.
 
 ### Summary of new features
 
 - Provide Role-to-Permissions authorization
-- Proide multi-tenant features
+- Provide multi-tenant features
 - Implements an JTW refresh token approach
 - Designed to work with all types of ASP.NET Core designs
   - Blazor, Razor pages, Web API, Web MVC (but see limitation on version 1)
-- Works with any autheication provider that returns the user id as a string
+- Works with any authentication provider that returns the user id as a string
 - Works with any software architectures
   - Monoliths, microservices, serverless, containers etc.
 
 ### Limitations of this release
 
 - Preview only: looking for feedback.
-- Only meant for single instance of the web app (i.e. no scale out) *NOTE: Version 2 will fix this.*
+- The following features can only run on a single instance of the web app (i.e. no scale out) *NOTE: Version 2 will fix this.*
+  - All Bulk load features
+  - Add SuperUser to the IndividualAccounts database.
+  - Some of the example setup code, e.g. adding demo users to the IndividualAccounts database.
 
-## Phase 2 - Second release of AuthPemissions
+## First proper release - 1.0.0
 
+Second release of AuthPermissions with "single instance of the web app" limitation removed.
 ### Summary of new features
 
 - Has "only run once" library to manage migrations / seeding
@@ -49,13 +55,14 @@
 
 ### Build full admin features in Example 4
 
-### Create a AuthPermissions admin scaffolding library
-
 ### Add refresh Cookie
 
-Add per-HTTP Cookie checker - if the cookie is xxx old, then refresh claims.
+- Add per-HTTP Cookie checker - if the cookie is xxx old, then refresh claims.
+- Optionally use Cookie refresh database so than user can be rejected.
 
-Optionally use Cookie refresh database so than user can be rejected.
+### Allow user to add extra claims
+
+### Optional encrypt of AuthP's claims in JWT token
 
 ### AuthUser can have multiple tenants
 
@@ -69,3 +76,4 @@ Optionally use Cookie refresh database so than user can be rejected.
 - Admin: An tenant admin user can only add Roles that the tenant admin user has
 - Add logging to everything (especially anything that could go wrong)  
 
+### Create a AuthPermissions admin scaffolding library
