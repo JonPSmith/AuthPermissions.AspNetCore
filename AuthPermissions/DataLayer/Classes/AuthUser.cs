@@ -32,8 +32,9 @@ namespace AuthPermissions.DataLayer.Classes
         public AuthUser(string userId, string email, string userName, IEnumerable<RoleToPermissions> roles, Tenant userTenant = null)
         {
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-            Email = email ?? throw new ArgumentNullException(nameof(email));
-            UserName = userName ?? Email;
+            Email = email;
+            UserName = (userName ?? Email) ?? throw new AuthPermissionsBadDataException($"The {nameof(Email)} and {nameof(UserName)} can't both be null.");
+
             _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(userId, x)));
             UserTenant = userTenant;
         }
@@ -47,14 +48,15 @@ namespace AuthPermissions.DataLayer.Classes
         public string UserId { get; private set; }
 
         /// <summary>
-        /// Contains the Email, which is used for lookup
+        /// Contains a unique Email, which is used for lookup
+        /// (can be null if using Windows authentication provider)
         /// </summary>
-        [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.EmailSize)]
         public string Email { get; private set; }
 
         /// <summary>
-        /// Contains a name to help work out who the user is
+        /// Contains a unique user name
+        /// This is used to a) provide more info on the user, or b) when using Windows authentication provider
         /// </summary>
         [MaxLength(AuthDbConstants.UserNameSize)]
         public string UserName { get; private set; }
@@ -84,7 +86,18 @@ namespace AuthPermissions.DataLayer.Classes
         /// <summary>
         /// Used when there is an exception
         /// </summary>
-        public string NameToUseForError => UserName ?? Email;
+        public string NameToUseForError
+        {
+            get
+            {
+                if (Email != null && UserName != null && Email != UserName)
+                    //If both the Email and the UserName are set, and aren't the same we show both
+                    return $"{Email} or {UserName}";
+
+                return UserName ?? Email;
+            }
+        }
+
 
         /// <summary>
         /// Summary of AuthUser

@@ -66,6 +66,10 @@ namespace AuthPermissions.DataLayer.EfCode
                 .HasIndex(x => x.Email)
                 .IsUnique();
             modelBuilder.Entity<AuthUser>()
+                .HasIndex(x => x.UserName)
+                .IsUnique();
+
+            modelBuilder.Entity<AuthUser>()
                 .HasMany(x => x.UserRoles)
                 .WithOne()
                 .HasForeignKey(x => x.UserId);

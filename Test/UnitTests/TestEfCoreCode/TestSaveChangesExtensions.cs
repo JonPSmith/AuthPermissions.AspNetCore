@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
@@ -53,6 +54,30 @@ namespace Test.UnitTests.TestEfCoreCode
             status.IsValid.ShouldBeFalse();
             status.Errors.Count.ShouldEqual(1);
             status.Errors.Single().ToString().ShouldEqual("There is already a RoleToPermissions with a value: name = BIG Name");
+        }
+
+        [Fact]
+        public void TestSaveChangesWithUniqueAuthUserWhereEmailAndUserNameAreDifferent()
+        {
+            //SETUP
+            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
+                builder.UseExceptionProcessor());
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureClean();
+
+            context.Add(new AuthUser("123", "first@gmail.com", "first", new List<RoleToPermissions>()));
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            //ATTEMPT
+            context.Add(new AuthUser("123", "second@gmail.com", "second", new List<RoleToPermissions>()));
+            var status = context.SaveChangesWithChecks();
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.Errors.Count.ShouldEqual(1);
+            status.Errors.Single().ToString().ShouldEqual("There is already a AuthUser with a value: name = second@gmail.com or second");
         }
 
         [Fact]
