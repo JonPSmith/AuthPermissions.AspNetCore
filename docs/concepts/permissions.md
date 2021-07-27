@@ -80,4 +80,4 @@ The `HasPermission` extension method is also useful in any Razor page (e.g. `Use
 
 - [Defining your Permissions](!!!!)
 - [Using Permissions in your application](!!!!)
-- [Admin -> Roles / Permissions](!!!!)
+- [Roles admin service](!!!!)
