@@ -6,13 +6,26 @@ But for the AuthP library we need extra data not available from the authenticati
 
 ## AuthP's `AuthUser` entity
 
-AuthP's `AuthUser` entity is linked logged in user via the authentication provider _user id_, which is a string. This `AuthUser` entity holds the [AuthP's Roles](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/docs/concepts/roles.md) and the optional [AuthP's multi-tenant option](!!!!) information.
+AuthP's `AuthUser` entity is linked logged-in user via the authentication provider _user id_. The `AuthUser` entity holds the extra data needed to make AuthP work: They are:
 
-Of course the authentication provider is in charge of who are valid users, and the AuthP's [AuthUser's admin service](!!!!) has a [sync](!!!!) feature which will tell you if and of the authentication provider's have changes and provides a way to update the AuthP's AuthUsers. In addition the [AuthUser's admin service](!!!!) allows you alter an AuthUser's AuthP's Roles and multi-tenant information.
+- The [AuthP's Roles](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/docs/concepts/roles.md) for a user.
+- Optional [AuthP's multi-tenant option](!!!!) information.
+
+### Keeping the AuthP's AuthUsers in sync with the authentication provider's users
+
+The authentication provider's users are the master list of users, and when authentication provider's users are added or removed we need to update the AuthP's AuthUsers. This is covered by the [sync](!!!!) feature in the AuthP's [AuthUser's admin service](!!!!). This sync feature tells you if the `AuthUser` entities are out of date  and provides feature to fix any changes so that the AuthUsers match the authentication provider's user info.
+
+_NOTE: In addition the [AuthUser's admin service](!!!!) allows you alter an AuthUser's AuthP's Roles and multi-tenant information._
 
 ## How are the AuthP claims added to the logging-in user?
 
-When a user logs in the AuthP will automatically add extra claims if a Cookie Authentication is configured, or if you are using JWT Token Authentication you call a method to build the JWT Token which includes the AuthP's claims.
+When a user logs in the AuthP will automatically add extra claims to a Cookie Authentication (if configured, or if you are using JWT Token Authentication you call a method to build the JWT Token which includes the AuthP's claims.
+
+The diagram below shows how the AuthUser's Roles are turned into a combined list of Permissions and then turned in to a claim in the Cookie or JWT Token.
+
+![Add Permissions Claim](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/docs/images/AddPermissionsClaim.png)
+
+## How are the AuthP claims used once a user is logged in?
 
 Then on every HTTP request ASP.NET Core will automatically all the claims from the Cookie Authentication or JWT Token and builds a `ClaimsPrincipal`, which is in the HTTP context under the property `User`. The diagram below shows this in action.
 
@@ -21,5 +34,5 @@ Then on every HTTP request ASP.NET Core will automatically all the claims from t
 ## Additional resources
 
 - [Using Permissions in your application](!!!!)
-- [Using JWT Token Authentication](!!!!)
-- [Admin -> AuthUsers](!!!!)
+- [Setting up your JWT Token](!!!!)
+- [AuthUser's admin service](!!!!)
