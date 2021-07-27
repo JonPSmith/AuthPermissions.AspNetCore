@@ -6,10 +6,13 @@
 - Provide multi-tenant features
 - Implements an JTW refresh token approach
 
+## 1.0.0-preview001
+
+- Preview version - looking for feedback.
+
 ## Limitations of this release
 
-- Preview only: looking for feedback.
-- Only meant for single instance of the web app (i.e. no scale out) _NOTE: Version 2 will fix this._
+- Only works for single instance of the web app (i.e. no scale out) _NOTE: Version 1 will fix this._
 
 ## Documentation etc. still needed
 

@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.AspNetCore"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{796DB617-819D-4D95-ACB8-B991308B6714}"
 	ProjectSection(SolutionItems) = preProject
-		docs\configuration\configuration.md = docs\configuration\configuration.md
-		docs\index.md = docs\index.md
 		ReleaseNotes.md = ReleaseNotes.md
 		Roadmap.md = Roadmap.md
 	EndProjectSection
