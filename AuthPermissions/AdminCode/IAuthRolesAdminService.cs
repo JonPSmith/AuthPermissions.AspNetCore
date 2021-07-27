@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.PermissionsCode;
 using StatusGeneric;
 
 namespace AuthPermissions.AdminCode
@@ -19,6 +20,15 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         /// <returns>query on the database</returns>
         IQueryable<RoleToPermissions> QueryRoleToPermissions();
+
+        /// <summary>
+        /// This returns a list of permissions with the information from the Display attribute
+        /// </summary>
+        /// <param name="groupName">optional: If given then it only returns permissions in a specific group</param>
+        /// <param name="includeFilteredPermissions">Optional: If set to true, then filtered permissions are also included.</param>
+        /// <returns></returns>
+        List<PermissionDisplay> GetPermissionDisplay(string groupName = null,
+            bool includeFilteredPermissions = false);
 
         /// <summary>
         /// This returns a query containing all the Auth users that have the given role name

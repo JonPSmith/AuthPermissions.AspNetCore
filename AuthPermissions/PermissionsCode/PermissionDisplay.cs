@@ -19,8 +19,8 @@ namespace AuthPermissions.PermissionsCode
         {
             PermissionName = permissionName;
             GroupName = groupName;
-            ShortName = name ?? throw new ArgumentNullException(nameof(name));
-            Description = description ?? throw new ArgumentNullException(nameof(description));
+            ShortName = name  ?? "<none>";
+            Description = description ?? "<none>";
         }
 
         /// <summary>

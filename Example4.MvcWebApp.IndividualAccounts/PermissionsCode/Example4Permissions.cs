@@ -12,7 +12,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
     /// Notice that there are lots of permissions - the idea is to have very detailed control over your software
     /// These permissions are combined to create a Role, which will be more human-focused
     /// </summary>
-    public enum Example4Permissions : ushort
+    public enum Example4Permissions : ushort //Must be ushort to work with AuthP
     {
         NotSet = 0, //error condition
 
@@ -33,7 +33,6 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
 
         [Display(GroupName = "Employees", Name = "Read", Description = "Can read company employees")]
         EmployeeRead = 30,
-
 
         //----------------------------------------------------
         //This is an example of what to do with permission you don't used anymore.
