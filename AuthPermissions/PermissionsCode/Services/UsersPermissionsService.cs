@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using AuthPermissions.CommonCode;
 
 namespace AuthPermissions.PermissionsCode.Services
 {
@@ -21,19 +22,18 @@ namespace AuthPermissions.PermissionsCode.Services
         }
 
         /// <summary>
-        /// This returns all the permissions in the provided ClaimsPrincipal (or empty list if no user or permission name)
+        /// This returns all the permissions in the provided ClaimsPrincipal (or null if no user or permission claim)
         /// </summary>
         /// <param name="user"></param>
-        /// <returns></returns>
-        public List<string> PermissionsFromClaims(ClaimsPrincipal user)
+        /// <returns>Returns list of permissions in current user, or null if claim not found</returns>
+        public List<string> PermissionsFromUser(ClaimsPrincipal user)
         {
-            var packedPermissions =
-                user?.Claims.SingleOrDefault(c => c.Type == PermissionConstants.PackedPermissionClaimType)?.Value;
+            var packedPermissions = user.GetPackedPermissionsFromUser();
+
+            if (packedPermissions == null)
+                return null;
 
             var permissionNames = new List<string>();
-            if (packedPermissions == null)
-                return permissionNames;
-
             foreach (var permissionChar in packedPermissions)
             {
                 var enumName = Enum.GetName(_options.InternalData.EnumPermissionsType, (ushort) permissionChar);

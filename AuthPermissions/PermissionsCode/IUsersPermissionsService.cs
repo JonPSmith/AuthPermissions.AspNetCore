@@ -9,10 +9,10 @@ namespace AuthPermissions.PermissionsCode
     public interface IUsersPermissionsService
     {
         /// <summary>
-        /// This returns all the permissions in the provided ClaimsPrincipal (or empty list if no user or permission name)
+        /// This returns all the permissions in the provided ClaimsPrincipal (or null if no user or permission claim)
         /// </summary>
         /// <param name="user"></param>
-        /// <returns></returns>
-        List<string> PermissionsFromClaims(ClaimsPrincipal user);
+        /// <returns>Returns list of permissions in current user, or null if claim not found</returns>
+        List<string> PermissionsFromUser(ClaimsPrincipal user);
     }
 }

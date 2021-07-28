@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AuthPermissions.AdminCode;
+using AuthPermissions.PermissionsCode;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -18,6 +19,11 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             var permissionDisplay = _authRolesAdmin.GetPermissionDisplay();
 
             return View(permissionDisplay);
+        }
+
+        public IActionResult UserPermissions([FromServices] IUsersPermissionsService service)
+        {
+            return View(service.PermissionsFromUser(HttpContext.User));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -109,15 +110,15 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         }
 
         /// <summary>
-        /// This returns the permission names for the current user
+        /// This returns the permission names for the current user (or null if not available)
         /// </summary>
         /// <param name="service"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("refreshauthentication")]
+        [Route("getuserpermissions")]
         public ActionResult<List<string>> GetUsersPermissions([FromServices] IUsersPermissionsService service)
         {
-            return service.PermissionsFromClaims(User);
+            return service.PermissionsFromUser(User);
         }
 
     }

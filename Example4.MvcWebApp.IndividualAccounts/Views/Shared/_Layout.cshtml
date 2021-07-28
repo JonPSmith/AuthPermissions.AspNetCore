@@ -32,7 +32,8 @@
                                 <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="Index">Your claims</a>
                                 <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="AuthUserInfo">Your auth data</a>
                                 <a class="dropdown-item" asp-area="" asp-controller="AuthUsers" asp-action="Index">List all AuthUsers</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List Permissions</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="UserPermissions">List User's Permissions</a>
                             </div>
                         </li>
                         @if (User.HasPermission(Example4Permissions.SalesRead))

@@ -14,7 +14,7 @@ namespace AuthPermissions.CommonCode
         /// This returns the UserId from the current user (
         /// </summary>
         /// <param name="claims"></param>
-        /// <returns></returns>
+        /// <returns>The UserId, or null if not logged in</returns>
         public static string GetUserIdFromClaims(this IEnumerable<Claim> claims)
         {
             return claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -24,7 +24,7 @@ namespace AuthPermissions.CommonCode
         /// This returns the AuthP packed permissions. Can be null if no user, or not packed permissions claims
         /// </summary>
         /// <param name="user">The current ClaimsPrincipal user</param>
-        /// <returns>The packed permissions</returns>
+        /// <returns>The packed permissions, or null if not logged in</returns>
         public static string GetPackedPermissionsFromUser(this ClaimsPrincipal user)
         {
             return user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.PackedPermissionClaimType)?.Value;
