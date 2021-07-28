@@ -42,7 +42,7 @@ _NOTE: You will find a more detailed list of rules / characteristics for the Per
 
 ## Example of using Permissions in your application
 
-There are two ways to use Permission to control to what a logged in user can access.
+The [AuthUser overview](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/docs/concepts/AuthUser.md#how-are-the-authp-claims-added-to-the-logging-in-user) explains how the `ClaimsPrincipal` user in ASP.NET Core gets a claim containing all the permissions that the current user has. There are three ways to use the user's Permission claim to control that user can access.
 
 ### 1. Using `HasPermission` attribute
 
@@ -75,6 +75,12 @@ public class SalesReadModel : PageModel
 ```
 
 The `HasPermission` extension method is also useful in any Razor page (e.g. `User.HasPermission(Example.SalesRead)`) to decide whether a link/button should be displayed. In Blazor the call would be `@context.User.HasPermission(Example.SalesRead)`.
+
+### 3. Using the `IUsersPermissionsService` service
+
+If you are using a front-end library such as React, Angular, Vue and so on, then your front-end needs to know what Permissions the current user has so that the front-end can display the links, buttons etc. that the current user has access to. If you need this you need to set up a WebAPI that will return the current user's permissions. 
+
+The `IUsersPermissionsService` service has a method called `PermissionsFromUser` which returns a list of the Permission names for the current user (or null if no one is logged in or the user is not registered as an `AuthUser`). You can see the `IUsersPermissionsService` service in action in [Example2's AuthenticateController](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example2.WebApiWithToken.IndividualAccounts/Controllers/AuthenticateController.cs#L112L122).
 
 ## Additional resources
 

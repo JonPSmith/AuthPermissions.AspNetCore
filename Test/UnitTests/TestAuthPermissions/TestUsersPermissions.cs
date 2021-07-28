@@ -28,7 +28,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new UsersPermissionsService(options);
 
             //ATTEMPT
-            var names = service.PermissionsFromClaims(user);
+            var names = service.PermissionsFromUser(user);
 
             //VERIFY
             string.Join(",",names).ShouldEqual(commaDelimited);
