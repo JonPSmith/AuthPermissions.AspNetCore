@@ -16,7 +16,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
     {
         NotSet = 0, //error condition
 
-        //Here is an example of very detailed control over something
+        //Here is an example of detailed control over some feature
         [Display(GroupName = "Stock", Name = "Read", Description = "Can read stock")]
         StockRead = 10,
         [Display(GroupName = "Stock", Name = "Add new", Description = "Can add a new stock item")]
@@ -77,7 +77,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
 
         //42_000 - tenant admin
         [Display(GroupName = "TenantAdmin", Name = "Read Tenants", Description = "Can list Tenants")]
-        TenantRead = 42_000,
+        TenantList = 42_000,
         [Display(GroupName = "TenantAdmin", Name = "Create new Tenant", Description = "Can create new Tenants", AutoGenerateFilter = true)]
         TenantCreate = 42_001,
         [Display(GroupName = "TenantAdmin", Name = "Alter existing Tenants", Description = "Can update or move a Tenant", AutoGenerateFilter = true)]

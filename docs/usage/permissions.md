@@ -69,3 +69,4 @@ _NOTE: You only need to read this one login if using Cookie Authentication, and 
 ## Additional resources
 
 - [Setting up your Permissions](!!!!)
+- [Admin -> Roles/Permissions](!!!!)
