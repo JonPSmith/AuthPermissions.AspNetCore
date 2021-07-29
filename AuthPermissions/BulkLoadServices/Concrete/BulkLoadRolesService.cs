@@ -19,14 +19,17 @@ namespace AuthPermissions.BulkLoadServices.Concrete
     public class BulkLoadRolesService : IBulkLoadRolesService
     {
         private readonly AuthPermissionsDbContext _context;
+        private readonly Type _enumPermissionType;
 
         /// <summary>
         /// ctor
         /// </summary>
         /// <param name="context"></param>
-        public BulkLoadRolesService(AuthPermissionsDbContext context)
+        /// <param name="options"></param>
+        public BulkLoadRolesService(AuthPermissionsDbContext context, AuthPermissionsOptions options)
         {
             _context = context;
+            _enumPermissionType = options.InternalData.EnumPermissionsType;
         }
 
         /// <summary>
@@ -38,14 +41,15 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         /// For example:
         /// SalesManager |Can authorize and alter sales|: SalesRead, SalesAdd, SalesUpdate, SalesAuthorize
         /// </param>
-        /// <param name="enumPermissionType"></param>
         /// <returns></returns>
-        public async Task<IStatusGeneric> AddRolesToDatabaseAsync(string linesOfText, Type enumPermissionType)
+        public async Task<IStatusGeneric> AddRolesToDatabaseAsync(string linesOfText)
         {
             IStatusGeneric status = new StatusGenericHandler();
 
             if (string.IsNullOrEmpty(linesOfText))
                 return status;
+
+            var enumNames = Enum.GetNames(_enumPermissionType);
 
             var lines = linesOfText.Split( Environment.NewLine);
 
@@ -53,7 +57,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             {
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
-                status.CombineStatuses(DecodeLineAndAddToDb(lines[i], i, enumPermissionType));
+                status.CombineStatuses(DecodeLineAndAddToDb(lines[i], i, enumNames));
             }
 
             if (status.IsValid)
@@ -66,7 +70,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         //----------------------------------------
         //private methods
 
-        private IStatusGeneric DecodeLineAndAddToDb(string line, int lineNum, Type enumPermissionType)
+        private IStatusGeneric DecodeLineAndAddToDb(string line, int lineNum, string[] enumNames)
         {
             var status = new StatusGenericHandler();
             var indexColon = line.IndexOf(':');
@@ -100,9 +104,9 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             var validPermissionNames = line.DecodeCommaDelimitedNameWithCheck(charNum,
                 (name, startOfName) =>
                 {
-                    if (!enumPermissionType.PermissionsNameIsValid(name))
+                    if (!enumNames.Contains(name))
                         status.AddError(line.FormErrorString(lineNum, startOfName,
-                            $"The permission name {name} wasn't found in the Enum {enumPermissionType.Name}"));
+                            $"The permission name {name} wasn't found in the Enum {_enumPermissionType.Name}"));
                 });
 
             if (!validPermissionNames.Any())
@@ -112,7 +116,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             if (status.HasErrors)
                 return status;
 
-            var role = new RoleToPermissions(roleName, description, enumPermissionType.PackPermissionsNames(validPermissionNames.Distinct()));
+            var role = new RoleToPermissions(roleName, description, _enumPermissionType.PackPermissionsNames(validPermissionNames.Distinct()));
             _context.Add(role);
 
             return status;

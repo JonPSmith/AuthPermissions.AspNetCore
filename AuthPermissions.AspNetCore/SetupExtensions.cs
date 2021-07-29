@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.HostedServices;
+using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BulkLoadServices;
@@ -137,6 +138,16 @@ namespace AuthPermissions.AspNetCore
 
             //Other services
             setupData.Services.AddTransient<IDisableJwtRefreshToken, DisableJwtRefreshToken>();
+            if(setupData.Options.ConfigureAuthJwtToken != null)
+            {
+                //The user is using AuthP's TokenBuilder
+
+                setupData.Options.ConfigureAuthJwtToken.CheckThisJwtConfiguration()
+                    .IfErrorsTurnToException();
+                setupData.Services.AddTransient<ITokenBuilder, TokenBuilder>();
+            }
+
+
         }
     }
 }

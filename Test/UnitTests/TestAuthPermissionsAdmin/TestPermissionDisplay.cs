@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.AdminCode;
 using AuthPermissions.PermissionsCode;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Xunit;
@@ -26,7 +25,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //SETUP
 
             //ATTEMPT
-            var result = PermissionDisplay.GetPermissionsToDisplay(typeof(Example1Permissions));
+            var result = PermissionDisplay.GetPermissionsToDisplay(typeof(Example1Permissions), true);
 
             //VERIFY
             result.Select(x => x.PermissionName).ShouldEqual(new string[]
@@ -45,7 +44,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //SETUP
 
             //ATTEMPT
-            var result = PermissionDisplay.GetPermissionsToDisplay(typeof(Example1Permissions), true);
+            var result = PermissionDisplay.GetPermissionsToDisplay(typeof(Example1Permissions), false);
 
             //VERIFY
             result.Select(x => x.PermissionName).ShouldEqual(new string[]

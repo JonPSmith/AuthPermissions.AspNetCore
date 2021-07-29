@@ -16,7 +16,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         //[HasPermission(Example4Permissions.PermissionRead)]
         public IActionResult ListPermissions()
         {
-            var permissionDisplay = _authRolesAdmin.GetPermissionDisplay();
+            var permissionDisplay = _authRolesAdmin.GetPermissionDisplay(false);
 
             return View(permissionDisplay);
         }

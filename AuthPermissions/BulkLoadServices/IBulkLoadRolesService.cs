@@ -22,8 +22,7 @@ namespace AuthPermissions.BulkLoadServices
         /// For example:
         /// SalesManager |Can authorize and alter sales|: SalesRead, SalesAdd, SalesUpdate, SalesAuthorize
         /// </param>
-        /// <param name="enumPermissionType"></param>
         /// <returns></returns>
-        Task<IStatusGeneric> AddRolesToDatabaseAsync(string linesOfText, Type enumPermissionType);
+        Task<IStatusGeneric> AddRolesToDatabaseAsync(string linesOfText);
     }
 }

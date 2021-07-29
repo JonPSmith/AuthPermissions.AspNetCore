@@ -38,7 +38,7 @@ namespace AuthPermissions
         /// <summary>
         /// This holds data that is set up during the 
         /// </summary>
-        public SetupInternalData InternalData { get; private set; } = new SetupInternalData();
+        public SetupInternalData InternalData { get; } = new SetupInternalData();
 
     }
 }

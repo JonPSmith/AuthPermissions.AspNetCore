@@ -3,9 +3,9 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupCode;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -37,10 +37,12 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new BulkLoadRolesService(context);
+            var authOptions = new AuthPermissionsOptions();
+            authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
+            var service = new BulkLoadRolesService(context, authOptions);
 
             //ATTEMPT
-            var status = await service.AddRolesToDatabaseAsync(line, typeof(TestEnum));
+            var status = await service.AddRolesToDatabaseAsync(line);
 
             //VERIFY
             if (!status.IsValid)
@@ -61,10 +63,12 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new BulkLoadRolesService(context);
+            var authOptions = new AuthPermissionsOptions();
+            authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
+            var service = new BulkLoadRolesService(context, authOptions);
 
             //ATTEMPT
-            var status = await service.AddRolesToDatabaseAsync(line, typeof(TestEnum));
+            var status = await service.AddRolesToDatabaseAsync(line);
 
             //VERIFY
             if (!status.IsValid)
@@ -85,14 +89,16 @@ namespace Test.UnitTests.TestAuthPermissions
             context.Database.EnsureCreated();
             //context.Database.EnsureClean();
 
-            var service = new BulkLoadRolesService(context);
+            var authOptions = new AuthPermissionsOptions();
+            authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
+            var service = new BulkLoadRolesService(context, authOptions);
 
             var lines = @"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role with space: One";
 
             //ATTEMPT
-            var status = await service.AddRolesToDatabaseAsync(lines, typeof(TestEnum));
+            var status = await service.AddRolesToDatabaseAsync(lines);
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 

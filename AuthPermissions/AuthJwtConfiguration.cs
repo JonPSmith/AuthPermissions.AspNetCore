@@ -2,6 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
+using StatusGeneric;
 
 namespace AuthPermissions
 {
@@ -30,5 +32,26 @@ namespace AuthPermissions
         /// This Timespan is used to work out if the RefreshToken (in the database) has expired or not
         /// </summary>
         public TimeSpan RefreshTokenExpires { get; set; }
+
+        /// <summary>
+        /// This checks that the properties have been set
+        /// NOTE: Doesn't check RefreshTokenExpires as might not be used.
+        /// </summary>
+        /// <returns></returns>
+        public IStatusGeneric CheckThisJwtConfiguration()
+        {
+            var status = new StatusGenericHandler("AuthP JWT Token config");
+
+            if (string.IsNullOrEmpty(Issuer))
+                status.AddError($"{nameof(Issuer)} must not be null or empty");
+            if (string.IsNullOrEmpty(Audience))
+                status.AddError($"{nameof(Audience)} must not be null or empty");
+            if (string.IsNullOrEmpty(SigningKey))
+                status.AddError($"{nameof(SigningKey)} must not be null or empty");
+            if (TokenExpires == default)
+                status.AddError($"{nameof(TokenExpires)} must be set with a TimeSpan");
+
+            return status;
+        }
     }
 }

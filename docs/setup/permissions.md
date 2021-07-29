@@ -120,13 +120,13 @@ Sometimes you want to add new Permission members, but they shouldn't be used by 
 HiddenPermission = 2_000,
 ```
 
-_NOTE: You can use hidden Permission members in unit tests, including in the bulk loading of Roles, but you can't add a hidden Permission member to an existing application._
+_NOTE: You can use hidden Permission members in unit tests, including in the bulk loading of Roles, but you can't add a hidden Permission member to an existing application using the normal AuthP admin tools._
 
 ### Filtering out advanced Permissions
 
-For multi-tenant systems you might want an admin role to just manage the users in the specific tenant. AuthP's admin code allows for that, but you might want to remove some Permission members from a tenant-level admin person. If you set the `Display` attribute's `AutoGenerateFilter` to `true`, then the tenant-level admin person won't have access to these Permissions members. 
+For multi-tenant systems you might want an admin role to just manage the users in the specific tenant. AuthP's admin code can users by their DataKey, but you might want to remove some Permission members from a tenant-level admin person. By adding `AutoGenerateFilter = true` to the `Display` attribute that Permission member the permission display won't show that member.
 
-Then code below allows a tenant-level admin user to only see the `TenantList`, but not the `TenantCreate` or `TenantUpdate` Permissions.
+The code below allows a tenant-level admin user to only see the `TenantList` Permission, but not the `TenantCreate` or `TenantUpdate` Permissions.
 
 ```c#
 //42_000 - tenant admin

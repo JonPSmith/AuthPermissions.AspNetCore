@@ -60,9 +60,9 @@ namespace AuthPermissions.PermissionsCode
         /// b) Which have a <see cref="ObsoleteAttribute"/> applied to that name
         /// </summary>
         /// <param name="enumType">type of the enum permissions</param>
-        /// <param name="includeFilteredPermissions">if false then it won't show permissions where the AutoGenerateFilter is true</param>
+        /// <param name="excludeFilteredPermissions">if trie then it won't show permissions where the AutoGenerateFilter is true</param>
         /// <returns>a list of PermissionDisplay classes containing the data</returns>
-        public static List<PermissionDisplay> GetPermissionsToDisplay(Type enumType, bool includeFilteredPermissions = false) 
+        public static List<PermissionDisplay> GetPermissionsToDisplay(Type enumType, bool excludeFilteredPermissions) 
         {
             var result = new List<PermissionDisplay>();
             foreach (var permissionName in Enum.GetNames(enumType))
@@ -79,7 +79,7 @@ namespace AuthPermissions.PermissionsCode
                     continue;
 
                 //remove permissions where AutoGenerateFilter is true
-                if (!includeFilteredPermissions && displayAttribute.GetAutoGenerateFilter() == true)
+                if (excludeFilteredPermissions && displayAttribute.GetAutoGenerateFilter() == true)
                     continue;
 
                 result.Add(new PermissionDisplay(permissionName, displayAttribute.GroupName, displayAttribute.Name, displayAttribute.Description));

@@ -44,7 +44,6 @@ namespace Example2.WebApiWithToken.IndividualAccounts
             // Configure Authentication using JWT token with refresh capability
             var jwtData = new JwtSetupData();
             Configuration.Bind("JwtData", jwtData);
-            services.Configure<AuthJwtConfiguration>(Configuration.GetSection(nameof(AuthJwtConfiguration)));
             services.AddAuthentication(auth =>
                 {
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -79,9 +78,6 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                         }
                     };
                 });
-
-            //This is used when someone logs in to return a jwt token
-            services.AddTransient<ITokenBuilder, TokenBuilder>();
 
             //These methods come from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered

@@ -39,8 +39,10 @@ namespace Test.TestHelpers
 Role2 |my description|: Two
 Role3: Three";
 
-            var service = new BulkLoadRolesService(context);
-            var status = await service.AddRolesToDatabaseAsync(lines, typeof(TestEnum));
+            var authOptions = new AuthPermissionsOptions();
+            authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
+            var service = new BulkLoadRolesService(context, authOptions);
+            var status = await service.AddRolesToDatabaseAsync(lines);
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
         }

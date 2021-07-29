@@ -56,28 +56,6 @@ namespace AuthPermissions.PermissionsCode.Internal
             return packedPermissions;
         }
 
-
-
-        /// <summary>
-        /// This checks a permissionName is valid for the enumPermissionsType
-        /// </summary>
-        /// <param name="enumPermissionsType"></param>
-        /// <param name="permissionName"></param>
-        /// <returns>true if valid</returns>
-        public static bool PermissionsNameIsValid(this Type enumPermissionsType, string permissionName)
-        {
-            try
-            {
-                Enum.Parse(enumPermissionsType, permissionName);
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         //----------------------------------------------------------------------
         // private methods
 

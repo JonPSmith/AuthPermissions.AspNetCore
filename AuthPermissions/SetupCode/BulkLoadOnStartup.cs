@@ -33,9 +33,8 @@ namespace AuthPermissions.SetupCode
             IStatusGeneric status = new StatusGenericHandler();
             if (!context.RoleToPermissions.Any())
             {
-                var roleLoader = new BulkLoadRolesService(context);
-                status = await roleLoader.AddRolesToDatabaseAsync(options.InternalData.RolesPermissionsSetupText,
-                    options.InternalData.EnumPermissionsType);
+                var roleLoader = new BulkLoadRolesService(context, options);
+                status = await roleLoader.AddRolesToDatabaseAsync(options.InternalData.RolesPermissionsSetupText);
             }
 
             if (status is { IsValid: true } && options.TenantType != TenantTypes.NotUsingTenants && !context.Tenants.Any())
