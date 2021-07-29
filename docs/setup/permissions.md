@@ -26,15 +26,19 @@ _NOTE: If you prefer to see the actual Permissions with comments see the [Exampl
 
 ### Creating the Permissions Enum
 
-The code below shows how you would start your Permissions Enum off. Both rules are required.
+The code below shows how you would define your Permissions Enum off. The three rules shown in the code are required.
 
 ```c#
 public enum YourPermissions : ushort //1. Must be ushort to work with AuthP
 {
     NotSet = 0,                      //2. You mustn't use a zero as a valid member for 
     // ... other code left out
+
+    AccessAll = ushort.MaxValue      //3. This allows a user to access every feature
 }
 ```
+
+_NOTE: The `AccessAll` Permission member is very powerful and should only be given to a SuperAdmin user. The SuperUser can create normal admin users which have most of the Permission members, but not the `AccessAll` Permission._ 
 
 ### Grouping into a feature group
 
@@ -83,6 +87,7 @@ public enum YourPermissions : ushort
 
     // ... other code left out
 }
+```
 
 Here is an example of how Permissions are shown to an admin person using `AuthRolesAdminService.GetPermissionDisplay` method.  
 _NOTE: The `GetPermissionDisplay` can filter by GroupName`._
