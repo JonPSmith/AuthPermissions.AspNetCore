@@ -120,3 +120,9 @@ You can see the [`RefreshAuthentication` method in Example2's `AuthenticateContr
 
 ## Sending the current user's Permissions to the front-end
 
+I might want your front-end code to have access to the current user's Permissions. This would allow the front-end to only show links that the current user can access. You can get the current user's Permissions via the `IUsersPermissionsService`. See the [`GetUsersPermissions` method in Example2's `AuthenticateController`](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example2.WebApiWithToken.IndividualAccounts/Controllers/AuthenticateController.cs#L112L125).
+
+The front-end should call this after:
+
+- A login.
+- When the JWT Token is refreshed.
