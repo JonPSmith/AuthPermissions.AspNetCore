@@ -34,21 +34,19 @@ services.AddAuthentication(auth =>
     });
 ```
 
-And the `appsetting.json` file contains the following json setting.
+And the `appsetting.json` file contains the following json setting. This contains the data needed for the JWT Token. It is in the appsetting so that these values can be overwritten when you deploy to production.
 
 ```json
 {
-  //... other settings removed
-
-  //This contains the data needed for the jwt bearer token
-  //It is in the appsetting so that these values can be overwritten when you deploy to production
   "JwtData": {
     "Issuer": "https://localhost:44304",
     "Audience": "https://localhost:44304",
-    "SigningKey": "some-long-secret-key-that-is-NOT-in-your-appsetting-file" //Use user secrets, or override at deployment time
+    "SigningKey": "some-long-secret-key-that-is-NOT-in-your-appsetting-file" 
   }
 }
 ```
+
+_NOTE: The "SigingKey" is a important value that must be kept secret. When you are deploying to production you should either this value during deployment, or use user secrets._
 
 ## Creating the JWT Token (without JWT refresh feature)
 
