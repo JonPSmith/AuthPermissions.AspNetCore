@@ -14,14 +14,14 @@ namespace Test.TestHelpers
     public static class DecodeJwtToken
     {
         //Taken from TokenBuilder
-        public static ClaimsPrincipal TestGetPrincipalFromToken(this AuthJwtConfiguration authJwtConfiguration, string token)
+        public static ClaimsPrincipal TestGetPrincipalFromToken(this AuthPJwtConfiguration authPJwtConfiguration, string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authJwtConfiguration.SigningKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authPJwtConfiguration.SigningKey)),
                 ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
             };
 

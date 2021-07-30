@@ -138,11 +138,11 @@ namespace AuthPermissions.AspNetCore
 
             //Other services
             setupData.Services.AddTransient<IDisableJwtRefreshToken, DisableJwtRefreshToken>();
-            if(setupData.Options.ConfigureAuthJwtToken != null)
+            if(setupData.Options.ConfigureAuthPJwtToken != null)
             {
                 //The user is using AuthP's TokenBuilder
 
-                setupData.Options.ConfigureAuthJwtToken.CheckThisJwtConfiguration()
+                setupData.Options.ConfigureAuthPJwtToken.CheckThisJwtConfiguration()
                     .IfErrorsTurnToException();
                 setupData.Services.AddTransient<ITokenBuilder, TokenBuilder>();
             }

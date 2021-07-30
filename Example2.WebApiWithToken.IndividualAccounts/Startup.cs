@@ -87,7 +87,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
             services.RegisterAuthPermissions<Example2Permissions>( options =>
                 {
                     options.MigrateAuthPermissionsDbOnStartup = true;
-                    options.ConfigureAuthJwtToken = new AuthJwtConfiguration
+                    options.ConfigureAuthPJwtToken = new AuthPJwtConfiguration
                     {
                         Issuer = jwtData.Issuer,
                         Audience = jwtData.Audience,

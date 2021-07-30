@@ -64,9 +64,9 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
         /// <returns></returns>
         public async Task<TokenAndRefreshToken> GenerateTokenAndRefreshTokenAsync(string userId)
         {
-            if (_options.ConfigureAuthJwtToken.RefreshTokenExpires == default)
+            if (_options.ConfigureAuthPJwtToken.RefreshTokenExpires == default)
                 throw new AuthPermissionsBadDataException(
-                    $"The {nameof(AuthJwtConfiguration)}.{nameof(AuthJwtConfiguration.RefreshTokenExpires)} must be set with a TimeSpan value.");
+                    $"The {nameof(AuthPJwtConfiguration)}.{nameof(AuthPJwtConfiguration.RefreshTokenExpires)} must be set with a TimeSpan value.");
 
             var claims = await _claimsCalculator.GetClaimsForAuthUser(userId);
             var tokenAndDesc = GenerateJwtTokenHandler(userId, claims);
@@ -115,10 +115,10 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
                 _logger.LogWarning($"The refresh token in the database was marked as {nameof(refreshTokenFromDb.IsInvalid)}. Token = {tokenAndRefresh.Token}");
                 return (null, 401); //Unauthorized - need to log in again
             }
-            if (refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureAuthJwtToken.RefreshTokenExpires) < DateTime.UtcNow)
+            if (refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureAuthPJwtToken.RefreshTokenExpires) < DateTime.UtcNow)
             {
                 //Refresh token was out of date
-                var howFarOutOfDate = refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureAuthJwtToken.RefreshTokenExpires)
+                var howFarOutOfDate = refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureAuthPJwtToken.RefreshTokenExpires)
                     .Subtract(DateTime.UtcNow);
                 _logger.LogInformation($"Refresh token had expired by {howFarOutOfDate:g}. Token = {tokenAndRefresh.Token}");
                 return (null, 401); //Unauthorized - need to log in again
@@ -165,13 +165,13 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             GenerateJwtTokenHandler(string userId, IEnumerable<Claim> claims)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_options.ConfigureAuthJwtToken.SigningKey);
+            var key = Encoding.ASCII.GetBytes(_options.ConfigureAuthPJwtToken.SigningKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, userId) }),
-                Issuer = _options.ConfigureAuthJwtToken.Issuer,
-                Audience = _options.ConfigureAuthJwtToken.Audience,
-                Expires = DateTime.UtcNow.Add(_options.ConfigureAuthJwtToken.TokenExpires),
+                Issuer = _options.ConfigureAuthPJwtToken.Issuer,
+                Audience = _options.ConfigureAuthPJwtToken.Audience,
+                Expires = DateTime.UtcNow.Add(_options.ConfigureAuthPJwtToken.TokenExpires),
                 SigningCredentials =
                     new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Claims = claims.ToDictionary(x => x.Type, y => (object)y.Value)
@@ -190,11 +190,11 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = _options.ConfigureAuthJwtToken.Issuer,
+                ValidIssuer = _options.ConfigureAuthPJwtToken.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _options.ConfigureAuthJwtToken.Audience,
+                ValidAudience = _options.ConfigureAuthPJwtToken.Audience,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_options.ConfigureAuthJwtToken.SigningKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_options.ConfigureAuthPJwtToken.SigningKey)),
                 ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
             };
 

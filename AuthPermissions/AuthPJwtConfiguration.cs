@@ -10,7 +10,7 @@ namespace AuthPermissions
     /// <summary>
     /// This contains the data that the JWT token (and optional RefreshToken)
     /// </summary>
-    public class AuthJwtConfiguration
+    public class AuthPJwtConfiguration
     {
         /// <summary>
         /// This identifies provider that issued the JWT

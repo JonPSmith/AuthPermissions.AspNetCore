@@ -30,7 +30,7 @@ namespace AuthPermissions
         /// <summary>
         /// This is where you configure the JwtToken
         /// </summary>
-        public AuthJwtConfiguration ConfigureAuthJwtToken { get; set; }
+        public AuthPJwtConfiguration ConfigureAuthPJwtToken { get; set; }
 
         //-------------------------------------------------
         //internal set properties/handles
