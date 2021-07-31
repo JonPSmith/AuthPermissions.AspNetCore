@@ -97,10 +97,10 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                     };
                 })
                 .UsingEfCoreSqlServer(connectionString) //NOTE: This uses the same database as the individual accounts DB
-                .IndividualAccountsAddSuperUser()
+                .AddSuperUserToIndividualAccounts()
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
-                .AddUsersRolesIfEmpty(AppAuthSetupData.UsersRolesDefinition)
+                .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
                 .SetupAuthDatabaseOnStartup();
 
             services.AddControllers();

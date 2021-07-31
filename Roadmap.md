@@ -26,11 +26,13 @@ First release of the AuthPermissions.AspNetCore library. looking for feedback.
 ## First proper release - 1.0.0
 
 Second release of AuthPermissions with "single instance of the web app" limitation removed.
+
 ### Summary of new features
 
 - Has "only run once" library to manage migrations / seeding
 - new Example3 - an example of using simple tenants with Azure Active Directory (MVC)
 - Various small improvements 
+  - Add log of the setup of AuthP's library to help identify problems.
 
 ### Limitations 
 

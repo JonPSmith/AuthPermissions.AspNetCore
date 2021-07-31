@@ -39,7 +39,7 @@ namespace Test.UnitTests.TestExamples
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
-                .AddUsersRolesIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
+                .AddAuthUsersIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .SetupForUnitTestingAsync();
 

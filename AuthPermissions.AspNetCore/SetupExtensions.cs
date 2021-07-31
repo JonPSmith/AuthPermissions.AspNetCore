@@ -34,7 +34,7 @@ namespace AuthPermissions.AspNetCore
         /// </summary>
         /// <param name="setupData"></param>
         /// <returns></returns>
-        public static AuthSetupData IndividualAccountsAddSuperUser(this AuthSetupData setupData)
+        public static AuthSetupData AddSuperUserToIndividualAccounts(this AuthSetupData setupData)
         {
             setupData.Services.AddHostedService<IndividualAccountsAddSuperUser>();
 
@@ -55,16 +55,15 @@ namespace AuthPermissions.AspNetCore
         }
 
         /// <summary>
-        /// This will ensure that the AuthPermissions database is created and migrated to the current settings
-        /// and seeded with any new Roles, Tenants and Users that you may have included in the setup. 
-        /// It also finalize the setting up of the AuthPermissions parts needed by ASP.NET Core
+        /// This finalizes the setting up of the AuthPermissions parts needed by ASP.NET Core
+        /// This may trigger code to run on startup, before ASP.NET Core active 
         /// </summary>
         /// <param name="setupData"></param>
-        public static void SetupAuthDatabaseOnStartup(this AuthSetupData setupData)
+        public static void SetupAspNetCoreAndDatabase(this AuthSetupData setupData)
         {
             if (setupData.Options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.NotSet)
                 throw new InvalidOperationException(
-                    $"You must define which database type you want before you call the {nameof(SetupAuthDatabaseOnStartup)} method.");
+                    $"You must define which database type you want before you call the {nameof(SetupAspNetCoreAndDatabase)} method.");
             
             setupData.RegisterCommonServices();
 

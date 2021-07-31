@@ -57,10 +57,10 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection")) 
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
-                .AddUsersRolesIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
+                .AddAuthUsersIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
-                .IndividualAccountsAddSuperUser()
+                .AddSuperUserToIndividualAccounts()
                 .SetupAuthDatabaseOnStartup();
 
             //This registers all the code to handle the shop part of the demo

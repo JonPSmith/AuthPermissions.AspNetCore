@@ -78,7 +78,7 @@ Role3: One";
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(lines)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
                 .SetupForUnitTestingAsync();
 
             //VERIFY
@@ -110,7 +110,7 @@ Tenant3";
                 .AddRolesPermissionsIfEmpty(rolesLines)
                 .AddTenantsIfEmpty(tenantLines)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithTenants())
+                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithTenants())
                 .SetupForUnitTestingAsync();
 
             //VERIFY

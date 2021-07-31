@@ -87,7 +87,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .IndividualAccountsAddSuperUser()
+                .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCorePart();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -111,7 +111,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>(options => options.MigrateAuthPermissionsDbOnStartup = true)
                 .UsingEfCoreSqlServer(aspNetConnectionString)
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
@@ -137,7 +137,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
                 .SetupAuthDatabaseOnStartup();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -165,9 +165,9 @@ Role3: One")
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
-                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
                 .RegisterAuthenticationProviderReader<StubSyncAuthenticationUsersFactory.StubSyncAuthenticationUsers>()
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -189,9 +189,9 @@ Role3: One")
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
-                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithSuperUser())
+                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithSuperUser())
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
-                .IndividualAccountsAddSuperUser()
+                .AddSuperUserToIndividualAccounts()
                 .SetupAuthDatabaseOnStartup();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -229,7 +229,7 @@ Role3: One")
 Tenant2
 Tenant3")
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddUsersRolesIfEmpty(SetupHelpers.TestUserDefineWithTenants())
+                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithTenants())
                 .SetupAuthDatabaseOnStartup();
 
             var serviceProvider = services.BuildServiceProvider();

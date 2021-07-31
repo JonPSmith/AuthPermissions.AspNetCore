@@ -135,7 +135,7 @@ namespace AuthPermissions
         }
 
         /// <summary>
-        /// This allows you to add what roles a user has, but only if the auth database doesn't have any UserToRoles in the database
+        /// This allows you to add users with their Roles and optional tenant, but only if the auth database doesn't have any AuthUsers in the database
         /// The <paramref name="userRolesSetup"/> parameter must contain a list of userId+roles.
         /// </summary>
         /// <param name="setupData"></param>
@@ -143,7 +143,7 @@ namespace AuthPermissions
         /// In this case the UserId must be filled in with the authorized users' UserId 
         /// </param>
         /// <returns>AuthSetupData</returns>
-        public static AuthSetupData AddUsersRolesIfEmpty(this AuthSetupData setupData, List<DefineUserWithRolesTenant> userRolesSetup)
+        public static AuthSetupData AddAuthUsersIfEmpty(this AuthSetupData setupData, List<DefineUserWithRolesTenant> userRolesSetup)
         {
             setupData.Options.InternalData.UserRolesSetupData = userRolesSetup;
             return setupData;
