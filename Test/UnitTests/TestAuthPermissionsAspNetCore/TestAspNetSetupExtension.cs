@@ -109,7 +109,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             //SETUP
             var aspNetConnectionString = this.GetUniqueDatabaseConnectionString();
             var services = this.SetupServicesForTest();
-            services.RegisterAuthPermissions<TestEnum>(options => options.MigrateAuthPermissionsDbOnStartup = true)
+            services.RegisterAuthPermissions<TestEnum>()
                 .UsingEfCoreSqlServer(aspNetConnectionString)
                 .SetupAspNetCoreAndDatabase();
 

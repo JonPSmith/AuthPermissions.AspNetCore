@@ -61,26 +61,10 @@ namespace AuthPermissions.AspNetCore
         /// <param name="setupData"></param>
         public static void SetupAspNetCoreAndDatabase(this AuthSetupData setupData)
         {
-            if (setupData.Options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.NotSet)
-                throw new InvalidOperationException(
-                    $"You must define which database type you want before you call the {nameof(SetupAspNetCoreAndDatabase)} method.");
-            
             setupData.RegisterCommonServices();
 
-            if (setupData.Options.MigrateAuthPermissionsDbOnStartup == null &&
-                setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
-                throw new AuthPermissionsException(
-                    $"You have not set the {nameof(AuthPermissionsOptions.MigrateAuthPermissionsDbOnStartup)}. Your options are:{Environment.NewLine}" +
-                    $"false:You will have to create/migrate the {nameof(AuthPermissionsDbContext)} database before you run your application.{Environment.NewLine}" +
-                    $"true: AuthP will create/migrate the {nameof(AuthPermissionsDbContext)} database on startup.{Environment.NewLine}" +
-                    $"NOTE: Letting AuthP create/migrate that database can have bad effects multiple instances of of the app are all trying to migrate the same database.");
-
-
-            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory &&
-                setupData.Options.MigrateAuthPermissionsDbOnStartup == true)
-            {
-                setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
-            }
+            //These are the services that can only be run on 
+            setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
             setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 

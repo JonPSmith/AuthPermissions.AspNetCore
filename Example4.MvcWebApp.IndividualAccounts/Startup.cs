@@ -50,7 +50,6 @@ namespace Example4.MvcWebApp.IndividualAccounts
 
             services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
-                    options.MigrateAuthPermissionsDbOnStartup = true;
                     options.TenantType = TenantTypes.HierarchicalTenant;
                 })
                 //NOTE: This uses the same database as the individual accounts DB

@@ -51,6 +51,9 @@ namespace AuthPermissions
         /// <returns></returns>
         public static AuthSetupData UsingEfCoreSqlServer(this AuthSetupData setupData, string connectionString)
         {
+            if (string.IsNullOrEmpty(connectionString))
+                throw new AuthPermissionsException("You must provide a connection string to the database");
+
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(
                 options =>
                 {
