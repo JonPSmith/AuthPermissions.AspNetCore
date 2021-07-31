@@ -113,7 +113,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         /// This returns the permission names for the current user (or null if not available)
         /// This can be useful for your front-end to use the current user's Permissions to only expose links
         /// that the user has access too.
-        /// You should this after a login and when the JWT Token is refreshed
+        /// You should call this after a login and when the JWT Token is refreshed
         /// </summary>
         /// <param name="service"></param>
         /// <returns></returns>

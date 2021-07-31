@@ -124,7 +124,7 @@ namespace ExamplesCommonCode.CommonAdmin
                 var authUser = authUserStatus.Result;
 
                 //Its an update
-                authUser.ChangeUserNameAndEmail(UserName, Email);
+                authUser.ChangeUserNameAndEmailWithChecks(Email, UserName);
                 if (foundRoles.Any() && authUser.UserRoles.Select(x => x.RoleName).OrderBy(x => x) !=
                         RoleNames.OrderBy(x => x))
                     //The roles are different so 

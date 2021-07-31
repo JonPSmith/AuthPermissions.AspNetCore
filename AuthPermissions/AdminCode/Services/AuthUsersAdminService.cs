@@ -213,7 +213,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (status.CombineStatuses(getUserStatus).HasErrors)
                     return status;
 
-                getUserStatus.Result.ChangeUserNameAndEmail(newUserData.UserName, newUserData.Email); //if same then ignored
+                getUserStatus.Result.ChangeUserNameAndEmailWithChecks(newUserData.Email, newUserData.UserName); //if same then ignored
                 getUserStatus.Result.UpdateUserTenant(tenant);//if same then ignored
                 if (newUserData.RoleNames != null &&
                     newUserData.RoleNames.OrderBy(x => x) == getUserStatus.Result.UserRoles.Select(x => x.RoleName).OrderBy(x => x))
@@ -240,7 +240,7 @@ namespace AuthPermissions.AdminCode.Services
             if (!email.IsValidEmail())
                 return status.AddError($"The email '{email}' is not a valid email.");
 
-            authUser.ChangeUserNameAndEmail(userName, email);
+            authUser.ChangeUserNameAndEmailWithChecks(email, userName);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;

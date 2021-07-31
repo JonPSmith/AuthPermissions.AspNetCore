@@ -1,6 +1,6 @@
 # Explaining AuthP's JWT Token security feature
 
-ASP.NET Core supports JWT Tokens for authentication (see [this Microsoft docs](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/)). JWT Tokens work well with ASP.NET Core WebAPI systems and Microservices. But JWT Tokens have a couple of security concerns:
+ASP.NET Core supports JSON Web Token (JWT) Bearer Token (shortened to 'JWT Token') for authentication (see [this Microsoft docs](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/)). JWT Tokens works well with ASP.NET Core WebAPI systems and Microservices. But JWT Tokens have a couple of security concerns:
 
 1. JWT Tokens, by default, live for a long time otherwise the user would need to log in again. This means if a hacker gets a copy of your JWT Token then they can access the application as if they are you.
 2. Any data in the JWT Token are, by default, not encrypted.

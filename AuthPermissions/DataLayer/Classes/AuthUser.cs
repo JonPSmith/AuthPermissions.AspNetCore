@@ -22,19 +22,19 @@ namespace AuthPermissions.DataLayer.Classes
         private AuthUser() {} //Needed for EF Core
 
         /// <summary>
-        /// Define a user with there default roles
+        /// Define a user with there default roles and optional tenant
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="email"></param>
-        /// <param name="userName"></param>
-        /// <param name="roles"></param>
-        /// <param name="userTenant"></param>
+        /// <param name="userId">Id of the user - can't be null</param>
+        /// <param name="email">user's email - especially useful in Web applications</param>
+        /// <param name="userName">username - used when using Windows authentication. Generally useful for admin too.</param>
+        /// <param name="roles">List of AuthP Roles for this user</param>
+        /// <param name="userTenant">optional: defines multi-tenant tenant for this user</param>
         public AuthUser(string userId, string email, string userName, IEnumerable<RoleToPermissions> roles, Tenant userTenant = null)
         {
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-            Email = email;
-            UserName = (userName ?? Email) ?? throw new AuthPermissionsBadDataException($"The {nameof(Email)} and {nameof(UserName)} can't both be null.");
+            ChangeUserNameAndEmailWithChecks(email, userName);
 
+            if (roles == null) throw new ArgumentNullException(nameof(roles));
             _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(userId, x)));
             UserTenant = userTenant;
         }
@@ -170,10 +170,16 @@ namespace AuthPermissions.DataLayer.Classes
             UserTenant = tenant;
         }
 
-        public void ChangeUserNameAndEmail(string userName, string newEmail)
+        /// <summary>
+        /// This changes the email and username, which checks that at least one of them isn't null
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="userName"></param>
+        public void ChangeUserNameAndEmailWithChecks(string email, string userName)
         {
-            UserName = userName;
-            Email = newEmail ?? throw new ArgumentNullException(nameof(newEmail));
+            Email = email;
+            UserName = (userName ?? Email) ?? throw new AuthPermissionsBadDataException(
+                $"The {nameof(Email)} and {nameof(UserName)} can't both be null.");
         }
     }
 }

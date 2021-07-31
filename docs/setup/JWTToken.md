@@ -1,6 +1,6 @@
 # Setting up a JWT Token (and optional JWT Refresh Token)
 
-JWT Tokens are supported by ASP.NET Core and work well with WebAPI systems and Microservices. This page shows you how to set up a JWT Token that contains the AuthP's Permission, and optional multi-tenant DataKey claims, into a JWT Token. This page also contains information on how to set up AuthP's [JWT Refresh Token to improve security](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/docs/concepts/JWTRefresh.md).
+JSON Web Token (JWT) Bearer Token (shortened to 'JWT Token') are supported by ASP.NET Core and work well with WebAPI systems and Microservices. This page shows you how to set up a JWT Token that contains the AuthP's Permission, and optional multi-tenant DataKey claims, into a JWT Token. This page also contains information on how to set up AuthP's [JWT Refresh Token to improve security](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/docs/concepts/JWTRefresh.md).
 
 _NOTE: The [AuthPermissions Example2](https://github.com/JonPSmith/AuthPermissions.AspNetCore/tree/main/Example2.WebApiWithToken.IndividualAccounts) project is a ASP.NET WebAPI using JWT Token (and AuthP's JWT Refresh Token feature). You can try this application via its Swagger front-end. All the examples in this page are from that example._
 
