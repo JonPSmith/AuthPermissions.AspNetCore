@@ -61,7 +61,7 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .AddSuperUserToIndividualAccounts()
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
 
             //This registers all the code to handle the shop part of the demo
             //Register RetailDbContext database and some services (included hosted services)

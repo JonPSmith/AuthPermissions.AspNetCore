@@ -138,7 +138,7 @@ Role2 |my description|: One, Two, Two, Three
 Role3: One")
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
@@ -192,7 +192,7 @@ Role3: One")
                 .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithSuperUser())
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddSuperUserToIndividualAccounts()
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
@@ -230,7 +230,7 @@ Tenant2
 Tenant3")
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithTenants())
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();

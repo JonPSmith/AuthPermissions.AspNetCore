@@ -52,7 +52,7 @@ namespace Example1.RazorPages.IndividualAccounts
                 .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddSuperUserToIndividualAccounts()
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

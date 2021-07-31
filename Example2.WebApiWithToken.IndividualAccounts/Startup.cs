@@ -101,7 +101,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
-                .SetupAuthDatabaseOnStartup();
+                .SetupAspNetCoreAndDatabase();
 
             services.AddControllers();
 
