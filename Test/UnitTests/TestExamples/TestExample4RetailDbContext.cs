@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Example4.ShopCode.EfCoreClasses;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
