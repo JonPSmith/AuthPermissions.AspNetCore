@@ -73,8 +73,8 @@ namespace AuthPermissions.AspNetCore
         /// This will set up the basic AppPermissions parts and and any roles, tenants and users in the in-memory database
         /// </summary>
         /// <param name="setupData"></param>
-        /// <returns></returns>
-        public static async Task<AuthPermissionsDbContext> SetupForUnitTestingAsync(this AuthSetupData setupData)
+        /// <returns>The built ServiceProvider for access to AuthP's services</returns>
+        public static async Task<ServiceProvider> SetupForUnitTestingAsync(this AuthSetupData setupData)
         {
             if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
                 throw new AuthPermissionsException(
@@ -92,7 +92,7 @@ namespace AuthPermissions.AspNetCore
 
             status.IfErrorsTurnToException();
 
-            return context;
+            return serviceProvider;
         }
 
         private static void RegisterCommonServices(this AuthSetupData setupData)

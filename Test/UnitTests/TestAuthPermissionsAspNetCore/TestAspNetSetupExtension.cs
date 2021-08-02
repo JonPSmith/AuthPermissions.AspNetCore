@@ -144,9 +144,9 @@ Role3: One")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
-            await startupServices[1].StartAsync(default);
+            startupServices.Count.ShouldEqual(3);
+            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
+            await startupServices[2].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -158,7 +158,7 @@ Role3: One")
         public void TestSetupAspNetCoreRegisterAuthenticationProviderReader()
         {
             //SETUP
-            var inMemoryName = Guid.NewGuid().ToString();
+            
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
@@ -182,7 +182,6 @@ Role3: One")
         public async Task TestSetupAspNetCoreSuperUserAddRolesPermissionsUsersIfEmpty()
         {
             //SETUP
-            var inMemoryName = Guid.NewGuid().ToString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
@@ -198,11 +197,11 @@ Role3: One")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(3);
+            startupServices.Count.ShouldEqual(4);
             startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser>();
             await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
-            await startupServices[2].StartAsync(default);
+            startupServices[3].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
+            await startupServices[3].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -218,7 +217,7 @@ Role3: One")
         public async Task TestSetupAspNetCoreAddRolesPermissionsUsersIfEmptyAndTenants()
         {
             //SETUP
-            var inMemoryName = Guid.NewGuid().ToString();
+            
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleTenant)
                 .UsingInMemoryDatabase()
@@ -236,9 +235,9 @@ Tenant3")
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
-            await startupServices[1].StartAsync(default);
+            startupServices.Count.ShouldEqual(3);
+            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
+            await startupServices[2].StartAsync(default);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();

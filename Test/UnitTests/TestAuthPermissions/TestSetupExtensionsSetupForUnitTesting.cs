@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Test.TestHelpers;
@@ -30,9 +31,10 @@ namespace Test.UnitTests.TestAuthPermissions
             var services = new ServiceCollection();
 
             //ATTEMPT
-            var context = await services.RegisterAuthPermissions<TestEnum>()
+            var serviceProvider = await services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
                 .SetupForUnitTestingAsync();
+            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
 
             //VERIFY
             context.ChangeTracker.Clear();
@@ -51,10 +53,11 @@ Role2 |my description|: One, Two, Two, Three
 Role3: One";
 
             //ATTEMPT
-            var context = await services.RegisterAuthPermissions<TestEnum>()
+            var serviceProvider = await services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(lines)
                 .SetupForUnitTestingAsync();
+            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
 
             //VERIFY
             context.ChangeTracker.Clear();
@@ -74,12 +77,13 @@ Role2 |my description|: One, Two, Two, Three
 Role3: One";
 
             //ATTEMPT
-            var context = await services.RegisterAuthPermissions<TestEnum>()
+            var serviceProvider = await services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(lines)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
                 .SetupForUnitTestingAsync();
+            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
 
             //VERIFY
             context.ChangeTracker.Clear();
@@ -102,7 +106,7 @@ Tenant2
 Tenant3";
 
             //ATTEMPT
-            var context = await services.RegisterAuthPermissions<TestEnum>(options =>
+            var serviceProvider = await services.RegisterAuthPermissions<TestEnum>(options =>
                 {
                     options.TenantType = TenantTypes.SingleTenant;
                 })
@@ -112,6 +116,7 @@ Tenant3";
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithTenants())
                 .SetupForUnitTestingAsync();
+            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
 
             //VERIFY
             context.ChangeTracker.Clear();

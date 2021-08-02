@@ -32,7 +32,7 @@ namespace Test.UnitTests.TestExamples
         private async Task<(AuthPermissionsDbContext context, ServiceProvider serviceProvider)> SetupExample4DataAsync()
         {
             var services = new ServiceCollection();
-            var context = await services.RegisterAuthPermissions<Example4Permissions>(options =>
+            var serviceProvider = await services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
                 })
@@ -43,7 +43,9 @@ namespace Test.UnitTests.TestExamples
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .SetupForUnitTestingAsync();
 
-            return (context, services.BuildServiceProvider());
+            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+
+            return (context, serviceProvider);
         }
 
         [Fact]
@@ -96,7 +98,7 @@ namespace Test.UnitTests.TestExamples
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             status.Result.Email.ShouldEqual(userId);
             status.Result.UserName.ShouldEqual(userId);
-            status.Result.RoleNames.ShouldEqual(new List<string>{ "Store Manager", "Tenant Admin" });
+            status.Result.RoleNames.OrderBy(x => x).ToList().ShouldEqual(new List<string>{ "Store Manager", "Tenant Admin" });
             status.Result.TenantName.ShouldEqual("4U Inc.");
 
             status.Result.AllRoleNames.Count.ShouldEqual(7);
