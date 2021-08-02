@@ -34,12 +34,19 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This simply returns a IQueryable of RoleToPermissions
+        /// This simply returns a IQueryable of the <see cref="RoleWithPermissionNamesDto"/>.
+        /// This contains all the properties in the <see cref="RoleToPermissions"/> class, plus a list of the Permissions names
         /// </summary>
         /// <returns>query on the database</returns>
-        public IQueryable<RoleToPermissions> QueryRoleToPermissions()
+        public IQueryable<RoleWithPermissionNamesDto> QueryRoleToPermissions()
         {
-            return _context.RoleToPermissions;
+            return _context.RoleToPermissions.Select(x => new RoleWithPermissionNamesDto
+            {
+                RoleName = x.RoleName,
+                Description = x.Description,
+                PackedPermissionsInRole = x.PackedPermissionsInRole,
+                PermissionNames = x.PackedPermissionsInRole.ConvertPackedPermissionToNames(_permissionType)
+            });
         }
 
         /// <summary>

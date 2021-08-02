@@ -27,7 +27,7 @@ namespace AuthPermissions.DataLayer.Classes
         }
 
         /// <summary>
-        /// ShortName of the role
+        /// Name of the role
         /// </summary>
         [Key]
         [Required(AllowEmptyStrings = false)]

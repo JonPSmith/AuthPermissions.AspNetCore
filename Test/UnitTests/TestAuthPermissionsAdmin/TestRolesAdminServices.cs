@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -38,6 +39,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             roles.Count.ShouldEqual(3);
             roles.Select(x => x.RoleName).ShouldEqual(new[]{"Role1", "Role2", "Role3"});
+            roles.Last().PermissionNames.ShouldEqual(new List<string>{ "Three"});
         }
 
         [Theory]

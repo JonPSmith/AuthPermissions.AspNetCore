@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using AuthPermissions.CommonCode;
+using AuthPermissions.PermissionsCode.Internal;
 
 namespace AuthPermissions.PermissionsCode.Services
 {
@@ -16,6 +17,10 @@ namespace AuthPermissions.PermissionsCode.Services
     {
         private readonly AuthPermissionsOptions _options;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="options"></param>
         public UsersPermissionsService(AuthPermissionsOptions options)
         {
             _options = options;
@@ -30,19 +35,7 @@ namespace AuthPermissions.PermissionsCode.Services
         {
             var packedPermissions = user.GetPackedPermissionsFromUser();
 
-            if (packedPermissions == null)
-                return null;
-
-            var permissionNames = new List<string>();
-            foreach (var permissionChar in packedPermissions)
-            {
-                var enumName = Enum.GetName(_options.InternalData.EnumPermissionsType, (ushort) permissionChar);
-                if (enumName != null)
-                    permissionNames.Add( enumName);
-            }
-
-            return permissionNames;
+            return packedPermissions.ConvertPackedPermissionToNames(_options.InternalData.EnumPermissionsType);
         }
-
     }
 }

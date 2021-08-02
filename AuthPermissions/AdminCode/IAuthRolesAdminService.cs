@@ -16,10 +16,11 @@ namespace AuthPermissions.AdminCode
     public interface IAuthRolesAdminService
     {
         /// <summary>
-        /// This simply returns a IQueryable of RoleToPermissions
+        /// This returns a IQueryable of the <see cref="RoleWithPermissionNamesDto"/>.
+        /// This contains all the properties in the <see cref="RoleToPermissions"/> class, plus a list of the Permissions names
         /// </summary>
         /// <returns>query on the database</returns>
-        IQueryable<RoleToPermissions> QueryRoleToPermissions();
+        IQueryable<RoleWithPermissionNamesDto> QueryRoleToPermissions();
 
         /// <summary>
         /// This returns a list of permissions with the information from the Display attribute
