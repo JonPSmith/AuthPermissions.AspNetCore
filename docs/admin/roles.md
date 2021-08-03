@@ -21,4 +21,4 @@ An AuthP's Role is stored in a `RoleToPermissions` entity class and has of three
 | PackedPermissions | Compacts the Role's Permissions into a string | string, non-null |
 | Description | Optional description of the Role | string, nullable |
 
-_NOTE: The `QueryRoleToPermissions` method in the `IAuthRolesAdminService` returns a `IQueryable<DTO>` which adds an extra property `PermissionNames` which contains a list of the permissions names._
+_NOTE: The `QueryRoleToPermissions` method in the `IAuthRolesAdminService` returns a `IQueryable<DTO>` which adds an extra property `PermissionNames` which contains a list of the permissions names. This makes it easer for the admin user to understand what Permissions are in a Role._
