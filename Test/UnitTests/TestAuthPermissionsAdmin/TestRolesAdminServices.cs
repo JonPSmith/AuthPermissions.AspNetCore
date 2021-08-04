@@ -82,7 +82,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
-            var status = await service.AddRoleToPermissionsAsync("Role4", "another role", new[] { "One", enumMemberName, "Three" });
+            var status = await service.CreateRoleToPermissionsAsync("Role4", "another role", new[] { "One", enumMemberName, "Three" });
 
             //VERIFY
             status.IsValid.ShouldEqual(isValid);
@@ -110,7 +110,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
-            var status = await service.AddRoleToPermissionsAsync("Role2", "another role", new[] { "One", "Two", "Three" });
+            var status = await service.CreateRoleToPermissionsAsync("Role2", "another role", new[] { "One", "Two", "Three" });
 
             //VERIFY
             status.IsValid.ShouldBeFalse();

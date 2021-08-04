@@ -80,7 +80,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="description">A description to tell you what this role allows the user to use</param>
         /// <param name="permissionNames">a collection of permission names to go into this role</param>
         /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddRoleToPermissionsAsync(string roleName, string description, IEnumerable<string> permissionNames)
+        public async Task<IStatusGeneric> CreateRoleToPermissionsAsync(string roleName, string description, IEnumerable<string> permissionNames)
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new role {roleName}." };
 
