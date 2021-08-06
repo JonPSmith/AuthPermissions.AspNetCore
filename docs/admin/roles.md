@@ -9,7 +9,7 @@ The `IAuthRolesAdminService` provides methods to allow you to create, read, upda
 
 **Please look at the [`IAuthRolesAdminService`](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/AuthPermissions/AdminCode/IAuthRolesAdminService.cs) interface for the details on how these methods work.**.
 
-_NOTE: Many of these methods in this service return a status that tells you if the method was successful (i.e. `status.IsValid` is `true`), or if there are errors then `status.Errors` contain the errors._
+_NOTE: Many of these methods in this service return a status that tells you if the method was successful (i.e. `status.IsValid` is `true`), or if there are errors then `status.Errors` contain the error message._
 
 ## What is in a AuthP's Role
 

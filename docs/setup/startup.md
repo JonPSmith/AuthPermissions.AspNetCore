@@ -67,7 +67,7 @@ There are three Bulk Load extension methods which will update the AuthP's databa
 
 The other method is the `RegisterFindUserInfoService<TLookup>`, which allows you to provide class which implements the `IFindUserInfoService` interface. Your class is registered to the service provider and is used by the Bulk Load (setup or admin services) to obtain the UserId of a authentication provider user via either the user's Email address, or their UserName.
 
-See the [Bulk Load services](!!!!) documentation for information on format of the data needed for Bulk Loading.
+See the [Bulk Load admin services](!!!!) documentation for information on format of the data needed for Bulk Loading.
 
 ### User Admin
 
