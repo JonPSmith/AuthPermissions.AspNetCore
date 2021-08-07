@@ -56,7 +56,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.SingleTenant
+                TenantType = TenantTypes.SingleLevel
             };
             var lines = @"Tenant1
 Tenant1
@@ -85,7 +85,7 @@ Tenant3";
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.SingleTenant
+                TenantType = TenantTypes.SingleLevel
             };
             var lines = @"Tenant1
 Tenant2
@@ -112,7 +112,7 @@ Tenant3";
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.SingleTenant
+                TenantType = TenantTypes.SingleLevel
             };
             var lines = @"Tenant1
 Tenant2

@@ -67,7 +67,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             if (dups.Any())
                 return status.AddError("There were tenants with duplicate names, they are: " + string.Join(Environment.NewLine, dups.Select(x => x.Key)));
 
-            if (options.TenantType == TenantTypes.SingleTenant)
+            if (options.TenantType == TenantTypes.SingleLevel)
             {
                 foreach (var line in lines.Where(x => !string.IsNullOrWhiteSpace(x)))
                 {

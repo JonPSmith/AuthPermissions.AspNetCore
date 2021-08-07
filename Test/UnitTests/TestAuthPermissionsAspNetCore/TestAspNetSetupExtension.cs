@@ -219,7 +219,7 @@ Role3: One")
             //SETUP
             
             var services = this.SetupServicesForTest();
-            services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleTenant)
+            services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleLevel)
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three

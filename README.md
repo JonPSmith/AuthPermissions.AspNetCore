@@ -6,7 +6,6 @@ The AuthPermissions.AspNetCore library (shortened to AuthP) provides extra autho
 - Implements a JWT refresh token feature to improve the security of using JWT Token in your application.
 - Provides features to create a multi-tenant database system, either using one-level or multi-level (hierarchical).
 
-
 The AuthP library also:
 
 - Works with any ASP.NET Core authentication provider.
@@ -14,9 +13,7 @@ The AuthP library also:
 - Contains an admin services to sync the authentication provider users with  AuthP's users.
 - Has a comprehensive set of admin services to manage AuthP's Roles, Tenants and Users.
 
-The AuthP is an open-source library under the MIT licence. The documentation can be found in the [GitHub wiki](!!!!) and see [ReleaseNotes](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/ReleaseNotes.md) for details of changes.
-
-**NOTE: No NuGet version released yet - still in development.**
+The AuthP is an open-source library under the MIT licence. The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki) and see [ReleaseNotes](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/ReleaseNotes.md) for details of changes.
 
 ## Example code in this repo
 

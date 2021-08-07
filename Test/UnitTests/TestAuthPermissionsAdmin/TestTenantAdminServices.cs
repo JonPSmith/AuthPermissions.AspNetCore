@@ -36,7 +36,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel});
 
             //ATTEMPT
             var tenants = service.QueryTenants().ToList();
@@ -57,7 +57,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var tenants = service.QueryEndLeafTenants().ToList();
@@ -79,7 +79,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var status = await service.AddSingleTenantAsync("Tenant4");
@@ -103,7 +103,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var status = await service.AddSingleTenantAsync("Tenant2");
@@ -193,7 +193,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var status = await service.UpdateTenantNameAsync("Tenant2", "New Tenant");

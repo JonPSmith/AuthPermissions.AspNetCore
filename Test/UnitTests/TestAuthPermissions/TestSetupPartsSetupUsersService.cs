@@ -163,7 +163,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, new StubIFindUserInfoFactory(true), new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
+            var service = new BulkLoadUsersService(context, new StubIFindUserInfoFactory(true), new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel});
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
@@ -188,7 +188,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, new StubIFindUserInfoFactory(true), new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new BulkLoadUsersService(context, new StubIFindUserInfoFactory(true), new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
@@ -212,7 +212,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new BulkLoadUsersService(context, new StubIFindUserInfoFactory(true), new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new BulkLoadUsersService(context, new StubIFindUserInfoFactory(true), new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(

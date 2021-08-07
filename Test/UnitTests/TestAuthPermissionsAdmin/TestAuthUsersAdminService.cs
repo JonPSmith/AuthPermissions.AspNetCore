@@ -37,7 +37,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions{TenantType = TenantTypes.SingleTenant});
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel});
 
             //ATTEMPT
             var users = service.QueryAuthUsers()
@@ -67,7 +67,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var status = await service.FindAuthUserByUserIdAsync("User1");
@@ -89,7 +89,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var status = await service.FindAuthUserByEmailAsync("User1@gmail.com");
@@ -112,7 +112,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
-            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
             var changes = await service.SyncAndShowChangesAsync();
@@ -138,7 +138,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
-            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
             var changes = await service.SyncAndShowChangesAsync();
 
             //ATTEMPT
@@ -171,7 +171,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
             var authUser = (await service.FindAuthUserByEmailAsync("User1@gmail.com")).Result;
 
             //ATTEMPT
@@ -205,7 +205,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
@@ -233,7 +233,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
@@ -261,7 +261,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleTenant });
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT

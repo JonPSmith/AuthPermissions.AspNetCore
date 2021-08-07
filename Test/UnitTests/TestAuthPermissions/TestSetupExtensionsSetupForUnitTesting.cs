@@ -108,7 +108,7 @@ Tenant3";
             //ATTEMPT
             var serviceProvider = await services.RegisterAuthPermissions<TestEnum>(options =>
                 {
-                    options.TenantType = TenantTypes.SingleTenant;
+                    options.TenantType = TenantTypes.SingleLevel;
                 })
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(rolesLines)

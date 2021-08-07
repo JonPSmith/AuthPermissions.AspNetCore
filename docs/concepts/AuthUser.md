@@ -1,6 +1,8 @@
 # Explaining AuthP's AuthUser
 
-If you create an ASP.NET Core application that people have to log into ASP.NET Core you will use a ASP.NET Core _authentication provider_ (see [ASP.NET Core docs on authentication](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/)). The authentication provider's job is to check that the user that is logging in is valid, e.g. it is known to the authentication provider and they provided the correct secret information. Some authentication providers, like ASP.NET Core’s Individual Accounts authentication provider, stores the user's information in a database linked to your application, but many authentication provider, such as Azure active directory or Google, store the information externally.
+If you create an ASP.NET Core application that people have to log into ASP.NET Core you will use a ASP.NET Core _authentication provider_ (see [ASP.NET Core docs on authentication](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/)). The authentication provider's job is to check that the user that is logging in is valid, e.g. it is known to the authentication provider and they provided the correct secret information. 
+
+Some authentication providers, like ASP.NET Core’s Individual Accounts authentication provider, stores the user's information in a database linked to your application, but many authentication provider, such as [Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-whatis) or Google, store the information externally.
 
 But for the AuthP library we need extra data not available from the authentication provider - this is where AuthP's `AuthUser` comes in.
 

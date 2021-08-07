@@ -46,7 +46,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>query on the AuthP database</returns>
         public IQueryable<Tenant> QueryEndLeafTenants()
         {
-            return _tenantType == TenantTypes.SingleTenant
+            return _tenantType == TenantTypes.SingleLevel
                 ? QueryTenants()
                 : _context.Tenants.Where(x => !x.Children.Any());
         }
@@ -60,7 +60,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
-            if (_tenantType != TenantTypes.SingleTenant)
+            if (_tenantType != TenantTypes.SingleLevel)
                 return status.AddError(
                     $"You cannot add a single tenant because the tenant configuration is {_tenantType}");
 
