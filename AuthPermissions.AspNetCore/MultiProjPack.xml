@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<allsettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- this contains the typical information you should have in your settings -->
+  <!-- See documentation for all the possible values -->
+  <metadata>
+    <id>AuthPermissions.AspNetCore</id>
+    <version>1.0.0-preview001</version>
+    <title>A human-friendly title of the package</title>
+    <authors>Jon P Smith</authors>
+    <product>AuthPermissions.AspNetCore</product>
+    <copyright>Copyright (c) 2022 Jon P Smith</copyright>
+    <description>Provides extra authorization features to a ASP.NET Core application.</description>
+    <releaseNotes>First release - see ReleaseNote.md file for more information</releaseNotes>
+    <license>MIT</license>
+    <!-- Must use id from https://spdx.org/licenses/-->
+    <packageLicenseFile>LICENSE</packageLicenseFile>
+    <!-- license must be in a project -->
+    <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
+    <iconUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/AuthPermissions.AspNetCore/AuthPermissionsAspNetCoreNuGetIcon.png</iconUrl>
+    <tags>ASP.NET Core, Entity Framework Core</tags>
+  </metadata>
+  <toolSettings>
+    <!-- This is used to find projects with names starting with this. If null then uses NuGet id -->
+    <NamespacePrefix>AuthPermissions.</NamespacePrefix>
+    <!-- excludes named projects (comma separated), e.g. "Test" would exclude a project starting with "BookApp.Books.Test" -->
+    <ExcludeProjects></ExcludeProjects>
+    <!-- worth filling in with your local NuGet Package Source folder. See docs about using {USERPROFILE} in string -->
+    <CopyNuGetTo>{USERPROFILE}\LocalNuGet</CopyNuGetTo>
+  </toolSettings>
+</allsettings>

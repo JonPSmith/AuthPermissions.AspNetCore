@@ -17,5 +17,4 @@
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
   </ItemGroup>
 
-
 </Project>
