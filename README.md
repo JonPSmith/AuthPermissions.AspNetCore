@@ -4,7 +4,7 @@ The AuthPermissions.AspNetCore library (shortened to AuthP) provides extra autho
 
 - An improved Role authorization system where the features a Role can access can be changed by an admin user (i.e. no need to edit and redeploy your application when a Role changes).
 - Implements a JWT refresh token feature to improve the security of using JWT Token in your application.
-- Provides features to create a multi-tenant database system, either using one-level or multi-level (hierarchical).
+- Provides features to create a multi-tenant database system, either using one-level tenant or multi-level tenant (hierarchical).
 
 The AuthP library also:
 
@@ -47,3 +47,20 @@ Look at this example for:
 - A more substantial application with lots of Permissions, Roles, Tenants and Users.
 - how to use AuthP to create a hierarchical multi-tenant system.
 - How the AuthP' admin code can be used to control Roles, Users and Tenants.
+
+
+## Notes on creating a NuGet package
+
+The AuthPermissions.AspNetCore library contains more than one project. For this reason you can't (currently) create a NuGet package using NuGet values in a .csproj file.
+
+For this reason I use the `JonPSmith.MultiProjPack` dotnet tool to create the NuGet package using the following command in a command line on the AuthPermissions.AspNetCore directory.
+
+```
+> MultiProjPack R
+```
+
+_NOTE: If you don't want to use the `JonPSmith.MultiProjPack` dotnet tool you should find a `CreateNuGetRelease.nuspec` file which you can call with the following command
+
+```
+> dotnet pack -p:NuspecFile=CreateNuGetRelease.nuspec -v q -o ./nupkg
+```
