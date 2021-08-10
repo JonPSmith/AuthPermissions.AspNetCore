@@ -29,7 +29,7 @@
 
 ## Documentation etc. still needed
 
-- Build Wiki documentation using /docs folder
+- Finish Wiki documentation using /docs folder
 - Article 1 - Roles/Permissions - based on Example 1
 - Article 2 - JWT token with refresh - based on Example 2
 - Example 1,2,4 READMEs

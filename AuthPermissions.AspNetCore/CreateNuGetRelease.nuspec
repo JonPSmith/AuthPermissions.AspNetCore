@@ -7,7 +7,7 @@
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization features to a ASP.NET Core application.</description>
-    <releaseNotes>First release - see ReleaseNote.md file for more information</releaseNotes>
+    <releaseNotes>First preview release - see README.md and ReleaseNote.md files for more information</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
     <icon>images\AuthPermissionsAspNetCoreNuGetIcon.png</icon>

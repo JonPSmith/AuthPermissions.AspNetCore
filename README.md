@@ -13,7 +13,7 @@ The AuthP library also:
 - Contains an admin services to sync the authentication provider users with  AuthP's users.
 - Has a comprehensive set of admin services to manage AuthP's Roles, Tenants and Users.
 
-The AuthP is an open-source library under the MIT licence. The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki) and see [ReleaseNotes](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/ReleaseNotes.md) for details of changes.
+The AuthP is an open-source library under the MIT licence (and remain as a open-source library for ever). The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki) and see [ReleaseNotes](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/ReleaseNotes.md) for details of changes.
 
 ## Example code in this repo
 
