@@ -5,7 +5,7 @@
 
 //thanks to https://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
 // Post to the provided URL with the specified parameters.
-function post(path, parameters) {
+function postParamsAsFormSubmit(path, parameters) {
     var form = $('<form></form>');
 
     form.attr("method", "post");

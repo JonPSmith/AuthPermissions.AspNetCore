@@ -72,7 +72,7 @@
             };
             params['__RequestVerificationToken'] = $('input:hidden[name="__RequestVerificationToken"]').val();
 
-            post('@Url.Action("SyncUsers")', params);
+            postParamsAsFormSubmit('@Url.Action("SyncUsers")', params);
         }
 
         function SetIgnore(elementId, button) {
