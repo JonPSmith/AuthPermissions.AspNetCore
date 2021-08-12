@@ -16,16 +16,21 @@
 
 ## Limitations of this release
 
-- Only works for single instance of the web app (i.e. no scale out) _NOTE: The non-preview will fix this problem.__
+- Only works for single instance of the web app (i.e. no scale out) _NOTE: The non-preview will fix this problem._
 
 ## Code still to do
 
-- Improve "move tenant" to also move any data.
-- - Example 1 web site
-  - Add NavBar: Show all users, show user's claims, show user's permissions
 - Example 4 web site
   - Roles admin Controller
   - Tenant admin Controller
+- Work out a way to get the DataKey in a column
+  - SQL/PostgreSQL use `HasDefaultValueSql`
+  - SQLite - use a view??
+  - Check SQLite concurrency 
+- Improve "move tenant" to also move any data.
+- - Example 1 web site
+  - Add NavBar: Show all users, show user's claims, show user's permissions
+
 
 ## Documentation etc. still needed
 

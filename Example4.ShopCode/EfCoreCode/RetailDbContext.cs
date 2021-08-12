@@ -10,18 +10,21 @@ namespace Example4.ShopCode.EfCoreCode
 {
     public class RetailDbContext : DbContext, IDataKeyFilter
     {
+        public string DataKey { get; }
+
         public RetailDbContext(DbContextOptions<RetailDbContext> options, IDataKeyFilter dataKeyFilter)
             : base(options)
         {
-            DataKey = dataKeyFilter?.DataKey 
-                      ?? "."; //this means AuthP's uses with no tenant can access all the data (useful for admin users)
-                              //The alternative is return GUID string if the DataKey is null, which would deny users without a tenant to access the data
+            //You have two options on what to do if the DataKey is null
+            // (null means no logged in, background service, or user hasn't got an assigned tenant)
+            // 1. Set DataKey  to ".", which will means all the multi-data can be seen (good for admin, but watch out for 'no logged in' user)
+            // 2. Set DataKey  to a string NOT starting with ".", e.g. "NoAccess". Then no multi-tenant data will be seen
+            DataKey = dataKeyFilter?.DataKey ?? "."; 
         }
 
         public DbSet<RetailOutlet> RetailOutlets { get; set; }
         public DbSet<ShopStock> ShopStocks { get; set; }
         public DbSet<ShopSale> ShopSales { get; set; }
-        public string DataKey { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

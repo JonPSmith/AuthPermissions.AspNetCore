@@ -24,11 +24,6 @@ namespace Example4.ShopCode.AppStart
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"), dbOptions =>
                 dbOptions.MigrationsHistoryTable(RetailDbContextHistoryName)));
-            
-            //------------------------------------------------------
-            //normal services
-
-            services.AddScoped<IDataKeyFilter, GetDataKeyFilterFromUser>();
 
             //------------------------------------------------------
             //Hosted services

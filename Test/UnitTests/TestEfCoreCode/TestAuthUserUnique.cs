@@ -2,12 +2,10 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using EntityFramework.Exceptions.SqlServer;
-using Microsoft.EntityFrameworkCore;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
