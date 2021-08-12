@@ -54,12 +54,17 @@ namespace AuthPermissions.DataLayer.EfCode
             //Add concurrency token to every entity 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                entityType.AddProperty("ConcurrencyToken", typeof(byte[]))
-                    .SetColumnType("ROWVERSION");
-                entityType.FindProperty("ConcurrencyToken")
-                    .ValueGenerated = ValueGenerated.OnAddOrUpdate;
-                entityType.FindProperty("ConcurrencyToken")
-                    .IsConcurrencyToken = true;
+                if (Database.IsSqlServer())
+                {
+                    entityType.AddProperty("ConcurrencyToken", typeof(byte[]))
+                        .SetColumnType("ROWVERSION");
+                    entityType.FindProperty("ConcurrencyToken")
+                        .ValueGenerated = ValueGenerated.OnAddOrUpdate;
+                    entityType.FindProperty("ConcurrencyToken")
+                        .IsConcurrencyToken = true;
+                }
+                //NOTE: Sqlite doesn't support concurrency support, but if needed it can be added
+                //see https://www.bricelam.net/2020/08/07/sqlite-and-efcore-concurrency-tokens.html
             }
 
             modelBuilder.Entity<AuthUser>()
