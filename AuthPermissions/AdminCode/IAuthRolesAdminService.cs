@@ -39,10 +39,11 @@ namespace AuthPermissions.AdminCode
         /// This creates a new RoleToPermissions with the given description and permissions defined by the names 
         /// </summary>
         /// <param name="roleName">Name of the new role (must be unique)</param>
-        /// <param name="description">A description to tell you what this role allows the user to use</param>
         /// <param name="permissionNames">a collection of permission names to go into this role</param>
+        /// <param name="description">An optional description to tell you what this role allows the user to use</param>
         /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> CreateRoleToPermissionsAsync(string roleName, string description, IEnumerable<string> permissionNames);
+        Task<IStatusGeneric> CreateRoleToPermissionsAsync(string roleName, IEnumerable<string> permissionNames,
+            string description = null);
 
         /// <summary>
         /// This updates the role's permission names, and optionally its description

@@ -64,16 +64,18 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
         [Display(GroupName = "UserAdmin", Name = "Remove user", Description = "Can delete the user")]
         UserRemove = 40_005,
 
-        //41_000 - Roles/permissions admin
+        //41_000 - Roles admin
         [Display(GroupName = "RolesAdmin", Name = "Read Roles", Description = "Can list Role")]
         RoleRead = 41_000,
         //This is an example of grouping multiple actions under one permission
         [Display(GroupName = "RolesAdmin", Name = "Change Role", Description = "Can create, update or delete a Role", AutoGenerateFilter = true)]
         RoleChange = 41_001,
+
+        //41_100 - Permissions 
         [Display(GroupName = "RolesAdmin", Name = "See permissions", Description = "Can display the list of permissions", AutoGenerateFilter = true)]
-        PermissionRead = 41_002,
+        PermissionRead = 41_100,
         [Display(GroupName = "RolesAdmin", Name = "See all permissions", Description = "list will included filtered Permission ", AutoGenerateFilter = true)]
-        IncludeFilteredPermissions = 41_003,
+        IncludeFilteredPermissions = 41_101,
 
         //42_000 - tenant admin
         [Display(GroupName = "TenantAdmin", Name = "Read Tenants", Description = "Can list Tenants")]

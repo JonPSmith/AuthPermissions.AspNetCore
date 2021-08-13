@@ -1,0 +1,71 @@
+﻿@using Example4.MvcWebApp.IndividualAccounts.PermissionsCode
+@using AuthPermissions.PermissionsCode
+@model IEnumerable<AuthPermissions.AdminCode.RoleWithPermissionNamesDto>
+
+@{
+    ViewData["Title"] = "ListRoles";
+}
+
+<h1>List Roles</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@*@if (User.HasPermission(Example4Permissions.RoleChange))
+    {*@
+<p>
+    <a asp-action="Create" class="btn-primary">Create new role</a>
+</p>
+@*}*@
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RoleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                Num Permissions
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoleName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    <a href="#" data-toggle="tooltip" title='@string.Join(", ",item.PermissionNames)'>
+                        @item.PermissionNames.Count
+                    </a>
+                </td>
+                <td>
+                    <!--This should have User.HasPermission(Example4Permissions.RoleChange around them-->
+                    @Html.ActionLink("Edit User", "Edit", new { roleName = item.RoleName })
+                    |
+                    @Html.ActionLink("Delete User", "Delete", new { roleName = item.RoleName })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

@@ -3,6 +3,41 @@
 
 // Write your JavaScript code.
 
+//------------------------------------------------------------
+//RoleCreateEdit  code
+
+function submitRoleWithPermissions(url) {
+    var forms = $('#permission-selection').find('form');
+    var params = {
+        'RoleName': $('#role-name').val(),
+        'Description': $('#role-description').val(),
+        '__RequestVerificationToken': $('input:hidden[name="__RequestVerificationToken"]').val()
+    };
+
+    var paramCount = 0;
+    for (var i = 0; i < forms.length; i++) {
+        if ($(forms[i]).find('button').text().trim() === 'Selected')
+            params['permissions[' + paramCount++ + ']'] = $(forms[i]).attr('id');
+    };
+
+    postParamsAsFormSubmit(url, params);
+}
+
+function TogglePermissionSelect(button) {
+    if ($(button).text() === 'Selected') {
+        $(button).text('Select');
+        $(button).removeClass('btn-primary');
+        $(button).addClass('btn-secondary');
+    } else {
+        $(button).text('Selected');
+        $(button).removeClass('btn-secondary');
+        $(button).addClass('btn-primary');
+    }
+}
+
+//---------------------------------------------------------------------
+// General code used to send back data as if from a form
+
 //thanks to https://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
 // Post to the provided URL with the specified parameters.
 function postParamsAsFormSubmit(path, parameters) {

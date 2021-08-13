@@ -1,0 +1,41 @@
+﻿@model Example4.MvcWebApp.IndividualAccounts.Models.RoleAddUpdateDisplayDto
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h3>Add a new AuthP Role, with Permissions</h3>
+
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div>
+            <label class="control-label">Role Name</label>
+            <input id="role-name" class="form-control text-primary" />
+            <span asp-validation-for="RoleName" class="text-danger"></span>
+        </div>
+        <div>
+            <label class="control-label">Description</label>
+            <input id="role-description" class="form-control text-primary" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-12">
+
+        <partial name="PartialCreateEdit" for="@Model" />
+
+        <div class="form-group">
+            <input type="submit" onclick="submitRoleWithPermissions('@Url.Action("Create")')" value="Create" class="btn btn-primary" />
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

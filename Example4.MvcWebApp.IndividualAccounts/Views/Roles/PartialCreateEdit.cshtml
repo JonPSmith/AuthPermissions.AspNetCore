@@ -1,0 +1,44 @@
+﻿@model Example4.MvcWebApp.IndividualAccounts.Models.RoleAddUpdateDisplayDto
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Group
+        </th>
+        <th>
+            Description
+        </th>
+        <th>
+            Permission
+        </th>
+        <th>Selected?</th>
+    </tr>
+    </thead>
+    <tbody id="permission-selection">
+    @for (int i = 0; i < Model.AddPermissionsWithSelect.Count; i++)
+    {
+        <tr>
+            <td>
+                @Model.AddPermissionsWithSelect[i].Key.GroupName
+            </td>
+            <td>
+                @Model.AddPermissionsWithSelect[i].Key.Description
+            </td>
+            <td>
+                @Model.AddPermissionsWithSelect[i].Key.PermissionName
+            </td>
+            <td>
+                <form id="@Model.AddPermissionsWithSelect[i].Key.PermissionName" asp-action="Edit" method="post">
+                    <button type="button" class='btn-sm  @(Model.AddPermissionsWithSelect[i].Value ? "btn-primary" : "btn-secondary")'
+                            onclick="TogglePermissionSelect(this)">
+                        @(Model.AddPermissionsWithSelect[i].Value ? "Selected" : "Select")
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+

@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
+using AuthPermissions.PermissionsCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
@@ -31,6 +32,11 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return View(AuthUserDisplay.DisplayUserInfo(status.Result));
             }
             return View((AuthUserDisplay)null);
+        }
+
+        public IActionResult UserPermissions([FromServices] IUsersPermissionsService service)
+        {
+            return View(service.PermissionsFromUser(HttpContext.User));
         }
     }
 }

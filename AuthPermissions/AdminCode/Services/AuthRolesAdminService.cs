@@ -77,13 +77,22 @@ namespace AuthPermissions.AdminCode.Services
         /// This adds a new RoleToPermissions with the given description and permissions defined by the names 
         /// </summary>
         /// <param name="roleName">Name of the new role (must be unique)</param>
-        /// <param name="description">A description to tell you what this role allows the user to use</param>
         /// <param name="permissionNames">a collection of permission names to go into this role</param>
+        /// <param name="description">An optional description to tell you what this role allows the user to use</param>
         /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> CreateRoleToPermissionsAsync(string roleName, string description, IEnumerable<string> permissionNames)
+        public async Task<IStatusGeneric> CreateRoleToPermissionsAsync(string roleName,
+            IEnumerable<string> permissionNames, string description = null)
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new role {roleName}." };
 
+            if (string.IsNullOrEmpty(roleName))
+                return status.AddError("The RoleName isn't filled in");
+            if ((await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName)) != null)
+                return status.AddError($"There is already a Role with the name of '{roleName}'.");
+            
+            if (permissionNames == null)
+                return status.AddError("You must provide at least one permission name.");
+            
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames, 
                 x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum."));
 
@@ -152,12 +161,11 @@ namespace AuthPermissions.AdminCode.Services
             {
                 if (!removeFromUsers)
                     return status.AddError(
-                        $"That role is used by {usersWithRoles.Count} and you didn't ask for them to be updated.");
+                        $"That role is used in {usersWithRoles.Count} AuthUsers and you didn't confirm the delete.");
 
                 _context.RemoveRange(usersWithRoles);
                 status.Message = $"Successfully deleted the role {roleName} and removed that role from {usersWithRoles.Count} users.";
             }
-
 
             _context.Remove(existingRolePermission);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());

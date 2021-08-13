@@ -1,0 +1,37 @@
+﻿@model Example4.MvcWebApp.IndividualAccounts.Models.RoleAddUpdateDisplayDto
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="h3">Editing <span class="h1">@Model.RoleName</span> role.</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input id="role-name" type="hidden" value="@Model.RoleName">
+        <div>
+            <label class="control-label">Role description</label>
+            <input id="role-description" class="form-control text-primary" value='@Model.Description' />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-12">
+
+        <partial name="PartialCreateEdit" for="@Model" />
+        
+        <div class="form-group">
+            <input type="submit" onclick="submitRoleWithPermissions('@Url.Action("Edit")')" value="Update" class="btn btn-primary" />
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

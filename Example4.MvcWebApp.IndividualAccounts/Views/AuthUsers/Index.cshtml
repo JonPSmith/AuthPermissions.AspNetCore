@@ -33,7 +33,7 @@
                 AuthRoles
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.HasTenant)
+                Tenant?
             </th>
             <th>
                 @if (User.HasPermission(Example4Permissions.UserChange))
@@ -61,7 +61,10 @@
                     @string.Join(", ", item.RoleNames)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.HasTenant)
+                    <a href="#" data-toggle="tooltip" title='@item.TenantName'>
+                        @(item.HasTenant ? "YES" : "")
+                    </a>
+                    
                 </td>
                 <td>
                     @if (User.HasPermission(Example4Permissions.UserChange))
@@ -79,3 +82,15 @@
         }
     </tbody>
 </table>
+
+
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

@@ -9,14 +9,14 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
     public static class Example4AppAuthSetupData
     {
         public const string BulkLoadRolesWithPermissions = @"
-SuperAdmin: AccessAll,
-App Admin: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate
+SuperAdmin | Super admin - only use for setup|: AccessAll,
+App Admin | Overall app Admin |: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate
 
-Tenant Admin: EmployeeRead, UserRead, UserSync, UserChange, RoleRead
-Tenant Director: EmployeeRead, StockRead, SalesRead
-Area Manager: StockRead, SalesRead
-Store Manager: StockRead, StockAddNew, StockRemove, SalesRead, SalesSell, SalesReturn
-Sales Assistant: StockRead, SalesSell";
+Tenant Admin | Tenant-level admin|: EmployeeRead, UserRead, UserSync, UserChange, RoleRead
+Tenant Director |Company CEO, can see stock/sales and employees|: EmployeeRead, StockRead, SalesRead
+Area Manager | Area manager - check stock and sales|: StockRead, SalesRead
+Store Manager | Shop sales manager - full access|: StockRead, StockAddNew, StockRemove, SalesRead, SalesSell, SalesReturn
+Sales Assistant | Shop sales Assistant - just sells|: StockRead, SalesSell";
 
         public const string BulkHierarchicalTenants = @"
 4U Inc.
