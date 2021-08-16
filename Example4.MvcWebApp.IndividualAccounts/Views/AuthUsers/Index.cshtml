@@ -69,13 +69,13 @@
                 <td>
                     @if (User.HasPermission(Example4Permissions.UserChange))
                     {
-                        @Html.ActionLink("Edit User", "Edit", new { userId = item.UserId });
+                        @Html.ActionLink("Edit", "Edit", new { userId = item.UserId });
                         @Html.Raw(" |");
                     }
 
                     @if (User.HasPermission(Example4Permissions.UserChange))
                     {
-                        @Html.ActionLink("Delete User", "Delete", new { UserId = item.UserId })
+                        @Html.ActionLink("Delete", "Delete", new { UserId = item.UserId })
                     }
                 </td>
             </tr>

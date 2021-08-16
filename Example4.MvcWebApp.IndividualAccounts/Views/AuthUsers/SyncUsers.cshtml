@@ -7,11 +7,11 @@
 
 @if (!@Model.Any())
 {
-    <p>There are no changes to apply to the AuthUsers</p>
+    <h3>There are no changes to apply to the AuthUsers</h3>
     return;
 }
 
-<h1>Changes to apply to the AuthUsers</h1>
+<h3>AuthUsers changes needed to match with the authentication provider's users</h3>
 <table class="table">
     <thead>
         <tr>
@@ -27,23 +27,32 @@
 
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@item.FoundChange</td>
+        <tr>
+            <td>@item.FoundChange</td>
+            @if (item.FoundChange == SyncAuthUserChanges.Add)
+            {
                 <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.Email</td>
                 <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.UserName</td>
-                <td>@item.NumRoles</td>
-                <td>@item.HasTenant</td>
-                <td>
-                    <form id="@item.UserId" asp-action="EditFromSync" method="get">
-                        @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
-                        @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
-                        @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
-                        @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChange), item.FoundChange)
-                        <button type="submit" class="btn-sm btn-primary">Edit this</button>
-                        <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore this</button>
-                    </form>
-                </td>
-            </tr>
+            }
+            else
+            {
+                <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.OldEmail</td>
+                <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.OldUserName</td>
+            }
+
+            <td>@item.NumRoles</td>
+            <td>@item.HasTenant</td>
+            <td>
+                <form id="@item.UserId" asp-action="EditFromSync" method="get">
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChange), item.FoundChange)
+                    <button type="submit" class="btn-sm btn-primary">Edit this</button>
+                    <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore this</button>
+                </form>
+            </td>
+        </tr>
         }
 
     </tbody>

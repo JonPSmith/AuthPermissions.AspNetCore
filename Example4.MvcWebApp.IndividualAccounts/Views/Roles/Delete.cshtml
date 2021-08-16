@@ -15,7 +15,8 @@
     <form asp-action="Delete">
         <div class="form-group">
             @Html.HiddenFor(x => x.RoleName)
-            <input type="submit" value="Delete" class="btn btn-primary" />
+            <input type="submit" value="Delete" class="btn btn-danger" /> |
+            <a asp-action="Index">Back to List</a>
         </div>
     </form>
 }
@@ -61,14 +62,10 @@ else
                 <span asp-validation-for="ConfirmDelete" class="text-danger"></span>
             </div>
             @Html.HiddenFor(x => x.RoleName)
-            <input type="submit" value="Delete" class="btn btn-primary" />
+            <input type="submit" value="Delete" class="btn btn-danger" /> |
+            <a asp-action="Index">Back to List</a>
             
         </form>
     </div>
 }
-
-
-<div>
-    <a asp-action="Index">Back to home</a>
-</div>
 

@@ -339,6 +339,26 @@ namespace AuthPermissions.AdminCode.Services
             return status;
         }
 
+        /// <summary>
+        /// This will delete the AuthUser with the given userId
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>status</returns>
+        public async Task<IStatusGeneric> DeleteUserAsync(string userId)
+        {
+            var status = new StatusGenericHandler();
 
+            var authUser = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == userId);
+
+            if (authUser == null)
+                return status.AddError("Could not find the user you were looking for.");
+
+            _context.Remove(authUser);
+            status.CombineStatuses( await _context.SaveChangesWithChecksAsync());
+
+            status.Message = $"Successfully deleted the user {authUser.UserName ?? authUser.Email}.";
+
+            return status;
+        }
     }
 }

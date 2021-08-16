@@ -114,7 +114,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldEqual("There is already a RoleToPermissions with a value: name = Role2");
+            status.GetAllErrors().ShouldEqual("There is already a Role with the name of 'Role2'.");
         }
 
 

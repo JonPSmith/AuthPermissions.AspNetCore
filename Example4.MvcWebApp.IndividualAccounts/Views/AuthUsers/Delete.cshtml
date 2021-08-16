@@ -24,9 +24,7 @@
         </dd>
     </dl>
     <form asp-action="Delete" method="post">
-        @Html.Hidden(nameof(AuthUserDisplay.UserId), Model.UserId)
-        @Html.Hidden(nameof(AuthUserDisplay.UserName), Model.UserName)
-        @Html.Hidden(nameof(AuthUserDisplay.Email), Model.Email)
+        @Html.Hidden(nameof(AuthIdAndChange.UserId), Model.UserId)
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

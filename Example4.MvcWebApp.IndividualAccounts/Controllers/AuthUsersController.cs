@@ -116,20 +116,14 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         // POST: AuthUsersController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(AuthUserDisplay user)
+        public async Task<ActionResult> Delete(AuthIdAndChange input)
         {
-            var status1 = await _authUsersAdmin.FindAuthUserByUserIdAsync(user.UserId);
-            if (status1.HasErrors)
+            var status = await _authUsersAdmin.DeleteUserAsync(input.UserId);
+            if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = status1.GetAllErrors() });
+                    new { errorMessage = status.GetAllErrors() });
 
-            _context.Remove(status1.Result);
-            var status2 = await _context.SaveChangesWithChecksAsync();
-            if (status1.HasErrors)
-                return RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = status1.GetAllErrors() });
-
-            return RedirectToAction(nameof(Index), new { message = $"Successfully deleted the user {user.UserName ?? user.Email}" });
+            return RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

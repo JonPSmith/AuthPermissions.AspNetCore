@@ -85,5 +85,12 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantFullName">The full name of the tenant</param>
         /// <returns></returns>
         Task<IStatusGeneric> ChangeTenantToUserAsync(AuthUser authUser, string tenantFullName);
+
+        /// <summary>
+        /// This will delete the AuthUser with the given userId
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>status</returns>
+        Task<IStatusGeneric> DeleteUserAsync(string userId);
     }
 }

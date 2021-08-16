@@ -129,7 +129,7 @@ namespace AuthPermissions.AdminCode
                 case SyncAuthUserChanges.Add:
                     return $"ADD: Email = {Email}, UserName = {UserName}";
                 case SyncAuthUserChanges.Update:
-                    return $"UPDATE: Email {(Email == OldEmail ? "CHANGED" : "same")}, UserName {(UserName == OldUserName ? "CHANGED" : "same")}";
+                    return $"UPDATE: Email {(EmailChanged ? "CHANGED" : "same")}, UserName {(UserNameChanged ? "CHANGED" : "same")}";
                 case SyncAuthUserChanges.Remove:
                     return $"REMOVE: OldEmail = {OldEmail}, OldUserName = {OldUserName}";
                 default:

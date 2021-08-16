@@ -273,5 +273,33 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             if (!isValid)
                 status.GetAllErrors().ShouldEqual("Could not find the tenant Bad Tenant name");
         }
+
+
+        [Theory]
+        [InlineData("User2", true)]
+        [InlineData("bad userId", false)]
+        public async Task TestDeleteUserAsync(string userId, bool isValid)
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            await context.SetupRolesInDbAsync();
+            context.AddMultipleUsersWithRolesInDb();
+            context.SetupSingleTenantsInDb();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+
+            //ATTEMPT
+            var status = await service.DeleteUserAsync(userId);
+
+            //VERIFY
+            status.IsValid.ShouldEqual(isValid);
+            _output.WriteLine(status.Message);
+            if (!isValid)
+                status.GetAllErrors().ShouldEqual("Could not find the user you were looking for.");
+        }
     }
 }
