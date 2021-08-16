@@ -28,7 +28,7 @@ namespace AuthPermissions.AdminCode
         /// <param name="excludeFilteredPermissions">Optional: If set to true, then filtered permissions are also included.</param>
         /// <param name="groupName">optional: If true it only returns permissions in a specific group</param>
         /// <returns></returns>
-        public List<PermissionDisplay> GetPermissionDisplay(bool excludeFilteredPermissions, string groupName = null);
+        List<PermissionDisplay> GetPermissionDisplay(bool excludeFilteredPermissions, string groupName = null);
 
         /// <summary>
         /// This returns a query containing all the Auth users that have the given role name

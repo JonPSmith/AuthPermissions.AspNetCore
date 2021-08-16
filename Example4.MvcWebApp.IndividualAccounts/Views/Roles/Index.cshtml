@@ -16,7 +16,7 @@
 @*@if (User.HasPermission(Example4Permissions.RoleChange))
     {*@
 <p>
-    <a asp-action="Create" class="btn-primary">Create new role</a>
+    <a asp-action="Create" class="btn btn-primary">Create new role</a>
 </p>
 @*}*@
 <table class="table">
@@ -29,7 +29,7 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                Num Permissions
+                #Permissions
             </th>
             <th></th>
         </tr>
@@ -51,9 +51,9 @@
                 </td>
                 <td>
                     <!--This should have User.HasPermission(Example4Permissions.RoleChange around them-->
-                    @Html.ActionLink("Edit User", "Edit", new { roleName = item.RoleName })
+                    @Html.ActionLink("Edit", "Edit", new { roleName = item.RoleName })
                     |
-                    @Html.ActionLink("Delete User", "Delete", new { roleName = item.RoleName })
+                    @Html.ActionLink("Delete", "Delete", new { roleName = item.RoleName })
                 </td>
             </tr>
         }
