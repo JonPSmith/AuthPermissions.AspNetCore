@@ -22,14 +22,12 @@
         <partial name="PartialCreateEdit" for="@Model" />
         
         <div class="form-group">
-            <input type="submit" onclick="submitRoleWithPermissions('@Url.Action("Edit")')" value="Update" class="btn btn-primary" />
+            <input type="submit" onclick="submitRoleWithPermissions('@Url.Action("Edit")')" value="Update" class="btn btn-primary" /> |
+            <a asp-action="Index">Back to List</a>
         </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
 
