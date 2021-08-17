@@ -46,7 +46,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             return dataKey == null
                 ? _context.AuthUsers
-                : _context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey + x.TenantId).StartsWith(dataKey));
+                : _context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey ?? "." + x.TenantId).StartsWith(dataKey));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                status.AddError("Could not find the AuthP User you asked for.");
+                status.AddError("Could not find the AuthP User you asked for.", nameof(userId).CamelToPascal());
 
             return status.SetResult(authUser);
         }
@@ -86,7 +86,7 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefaultAsync(x => x.Email == email);
 
             if (authUser == null)
-                status.AddError($"Could not find the AuthP User with the email of {email}.");
+                status.AddError($"Could not find the AuthP User with the email of {email}.", nameof(email).CamelToPascal());
 
             return status.SetResult(authUser);
         }
@@ -192,7 +192,7 @@ namespace AuthPermissions.AdminCode.Services
                 roles.ForEach(x => missingRoleNames.Remove(x.RoleName));
 
                 return status.AddError(
-                    $"The following role names were not found: {string.Join(", ", missingRoleNames)}");
+                    $"The following role names were not found: {string.Join(", ", missingRoleNames)}", nameof(SyncAuthUserWithChange.RoleNames));
             }
 
             Tenant tenant = null;         
@@ -200,7 +200,7 @@ namespace AuthPermissions.AdminCode.Services
             {
                 tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == newUserData.TenantName);
                 if (tenant == null)
-                    return status.AddError($"Could not find the tenant {newUserData.TenantName}");
+                    return status.AddError($"Could not find the tenant {newUserData.TenantName}", nameof(SyncAuthUserWithChange.TenantName));
             }
 
             //If all ok then we can add/update
@@ -238,7 +238,7 @@ namespace AuthPermissions.AdminCode.Services
             var status = new StatusGenericHandler { Message = $"Successfully changed the UserName from {authUser.UserName} to {userName}." };
 
             if (!email.IsValidEmail())
-                return status.AddError($"The email '{email}' is not a valid email.");
+                return status.AddError($"The email '{email}' is not a valid email.", nameof(email).CamelToPascal());
 
             authUser.ChangeUserNameAndEmailWithChecks(email, userName);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -265,7 +265,7 @@ namespace AuthPermissions.AdminCode.Services
             var role = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
 
             if (role == null)
-                return status.AddError($"Could not find the role {roleName}");
+                return status.AddError($"Could not find the role {roleName}", nameof(roleName).CamelToPascal());
 
             var added = authUser.AddRoleToUser(role);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -296,7 +296,7 @@ namespace AuthPermissions.AdminCode.Services
             var role = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
 
             if (role == null)
-                return status.AddError($"Could not find the role {roleName}");
+                return status.AddError($"Could not find the role {roleName}", nameof(roleName).CamelToPascal());
 
             var removed = authUser.RemoveRoleFromUser(role);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -331,7 +331,7 @@ namespace AuthPermissions.AdminCode.Services
 
             var tenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == tenantFullName);
             if (tenant == null)
-                return status.AddError($"Could not find the tenant {tenantFullName}");
+                return status.AddError($"Could not find the tenant {tenantFullName}", nameof(tenantFullName).CamelToPascal());
 
             authUser.UpdateUserTenant(tenant);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -351,7 +351,7 @@ namespace AuthPermissions.AdminCode.Services
             var authUser = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                return status.AddError("Could not find the user you were looking for.");
+                return status.AddError("Could not find the user you were looking for.", nameof(userId).CamelToPascal());
 
             _context.Remove(authUser);
             status.CombineStatuses( await _context.SaveChangesWithChecksAsync());

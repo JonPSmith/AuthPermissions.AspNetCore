@@ -104,6 +104,28 @@ namespace Test.UnitTests.TestExamples
         }
 
         [Fact]
+        public async Task TestExample4QueryAuthUsers()
+        {
+            //SETUP
+            var cAnds = await SetupExample4DataAsync();
+
+            var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
+            var userId = "admin@4uInc.com";
+            var dataKey = (await adminUserService.FindAuthUserByUserIdAsync(userId)).Result.UserTenant.GetTenantDataKey();
+
+            //ATTEMPT
+            var results = adminUserService.QueryAuthUsers(dataKey)
+                .Select(x => new { x.Email, DataKey = x.UserTenant.GetTenantDataKey()} ).ToList();
+
+            //VERIFY
+            foreach (var result in results)
+            {
+                _output.WriteLine($"{result.Email}, {result.DataKey}");
+            }
+            results.Count.ShouldEqual(10);
+        }
+
+        [Fact]
         public async Task TestExample4AuthUserUpdateChangeAuthUserFromDataAsyncAllOkNoChange()
         {
             //SETUP

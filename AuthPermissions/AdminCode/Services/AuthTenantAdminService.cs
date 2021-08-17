@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
@@ -62,7 +63,7 @@ namespace AuthPermissions.AdminCode.Services
 
             if (_tenantType != TenantTypes.SingleLevel)
                 return status.AddError(
-                    $"You cannot add a single tenant because the tenant configuration is {_tenantType}");
+                    $"You cannot add a single tenant because the tenant configuration is {_tenantType}", nameof(tenantName).CamelToPascal());
 
             _context.Add(new Tenant(tenantName));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -82,10 +83,11 @@ namespace AuthPermissions.AdminCode.Services
 
             if (_tenantType != TenantTypes.HierarchicalTenant)
                 return status.AddError(
-                    $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}");
+                    $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}", nameof(thisLevelTenantName).CamelToPascal());
             if (thisLevelTenantName.Contains('|'))
                 return status.AddError(
-                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order");
+                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
+                        nameof(thisLevelTenantName).CamelToPascal());
 
             Tenant parentTenant = null;
             if (parentTenantName != null)
@@ -93,7 +95,7 @@ namespace AuthPermissions.AdminCode.Services
                 //We need to find the parent
                 parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == parentTenantName);
                 if (parentTenant == null)
-                    return status.AddError($"Could not find the parent tenant with the name {parentTenantName}");
+                    return status.AddError($"Could not find the parent tenant with the name {parentTenantName}",nameof(parentTenantName).CamelToPascal());
             }
 
             var fullTenantName = Tenant.CombineParentNameWithTenantName(thisLevelTenantName, parentTenant?.TenantFullName);
@@ -119,12 +121,13 @@ namespace AuthPermissions.AdminCode.Services
 
             if (_tenantType == TenantTypes.NotUsingTenants)
                 return status.AddError(
-                    $"You haven't configured the TenantType in the configuration.");
+                    "You haven't configured the TenantType in the configuration.");
             if (string.IsNullOrEmpty(newTenantLevelName))
-                return status.AddError("The new name was empty");
+                return status.AddError("The new name was empty", nameof(newTenantLevelName).CamelToPascal());
             if (newTenantLevelName.Contains('|'))
                 return status.AddError(
-                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order");
+                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
+                        nameof(newTenantLevelName).CamelToPascal());
 
             var tenantsWithChildren = await _context.Tenants
                 .Include(x => x.Parent)
@@ -136,7 +139,7 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefault(x => x.TenantFullName == fullTenantName);
 
             if (existingTenantWithChildren == null)
-                return status.AddError($"Could not find the tenant with the name {fullTenantName}");
+                return status.AddError($"Could not find the tenant with the name {fullTenantName}", nameof(fullTenantName).CamelToPascal());
 
             existingTenantWithChildren.UpdateTenantName(newTenantLevelName);
 
@@ -171,7 +174,7 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefault(x => x.TenantFullName == fullTenantName);
 
             if (existingTenantWithChildren == null)
-                return status.AddError($"Could not find the tenant with the name {fullTenantName}");
+                return status.AddError($"Could not find the tenant with the name {fullTenantName}", nameof(fullTenantName).CamelToPascal());
 
             Tenant newParentTenant = null;
             if (newParentFullName != null)
@@ -179,7 +182,7 @@ namespace AuthPermissions.AdminCode.Services
                 //We need to find the parent
                 newParentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == newParentFullName);
                 if (newParentTenant == null)
-                    return status.AddError($"Could not find the parent tenant with the name {newParentFullName}");
+                    return status.AddError($"Could not find the parent tenant with the name {newParentFullName}", nameof(newParentFullName).CamelToPascal());
             }
 
             existingTenantWithChildren.MoveTenantToNewParent(newParentTenant);

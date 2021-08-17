@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
@@ -86,21 +87,22 @@ namespace AuthPermissions.AdminCode.Services
             var status = new StatusGenericHandler { Message = $"Successfully added the new role {roleName}." };
 
             if (string.IsNullOrEmpty(roleName))
-                return status.AddError("The RoleName isn't filled in");
+                return status.AddError("The RoleName isn't filled in", nameof(roleName).CamelToPascal());
             if ((await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName)) != null)
-                return status.AddError($"There is already a Role with the name of '{roleName}'.");
+                return status.AddError($"There is already a Role with the name of '{roleName}'.", nameof(roleName).CamelToPascal());
             
             if (permissionNames == null)
-                return status.AddError("You must provide at least one permission name.");
+                return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
             
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames, 
-                x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum."));
+                x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
+                    nameof(permissionNames).CamelToPascal()));
 
             if (status.HasErrors)
                 return status;
 
             if (!packedPermissions.Any())
-                return status.AddError("You must provide at least one permission name.");
+                return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
 
             _context.Add(new RoleToPermissions(roleName, description, packedPermissions));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -121,16 +123,17 @@ namespace AuthPermissions.AdminCode.Services
             var existingRolePermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
 
             if (existingRolePermission == null)
-                return status.AddError($"Could not find a role called {roleName}");
+                return status.AddError($"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
 
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
-                x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum."));
+                x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
+                    nameof(permissionNames).CamelToPascal()));
 
             if (status.HasErrors)
                 return status;
 
             if (!packedPermissions.Any())
-                return status.AddError("You must provide at least one permission name.");
+                return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
 
             existingRolePermission.Update(packedPermissions, description);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -154,14 +157,14 @@ namespace AuthPermissions.AdminCode.Services
                 await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
 
             if (existingRolePermission == null)
-                return status.AddError($"Could not find a role called {roleName}");
+                return status.AddError($"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
 
             var usersWithRoles = _context.UserToRoles.Where(x => x.RoleName == roleName).ToList();
             if (usersWithRoles.Any())
             {
                 if (!removeFromUsers)
                     return status.AddError(
-                        $"That role is used in {usersWithRoles.Count} AuthUsers and you didn't confirm the delete.");
+                        $"That role is used in {usersWithRoles.Count} AuthUsers and you didn't confirm the delete.", nameof(roleName).CamelToPascal());
 
                 _context.RemoveRange(usersWithRoles);
                 status.Message = $"Successfully deleted the role {roleName} and removed that role from {usersWithRoles.Count} users.";

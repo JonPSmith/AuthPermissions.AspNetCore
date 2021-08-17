@@ -10,6 +10,11 @@
 - Has admin services to sync the authentication provider users with  AuthP's users.
 - Admin services to manage AuthP's Roles, Tenants and Users.
 
+## 1.1.0-preview001
+
+- Minor improvements to the AuthUser and Roles Admin services
+- Improvements to the Example AuthUsersController and RolesController
+
 ## 1.0.0-preview001
 
 - Preview version - looking for feedback.

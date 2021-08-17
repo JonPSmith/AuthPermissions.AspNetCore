@@ -43,13 +43,13 @@ namespace AuthPermissions
             var status = new StatusGenericHandler("AuthP JWT Token config");
 
             if (string.IsNullOrEmpty(Issuer))
-                status.AddError($"{nameof(Issuer)} must not be null or empty");
+                status.AddError($"{nameof(Issuer)} must not be null or empty", nameof(Issuer));
             if (string.IsNullOrEmpty(Audience))
-                status.AddError($"{nameof(Audience)} must not be null or empty");
+                status.AddError($"{nameof(Audience)} must not be null or empty", nameof(Audience));
             if (string.IsNullOrEmpty(SigningKey))
-                status.AddError($"{nameof(SigningKey)} must not be null or empty");
+                status.AddError($"{nameof(SigningKey)} must not be null or empty", nameof(SigningKey));
             if (TokenExpires == default)
-                status.AddError($"{nameof(TokenExpires)} must be set with a TimeSpan");
+                status.AddError($"{nameof(TokenExpires)} must be set with a TimeSpan", nameof(TokenExpires));
 
             return status;
         }
