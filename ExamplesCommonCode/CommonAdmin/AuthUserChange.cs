@@ -89,6 +89,11 @@ namespace ExamplesCommonCode.CommonAdmin
         public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
             var status = new StatusGenericHandler {Message = $"Successfully updated the user {UserName ?? Email}"};
+            if (FoundChange == SyncAuthUserChanges.NoChange)
+            {
+                status.Message = $"The user {UserName ?? Email} was marked as NoChange, so no change was applied";
+                return status;
+            }
 
             //find the roles
             var foundRoles = RoleNames?.Any() == true

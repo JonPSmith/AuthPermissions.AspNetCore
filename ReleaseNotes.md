@@ -14,6 +14,7 @@
 
 - Minor improvements to the AuthUser and Roles Admin services
 - Improvements to the Example AuthUsersController and RolesController
+- Fixed bug in Example4 "sync users" feature
 
 ## 1.0.0-preview001
 

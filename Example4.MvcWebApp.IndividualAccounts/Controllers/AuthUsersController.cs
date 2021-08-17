@@ -42,6 +42,8 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
+            status.Result.FoundChange = SyncAuthUserChanges.Update;
+
             return View(status.Result);
         }
 
@@ -71,7 +73,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 await input.SetupDropDownListsAsync(_context);//refresh dropdown
                 return View(input);
             }
-            
+
             var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, _context);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
