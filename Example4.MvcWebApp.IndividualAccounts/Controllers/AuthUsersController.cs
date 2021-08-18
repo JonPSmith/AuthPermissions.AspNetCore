@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using AuthPermissions.DataLayer.EfCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.EntityFrameworkCore;
+using StatusGeneric;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -37,41 +39,58 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> Edit(string userId)
         {
-            var status = await AuthUserChange.BuildAuthUserUpdateAsync(userId,_authUsersAdmin, _context);
+            var status = await AuthUserChange.PrepareForUpdateAsync(userId,_authUsersAdmin, _context);
             if(status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            status.Result.FoundChange = SyncAuthUserChanges.Update;
-
             return View(status.Result);
         }
 
+        public async Task<ActionResult> Create(string userId)
+        {
+            var authUserChange = await AuthUserChange.PrepareForCreateAsync(userId, _context);
+            return View(authUserChange);
+        }
+
+        /// <summary>
+        /// This can be from the sync display, taking the recommended updates from the sync
+        /// It can be a create or an update 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<ActionResult> EditFromSync(AuthUserChange input)
         {
-            if (input.FoundChange == SyncAuthUserChanges.Add)
+            switch (input.FoundChange)
             {
-                await input.SetupDropDownListsAsync(_context);
-                input.RoleNames = new List<string>();
-                return View(nameof(Edit), input);
+                case SyncAuthUserChanges.NoChange:
+                    return RedirectToAction(nameof(Index),
+                        new { message = "The entry was marked as 'No Change' so it was ignored." });
+                case SyncAuthUserChanges.Create:
+                    var createData = await AuthUserChange.PrepareForCreateAsync(input.UserId, _context);
+                    return View(nameof(Create), createData);
+                case SyncAuthUserChanges.Update:
+                    var status = await AuthUserChange.PrepareForUpdateAsync(input.UserId, _authUsersAdmin, _context);
+                    if (status.HasErrors)
+                        return RedirectToAction(nameof(ErrorDisplay),
+                            new { errorMessage = status.GetAllErrors() });
+                    return View(nameof(Edit), status.Result);
+                case SyncAuthUserChanges.Delete:
+                    return View(nameof(Delete), new { userId = input.UserId });
             }
 
-            var status = await AuthUserChange.BuildAuthUserUpdateAsync(input.UserId, _authUsersAdmin, _context);
-            if (status.HasErrors)
-                return RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = status.GetAllErrors() });
+            throw new ArgumentOutOfRangeException();
 
-            return View(nameof(Edit), status.Result);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(AuthUserChange input)
+        public async Task<ActionResult> CreateUpdate(AuthUserChange input)
         {
             if (!ModelState.IsValid)
             {
                 await input.SetupDropDownListsAsync(_context);//refresh dropdown
-                return View(input);
+                return View(input.FoundChange);
             }
 
             var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, _context);

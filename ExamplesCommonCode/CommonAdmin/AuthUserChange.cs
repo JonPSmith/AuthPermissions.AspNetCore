@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -56,7 +57,7 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public List<string> AllTenantNames { get; set; }
 
-        public static async Task<IStatusGeneric<AuthUserChange>> BuildAuthUserUpdateAsync(string userId, IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
+        public static async Task<IStatusGeneric<AuthUserChange>> PrepareForUpdateAsync(string userId, IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
             var status = new StatusGenericHandler<AuthUserChange>();
             var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(userId);
@@ -67,6 +68,7 @@ namespace ExamplesCommonCode.CommonAdmin
 
             var result = new AuthUserChange
             {
+                FoundChange = SyncAuthUserChanges.Update,
                 UserId = authUser.UserId,
                 UserName = authUser.UserName,
                 Email = authUser.Email,
@@ -80,6 +82,18 @@ namespace ExamplesCommonCode.CommonAdmin
             return status.SetResult(result);
         }
 
+        public static async Task<AuthUserChange> PrepareForCreateAsync(string userId, AuthPermissionsDbContext context)
+        {
+            var result = new AuthUserChange
+            {
+                FoundChange = SyncAuthUserChanges.Create,
+                UserId = userId,
+            };
+            await result.SetupDropDownListsAsync(context);
+
+            return result;
+        }
+
         /// <summary>
         /// This will add/update an AuthUser using the information provided in this class
         /// </summary>
@@ -88,59 +102,27 @@ namespace ExamplesCommonCode.CommonAdmin
         /// <returns>Status</returns>
         public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
-            var status = new StatusGenericHandler {Message = $"Successfully updated the user {UserName ?? Email}"};
-            if (FoundChange == SyncAuthUserChanges.NoChange)
+            var status = new StatusGenericHandler();
+
+            switch (FoundChange)
             {
-                status.Message = $"The user {UserName ?? Email} was marked as NoChange, so no change was applied";
-                return status;
+                case SyncAuthUserChanges.NoChange:
+                    status.Message = $"The user {UserName ?? Email} was marked as NoChange, so no change was applied";
+                    break;
+                case SyncAuthUserChanges.Create:
+                    status.CombineStatuses(
+                        await authUsersAdmin.AddNewUserAsync(UserId, Email, UserName, RoleNames, TenantName));
+                    break;
+                case SyncAuthUserChanges.Update:
+                    status.CombineStatuses(
+                        await authUsersAdmin.UpdateUserAsync(UserId, Email, UserName, RoleNames, TenantName));
+                    break;
+                case SyncAuthUserChanges.Delete:
+                    throw new AuthPermissionsException("You should direct a Delete change to a Delete confirm page.");
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            //find the roles
-            var foundRoles = RoleNames?.Any() == true
-                ? await context.RoleToPermissions
-                    .Where(x => RoleNames.Contains(x.RoleName))
-                    .ToListAsync()
-                : new List<RoleToPermissions>();
-            if (foundRoles.Count != (RoleNames?.Count ?? 0))
-                throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
-
-            //Find the tenant
-            var foundTenant = string.IsNullOrEmpty(TenantName) || TenantName == CommonConstants.EmptyTenantName
-                ? null
-                : await context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == TenantName);
-            if (!string.IsNullOrEmpty(TenantName) && TenantName != CommonConstants.EmptyTenantName && foundTenant == null)
-                return status.AddError($"A tenant with the name {TenantName} wasn't found.");
-
-            if (FoundChange == SyncAuthUserChanges.Add)
-            {
-                status.Message = $"Successfully added a AuthUser with the name {UserName ?? Email}";
-
-                var authUser = new AuthUser(UserId, Email, UserName, foundRoles, foundTenant);
-                context.Add(authUser);
-            }
-            else
-            {
-                status.Message = $"Successfully updated the AuthUser with the name {UserName ?? Email}";
-
-                var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(UserId);
-                if (status.CombineStatuses(authUserStatus).HasErrors)
-                    return status;
-
-                var authUser = authUserStatus.Result;
-
-                //Its an update
-                authUser.ChangeUserNameAndEmailWithChecks(Email, UserName);
-                if (foundRoles.Any() && authUser.UserRoles.Select(x => x.RoleName).OrderBy(x => x) !=
-                        RoleNames.OrderBy(x => x))
-                    //The roles are different so 
-                    authUser.ReplaceAllRoles(foundRoles);
-                if (authUser.UserTenant?.TenantFullName != TenantName)
-                {
-                    authUser.UpdateUserTenant(string.IsNullOrEmpty(TenantName) ? null : foundTenant);
-                }
-            }
-
-            status.CombineStatuses(await context.SaveChangesWithChecksAsync());
             return status;
         }
 

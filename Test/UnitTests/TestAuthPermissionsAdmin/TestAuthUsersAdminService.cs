@@ -122,7 +122,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 _output.WriteLine(synChange.ToString());
             }
-            changes.Select(x => x.FoundChange.ToString()).ShouldEqual(new []{ "Update", "Add", "Remove" });
+            changes.Select(x => x.FoundChange.ToString()).ShouldEqual(new []{ "Update", "Create", "Delete" });
         }
 
         [Fact]
@@ -175,7 +175,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var authUser = (await service.FindAuthUserByEmailAsync("User1@gmail.com")).Result;
 
             //ATTEMPT
-            var status = await service.ChangeUserNameAndEmailAsync(authUser, "new user name", email);
+            var status = await service.UpdateUserAsync(authUser.UserId, email, "new user name",
+                authUser.UserRoles.Select(x => x.RoleName).ToList(), null);
 
             //VERIFY
             status.IsValid.ShouldEqual(isValid);
@@ -265,13 +266,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
-            var status = await service.ChangeTenantToUserAsync(authUser, tenantName);
+            var status = await service.UpdateUserAsync(authUser.UserId, authUser.Email, authUser.UserName,
+                authUser.UserRoles.Select(x => x.RoleName).ToList(), tenantName);
 
             //VERIFY
             status.IsValid.ShouldEqual(isValid);
             _output.WriteLine(status.Message);
             if (!isValid)
-                status.GetAllErrors().ShouldEqual("Could not find the tenant Bad Tenant name");
+                status.GetAllErrors().ShouldEqual("A tenant with the name 'Bad Tenant name' wasn't found.");
         }
 
 

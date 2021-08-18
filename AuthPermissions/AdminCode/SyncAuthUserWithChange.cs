@@ -10,36 +10,20 @@ using AuthPermissions.DataLayer.Classes;
 namespace AuthPermissions.AdminCode
 {
     /// <summary>
-    /// The type of changes between the authentication provider's user and the AuthPermission's AuthUser
-    /// Also used to confirm that the change should be made 
-    /// </summary>
-    public enum SyncAuthUserChanges
-    {
-        /// <summary>
-        /// Ignore this change - can be set by the user
-        /// </summary>
-        NoChange,
-        /// <summary>
-        /// A new authentication provider's user, need to add a AuthP user  
-        /// </summary>
-        Add,
-        /// <summary>
-        /// The authentication provider user's email and/or username has change, so update AuthP user
-        /// </summary>
-        Update,
-        /// <summary>
-        /// A user has been removed from authentication provider' database, so delete AuthP user too
-        /// </summary>
-        Remove
-    }
-
-    /// <summary>
     /// This class is used to display/change the AuthUser
     /// </summary>
     public class SyncAuthUserWithChange
     {
+        /// <summary>
+        /// Ctor for sending back the data
+        /// </summary>
         public SyncAuthUserWithChange () {}
 
+        /// <summary>
+        /// Ctor used by sync code to build the sync change data
+        /// </summary>
+        /// <param name="authenticationUser"></param>
+        /// <param name="authUser"></param>
         internal SyncAuthUserWithChange(SyncAuthenticationUser authenticationUser, AuthUser authUser)
         {
             if (authUser != null)
@@ -67,9 +51,9 @@ namespace AuthPermissions.AdminCode
             if (Email == OldEmail &&  UserName == OldUserName)
                 FoundChange = SyncAuthUserChanges.NoChange;
             else if (authenticationUser == null)
-                FoundChange = SyncAuthUserChanges.Remove;
+                FoundChange = SyncAuthUserChanges.Delete;
             else if (authUser == null)
-                FoundChange = SyncAuthUserChanges.Add;
+                FoundChange = SyncAuthUserChanges.Create;
             else
                 FoundChange = SyncAuthUserChanges.Update;
         }
@@ -126,12 +110,12 @@ namespace AuthPermissions.AdminCode
             {
                 case SyncAuthUserChanges.NoChange:
                     throw new AuthPermissionsException("Shouldn't have this in the list");
-                case SyncAuthUserChanges.Add:
-                    return $"ADD: Email = {Email}, UserName = {UserName}";
+                case SyncAuthUserChanges.Create:
+                    return $"CREATE: Email = {Email}, UserName = {UserName}";
                 case SyncAuthUserChanges.Update:
                     return $"UPDATE: Email {(EmailChanged ? "CHANGED" : "same")}, UserName {(UserNameChanged ? "CHANGED" : "same")}";
-                case SyncAuthUserChanges.Remove:
-                    return $"REMOVE: OldEmail = {OldEmail}, OldUserName = {OldUserName}";
+                case SyncAuthUserChanges.Delete:
+                    return $"DELETE: OldEmail = {OldEmail}, OldUserName = {OldUserName}";
                 default:
                     throw new ArgumentOutOfRangeException();
             }

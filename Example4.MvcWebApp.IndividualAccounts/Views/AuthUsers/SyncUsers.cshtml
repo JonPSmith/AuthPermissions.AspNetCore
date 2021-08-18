@@ -20,7 +20,7 @@
             <th>UserName</th>
             <th>Roles Count</th>
             <th>Has tenant</th>
-            <th>Edit/Ignore</th>
+            <th>Manual Change</th>
         </tr>
     </thead>
     <tbody id="contains-changes">
@@ -29,7 +29,7 @@
         {
         <tr>
             <td>@item.FoundChange</td>
-            @if (item.FoundChange == SyncAuthUserChanges.Add)
+            @if (item.FoundChange == SyncAuthUserChanges.Create)
             {
                 <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.Email</td>
                 <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.UserName</td>
@@ -44,19 +44,13 @@
             <td>@item.HasTenant</td>
             <td>
                 <form id="@item.UserId" 
-                      asp-action='@(item.FoundChange == SyncAuthUserChanges.Remove ? "Delete" : "EditFromSync")' method="get">
+                      asp-action="EditFromSync" method="get">
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChange), item.FoundChange)
-                    @if (item.FoundChange == SyncAuthUserChanges.Add || item.FoundChange == SyncAuthUserChanges.Update)
-                    {
-                        <button type="submit" class="btn-sm btn-primary">Edit</button>
-                    }
-                    else if (item.FoundChange == SyncAuthUserChanges.Remove)
-                    {
-                        <button type="submit" class="btn-sm btn-primary">Delete</button>
-                    }
+
+                    <button type="submit" class="btn-sm btn-primary">@item.FoundChange</button>
                     <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore</button>
                 </form>
             </td>

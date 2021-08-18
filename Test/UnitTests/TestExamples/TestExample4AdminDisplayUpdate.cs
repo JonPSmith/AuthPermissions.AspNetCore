@@ -91,7 +91,7 @@ namespace Test.UnitTests.TestExamples
             var userId = "admin@4uInc.com";
 
             //ATTEMPT
-            var status = await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context);
+            var status = await AuthUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -133,7 +133,7 @@ namespace Test.UnitTests.TestExamples
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
             var userId = "admin@4uInc.com";
-            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await AuthUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
@@ -156,9 +156,10 @@ namespace Test.UnitTests.TestExamples
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
             var userId = "admin@4uInc.com";
-            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await AuthUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
+            authUserUpdate.FoundChange = SyncAuthUserChanges.Update;
             authUserUpdate.RoleNames = new List<string> {"Area Manager", "App Admin"};
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
 
@@ -179,10 +180,10 @@ namespace Test.UnitTests.TestExamples
             var cAnds = await SetupExample4DataAsync();
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
-            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync("admin@4uInc.com", adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await AuthUserChange.PrepareForUpdateAsync("admin@4uInc.com", adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
-            authUserUpdate.FoundChange = SyncAuthUserChanges.Add;
+            authUserUpdate.FoundChange = SyncAuthUserChanges.Create;
             authUserUpdate.UserId = "newuser@gmail.com";
             authUserUpdate.Email = "newuser@gmail.com";
             authUserUpdate.UserName = "newuser@gmail.com";
@@ -206,15 +207,16 @@ namespace Test.UnitTests.TestExamples
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
             var userId = "admin@4uInc.com";
-            var authUserUpdate = (await AuthUserChange.BuildAuthUserUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await AuthUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
+            authUserUpdate.FoundChange = SyncAuthUserChanges.Update;
             authUserUpdate.TenantName = "Bad tenant name";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldEqual("A tenant with the name Bad tenant name wasn't found.");
+            status.GetAllErrors().ShouldEqual("A tenant with the name 'Bad tenant name' wasn't found.");
         }
 
 

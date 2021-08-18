@@ -2,12 +2,12 @@
 @model ExamplesCommonCode.CommonAdmin.AuthUserChange
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Add";
 }
 
-<h1>Edit</h1>
+<h1>Create</h1>
 
-<h4>Edit the user's information</h4>
+<h4>Create a new user</h4>
 <hr />
 <div class="row">
     <div class="col-md-8">
@@ -42,8 +42,8 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Update" class="btn btn-primary" />
+            <div class="form-group" >
+                <input type="submit" value="Create" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
@@ -54,9 +54,9 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
+    
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('#roleNames_dropdown').multiselect();
         })
     </script>
