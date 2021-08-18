@@ -20,6 +20,10 @@ namespace AuthPermissions.AspNetCore.Services
     {
         private readonly UserManager<IdentityUser> _userManager;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="userManager"></param>
         public SyncIndividualAccountUsers(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;

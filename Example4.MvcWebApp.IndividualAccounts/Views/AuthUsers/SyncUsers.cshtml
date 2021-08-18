@@ -11,7 +11,7 @@
     return;
 }
 
-<h3>AuthUsers changes needed to match with the authentication provider's users</h3>
+<h3>Changes needed based on authentication provider's users</h3>
 <table class="table">
     <thead>
         <tr>
@@ -20,7 +20,7 @@
             <th>UserName</th>
             <th>Roles Count</th>
             <th>Has tenant</th>
-            <th>Edit this</th>
+            <th>Edit/Ignore</th>
         </tr>
     </thead>
     <tbody id="contains-changes">
@@ -43,13 +43,21 @@
             <td>@item.NumRoles</td>
             <td>@item.HasTenant</td>
             <td>
-                <form id="@item.UserId" asp-action="EditFromSync" method="get">
+                <form id="@item.UserId" 
+                      asp-action='@(item.FoundChange == SyncAuthUserChanges.Remove ? "Delete" : "EditFromSync")' method="get">
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChange), item.FoundChange)
-                    <button type="submit" class="btn-sm btn-primary">Edit this</button>
-                    <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore this</button>
+                    @if (item.FoundChange == SyncAuthUserChanges.Add || item.FoundChange == SyncAuthUserChanges.Update)
+                    {
+                        <button type="submit" class="btn-sm btn-primary">Edit</button>
+                    }
+                    else if (item.FoundChange == SyncAuthUserChanges.Remove)
+                    {
+                        <button type="submit" class="btn-sm btn-primary">Delete</button>
+                    }
+                    <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore</button>
                 </form>
             </td>
         </tr>
