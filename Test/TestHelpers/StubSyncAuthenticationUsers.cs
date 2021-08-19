@@ -25,14 +25,13 @@ namespace Test.TestHelpers
                 var result = new List<SyncAuthenticationUser>
                 {
                     new SyncAuthenticationUser( "User1", "User1@gmail.com", "first last 0"), //No change
-                    new SyncAuthenticationUser("User2", "User2@gmail.com", "new name"), //change of username
-                    new SyncAuthenticationUser("User99", "User99@gmail.com", "user 99"),
+                    new SyncAuthenticationUser("User2", "User2@NewGmail.com", "new name"), //change of email and username
+                    new SyncAuthenticationUser("User99", "User99@gmail.com", "user 99"), //create new
                 };
 
                 return Task.FromResult(result.AsEnumerable());
             }
         }
-
 
         public ISyncAuthenticationUsers GetService(bool throwExceptionIfNull = true, string callingMethod = "")
         {

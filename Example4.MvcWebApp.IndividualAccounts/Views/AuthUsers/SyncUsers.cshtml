@@ -29,22 +29,13 @@
         {
         <tr>
             <td>@item.FoundChange</td>
-            @if (item.FoundChange == SyncAuthUserChanges.Create)
-            {
-                <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.Email</td>
-                <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.UserName</td>
-            }
-            else
-            {
-                <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.OldEmail</td>
-                <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.OldUserName</td>
-            }
 
+            <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.Email</td>
+            <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.UserName</td>
             <td>@item.NumRoles</td>
             <td>@item.HasTenant</td>
             <td>
-                <form id="@item.UserId" 
-                      asp-action="EditFromSync" method="get">
+                <form id="@item.UserId" asp-action="EditFromSync" method="get">
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)

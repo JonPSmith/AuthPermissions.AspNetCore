@@ -82,6 +82,9 @@ namespace AuthPermissions.AdminCode
         /// <returns>status</returns>
         Task<IStatusGeneric> DeleteUserAsync(string userId);
 
+        //---------------------------------------------------------
+        //user sync methods
+
         /// <summary>
         /// This compares the users in the authentication provider against the user's in the AuthP's database.
         /// It creates a list of all the changes (add, update, remove) than need to be applied to the AuthUsers.

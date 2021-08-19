@@ -99,64 +99,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             status.Result.ShouldNotBeNull();
         }
 
-        [Fact]
-        public async Task TestSyncAndShowChangesAsyncOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            await context.SetupRolesInDbAsync();
-            context.AddMultipleUsersWithRolesInDb();
-            context.ChangeTracker.Clear();
-
-            var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
-            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
-
-            //ATTEMPT
-            var changes = await service.SyncAndShowChangesAsync();
-
-            //VERIFY
-            foreach (var synChange in changes)
-            {
-                _output.WriteLine(synChange.ToString());
-            }
-            changes.Select(x => x.FoundChange.ToString()).ShouldEqual(new []{ "Update", "Create", "Delete" });
-        }
-
-        [Fact]
-        public async Task TestApplySyncChangesAsyncOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            await context.SetupRolesInDbAsync();
-            context.AddMultipleUsersWithRolesInDb();
-            context.ChangeTracker.Clear();
-
-            var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
-            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
-            var changes = await service.SyncAndShowChangesAsync();
-
-            //ATTEMPT
-            var status = await service.ApplySyncChangesAsync(changes);
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            _output.WriteLine(status.Message);
-            context.ChangeTracker.Clear();
-            var authUsers = context.AuthUsers.OrderBy(x => x.Email).ToList();
-            foreach (var authUser in authUsers)
-            {
-                _output.WriteLine(authUser.ToString());
-            }
-            authUsers.Select(x => x.Email).ShouldEqual(new []{ "User1@gmail.com", "User2@gmail.com", "User99@gmail.com" });
-            authUsers.Select(x => x.UserName).ShouldEqual(new[] { "first last 0", "new name", "user 99" });
-        }
-
         [Theory]
         [InlineData("User1@gmail.com", true)]
         [InlineData("bad.email", false)]

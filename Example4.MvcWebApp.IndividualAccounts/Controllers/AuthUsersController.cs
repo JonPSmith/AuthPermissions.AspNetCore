@@ -113,6 +113,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         //NOTE: the input be called "data" because we are using JavaScript to send that info back
         public async Task<ActionResult> SyncUsers(IEnumerable<SyncAuthUserWithChange> data)
         {
+            return RedirectToAction("Index"); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
             var status = await _authUsersAdmin.ApplySyncChangesAsync(data);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),

@@ -38,7 +38,7 @@ namespace AuthPermissions.AdminCode
 
             if (authenticationUser != null)
             {
-                UserId = authenticationUser.UserId;
+                UserId = authenticationUser.UserId; //Notice that if authenticationUser != null it overrides the 
                 Email = authenticationUser.Email;
                 //Special handling of username
                 //If the authenticationUser's UserName is same as its Email (or null), and the AuthUser has a value then don't update
@@ -51,11 +51,18 @@ namespace AuthPermissions.AdminCode
             if (Email == OldEmail &&  UserName == OldUserName)
                 FoundChange = SyncAuthUserChanges.NoChange;
             else if (authenticationUser == null)
+            {
                 FoundChange = SyncAuthUserChanges.Delete;
+                //Need to set the Email and UserName so that can show the AuthP user's values
+                Email = authUser.Email;
+                UserName = authUser.UserName;
+            }
             else if (authUser == null)
                 FoundChange = SyncAuthUserChanges.Create;
             else
                 FoundChange = SyncAuthUserChanges.Update;
+
+
         }
 
         /// <summary>
@@ -64,7 +71,7 @@ namespace AuthPermissions.AdminCode
         public SyncAuthUserChanges FoundChange { get; set; }
 
         /// <summary>
-        /// The userId of the user (NOTE: this is not show 
+        /// The userId of the user (NOTE: this is not shown) 
         /// </summary>
         public string UserId { get;  set; }
         /// <summary>
@@ -115,7 +122,7 @@ namespace AuthPermissions.AdminCode
                 case SyncAuthUserChanges.Update:
                     return $"UPDATE: Email {(EmailChanged ? "CHANGED" : "same")}, UserName {(UserNameChanged ? "CHANGED" : "same")}";
                 case SyncAuthUserChanges.Delete:
-                    return $"DELETE: OldEmail = {OldEmail}, OldUserName = {OldUserName}";
+                    return $"DELETE: Email = {Email}, UserName = {UserName}";
                 default:
                     throw new ArgumentOutOfRangeException();
             }
