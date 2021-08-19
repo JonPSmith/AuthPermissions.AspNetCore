@@ -39,7 +39,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> Edit(string userId)
         {
-            var status = await AuthUserChange.PrepareForUpdateAsync(userId,_authUsersAdmin, _context);
+            var status = await SetupManualUserChange.PrepareForUpdateAsync(userId,_authUsersAdmin, _context);
             if(status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
@@ -49,7 +49,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> Create(string userId)
         {
-            var authUserChange = await AuthUserChange.PrepareForCreateAsync(userId, _context);
+            var authUserChange = await SetupManualUserChange.PrepareForCreateAsync(userId, _context);
             return View(authUserChange);
         }
 
@@ -59,7 +59,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<ActionResult> EditFromSync(AuthUserChange input)
+        public async Task<ActionResult> EditFromSync(SetupManualUserChange input)
         {
             switch (input.FoundChange)
             {
@@ -67,10 +67,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                     return RedirectToAction(nameof(Index),
                         new { message = "The entry was marked as 'No Change' so it was ignored." });
                 case SyncAuthUserChanges.Create:
-                    var createData = await AuthUserChange.PrepareForCreateAsync(input.UserId, _context);
+                    var createData = await SetupManualUserChange.PrepareForCreateAsync(input.UserId, _context);
                     return View(nameof(Create), createData);
                 case SyncAuthUserChanges.Update:
-                    var status = await AuthUserChange.PrepareForUpdateAsync(input.UserId, _authUsersAdmin, _context);
+                    var status = await SetupManualUserChange.PrepareForUpdateAsync(input.UserId, _authUsersAdmin, _context);
                     if (status.HasErrors)
                         return RedirectToAction(nameof(ErrorDisplay),
                             new { errorMessage = status.GetAllErrors() });
@@ -85,7 +85,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateUpdate(AuthUserChange input)
+        public async Task<ActionResult> CreateUpdate(SetupManualUserChange input)
         {
             if (!ModelState.IsValid)
             {

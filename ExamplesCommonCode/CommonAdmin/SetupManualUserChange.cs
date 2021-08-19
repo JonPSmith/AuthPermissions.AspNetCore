@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
@@ -17,16 +16,15 @@ using StatusGeneric;
 
 namespace ExamplesCommonCode.CommonAdmin
 {
-    public class AuthUserChange
+    public class SetupManualUserChange
     {
         /// <summary>
         /// This is used by SyncUsers to define what to do
-        /// Not used in edit
         /// </summary>
         public SyncAuthUserChanges FoundChange { get; set; }
 
         /// <summary>
-        /// The userId of the user (NOTE: this is not show 
+        /// The userId of the user (NOTE: this is not show)
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.UserIdSize)] 
@@ -57,16 +55,16 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public List<string> AllTenantNames { get; set; }
 
-        public static async Task<IStatusGeneric<AuthUserChange>> PrepareForUpdateAsync(string userId, IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
+        public static async Task<IStatusGeneric<SetupManualUserChange>> PrepareForUpdateAsync(string userId, IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
         {
-            var status = new StatusGenericHandler<AuthUserChange>();
+            var status = new StatusGenericHandler<SetupManualUserChange>();
             var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(userId);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
 
             var authUser = authUserStatus.Result;
 
-            var result = new AuthUserChange
+            var result = new SetupManualUserChange
             {
                 FoundChange = SyncAuthUserChanges.Update,
                 UserId = authUser.UserId,
@@ -82,9 +80,9 @@ namespace ExamplesCommonCode.CommonAdmin
             return status.SetResult(result);
         }
 
-        public static async Task<AuthUserChange> PrepareForCreateAsync(string userId, AuthPermissionsDbContext context)
+        public static async Task<SetupManualUserChange> PrepareForCreateAsync(string userId, AuthPermissionsDbContext context)
         {
-            var result = new AuthUserChange
+            var result = new SetupManualUserChange
             {
                 FoundChange = SyncAuthUserChanges.Create,
                 UserId = userId,
