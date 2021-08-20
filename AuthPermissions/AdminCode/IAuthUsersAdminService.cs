@@ -95,7 +95,7 @@ namespace AuthPermissions.AdminCode
 
         /// <summary>
         /// This receives a list of <see cref="SyncAuthUserWithChange"/> and applies them to the AuthP database.
-        /// This uses the <see cref="SyncAuthUserWithChange.FoundChange"/> parameter to define what to change
+        /// This uses the <see cref="SyncAuthUserWithChange.FoundChangeType"/> parameter to define what to change
         /// </summary>
         /// <param name="changesToApply"></param>
         /// <returns>Status</returns>

@@ -21,7 +21,7 @@ namespace ExamplesCommonCode.CommonAdmin
         /// <summary>
         /// This is used by SyncUsers to define what to do
         /// </summary>
-        public SyncAuthUserChanges FoundChange { get; set; }
+        public SyncAuthUserChangeTypes FoundChangeType { get; set; }
 
         /// <summary>
         /// The userId of the user (NOTE: this is not show)
@@ -66,7 +66,7 @@ namespace ExamplesCommonCode.CommonAdmin
 
             var result = new SetupManualUserChange
             {
-                FoundChange = SyncAuthUserChanges.Update,
+                FoundChangeType = SyncAuthUserChangeTypes.Update,
                 UserId = authUser.UserId,
                 UserName = authUser.UserName,
                 Email = authUser.Email,
@@ -84,7 +84,7 @@ namespace ExamplesCommonCode.CommonAdmin
         {
             var result = new SetupManualUserChange
             {
-                FoundChange = SyncAuthUserChanges.Create,
+                FoundChangeType = SyncAuthUserChangeTypes.Create,
                 UserId = userId,
             };
             await result.SetupDropDownListsAsync(context);
@@ -102,20 +102,20 @@ namespace ExamplesCommonCode.CommonAdmin
         {
             var status = new StatusGenericHandler();
 
-            switch (FoundChange)
+            switch (FoundChangeType)
             {
-                case SyncAuthUserChanges.NoChange:
+                case SyncAuthUserChangeTypes.NoChange:
                     status.Message = $"The user {UserName ?? Email} was marked as NoChange, so no change was applied";
                     break;
-                case SyncAuthUserChanges.Create:
+                case SyncAuthUserChangeTypes.Create:
                     status.CombineStatuses(
                         await authUsersAdmin.AddNewUserAsync(UserId, Email, UserName, RoleNames, TenantName));
                     break;
-                case SyncAuthUserChanges.Update:
+                case SyncAuthUserChangeTypes.Update:
                     status.CombineStatuses(
                         await authUsersAdmin.UpdateUserAsync(UserId, Email, UserName, RoleNames, TenantName));
                     break;
-                case SyncAuthUserChanges.Delete:
+                case SyncAuthUserChangeTypes.Delete:
                     throw new AuthPermissionsException("You should direct a Delete change to a Delete confirm page.");
                 default:
                     throw new ArgumentOutOfRangeException();

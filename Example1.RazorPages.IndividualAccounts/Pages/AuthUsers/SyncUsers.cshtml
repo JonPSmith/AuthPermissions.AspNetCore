@@ -1,0 +1,50 @@
+﻿@page
+@using global::AuthPermissions.AdminCode
+@model Example1.RazorPages.IndividualAccounts.Pages.AuthUsers.SyncUsersModel
+
+@if (!@Model.Data.Any())
+{
+    <h3>There are no changes to apply to the AuthUsers</h3>
+    return;
+}
+
+<h3>Changes needed based on authentication provider's users</h3>
+<form method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Change type</th>
+                <th>Email</th>
+                <th>UserName</th>
+                <th>Roles Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Data.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model.Data[i].FoundChangeType
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.UserId)}", Model.Data[i].UserId)
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.FoundChangeType)}", Model.Data[i].FoundChangeType)
+                    </td>
+
+                    <td @(Model.Data[i].EmailChanged ? "class=bg-warning text-dark" : "")>
+                        @Model.Data[i].Email
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.Email)}", Model.Data[i].Email)
+                    </td>
+                    <td @(Model.Data[i].UserNameChanged ? "class=bg-warning text-dark" : "")>
+                        @Model.Data[i].UserName
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.UserName)}", Model.Data[i].UserName)
+                    </td>
+                    <td>@Model.Data[i].NumRoles</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    
+    <button class="btn btn-primary">Apply Sync Changes</button>
+
+</form>
+

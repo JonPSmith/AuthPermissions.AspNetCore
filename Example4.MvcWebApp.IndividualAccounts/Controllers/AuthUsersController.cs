@@ -61,21 +61,21 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         /// <returns></returns>
         public async Task<ActionResult> EditFromSync(SetupManualUserChange input)
         {
-            switch (input.FoundChange)
+            switch (input.FoundChangeType)
             {
-                case SyncAuthUserChanges.NoChange:
+                case SyncAuthUserChangeTypes.NoChange:
                     return RedirectToAction(nameof(Index),
                         new { message = "The entry was marked as 'No Change' so it was ignored." });
-                case SyncAuthUserChanges.Create:
+                case SyncAuthUserChangeTypes.Create:
                     var createData = await SetupManualUserChange.PrepareForCreateAsync(input.UserId, _context);
                     return View(nameof(Create), createData);
-                case SyncAuthUserChanges.Update:
+                case SyncAuthUserChangeTypes.Update:
                     var status = await SetupManualUserChange.PrepareForUpdateAsync(input.UserId, _authUsersAdmin, _context);
                     if (status.HasErrors)
                         return RedirectToAction(nameof(ErrorDisplay),
                             new { errorMessage = status.GetAllErrors() });
                     return View(nameof(Edit), status.Result);
-                case SyncAuthUserChanges.Delete:
+                case SyncAuthUserChangeTypes.Delete:
                     return View(nameof(Delete), new { userId = input.UserId });
             }
 
@@ -90,7 +90,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             if (!ModelState.IsValid)
             {
                 await input.SetupDropDownListsAsync(_context);//refresh dropdown
-                return View(input.FoundChange);
+                return View(input.FoundChangeType);
             }
 
             var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, _context);
@@ -113,9 +113,6 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         //NOTE: the input be called "data" because we are using JavaScript to send that info back
         public async Task<ActionResult> SyncUsers(IEnumerable<SyncAuthUserWithChange> data)
         {
-            return RedirectToAction("Index"); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
             var status = await _authUsersAdmin.ApplySyncChangesAsync(data);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),

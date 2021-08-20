@@ -21,8 +21,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/UserClaims">User's claims</a>
+                        <li class="dropdown nav-link text-dark">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Users
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" asp-area="" asp-page="/AuthUsers/ListUsers">List AuthUsers</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" asp-area="" asp-page="/UserInfo/UserClaims">User's claims</a>
+                            </div>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

@@ -6,7 +6,7 @@ using System.Linq;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
-namespace Example4.MvcWebApp.IndividualAccounts.Models
+namespace ExamplesCommonCode.CommonAdmin
 {
     public class AuthUserDisplay
     {

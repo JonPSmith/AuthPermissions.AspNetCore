@@ -14,7 +14,7 @@
         <form asp-action="CreateUpdate">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @Html.HiddenFor(x => x.UserId)
-            @Html.HiddenFor(x => x.FoundChange)
+            @Html.HiddenFor(x => x.FoundChangeType)
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" />

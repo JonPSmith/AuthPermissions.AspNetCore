@@ -58,10 +58,10 @@ namespace AuthPermissions.AdminCode
 
             //Now work out what the change is
             if (Email == OldEmail &&  UserName == OldUserName)
-                FoundChange = SyncAuthUserChanges.NoChange;
+                FoundChangeType = SyncAuthUserChangeTypes.NoChange;
             else if (authenticationUser == null)
             {
-                FoundChange = SyncAuthUserChanges.Delete;
+                FoundChangeType = SyncAuthUserChangeTypes.Delete;
                 //Need to set the Email and UserName so that can show the AuthP user's values
                 Email = authUser.Email;
                 UserName = authUser.UserName;
@@ -70,9 +70,9 @@ namespace AuthPermissions.AdminCode
                 OldUserName = null;
             }
             else if (authUser == null)
-                FoundChange = SyncAuthUserChanges.Create;
+                FoundChangeType = SyncAuthUserChangeTypes.Create;
             else
-                FoundChange = SyncAuthUserChanges.Update;
+                FoundChangeType = SyncAuthUserChangeTypes.Update;
 
 
         }
@@ -80,7 +80,7 @@ namespace AuthPermissions.AdminCode
         /// <summary>
         /// This is set to the difference between authentication provider's user and the AuthPermission's AuthUser
         /// </summary>
-        public SyncAuthUserChanges FoundChange { get; set; }
+        public SyncAuthUserChangeTypes FoundChangeType { get; set; }
 
         /// <summary>
         /// The userId of the user (NOTE: this is not shown) 
@@ -125,15 +125,15 @@ namespace AuthPermissions.AdminCode
         /// <returns></returns>
         public override string ToString()
         {
-            switch (FoundChange)
+            switch (FoundChangeType)
             {
-                case SyncAuthUserChanges.NoChange:
+                case SyncAuthUserChangeTypes.NoChange:
                     throw new AuthPermissionsException("Shouldn't have this in the list");
-                case SyncAuthUserChanges.Create:
+                case SyncAuthUserChangeTypes.Create:
                     return $"CREATE: Email = {Email}, UserName = {UserName}";
-                case SyncAuthUserChanges.Update:
+                case SyncAuthUserChangeTypes.Update:
                     return $"UPDATE: Email {(EmailChanged ? "CHANGED" : "same")}, UserName {(UserNameChanged ? "CHANGED" : "same")}";
-                case SyncAuthUserChanges.Delete:
+                case SyncAuthUserChangeTypes.Delete:
                     return $"DELETE: Email = {Email}, UserName = {UserName}";
                 default:
                     throw new ArgumentOutOfRangeException();

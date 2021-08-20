@@ -159,7 +159,7 @@ namespace Test.UnitTests.TestExamples
             var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
-            authUserUpdate.FoundChange = SyncAuthUserChanges.Update;
+            authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.RoleNames = new List<string> {"Area Manager", "App Admin"};
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
 
@@ -183,7 +183,7 @@ namespace Test.UnitTests.TestExamples
             var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync("admin@4uInc.com", adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
-            authUserUpdate.FoundChange = SyncAuthUserChanges.Create;
+            authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Create;
             authUserUpdate.UserId = "newuser@gmail.com";
             authUserUpdate.Email = "newuser@gmail.com";
             authUserUpdate.UserName = "newuser@gmail.com";
@@ -210,7 +210,7 @@ namespace Test.UnitTests.TestExamples
             var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
 
             //ATTEMPT
-            authUserUpdate.FoundChange = SyncAuthUserChanges.Update;
+            authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.TenantName = "Bad tenant name";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
 

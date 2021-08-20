@@ -304,7 +304,7 @@ namespace AuthPermissions.AdminCode.Services
                 {
                     //check if its a change or not
                     var syncChange = new SyncAuthUserWithChange(authenticationUser, authUser);
-                    if (syncChange.FoundChange == SyncAuthUserChanges.Update)
+                    if (syncChange.FoundChangeType == SyncAuthUserChangeTypes.Update)
                         //The two are different so add to the result
                         result.Add(syncChange);
                     //Removed the authUser as has been handled
@@ -325,7 +325,7 @@ namespace AuthPermissions.AdminCode.Services
 
         /// <summary>
         /// This receives a list of <see cref="SyncAuthUserWithChange"/> and applies them to the AuthP database.
-        /// This uses the <see cref="SyncAuthUserWithChange.FoundChange"/> parameter to define what to change
+        /// This uses the <see cref="SyncAuthUserWithChange.FoundChangeType"/> parameter to define what to change
         /// </summary>
         /// <param name="changesToApply"></param>
         /// <returns>Status</returns>
@@ -335,19 +335,19 @@ namespace AuthPermissions.AdminCode.Services
 
             foreach (var syncChange in changesToApply)
             {
-                switch (syncChange.FoundChange)
+                switch (syncChange.FoundChangeType)
                 {
-                    case SyncAuthUserChanges.NoChange:
+                    case SyncAuthUserChangeTypes.NoChange:
                         continue;
-                    case SyncAuthUserChanges.Create:
+                    case SyncAuthUserChangeTypes.Create:
                         status.CombineStatuses(await AddNewUserAsync(syncChange.UserId, syncChange.Email,
                             syncChange.UserName, syncChange.RoleNames, syncChange.TenantName));
                         break;
-                    case SyncAuthUserChanges.Update:
+                    case SyncAuthUserChangeTypes.Update:
                         status.CombineStatuses(await UpdateUserAsync(syncChange.UserId, syncChange.Email,
                             syncChange.UserName, syncChange.RoleNames, syncChange.TenantName));
                         break;
-                    case SyncAuthUserChanges.Delete:
+                    case SyncAuthUserChangeTypes.Delete:
                         var authUserStatus = await FindAuthUserByUserIdAsync(syncChange.UserId);
                         if (status.CombineStatuses(authUserStatus).HasErrors)
                             return status;
@@ -361,8 +361,8 @@ namespace AuthPermissions.AdminCode.Services
 
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
             //Build useful summary
-            var changeStrings = Enum.GetValues<SyncAuthUserChanges>().ToList()
-                .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChange == x)}");
+            var changeStrings = Enum.GetValues<SyncAuthUserChangeTypes>().ToList()
+                .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChangeType == x)}");
             status.Message = $"Sync successful: {(string.Join(", ", changeStrings))}";
 
             return status;

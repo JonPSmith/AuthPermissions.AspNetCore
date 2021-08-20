@@ -44,12 +44,14 @@ namespace Example1.RazorPages.IndividualAccounts
             //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered
             services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
-            services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json
+            //reads a comma delimited list of emails from appsettings.json and creates users in the Individual Account
+            services.AddHostedService<HostedServiceAddAspNetUsers>(); 
 
             services.RegisterAuthPermissions<Example1Permissions>()
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
+                .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCoreAndDatabase();

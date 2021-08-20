@@ -7,7 +7,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
 {
     public class AuthIdAndChange
     {
-        public SyncAuthUserChanges FoundChange { get; set; }
+        public SyncAuthUserChangeTypes FoundChangeType { get; set; }
         public string UserId { get; set; }
     }
 }

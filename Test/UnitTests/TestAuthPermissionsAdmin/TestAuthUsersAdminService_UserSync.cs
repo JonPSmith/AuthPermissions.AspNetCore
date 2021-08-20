@@ -47,7 +47,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 _output.WriteLine(synChange.ToString());
             }
-            changes.Select(x => x.FoundChange.ToString()).ShouldEqual(new []{ "Update", "Create", "Delete" });
+            changes.Select(x => x.FoundChangeType.ToString()).ShouldEqual(new []{ "Update", "Create", "Delete" });
             changes.Select(x => x.ToString()).ShouldEqual(new[]
             {
                 "UPDATE: Email CHANGED, UserName CHANGED",
@@ -79,7 +79,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 _output.WriteLine(synChange.ToString());
             }
-            changes.Select(x => x.FoundChange.ToString()).ShouldEqual(new[] { "Update", "Create", "Delete" });
+            changes.Select(x => x.FoundChangeType.ToString()).ShouldEqual(new[] { "Update", "Create", "Delete" });
             changes.Select(x => x.Email).ShouldEqual(new[] { "User2@NewGmail.com", "User99@gmail.com", "User3@gmail.com" });
             changes.Select(x => x.UserName).ShouldEqual(new[] { "new name", "user 99", "first last 2" });
             changes.Select(x => x.ToString()).ShouldEqual(new[]

@@ -28,7 +28,7 @@
         @foreach (var item in Model)
         {
         <tr>
-            <td>@item.FoundChange</td>
+            <td>@item.FoundChangeType</td>
 
             <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.Email</td>
             <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.UserName</td>
@@ -39,9 +39,9 @@
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
                     @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
-                    @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChange), item.FoundChange)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChangeType), item.FoundChangeType)
 
-                    <button type="submit" class="btn-sm btn-primary">@item.FoundChange</button>
+                    <button type="submit" class="btn-sm btn-primary">@item.FoundChangeType</button>
                     <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore</button>
                 </form>
             </td>

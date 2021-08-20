@@ -7,7 +7,7 @@ namespace AuthPermissions.AdminCode
     /// The type of changes between the authentication provider's user and the AuthPermission's AuthUser
     /// Also used to confirm that the change should be made 
     /// </summary>
-    public enum SyncAuthUserChanges
+    public enum SyncAuthUserChangeTypes
     {
         /// <summary>
         /// Ignore this change - can be set by the user
