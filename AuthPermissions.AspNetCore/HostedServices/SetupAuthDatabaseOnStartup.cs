@@ -14,11 +14,14 @@ using Microsoft.Extensions.Logging;
 
 namespace AuthPermissions.AspNetCore.HostedServices
 {
-    public class SetupDatabaseOnStartup : IHostedService
+    /// <summary>
+    /// This will run before ASP.NET Core goes live, and migrates 
+    /// </summary>
+    public class SetupAuthDatabaseOnStartup : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public SetupDatabaseOnStartup(IServiceProvider serviceProvider)
+        public SetupAuthDatabaseOnStartup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -34,13 +37,13 @@ namespace AuthPermissions.AspNetCore.HostedServices
                 {
                     if (options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.SqliteInMemory)
                         throw new AuthPermissionsException(
-                            $"The in-memory database is created with in the {nameof(AuthPermissions.SetupExtensions)}");
+                            $"The in-memory database is created by the {nameof(AuthPermissions.SetupExtensions.UsingInMemoryDatabase)} extension method");
                     else
                         await context.Database.MigrateAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    var logger = services.GetRequiredService<ILogger<SetupDatabaseOnStartup>>();
+                    var logger = services.GetRequiredService<ILogger<SetupAuthDatabaseOnStartup>>();
                     logger.LogError(ex, "An error occurred while creating/migrating the SQL database.");
 
                     throw;

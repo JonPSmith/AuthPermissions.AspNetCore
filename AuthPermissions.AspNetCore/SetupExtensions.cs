@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
@@ -56,16 +57,27 @@ namespace AuthPermissions.AspNetCore
 
         /// <summary>
         /// This finalizes the setting up of the AuthPermissions parts needed by ASP.NET Core
-        /// This may trigger code to run on startup, before ASP.NET Core active 
+        /// This may trigger code to run on startup, before ASP.NET Core active, to
+        /// 1) Migrate the AuthP's database 
         /// </summary>
         /// <param name="setupData"></param>
         public static void SetupAspNetCoreAndDatabase(this AuthSetupData setupData)
         {
+            if (setupData.Options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.NotSet)
+                throw new AuthPermissionsException("You must register a database type for the AuthP's database.");
+                
             setupData.RegisterCommonServices();
 
             //These are the services that can only be run on 
-            setupData.Services.AddHostedService<SetupDatabaseOnStartup>();
-            setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
+            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
+                //Only run the migration on the AuthP's database if its not a in-memory database
+                setupData.Services.AddHostedService<SetupAuthDatabaseOnStartup>();
+
+            if (!string.IsNullOrEmpty(setupData.Options.InternalData.RolesPermissionsSetupText) ||
+                !string.IsNullOrEmpty(setupData.Options.InternalData.UserTenantSetupText) ||
+                !(setupData.Options.InternalData.UserRolesSetupData == null || !setupData.Options.InternalData.UserRolesSetupData.Any()))
+                //Only run this if there is some Bulk Load data
+                setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 
 

@@ -12,10 +12,11 @@
 
 ## 1.1.0-preview001
 
-- Minor improvements to the AuthUser and Roles Admin services
-- Changes to the AuthUsersAdminService to be more useful
+- BREAKING CHANGE: Different AuthRolesAdminService to be more useful
+- BREAKING CHANGE: Different AuthUsersAdminService to be more useful
 - Improvements to the Example AuthUsersController and RolesController
-- Fixed bug in Example4 "sync users" feature
+- BUG: Fixed bug in Example4 "sync users" feature
+- BUG: Fixed bug in using in-memory database in an application
 
 ## 1.0.0-preview001
 
@@ -27,16 +28,10 @@
 
 ## Code still to do
 
-- Example 4 web site
-  - Roles admin Controller
-  - Tenant admin Controller
-- Work out a way to get the DataKey in a column
-  - SQL/PostgreSQL use `HasDefaultValueSql`
-  - SQLite - use a view??
-  - Check SQLite concurrency 
 - Improve "move tenant" to also move any data.
-- - Example 1 web site
-  - Add NavBar: Show all users, show user's claims, show user's permissions
+- Example 1 web site
+  - Add Show/Edit/Sync users (simple)
+  - Add show user's claims, show user's permissions
 
 
 ## Documentation etc. still needed

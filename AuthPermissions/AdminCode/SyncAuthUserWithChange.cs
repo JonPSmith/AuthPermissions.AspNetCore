@@ -10,7 +10,10 @@ using AuthPermissions.DataLayer.Classes;
 namespace AuthPermissions.AdminCode
 {
     /// <summary>
-    /// This class is used to display/change the AuthUser
+    /// This class is used to find, display and change the AuthUser
+    /// The <see cref="IAuthUsersAdminService.SyncAndShowChangesAsync"/> method uses
+    /// the internal constructor to work out what has changed
+    /// The public constructor is used when a view/page/WebAPI wants to return these changes.
     /// </summary>
     public class SyncAuthUserWithChange
     {
@@ -21,6 +24,12 @@ namespace AuthPermissions.AdminCode
 
         /// <summary>
         /// Ctor used by sync code to build the sync change data
+        /// In general the following happens 
+        /// - OldEmail and OldUserName contain the values from the AuthUser
+        /// - Email and UserName contain the values from the authentication provider Uses
+        /// The exception is Delete, where we want to show the AuthUser data. In this case
+        /// -  Email and UserName contain the values from the AuthUser
+        /// - OldEmail and OldUserName are set to null, which marks them changed
         /// </summary>
         /// <param name="authenticationUser"></param>
         /// <param name="authUser"></param>
@@ -56,6 +65,9 @@ namespace AuthPermissions.AdminCode
                 //Need to set the Email and UserName so that can show the AuthP user's values
                 Email = authUser.Email;
                 UserName = authUser.UserName;
+                //And set old version to null so it shows the changes
+                OldEmail = null;
+                OldUserName = null;
             }
             else if (authUser == null)
                 FoundChange = SyncAuthUserChanges.Create;
