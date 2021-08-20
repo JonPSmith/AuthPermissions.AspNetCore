@@ -16,12 +16,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
     public class AuthUsersController : Controller
     {
         private readonly IAuthUsersAdminService _authUsersAdmin;
-        private readonly AuthPermissionsDbContext _context;
 
-        public AuthUsersController(IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
+        public AuthUsersController(IAuthUsersAdminService authUsersAdmin)
         {
             _authUsersAdmin = authUsersAdmin;
-            _context = context;
         }
 
         // List users filtered by authUser tenant
@@ -30,7 +28,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         {
             var authDataKey = User.GetAuthDataKeyFromUser();
             var userQuery = _authUsersAdmin.QueryAuthUsers(authDataKey);
-            var usersToShow = await AuthUserDisplay.SelectQuery(userQuery.OrderBy(x => x.Email)).ToListAsync();
+            var usersToShow = await AuthUserDisplay.TurnIntoDisplayFormat(userQuery.OrderBy(x => x.Email)).ToListAsync();
 
             ViewBag.Message = message;
 
@@ -39,7 +37,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> Edit(string userId)
         {
-            var status = await SetupManualUserChange.PrepareForUpdateAsync(userId,_authUsersAdmin, _context);
+            var status = await SetupManualUserChange.PrepareForUpdateAsync(userId,_authUsersAdmin);
             if(status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
@@ -49,7 +47,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> Create(string userId)
         {
-            var authUserChange = await SetupManualUserChange.PrepareForCreateAsync(userId, _context);
+            var authUserChange = await SetupManualUserChange.PrepareForCreateAsync(userId, _authUsersAdmin);
             return View(authUserChange);
         }
 
@@ -67,10 +65,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                     return RedirectToAction(nameof(Index),
                         new { message = "The entry was marked as 'No Change' so it was ignored." });
                 case SyncAuthUserChangeTypes.Create:
-                    var createData = await SetupManualUserChange.PrepareForCreateAsync(input.UserId, _context);
+                    var createData = await SetupManualUserChange.PrepareForCreateAsync(input.UserId, _authUsersAdmin);
                     return View(nameof(Create), createData);
                 case SyncAuthUserChangeTypes.Update:
-                    var status = await SetupManualUserChange.PrepareForUpdateAsync(input.UserId, _authUsersAdmin, _context);
+                    var status = await SetupManualUserChange.PrepareForUpdateAsync(input.UserId, _authUsersAdmin);
                     if (status.HasErrors)
                         return RedirectToAction(nameof(ErrorDisplay),
                             new { errorMessage = status.GetAllErrors() });
@@ -89,11 +87,11 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await input.SetupDropDownListsAsync(_context);//refresh dropdown
+                await input.SetupDropDownListsAsync(_authUsersAdmin);//refresh dropdown
                 return View(input.FoundChangeType);
             }
 
-            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, _context);
+            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

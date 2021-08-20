@@ -42,9 +42,9 @@
                     @string.Join(", ", item.RoleNames)
                 </td>
                 <td>
-                    <a asp-area="" asp-page="AuthUsers\Edit" asp-route-id="@item.UserId">Edit</a>
+                    <a asp-area="" asp-page=".\Edit" asp-route-userId="@item.UserId">Edit</a>
                     |
-                    <a asp-area="" asp-page="AuthUsers\Delete" asp-route-id="@item.UserId">Delete</a>
+                    <a asp-area="" asp-page=".\Delete" asp-route-userId="@item.UserId">Delete</a>
                 </td>
             </tr>
         }

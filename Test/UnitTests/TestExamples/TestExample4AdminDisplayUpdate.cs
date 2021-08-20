@@ -91,7 +91,7 @@ namespace Test.UnitTests.TestExamples
             var userId = "admin@4uInc.com";
 
             //ATTEMPT
-            var status = await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context);
+            var status = await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -133,10 +133,10 @@ namespace Test.UnitTests.TestExamples
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
             var userId = "admin@4uInc.com";
-            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService)).Result;
 
             //ATTEMPT
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -156,12 +156,12 @@ namespace Test.UnitTests.TestExamples
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
             var userId = "admin@4uInc.com";
-            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService)).Result;
 
             //ATTEMPT
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.RoleNames = new List<string> {"Area Manager", "App Admin"};
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -180,14 +180,14 @@ namespace Test.UnitTests.TestExamples
             var cAnds = await SetupExample4DataAsync();
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
-            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync("admin@4uInc.com", adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync("admin@4uInc.com", adminUserService)).Result;
 
             //ATTEMPT
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Create;
             authUserUpdate.UserId = "newuser@gmail.com";
             authUserUpdate.Email = "newuser@gmail.com";
             authUserUpdate.UserName = "newuser@gmail.com";
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -207,12 +207,12 @@ namespace Test.UnitTests.TestExamples
 
             var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
             var userId = "admin@4uInc.com";
-            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService, cAnds.context)).Result;
+            var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService)).Result;
 
             //ATTEMPT
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.TenantName = "Bad tenant name";
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, cAnds.context);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
 
             //VERIFY
             status.IsValid.ShouldBeFalse();

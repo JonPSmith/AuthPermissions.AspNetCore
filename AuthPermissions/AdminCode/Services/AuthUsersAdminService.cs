@@ -95,6 +95,24 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
+        /// This returns a list of all the RoleNames
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<string>> GetAllRoleNamesAsync()
+        {
+            return await _context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
+        }
+
+        /// <summary>
+        /// This returns all the tenant full names
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<string>> GetAllTenantNamesAsync()
+        {
+            return await _context.Tenants.Select(x => x.TenantFullName).ToListAsync();
+        }
+
+        /// <summary>
         /// This adds a new AuthUse to the database
         /// </summary>
         /// <param name="userId"></param>

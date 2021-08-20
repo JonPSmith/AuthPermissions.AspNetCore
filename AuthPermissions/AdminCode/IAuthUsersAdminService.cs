@@ -36,6 +36,18 @@ namespace AuthPermissions.AdminCode
         Task<IStatusGeneric<AuthUser>> FindAuthUserByEmailAsync(string email);
 
         /// <summary>
+        /// This returns a list of all the RoleNames
+        /// </summary>
+        /// <returns></returns>
+        Task<List<string>> GetAllRoleNamesAsync();
+
+        /// <summary>
+        /// This returns all the tenant full names
+        /// </summary>
+        /// <returns></returns>
+        Task<List<string>> GetAllTenantNamesAsync();
+
+        /// <summary>
         /// This adds a new AuthUse to the database
         /// </summary>
         /// <param name="userId"></param>

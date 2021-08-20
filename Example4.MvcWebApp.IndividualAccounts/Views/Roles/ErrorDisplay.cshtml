@@ -4,7 +4,7 @@
     ViewData["Title"] = "ErrorDisplay";
 }
 
-@foreach (var error in @Model.Split('\n'))
+@foreach (var error in @Model.Split(Environment.NewLine))
 {
     <h3 class="text-danger">@error</h3>
 }

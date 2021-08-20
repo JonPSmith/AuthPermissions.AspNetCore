@@ -1,0 +1,9 @@
+﻿@page
+@model Example1.RazorPages.IndividualAccounts.Pages.AuthUsers.ErrorPageModel
+
+@foreach (var error in @Model.Data)
+{
+    <h3 class="text-danger">@error</h3>
+}
+
+<a asp-area="" asp-page=".\ListUsers">Back to List Users</a>

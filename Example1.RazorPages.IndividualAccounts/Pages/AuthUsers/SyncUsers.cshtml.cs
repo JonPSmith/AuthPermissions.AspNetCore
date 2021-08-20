@@ -27,7 +27,9 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthUsers
         public async Task<IActionResult> OnPost()
         {
             var status = await _authUsersAdmin.ApplySyncChangesAsync(Data);
-            return RedirectToPage("ListUsers", new { message = status.Message });
+            return status.HasErrors 
+                ? RedirectToPage("ErrorPage", new { allErrors = status.GetAllErrors() }) 
+                : RedirectToPage("ListUsers", new { message = status.Message });
         }
     }
 }

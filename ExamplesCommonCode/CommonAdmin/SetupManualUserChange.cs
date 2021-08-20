@@ -55,7 +55,8 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public List<string> AllTenantNames { get; set; }
 
-        public static async Task<IStatusGeneric<SetupManualUserChange>> PrepareForUpdateAsync(string userId, IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
+        public static async Task<IStatusGeneric<SetupManualUserChange>> PrepareForUpdateAsync(string userId,
+            IAuthUsersAdminService authUsersAdmin)
         {
             var status = new StatusGenericHandler<SetupManualUserChange>();
             var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(userId);
@@ -72,22 +73,20 @@ namespace ExamplesCommonCode.CommonAdmin
                 Email = authUser.Email,
                 RoleNames = authUser.UserRoles.Select(x => x.RoleName).ToList(),
                 TenantName = authUser.UserTenant?.TenantFullName,
-
-                AllRoleNames = await context.RoleToPermissions.Select(x => x.RoleName).ToListAsync()
             };
-            await result.SetupDropDownListsAsync(context);
+            await result.SetupDropDownListsAsync(authUsersAdmin);
 
             return status.SetResult(result);
         }
 
-        public static async Task<SetupManualUserChange> PrepareForCreateAsync(string userId, AuthPermissionsDbContext context)
+        public static async Task<SetupManualUserChange> PrepareForCreateAsync(string userId, IAuthUsersAdminService authUsersAdmin)
         {
             var result = new SetupManualUserChange
             {
                 FoundChangeType = SyncAuthUserChangeTypes.Create,
                 UserId = userId,
             };
-            await result.SetupDropDownListsAsync(context);
+            await result.SetupDropDownListsAsync(authUsersAdmin);
 
             return result;
         }
@@ -98,7 +97,7 @@ namespace ExamplesCommonCode.CommonAdmin
         /// <param name="authUsersAdmin"></param>
         /// <param name="context"></param>
         /// <returns>Status</returns>
-        public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin, AuthPermissionsDbContext context)
+        public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin)
         {
             var status = new StatusGenericHandler();
 
@@ -124,10 +123,10 @@ namespace ExamplesCommonCode.CommonAdmin
             return status;
         }
 
-        public async Task SetupDropDownListsAsync(AuthPermissionsDbContext context)
+        public async Task SetupDropDownListsAsync(IAuthUsersAdminService authUsersAdmin)
         {
-            AllRoleNames = await context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
-            AllTenantNames = await context.Tenants.Select(x => x.TenantFullName).ToListAsync();
+            AllRoleNames = await authUsersAdmin.GetAllRoleNamesAsync();
+            AllTenantNames = await authUsersAdmin.GetAllTenantNamesAsync();
             AllTenantNames.Insert(0, CommonConstants.EmptyTenantName);
         }
     }

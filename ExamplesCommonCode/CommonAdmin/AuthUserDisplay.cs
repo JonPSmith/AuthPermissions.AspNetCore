@@ -22,7 +22,7 @@ namespace ExamplesCommonCode.CommonAdmin
         public bool HasTenant => TenantName != null;
         public string TenantName { get; private set; }
 
-        public static IQueryable<AuthUserDisplay> SelectQuery(IQueryable<AuthUser> inQuery)
+        public static IQueryable<AuthUserDisplay> TurnIntoDisplayFormat(IQueryable<AuthUser> inQuery)
         {
             return inQuery.Select(x => new AuthUserDisplay
             {

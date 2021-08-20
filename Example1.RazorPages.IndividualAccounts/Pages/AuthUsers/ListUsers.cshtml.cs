@@ -24,7 +24,7 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthUsers
         {
             Message = message;
             var userQuery = _authUsersAdmin.QueryAuthUsers();
-            AuthUserList = await AuthUserDisplay.SelectQuery(userQuery.OrderBy(x => x.Email)).ToListAsync();
+            AuthUserList = await AuthUserDisplay.TurnIntoDisplayFormat(userQuery.OrderBy(x => x.Email)).ToListAsync();
         }
     }
 }

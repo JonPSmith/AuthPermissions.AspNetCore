@@ -27,6 +27,7 @@ This is a ASP.NET Core Razor Pages application using the Individual Accounts aut
 
 - A very simple example of using AuthP's authorization Roles and AuthUsers
 - A comparision between ASP.NET Core authorization with AuthP's authorization
+- A basic admin of Auth Users.
 
 ### Example2.WebApiWithToken.IndividualAccounts
 
