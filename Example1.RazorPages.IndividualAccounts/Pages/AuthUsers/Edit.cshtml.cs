@@ -19,11 +19,11 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthUsers
         }
 
         [BindProperty]
-        public CreateUpdateDto Data { get; set; }
+        public EditDto Data { get; set; }
 
         public async Task<IActionResult> OnGet(string userId)
         {
-            var status = await CreateUpdateDto.PrepareForUpdateAsync(userId, _authUsersAdmin);
+            var status = await EditDto.PrepareForUpdateAsync(userId, _authUsersAdmin);
             if (status.HasErrors)
                 return RedirectToPage("ErrorPage", new { allErrors = status.GetAllErrors() });
 

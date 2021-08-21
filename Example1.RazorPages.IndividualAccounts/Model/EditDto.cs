@@ -12,10 +12,10 @@ using StatusGeneric;
 
 namespace Example1.RazorPages.IndividualAccounts.Model
 {
-    public class CreateUpdateDto
+    public class EditDto
     {
         /// <summary>
-        /// The userId of the user (NOTE: this is not show)
+        /// The userId of the user (NOTE: this is not shown)
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.UserIdSize)]
@@ -39,10 +39,10 @@ namespace Example1.RazorPages.IndividualAccounts.Model
 
         public List<string> SelectedRoleNames { get; set; }
 
-        public static async Task<IStatusGeneric<CreateUpdateDto>> PrepareForUpdateAsync(string userId,
+        public static async Task<IStatusGeneric<EditDto>> PrepareForUpdateAsync(string userId,
             IAuthUsersAdminService authUsersAdmin)
         {
-            var status = new StatusGenericHandler<CreateUpdateDto>();
+            var status = new StatusGenericHandler<EditDto>();
             var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(userId);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
@@ -50,7 +50,7 @@ namespace Example1.RazorPages.IndividualAccounts.Model
             var authUser = authUserStatus.Result;
             var allRoleNames = await authUsersAdmin.GetAllRoleNamesAsync();
 
-            var result = new CreateUpdateDto
+            var result = new EditDto
             {
                 UserId = authUser.UserId,
                 UserName = authUser.UserName,
