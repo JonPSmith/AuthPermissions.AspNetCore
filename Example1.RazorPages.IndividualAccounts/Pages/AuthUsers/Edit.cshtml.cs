@@ -1,11 +1,8 @@
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.EfCode;
 using Example1.RazorPages.IndividualAccounts.Model;
-using ExamplesCommonCode.CommonAdmin;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Example1.RazorPages.IndividualAccounts.Pages.AuthUsers
 {

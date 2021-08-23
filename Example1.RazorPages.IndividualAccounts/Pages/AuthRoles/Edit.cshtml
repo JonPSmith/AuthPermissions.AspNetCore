@@ -1,0 +1,35 @@
+﻿@page
+@model Example1.RazorPages.IndividualAccounts.Pages.AuthRoles.EditModel
+
+<div class="h3">Editing <span class="h1">@Model.Data.RoleName</span> role.</div>
+
+<hr />
+<div class="row">
+    <form method="post">
+        <div class="col-md-8">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.HiddenFor(x => x.Data.RoleName)
+            <div>
+                <label class="control-label">Role description</label>
+                <input asp-for="Data.Description" class="form-control" />
+                <span asp-validation-for="Data.Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <p></p>
+
+            <partial name="_PartialCreateEdit" for="@Model.Data" />
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Update" class="btn btn-primary" />
+            <a class="btn btn-secondary" asp-area="" asp-page=".\ListRoles">Cancel</a>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

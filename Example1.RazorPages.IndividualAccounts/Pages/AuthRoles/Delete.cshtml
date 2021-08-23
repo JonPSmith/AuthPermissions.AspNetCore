@@ -1,0 +1,14 @@
+﻿@page
+@model Example1.RazorPages.IndividualAccounts.Pages.AuthRoles.DeleteModel
+
+
+<h1>Delete Role</h1>
+
+<h3>Are you sure you want to delete the <span class="h2">@Model.RoleName</span> ?</h3>
+<div>
+    <form method="post">
+        @Html.HiddenFor(model => model.RoleName)
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a class="btn btn-secondary" asp-area="" asp-page=".\ListRoles">Cancel</a>
+    </form>
+</div>

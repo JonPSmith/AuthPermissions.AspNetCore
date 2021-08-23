@@ -23,6 +23,13 @@ namespace AuthPermissions.AdminCode
         IQueryable<RoleWithPermissionNamesDto> QueryRoleToPermissions();
 
         /// <summary>
+        /// This returns true if there is a RoleToPermission en
+        /// </summary>
+        /// <param name="roleName"></param>
+        /// <returns></returns>
+        Task<bool> RoleNameExistsAsync(string roleName);
+
+        /// <summary>
         /// This returns a list of permissions with the information from the Display attribute
         /// </summary>
         /// <param name="excludeFilteredPermissions">Optional: If set to true, then filtered permissions are also included.</param>

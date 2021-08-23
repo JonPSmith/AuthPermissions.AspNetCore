@@ -51,6 +51,18 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
+        /// This returns true if there is a RoleToPermission entry for the given name 
+        /// </summary>
+        /// <param name="roleName"></param>
+        /// <returns></returns>
+        public async Task<bool> RoleNameExistsAsync(string roleName)
+        {
+            if (roleName == null) throw new ArgumentNullException(nameof(roleName));
+
+            return (await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName)) != null;
+        }
+
+        /// <summary>
         /// This returns a list of permissions with the information from the Display attribute
         /// </summary>
         /// <param name="excludeFilteredPermissions">Optional: If set to true, then filtered permissions are also included.</param>
