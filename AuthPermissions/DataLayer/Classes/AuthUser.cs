@@ -177,8 +177,8 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="userName"></param>
         public void ChangeUserNameAndEmailWithChecks(string email, string userName)
         {
-            Email = email;
-            UserName = (userName ?? Email) ?? throw new AuthPermissionsBadDataException(
+            Email = email?.Trim();
+            UserName = (userName?.Trim() ?? Email) ?? throw new AuthPermissionsBadDataException(
                 $"The {nameof(Email)} and {nameof(UserName)} can't both be null.");
         }
     }

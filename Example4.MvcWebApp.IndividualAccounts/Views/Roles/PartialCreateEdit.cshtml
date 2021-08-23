@@ -1,4 +1,5 @@
-﻿@model Example4.MvcWebApp.IndividualAccounts.Models.RoleAddUpdateDisplayDto
+﻿@using ExamplesCommonCode.CommonAdmin
+@model ExamplesCommonCode.CommonAdmin.RoleCreateUpdateDto
 
 <table class="table">
     <thead>
@@ -16,25 +17,28 @@
     </tr>
     </thead>
     <tbody id="permission-selection">
-    @for (int i = 0; i < Model.AddPermissionsWithSelect.Count; i++)
+    @for (int i = 0; i < Model.PermissionsWithSelect.Count; i++)
     {
         <tr>
             <td>
-                @Model.AddPermissionsWithSelect[i].Key.GroupName
+                @Model.PermissionsWithSelect[i].GroupName
             </td>
             <td>
-                @Model.AddPermissionsWithSelect[i].Key.Description
+                @Model.PermissionsWithSelect[i].Description
             </td>
             <td>
-                @Model.AddPermissionsWithSelect[i].Key.PermissionName
+                @Model.PermissionsWithSelect[i].PermissionName
+                @Html.Hidden($"{nameof(RoleCreateUpdateDto.PermissionsWithSelect)}[{i}].{nameof(PermissionInfoWithSelect.PermissionName)}",
+                    Model.PermissionsWithSelect[i].PermissionName)
             </td>
             <td>
-                <form id="@Model.AddPermissionsWithSelect[i].Key.PermissionName" asp-action="Edit" method="post">
-                    <button type="button" class='btn-sm  @(Model.AddPermissionsWithSelect[i].Value ? "btn-primary" : "btn-secondary")'
-                            onclick="TogglePermissionSelect(this)">
-                        @(Model.AddPermissionsWithSelect[i].Value ? "Selected" : "Select")
-                    </button>
-                </form>
+                @Html.Hidden($"{nameof(RoleCreateUpdateDto.PermissionsWithSelect)}[{i}].{nameof(PermissionInfoWithSelect.Selected)}",
+                    @Model.PermissionsWithSelect[i].Selected,
+                    new { id = Model.PermissionsWithSelect[i].PermissionName})
+                <button type="button" class='btn-sm  @(Model.PermissionsWithSelect[i].Selected ? "btn-primary" : "btn-secondary")'
+                        onclick="TogglePermissionSelect(this, '@Model.PermissionsWithSelect[i].PermissionName')">
+                    @(Model.PermissionsWithSelect[i].Selected ? "Selected" : "Select")
+                </button>
             </td>
         </tr>
     }

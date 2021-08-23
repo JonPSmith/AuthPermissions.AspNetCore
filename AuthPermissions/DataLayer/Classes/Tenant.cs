@@ -31,7 +31,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="tenantName"></param>
         public Tenant(string tenantName)
         {
-            TenantFullName = tenantName ?? throw new ArgumentNullException(nameof(tenantName));
+            TenantFullName = tenantName?.Trim() ?? throw new ArgumentNullException(nameof(tenantName));
         }
 
         /// <summary>
@@ -154,9 +154,10 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="newNameAtThisLevel"></param>
         public void UpdateTenantName(string newNameAtThisLevel)
         {
+            if (newNameAtThisLevel == null) throw new ArgumentNullException(nameof(newNameAtThisLevel));
             if (!IsHierarchical)
             {
-                TenantFullName = newNameAtThisLevel;
+                TenantFullName = newNameAtThisLevel.Trim();
                 return;
             }
 
@@ -167,7 +168,7 @@ namespace AuthPermissions.DataLayer.Classes
                 throw new AuthPermissionsBadDataException("The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order", 
                     nameof(newNameAtThisLevel));
 
-            TenantFullName = CombineParentNameWithTenantName(newNameAtThisLevel, Parent?.TenantFullName);
+            TenantFullName = CombineParentNameWithTenantName(newNameAtThisLevel.Trim(), Parent?.TenantFullName);
 
             RecursivelyChangeChildNames(this, Children, (parent, child) =>
             {

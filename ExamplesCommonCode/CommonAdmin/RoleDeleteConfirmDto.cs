@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using Microsoft.EntityFrameworkCore;
 
-namespace Example4.MvcWebApp.IndividualAccounts.Models
+namespace ExamplesCommonCode.CommonAdmin
 {
     public class RoleDeleteConfirmDto
     {
@@ -15,7 +15,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
         public string ConfirmDelete { get; set; }
         public List<EmailAndUserNameDto> AuthUsers { get; set; }
 
-        public async static Task<RoleDeleteConfirmDto> FormRoleDeleteConfirmDtoAsync(string roleName, IAuthRolesAdminService rolesAdminService)
+        public static async Task<RoleDeleteConfirmDto> FormRoleDeleteConfirmDtoAsync(string roleName, IAuthRolesAdminService rolesAdminService)
         {
             var result = new RoleDeleteConfirmDto();
             result.RoleName = roleName;

@@ -1,4 +1,4 @@
-﻿@model Example4.MvcWebApp.IndividualAccounts.Models.RoleAddUpdateDisplayDto
+﻿@model ExamplesCommonCode.CommonAdmin.RoleCreateUpdateDto
 
 @{
     ViewData["Title"] = "Create";
@@ -8,27 +8,31 @@
 
 <hr />
 <div class="row">
-    <div class="col-md-8">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div>
-            <label class="control-label">Role Name</label>
-            <input id="role-name" class="form-control text-primary" />
-            <span asp-validation-for="RoleName" class="text-danger"></span>
+    <form asp-action="Create">
+        <div class="col-md-8">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div>
+                <label class="control-label">Role Name</label>
+                <input asp-for="RoleName" class="form-control" />
+                <span asp-validation-for="RoleName" class="text-danger"></span>
+            </div>
+            <div>
+                <label class="control-label">Description</label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
         </div>
-        <div>
-            <label class="control-label">Description</label>
-            <input id="role-description" class="form-control text-primary" />
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="col-md-12">
+        <div class="col-md-12">
+            <p></p>
 
-        <partial name="PartialCreateEdit" for="@Model" />
+            <partial name="PartialCreateEdit" for="@Model"/>
+        </div>
 
         <div class="form-group">
-            <input type="submit" onclick="submitRoleWithPermissions('@Url.Action("Create")')" value="Create" class="btn btn-primary" />
+            <input type="submit" value="Create" class="btn btn-primary"/>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
         </div>
-    </div>
+    </form>
 </div>
 
 <div>

@@ -22,7 +22,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="packedPermissions">The enum values converted to unicode chars</param>
         public RoleToPermissions(string roleName, string description, string packedPermissions)
         {
-            RoleName = roleName;
+            RoleName = roleName.Trim();
             Update(packedPermissions, description);
         }
 
@@ -77,7 +77,7 @@ namespace AuthPermissions.DataLayer.Classes
                 throw new AuthPermissionsException("There should be at least one permission associated with a role.");
 
             PackedPermissionsInRole = packedPermissions;
-            Description = description ?? Description;
+            Description = description?.Trim() ?? Description;
         }
     }
 }

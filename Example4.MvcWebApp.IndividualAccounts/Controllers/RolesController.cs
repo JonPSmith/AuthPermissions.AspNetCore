@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using AuthPermissions.AdminCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
+using ExamplesCommonCode.CommonAdmin;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
@@ -42,15 +43,15 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             var role = await
                 _authRolesAdmin.QueryRoleToPermissions().SingleOrDefaultAsync(x => x.RoleName == roleName);
             var permissionsDisplay = _authRolesAdmin.GetPermissionDisplay(false);
-            return View(role == null ? null : new RoleAddUpdateDisplayDto(role.RoleName, role.Description, role.PermissionNames, permissionsDisplay));
+            return View(role == null ? null : RoleCreateUpdateDto.SetupForCreateUpdate(role.RoleName, role.Description, role.PermissionNames, permissionsDisplay));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(RoleAddUpdateInputDto input)
+        public async Task<IActionResult> Edit(RoleCreateUpdateDto input)
         {
             var status = await _authRolesAdmin
-                .UpdateRoleToPermissionsAsync(input.RoleName, input.Permissions, input.Description);
+                .UpdateRoleToPermissionsAsync(input.RoleName, input.GetSelectedPermissionNames(), input.Description);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -62,16 +63,16 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public IActionResult Create()
         {
             var permissionsDisplay = _authRolesAdmin.GetPermissionDisplay(false);
-            return View(new RoleAddUpdateDisplayDto(null, null, null, permissionsDisplay));
+            return View(RoleCreateUpdateDto.SetupForCreateUpdate(null, null, null, permissionsDisplay));
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(RoleAddUpdateInputDto input)
+        public async Task<IActionResult> Create(RoleCreateUpdateDto input)
         {
             var status = await _authRolesAdmin
-                .CreateRoleToPermissionsAsync(input.RoleName, input.Permissions, input.Description);
+                .CreateRoleToPermissionsAsync(input.RoleName, input.GetSelectedPermissionNames(), input.Description);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -95,7 +96,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(RoleDeleteConfirmDto input)
         {
-            var status = await _authRolesAdmin.DeleteRoleAsync(input.RoleName, input.ConfirmDelete.Trim() == input.RoleName);
+            var status = await _authRolesAdmin.DeleteRoleAsync(input.RoleName, input.ConfirmDelete?.Trim() == input.RoleName);
                 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
