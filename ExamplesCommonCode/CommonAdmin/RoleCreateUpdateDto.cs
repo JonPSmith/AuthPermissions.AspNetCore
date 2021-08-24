@@ -17,7 +17,7 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public string Description { get; set; }
 
-        public List<PermissionInfoWithSelect> PermissionsWithSelect { get; set; }
+        public List<PermissionInfoWithSelectDto> PermissionsWithSelect { get; set; }
 
         public IEnumerable<string> GetSelectedPermissionNames()
         {
@@ -35,7 +35,7 @@ namespace ExamplesCommonCode.CommonAdmin
                 RoleName = roleName,
                 Description = description,
                 PermissionsWithSelect = allPermissionNames
-                    .Select(x => new PermissionInfoWithSelect
+                    .Select(x => new PermissionInfoWithSelectDto
                     {
                         GroupName = x.GroupName,
                         Description = x.Description,

@@ -28,11 +28,11 @@
             </td>
             <td>
                 @Model.PermissionsWithSelect[i].PermissionName
-                @Html.Hidden($"{nameof(RoleCreateUpdateDto.PermissionsWithSelect)}[{i}].{nameof(PermissionInfoWithSelect.PermissionName)}",
+                @Html.Hidden($"{nameof(RoleCreateUpdateDto.PermissionsWithSelect)}[{i}].{nameof(PermissionInfoWithSelectDto.PermissionName)}",
                     Model.PermissionsWithSelect[i].PermissionName)
             </td>
             <td>
-                @Html.Hidden($"{nameof(RoleCreateUpdateDto.PermissionsWithSelect)}[{i}].{nameof(PermissionInfoWithSelect.Selected)}",
+                @Html.Hidden($"{nameof(RoleCreateUpdateDto.PermissionsWithSelect)}[{i}].{nameof(PermissionInfoWithSelectDto.Selected)}",
                     @Model.PermissionsWithSelect[i].Selected,
                     new { id = Model.PermissionsWithSelect[i].PermissionName})
                 <button type="button" class='btn-sm  @(Model.PermissionsWithSelect[i].Selected ? "btn-primary" : "btn-secondary")'

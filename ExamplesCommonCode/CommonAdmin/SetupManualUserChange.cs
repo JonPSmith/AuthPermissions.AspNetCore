@@ -10,8 +10,6 @@ using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
-using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
 namespace ExamplesCommonCode.CommonAdmin
