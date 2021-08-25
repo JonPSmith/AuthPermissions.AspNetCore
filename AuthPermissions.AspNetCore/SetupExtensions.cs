@@ -47,12 +47,9 @@ namespace AuthPermissions.AspNetCore
         /// NOTE: It assumes the AuthPermissions database has been created and has the current migration applied
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="addRolesUsersOnStartup"></param>
-        public static void SetupAspNetCorePart(this AuthSetupData setupData, bool addRolesUsersOnStartup = false)
+        public static void SetupAspNetCorePart(this AuthSetupData setupData)
         {
             setupData.RegisterCommonServices();
-            if (addRolesUsersOnStartup)
-                setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 
         /// <summary>

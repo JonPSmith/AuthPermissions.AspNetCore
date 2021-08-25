@@ -57,30 +57,6 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreSetupAspNetCorePartIncludeAddRolesUsers()
-        {
-            //SETUP
-            var services = this.SetupServicesForTest();
-            services.RegisterAuthPermissions<TestEnum>()
-                .UsingInMemoryDatabase()
-                .SetupAspNetCorePart(true);
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            //ATTEMPT
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
-            startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
-            await startupServices.Last().StartAsync(default);
-
-            //VERIFY
-            var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            authContext.UserToRoles.Count().ShouldEqual(0);
-            using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            userManager.Users.Count().ShouldEqual(0);
-        }
-
-        [Fact]
         public async Task TestSetupAspNetCoreIndividualAccountsAddSuperUser()
         {
             //SETUP

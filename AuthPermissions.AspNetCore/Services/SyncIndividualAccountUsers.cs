@@ -35,8 +35,6 @@ namespace AuthPermissions.AspNetCore.Services
         /// <returns>collection of SyncAuthenticationUser</returns>
         public async Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
         {
-            var xx =  _userManager.Users.ToList();
-
             return await _userManager.Users
                 .Select(x => new SyncAuthenticationUser(x.Id, x.Email, x.UserName)).ToListAsync();
         }
