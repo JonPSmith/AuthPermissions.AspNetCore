@@ -36,18 +36,21 @@ namespace AuthPermissions.AspNetCore.HostedServices
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                var context = services.GetRequiredService<AuthPermissionsDbContext>();
-                var authOptions = services.GetRequiredService<AuthPermissionsOptions>();
-                var findUserIdServiceFactory = services.GetRequiredService<IAuthPServiceFactory<IFindUserInfoService>>();
+            using var scope = _serviceProvider.CreateScope();
+            var services = scope.ServiceProvider;
+            var context = services.GetRequiredService<AuthPermissionsDbContext>();
+            var authOptions = services.GetRequiredService<AuthPermissionsOptions>();
+            var findUserIdServiceFactory = services.GetRequiredService<IAuthPServiceFactory<IFindUserInfoService>>();
 
-                var status = await context.SeedRolesTenantsUsersIfEmpty(authOptions, findUserIdServiceFactory);
-                status.IfErrorsTurnToException();
-            }
+            var status = await context.SeedRolesTenantsUsersIfEmpty(authOptions, findUserIdServiceFactory);
+            status.IfErrorsTurnToException();
         }
 
+        /// <summary>
+        /// Not used
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

@@ -37,18 +37,21 @@ namespace AuthPermissions.AspNetCore.HostedServices
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var services = scope.ServiceProvider;
+            using var scope = _serviceProvider.CreateScope();
+            var services = scope.ServiceProvider;
 
-                var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
-                var superUserInfo = services.GetSuperUserConfigData();
-                if (!string.IsNullOrEmpty(superUserInfo.email))
-                    await CheckAddNewUserAsync(userManager, superUserInfo.email, superUserInfo.password);
-            }
+            var (email, password) = services.GetSuperUserConfigData();
+            if (!string.IsNullOrEmpty(email))
+                await CheckAddNewUserAsync(userManager, email, password);
         }
 
+        /// <summary>
+        /// Not used
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
         /// <summary>

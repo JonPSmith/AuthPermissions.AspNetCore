@@ -21,36 +21,49 @@ namespace AuthPermissions.AspNetCore.HostedServices
     {
         private readonly IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="serviceProvider"></param>
         public SetupAuthDatabaseOnStartup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
 
+        /// <summary>
+        /// This will migrate the AuthP's database on startup
+        /// NOTE: Only works on single instance of the ASP.NET Core application
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            using (var scope = _serviceProvider.CreateScope())
+            using var scope = _serviceProvider.CreateScope();
+            var services = scope.ServiceProvider;
+            var context = services.GetRequiredService<AuthPermissionsDbContext>();
+            var options = services.GetRequiredService<AuthPermissionsOptions>();
+            try
             {
-                var services = scope.ServiceProvider;
-                var context = services.GetRequiredService<AuthPermissionsDbContext>();
-                var options = services.GetRequiredService<AuthPermissionsOptions>();
-                try
-                {
-                    if (options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.SqliteInMemory)
-                        throw new AuthPermissionsException(
-                            $"The in-memory database is created by the {nameof(AuthPermissions.SetupExtensions.UsingInMemoryDatabase)} extension method");
-                    else
-                        await context.Database.MigrateAsync(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<SetupAuthDatabaseOnStartup>>();
-                    logger.LogError(ex, "An error occurred while creating/migrating the SQL database.");
+                if (options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.SqliteInMemory)
+                    throw new AuthPermissionsException(
+                        $"The in-memory database is created by the {nameof(AuthPermissions.SetupExtensions.UsingInMemoryDatabase)} extension method");
+                else
+                    await context.Database.MigrateAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<SetupAuthDatabaseOnStartup>>();
+                logger.LogError(ex, "An error occurred while creating/migrating the SQL database.");
 
-                    throw;
-                }
+                throw;
             }
         }
 
+        /// <summary>
+        /// Not used
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

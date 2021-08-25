@@ -20,6 +20,11 @@ namespace AuthPermissions.DataLayer.EfCode
     /// </summary>
     public static class SaveChangesExtensions
     {
+        /// <summary>
+        /// This calls SaveChanges, but detects unique constraint and concurrency exception
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Status</returns>
         public static IStatusGeneric SaveChangesWithChecks(this DbContext context)
         {
             try
@@ -38,6 +43,11 @@ namespace AuthPermissions.DataLayer.EfCode
             return new StatusGenericHandler();
         }
 
+        /// <summary>
+        /// This calls SaveChangesAsync, but detects unique constraint and concurrency exception
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Status</returns>
         public static async Task<IStatusGeneric> SaveChangesWithChecksAsync(this DbContext context)
         {
             try
@@ -65,8 +75,8 @@ namespace AuthPermissions.DataLayer.EfCode
             //NOTE: These is only one entity in an exception
             if (entities.Any())
             {
-                var name = (entities.First().Entity as INameToShowOnException)?.NameToUseForError ?? "<unknown>";
-                var typeName = entities.First().Entity.GetType().Name;
+                var name = (entities[0].Entity as INameToShowOnException)?.NameToUseForError ?? "<unknown>";
+                var typeName = entities[0].Entity.GetType().Name;
 
                 switch (exceptionType)
                 {

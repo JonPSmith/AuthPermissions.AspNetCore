@@ -25,6 +25,12 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         private readonly IAuthPServiceFactory<IFindUserInfoService> _findUserInfoServiceFactory;
         private readonly AuthPermissionsOptions _options;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="findUserInfoServicefactory"></param>
+        /// <param name="options"></param>
         public BulkLoadUsersService(AuthPermissionsDbContext context, IAuthPServiceFactory<IFindUserInfoService> findUserInfoServicefactory, AuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));

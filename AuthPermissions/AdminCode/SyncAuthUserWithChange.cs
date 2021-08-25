@@ -73,8 +73,6 @@ namespace AuthPermissions.AdminCode
                 FoundChangeType = SyncAuthUserChangeTypes.Create;
             else
                 FoundChangeType = SyncAuthUserChangeTypes.Update;
-
-
         }
 
         /// <summary>
@@ -90,14 +88,25 @@ namespace AuthPermissions.AdminCode
         /// The user's main email (used as one way to find the user) 
         /// </summary>
         public string Email { get; set; }
+        /// <summary>
+        /// Holds the AuthP version
+        /// </summary>
         public string OldEmail { get; set; }
+        /// <summary>
+        /// True if Emails are different
+        /// </summary>
         public bool EmailChanged => Email != OldEmail;
         /// <summary>
         /// The user's name
         /// </summary>
         public string UserName { get; set; }
+        /// <summary>
+        /// Holds the AuthP version
+        /// </summary>
         public string OldUserName { get; set; }
-
+        /// <summary>
+        /// True if usernames different
+        /// </summary>
         public bool UserNameChanged => UserName != OldUserName;
 
         //---------------------------------------------------
@@ -108,6 +117,9 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         public List<string> RoleNames { set; get; }
 
+        /// <summary>
+        /// Number of roles, or "not set" if none
+        /// </summary>
         public string NumRoles => RoleNames == null ? "not set" : RoleNames.Count.ToString();
 
         /// <summary>
@@ -115,6 +127,9 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         public string TenantName { set; get; }
 
+        /// <summary>
+        /// True if the user has a tenant
+        /// </summary>
         public bool HasTenant => !string.IsNullOrEmpty(TenantName);
 
         //---------------------------------------------------

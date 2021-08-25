@@ -8,6 +8,9 @@ using AuthPermissions.PermissionsCode;
 
 namespace AuthPermissions.CommonCode
 {
+    /// <summary>
+    /// This contains extension method about ASP.NET Core <see cref="Claim"/>
+    /// </summary>
     public static class ClaimsExtensions
     {
         /// <summary>

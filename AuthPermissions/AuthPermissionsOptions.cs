@@ -1,11 +1,13 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 
 namespace AuthPermissions
 {
+    /// <summary>
+    /// This contains the options set by the developer and data that is passed between setup extension methods
+    /// </summary>
     public class AuthPermissionsOptions
     {
 

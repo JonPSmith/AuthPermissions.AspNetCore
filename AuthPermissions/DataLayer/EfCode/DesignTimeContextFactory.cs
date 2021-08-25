@@ -2,17 +2,25 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace AuthPermissions.DataLayer.EfCode
 {
+    /// <summary>
+    /// DesignTimeDbContextFactory to allow migration to be created for the <see cref="AuthPermissionsDbContext"/>
+    /// </summary>
     public class DesignTimeContextFactory : IDesignTimeDbContextFactory<AuthPermissionsDbContext>
     {
         private const string connectionString =
             "Server=(localdb)\\mssqllocaldb;Database=aspnet-Example4.MvcWebApp.IndividualAccounts-39EF2337-4CA7-4EA1-8FC5-2344A6027538;Trusted_Connection=True;MultipleActiveResultSets=true";
 
+
+        /// <summary>
+        /// Create the AuthPermissionsDbContext
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public AuthPermissionsDbContext CreateDbContext(string[] args)   
         {
             var optionsBuilder =                              

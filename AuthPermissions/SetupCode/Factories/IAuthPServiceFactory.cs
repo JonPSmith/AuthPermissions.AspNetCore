@@ -12,7 +12,7 @@ namespace AuthPermissions.SetupCode.Factories
     public interface IAuthPServiceFactory<out TServiceInterface> where TServiceInterface : class
     {
         /// <summary>
-        /// This returns the service registered to the <see cref="TServiceInterface"/> interface
+        /// This returns the service registered to the <see type="TServiceInterface"/> interface
         /// </summary>
         /// <param name="throwExceptionIfNull">If no service found and this is true, then throw an exception</param>
         /// <param name="callingMethod">This contains the name of the calling method</param>

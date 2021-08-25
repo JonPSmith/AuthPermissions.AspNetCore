@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace AuthPermissions.AspNetCore.Services
 {
+    /// <summary>
+    /// Service to disable the current JWT Refresh Token
+    /// </summary>
     public interface IDisableJwtRefreshToken
     {
         /// <summary>

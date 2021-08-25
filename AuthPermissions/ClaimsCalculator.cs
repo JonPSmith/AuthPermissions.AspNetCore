@@ -20,6 +20,11 @@ namespace AuthPermissions
         private readonly AuthPermissionsDbContext _context;
         private readonly AuthPermissionsOptions _options;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="options"></param>
         public ClaimsCalculator(AuthPermissionsDbContext context, AuthPermissionsOptions options)
         {
             _context = context;

@@ -6,6 +6,9 @@ using System.Security.Claims;
 
 namespace AuthPermissions.PermissionsCode
 {
+    /// <summary>
+    /// Service to return permission names of the user
+    /// </summary>
     public interface IUsersPermissionsService
     {
         /// <summary>

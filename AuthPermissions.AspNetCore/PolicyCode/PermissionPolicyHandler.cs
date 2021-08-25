@@ -11,15 +11,28 @@ namespace AuthPermissions.AspNetCore.PolicyCode
 {
     //thanks to https://www.jerriepelser.com/blog/creating-dynamic-authorization-policies-aspnet-core/
 
+    /// <summary>
+    /// This defines the policy handler for the <see cref="PermissionRequirement"/> which the AuthP defined
+    /// </summary>
     public class PermissionPolicyHandler : AuthorizationHandler<PermissionRequirement>
     {
         private readonly Type _enumPermissionType;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="options"></param>
         public PermissionPolicyHandler(AuthPermissionsOptions options)
         {
             _enumPermissionType = options.InternalData.EnumPermissionsType;
         }
 
+        /// <summary>
+        /// This allows a user to access a method with a HasPermission attribute if that have the correct Permission 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="requirement"></param>
+        /// <returns></returns>
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
 
