@@ -13,12 +13,12 @@
     <h3 class="text-success">@ViewBag.Message</h3>
 }
 
-@*@if (User.HasPermission(Example4Permissions.RoleChange))
-    {*@
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create new role</a>
-</p>
-@*}*@
+@if (User.HasPermission(Example4Permissions.RoleChange))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create new role</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -50,10 +50,12 @@
                     </a>
                 </td>
                 <td>
-                    <!--This should have User.HasPermission(Example4Permissions.RoleChange around them-->
-                    @Html.ActionLink("Edit", "Edit", new { roleName = item.RoleName })
-                    |
-                    @Html.ActionLink("Delete", "Delete", new { roleName = item.RoleName })
+                    @if (User.HasPermission(Example4Permissions.RoleChange))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { roleName = item.RoleName })
+                        @Html.Raw(" | ")
+                        @Html.ActionLink("Delete", "Delete", new { roleName = item.RoleName })
+                    }
                 </td>
             </tr>
         }

@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.2.0
+
+- Improvements to AuthUsersAdminService for hierarchical move/delete
+
 ## 1.1.0
 
 - BREAKING CHANGE: Different AuthRolesAdminService to be more useful

@@ -1,0 +1,66 @@
+﻿@using Example4.MvcWebApp.IndividualAccounts.PermissionsCode
+@using AuthPermissions.PermissionsCode
+@using Microsoft.CodeAnalysis.Differencing
+@model IEnumerable<TenantDto>
+
+@{
+    ViewData["Title"] = "ListTenants";
+}
+
+<h1>List Tenants</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@if (User.HasPermission(Example4Permissions.TenantCreate))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create new tenant</a>
+    </p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Tenant name
+            </th>
+            <th>
+                Full tenant name
+            </th>
+            <th>
+                DataKey
+            </th>
+            <th>
+                @(User.HasPermission(Example4Permissions.TenantUpdate) ? "Change" : "")
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.TenantName
+                </td>
+                <td>
+                    @item.TenantFullName
+                </td>
+                <td>
+                    @item.DataKey
+                </td>
+                <td>
+                    @if (User.HasPermission(Example4Permissions.TenantUpdate))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { id = item.TenantId })
+                        @Html.Raw(" | ")
+                        @Html.ActionLink("Edit", "Move", new { id = item.TenantId })
+                        @Html.Raw(" | ")
+                        @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

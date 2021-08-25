@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -16,11 +17,11 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
-    public class TestTenantAdminServices
+    public class TestTenantAdminServicesSingle
     {
-        private ITestOutputHelper _output;
+        private readonly ITestOutputHelper _output;
 
-        public TestTenantAdminServices(ITestOutputHelper output)
+        public TestTenantAdminServicesSingle(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -114,76 +115,30 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
-        public async Task TestQueryEndLeafTenantsHierarchical()
+        public async Task TestUpdateSingleTenantAsyncOk()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            await context.SetupHierarchicalTenantInDb();
+            var tenantIds = context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
-            var tenants = service.QueryEndLeafTenants().ToList();
-
-            //VERIFY
-            tenants.Count.ShouldEqual(4);
-            tenants.Select(x => x.GetTenantEndLeafName()).OrderBy(x => x).ToArray()
-                .ShouldEqual(new[] { "Shop1", "Shop2", "Shop3", "Shop4" });
-        }
-
-        [Fact]
-        public async Task TestAddHierarchicalTenantAsyncOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            var tenantNames = await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-
-            //ATTEMPT
-            var status = await service.AddHierarchicalTenantAsync("LA", "Company | West Coast");
+            var status = await service.UpdateTenantNameAsync(tenantIds[1], "New Tenant");
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var tenants = context.Tenants.ToList();
-            var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "Company | West Coast | LA");
-            tenants.Count.ShouldEqual(10);
-            newTenant.ShouldNotBeNull();
-            newTenant.GetTenantDataKey().ShouldEqual(".1.2.10");
+            tenants.Count.ShouldEqual(3);
+            tenants.Select(x => x.TenantFullName).ShouldEqual(new[] { "Tenant1", "New Tenant", "Tenant3" });
         }
 
         [Fact]
-        public async Task TestAddHierarchicalTenantAsyncDuplicate()
-        {
-            //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
-
-            var tenantNames = await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-
-            //ATTEMPT
-            var status = await service.AddHierarchicalTenantAsync("West Coast", "Company");
-
-            //VERIFY
-            status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldEqual("There is already a Tenant with a value: name = Company | West Coast");
-        }
-
-        [Fact]
-        public async Task TestUpdateSingleTenantAsyncOk()
+        public async Task TestDeleteSingleTenantAsyncOk()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -194,72 +149,24 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var deleteLogs = new List<(string fullTenantName, string dataKey)>();
 
             //ATTEMPT
-            var status = await service.UpdateTenantNameAsync("Tenant2", "New Tenant");
+            var status = await service.DeleteTenantAsync("Tenant2",
+                (tuple => deleteLogs.Add(tuple)));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = context.Tenants.ToList();
-            tenants.Count.ShouldEqual(3);
-            tenants.Select(x => x.TenantFullName).ShouldEqual(new[] { "Tenant1", "New Tenant", "Tenant3" });
-        }
-
-        [Fact]
-        public async Task TestUpdateHierarchicalTenantTenantAsyncOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-            //var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-            //    builder.UseExceptionProcessor());
-            //using var context = new AuthPermissionsDbContext(options);
-            //context.Database.EnsureClean();
-
-            await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-
-            //ATTEMPT
-            var status = await service.UpdateTenantNameAsync("Company | West Coast", "West Area");
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = context.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
+            deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
             {
-                _output.WriteLine(tenant.ToString());
-            }
-            tenants.Count(x => x.TenantFullName.StartsWith("Company | West Area")).ShouldEqual(4);
-        }
+                ("Tenant2", ".2")
+            });
 
-        [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-
-            //ATTEMPT
-            var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
-                "Company | West Coast | SanFran", "Company | East Coast");
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var tenants = context.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
-            tenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | SanFran")).ShouldEqual(3);
+            tenants.Select(x => x.TenantFullName).ShouldEqual(new[] { "Tenant1", "Tenant3" });
         }
+
+
     }
 }

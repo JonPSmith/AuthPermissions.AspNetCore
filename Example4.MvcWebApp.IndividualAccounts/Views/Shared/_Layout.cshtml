@@ -26,23 +26,23 @@
                         </li>
                         <li class="dropdown nav-link text-dark">
                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                Users
+                                Auth Admin
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" asp-area="" asp-controller="AuthUsers" asp-action="Index">List all AuthUsers</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="Index">Your claims</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="AuthUserInfo">Your auth data</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="UserPermissions">Your Permissions</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="Index">List Roles</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="Index">List Tenants</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
                             </div>
                         </li>
                         <li class="dropdown nav-link text-dark">
                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                Roles Admin
+                                Users info
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="Index">List Roles</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="Index">Your claims</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="AuthUserInfo">Your auth data</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="UserPermissions">Your Permissions</a>
                             </div>
                         </li>
                         @if (User.HasPermission(Example4Permissions.SalesRead))

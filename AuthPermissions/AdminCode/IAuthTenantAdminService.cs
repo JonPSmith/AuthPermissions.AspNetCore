@@ -1,9 +1,11 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.EfCode;
 using StatusGeneric;
 
 namespace AuthPermissions.AdminCode
@@ -26,6 +28,13 @@ namespace AuthPermissions.AdminCode
         IQueryable<Tenant> QueryEndLeafTenants();
 
         /// <summary>
+        /// This returns a tenant  with the given TenantId
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <returns>Status. If successful, then contains the Tenant</returns>
+        Task<IStatusGeneric<Tenant>> GetTenantViaId(int tenantId);
+
+        /// <summary>
         /// This adds a new, non-Hierarchical Tenant
         /// </summary>
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
@@ -44,18 +53,39 @@ namespace AuthPermissions.AdminCode
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.
         /// This also means all the children underneath need to have their full name updated too
         /// </summary>
-        /// <param name="fullTenantName"></param>
+        /// <param name="tenantId"></param>
         /// <param name="newTenantLevelName"></param>
         /// <returns></returns>
-        Task<IStatusGeneric> UpdateTenantNameAsync(string fullTenantName, string newTenantLevelName);
+        Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantLevelName);
+
 
         /// <summary>
         /// This moves a hierarchical tenant to a new parent (which might be null)
         /// This changes the TenantFullName and the TenantDataKey of the selected tenant and all of its children
+        /// WARNING: If the tenants have data in your database, then you need to change their DataKey using the <see param="getOldNewDataKey"/> action.
         /// </summary>
         /// <param name="fullTenantName">The full name of the tenant to move to another parent </param>
-        /// <param name="newParentFullName">he full name of the new parent tenant (can be null, in which case the tenant moved to the top level</param>
-        /// <returns></returns>
-        Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(string fullTenantName, string newParentFullName);
+        /// <param name="newParentFullName">The full name of the new parent tenant (can be null, in which case the tenant moved to the top level</param>
+        /// <param name="getOldNewDataKey">optional: This action is called at every tenant that is moved.
+        /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved so that you can move the data</param>
+        /// Providing an action will also stops SaveChangesAsync being called so that you can
+        /// <returns>
+        /// Returns a status, which has the current AuthPermissionsDbContext, if the <see param="getOldNewDataKey"/> is provided.
+        /// This allows you to call the SaveChangesAsync within your 
+        /// </returns>
+        Task<IStatusGeneric<AuthPermissionsDbContext>> MoveHierarchicalTenantToAnotherParentAsync(
+            string fullTenantName, string newParentFullName,
+            Action<(string previousDataKey, string newDataKey)> getOldNewDataKey = null);
+
+        /// <summary>
+        /// This will delete the tenant and all its children. It returns a status with the tenant's DataKey
+        /// WARNING: This method does NOT delete the data in your application.
+        /// If you want to delete the tenant data, or log the changes, the <see param="getDeletedTenantData"/> returns the list of deleted tenants
+        /// </summary>
+        /// <param name="fullTenantName">The full name of the tenant to delete, and if hierarchical it deletes all children tenants</param>
+        /// <param name="getDeletedTenantData">optional: This returns the fullname of the tenant and its DataKey for each deleted tenant</param>
+        /// <returns>Status</returns>
+        Task<IStatusGeneric> DeleteTenantAsync(string fullTenantName,
+            Action<(string fullTenantName, string dataKey)> getDeletedTenantData = null);
     }
 }

@@ -72,16 +72,18 @@ Role3: Three";
             context.SaveChanges();
         }
 
-        public static void SetupSingleTenantsInDb(this AuthPermissionsDbContext context)
+        public static List<int> SetupSingleTenantsInDb(this AuthPermissionsDbContext context)
         {
             var t1 = new Tenant("Tenant1");
             var t2 = new Tenant("Tenant2");
             var t3 = new Tenant("Tenant3");
             context.AddRange(t1,t2,t3);
             context.SaveChanges();
+
+            return new List<int> { t1.TenantId, t2.TenantId, t3.TenantId };
         }
 
-        public static async Task<List<string>> SetupHierarchicalTenantInDb(this AuthPermissionsDbContext context)
+        public static async Task<List<int>> SetupHierarchicalTenantInDb(this AuthPermissionsDbContext context)
         {
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions {TenantType = TenantTypes.HierarchicalTenant};
@@ -97,7 +99,7 @@ Company | East Coast | New York | Shop4";
 
             (await service.AddTenantsToDatabaseAsync(lines, authOptions)).IsValid.ShouldBeTrue();
 
-            return lines.Split(Environment.NewLine).ToList();
+            return context.Tenants.Select(x => x.TenantId).ToList();
         }
 
         public static List<DefineUserWithRolesTenant> TestUserDefineWithUserId(string user2Roles = "Role1,Role2")
