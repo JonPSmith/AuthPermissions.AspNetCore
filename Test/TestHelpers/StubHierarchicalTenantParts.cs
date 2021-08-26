@@ -24,7 +24,7 @@ namespace Test.TestHelpers
             return _dataKey;
         }
 
-        public string GetTenantEndLeafName()
+        public string GetTenantName()
         {
             return Tenant.ExtractEndLeftTenantName(TenantFullName);
         }

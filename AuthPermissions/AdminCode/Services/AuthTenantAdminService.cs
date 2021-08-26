@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
@@ -91,31 +90,31 @@ namespace AuthPermissions.AdminCode.Services
         /// <summary>
         /// This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
         /// </summary>
-        /// <param name="thisLevelTenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
-        /// <param name="parentTenantName">The name of the parent that this tenant </param>
+        /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
+        /// <param name="parentFullTenantName">The name of the parent that this tenant </param>
         /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string thisLevelTenantName, string parentTenantName)
+        public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, string parentFullTenantName)
         {
             var status = new StatusGenericHandler {  };
 
             if (_tenantType != TenantTypes.HierarchicalTenant)
                 return status.AddError(
-                    $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}", nameof(thisLevelTenantName).CamelToPascal());
-            if (thisLevelTenantName.Contains('|'))
+                    $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}", nameof(tenantName).CamelToPascal());
+            if (tenantName.Contains('|'))
                 return status.AddError(
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
-                        nameof(thisLevelTenantName).CamelToPascal());
+                        nameof(tenantName).CamelToPascal());
 
             Tenant parentTenant = null;
-            if (parentTenantName != null)
+            if (parentFullTenantName != null)
             {
                 //We need to find the parent
-                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == parentTenantName);
+                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == parentFullTenantName);
                 if (parentTenant == null)
-                    return status.AddError($"Could not find the parent tenant with the name {parentTenantName}",nameof(parentTenantName).CamelToPascal());
+                    return status.AddError($"Could not find the parent tenant with the name {parentFullTenantName}",nameof(parentFullTenantName).CamelToPascal());
             }
 
-            var fullTenantName = Tenant.CombineParentNameWithTenantName(thisLevelTenantName, parentTenant?.TenantFullName);
+            var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
 
             _context.Add(new Tenant(fullTenantName, parentTenant));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -129,10 +128,10 @@ namespace AuthPermissions.AdminCode.Services
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.
         /// This also means all the children underneath need to have their full name updated too
         /// </summary>
-        /// <param name="tenantId"></param>
-        /// <param name="newTenantLevelName"></param>
+        /// <param name="tenantId">Primary key of the tenant to change</param>
+        /// <param name="newTenantName">This is the new name for this tenant name</param>
         /// <returns></returns>
-        public async Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantLevelName)
+        public async Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName)
         {
             var status = new StatusGenericHandler();
 
@@ -140,12 +139,12 @@ namespace AuthPermissions.AdminCode.Services
                 return status.AddError(
                     "You haven't configured the TenantType in the configuration.");
 
-            if (string.IsNullOrEmpty(newTenantLevelName))
-                return status.AddError("The new name was empty", nameof(newTenantLevelName).CamelToPascal());
-            if (newTenantLevelName.Contains('|'))
+            if (string.IsNullOrEmpty(newTenantName))
+                return status.AddError("The new name was empty", nameof(newTenantName).CamelToPascal());
+            if (newTenantName.Contains('|'))
                 return status.AddError(
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
-                        nameof(newTenantLevelName).CamelToPascal());
+                        nameof(newTenantName).CamelToPascal());
 
             var tenant = await _context.Tenants
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
@@ -165,15 +164,15 @@ namespace AuthPermissions.AdminCode.Services
                 var existingTenantWithChildren = tenantsWithChildren
                     .Single(x => x.TenantId == tenantId);
 
-                existingTenantWithChildren.UpdateTenantName(newTenantLevelName);
+                existingTenantWithChildren.UpdateTenantName(newTenantName);
             }
             else
             {
-                tenant.UpdateTenantName(newTenantLevelName);
+                tenant.UpdateTenantName(newTenantName);
             }
 
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-            status.Message = $"Successfully updated the tenant name to '{newTenantLevelName}'.";
+            status.Message = $"Successfully updated the tenant name to '{newTenantName}'.";
 
             return status;
         }

@@ -44,19 +44,19 @@ namespace AuthPermissions.AdminCode
         /// <summary>
         /// This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
         /// </summary>
-        /// <param name="thisLevelTenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
-        /// <param name="parentTenantName">The name of the parent that this tenant </param>
+        /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
+        /// <param name="parentFullTenantName">The name of the parent that this tenant </param>
         /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddHierarchicalTenantAsync(string thisLevelTenantName, string parentTenantName);
+        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, string parentFullTenantName);
 
         /// <summary>
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.
         /// This also means all the children underneath need to have their full name updated too
         /// </summary>
         /// <param name="tenantId"></param>
-        /// <param name="newTenantLevelName"></param>
+        /// <param name="newTenantName"></param>
         /// <returns></returns>
-        Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantLevelName);
+        Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName);
 
 
         /// <summary>

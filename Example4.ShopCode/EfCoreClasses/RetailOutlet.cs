@@ -18,7 +18,7 @@ namespace Example4.ShopCode.EfCoreClasses
             if (authPTenant == null) throw new ArgumentNullException(nameof(authPTenant));
 
             FullName = authPTenant.TenantFullName;
-            ShortName = authPTenant.GetTenantEndLeafName();
+            ShortName = authPTenant.GetTenantName();
             DataKey = authPTenant.GetTenantDataKey();
             AuthPTenantId = authPTenant.TenantId;
         }

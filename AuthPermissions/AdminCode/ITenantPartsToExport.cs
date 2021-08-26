@@ -35,6 +35,6 @@ namespace AuthPermissions.AdminCode
         /// If its an hierarchical tenant, then it will be the last name in the hierarchy
         /// </summary>
         /// <returns></returns>
-        string GetTenantEndLeafName();
+        string GetTenantName();
     }
 }

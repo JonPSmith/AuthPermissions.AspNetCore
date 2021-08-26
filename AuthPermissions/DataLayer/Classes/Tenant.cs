@@ -15,6 +15,10 @@ namespace AuthPermissions.DataLayer.Classes
 {
     /// <summary>
     /// This is used for multi-tenant systems
+    /// NOTE: two types of names are defined in the Tenant. For single-level tenants the two names are the same
+    /// 1. FullTenantName - for hierarchical tenants this is the combined tenant names (separated by |) of the parents and its tenant name
+    /// 2. TenantName - the last name in FullTenantName
+    /// The FullTenantName is saved to the database, but the TenantName is derived from the FullTenantName
     /// </summary>
     public class Tenant : INameToShowOnException, ITenantPartsToExport
     {
@@ -28,21 +32,22 @@ namespace AuthPermissions.DataLayer.Classes
         /// <summary>
         /// This defines a tenant in a single tenant multi-tenant system.
         /// </summary>
-        /// <param name="tenantName"></param>
-        public Tenant(string tenantName)
+        /// <param name="fullTenantName"></param>
+        public Tenant(string fullTenantName)
         {
-            TenantFullName = tenantName?.Trim() ?? throw new ArgumentNullException(nameof(tenantName));
+            TenantFullName = fullTenantName?.Trim() ?? throw new ArgumentNullException(nameof(fullTenantName));
         }
 
         /// <summary>
         /// This creates a tenant in a hierarchical multi-tenant system with a parent/child relationships
         /// You MUST have parent loaded and has been written to the database
         /// </summary>
-        /// <param name="tenantName">This must be the full tenant name, including the parent name</param>
+        /// <param name="fullTenantName">This must be the full tenant name, including the parent name</param>
         /// <param name="parent"></param>
-        public Tenant(string tenantName, Tenant parent)
+        public Tenant(string fullTenantName, Tenant parent)
         {
-            TenantFullName = tenantName ?? throw new ArgumentNullException(nameof(tenantName));
+            TenantFullName = fullTenantName?.Trim() ?? throw new ArgumentNullException(nameof(fullTenantName));
+            
             //We check that the higher layer has a primary key
             if (parent?.TenantId == (int)default)
                 throw new AuthPermissionsException(
@@ -65,7 +70,9 @@ namespace AuthPermissions.DataLayer.Classes
         public string ParentDataKey { get; private set; }
 
         /// <summary>
-        /// This is the name defined for this tenant. This is unique 
+        /// This is the name defined for this tenant, and must be unique
+        /// In hierarchical tenants this is the combined tenant names (separated by |) of the parents and its tenant name
+        /// NOTE: The TenantName is the last name in the list of names
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.TenantFullNameSize)]
@@ -134,7 +141,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// If its an hierarchical tenant, then it will be the last name in the hierarchy
         /// </summary>
         /// <returns></returns>
-        public string GetTenantEndLeafName() => ExtractEndLeftTenantName(TenantFullName);
+        public string GetTenantName() => ExtractEndLeftTenantName(TenantFullName);
 
         /// <summary>
         /// This is the official way to combine the parent name and the individual tenant name
@@ -186,6 +193,8 @@ namespace AuthPermissions.DataLayer.Classes
         /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved</param>
         public void MoveTenantToNewParent(Tenant newParentTenant, Action<(string previousDataKey, string newDataKey)> getOldNewDataKey = null)
         {
+            if (newParentTenant == null) throw new ArgumentNullException(nameof(newParentTenant));
+
             if (!IsHierarchical)
                 throw new AuthPermissionsException("You can only move a hierarchical tenant to a new parent");
             if (Children == null)

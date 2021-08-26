@@ -44,7 +44,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             tenants.Count.ShouldEqual(4);
-            tenants.Select(x => x.GetTenantEndLeafName()).OrderBy(x => x).ToArray()
+            tenants.Select(x => x.GetTenantName()).OrderBy(x => x).ToArray()
                 .ShouldEqual(new[] { "Shop1", "Shop2", "Shop3", "Shop4" });
         }
 

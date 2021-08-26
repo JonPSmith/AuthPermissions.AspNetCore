@@ -28,7 +28,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             {
                 TenantId = x.TenantId,
                 TenantFullName = x.TenantFullName,
-                TenantName = x.GetTenantEndLeafName(),
+                TenantName = x.GetTenantName(),
                 DataKey = x.GetTenantDataKey()
             });
         }
@@ -39,7 +39,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             {
                 TenantId = tenant.TenantId,
                 TenantFullName = tenant.TenantFullName,
-                TenantName = tenant.GetTenantEndLeafName()
+                TenantName = tenant.GetTenantName()
             };
         }
     }
