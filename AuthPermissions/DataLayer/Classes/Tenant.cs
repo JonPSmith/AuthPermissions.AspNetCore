@@ -188,13 +188,11 @@ namespace AuthPermissions.DataLayer.Classes
         /// <summary>
         /// This moves the current tenant to a another tenant
         /// </summary>
-        /// <param name="newParentTenant"></param>
+        /// <param name="newParentTenant">Can be null if moving to top</param>
         /// <param name="getOldNewDataKey">Optional: This action is called at every tenant that is effected.
         /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved</param>
         public void MoveTenantToNewParent(Tenant newParentTenant, Action<(string previousDataKey, string newDataKey)> getOldNewDataKey = null)
         {
-            if (newParentTenant == null) throw new ArgumentNullException(nameof(newParentTenant));
-
             if (!IsHierarchical)
                 throw new AuthPermissionsException("You can only move a hierarchical tenant to a new parent");
             if (Children == null)

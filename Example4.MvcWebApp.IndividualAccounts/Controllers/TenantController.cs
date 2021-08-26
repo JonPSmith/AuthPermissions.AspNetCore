@@ -30,6 +30,27 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             return View(tenantNames);
         }
 
+        [HasPermission(Example4Permissions.TenantCreate)]
+        public async Task<IActionResult> Create()
+        {
+            var model = await TenantDto.SetupForCreateAsync(_authTenantAdmin);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(TenantDto input)
+        {
+            var status = await _authTenantAdmin
+                .AddHierarchicalTenantAsync(input.TenantName, input.ParentId);
+
+            return status.HasErrors
+                ? RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() })
+                : RedirectToAction(nameof(Index), new { message = status.Message });
+        }
+
         [HasPermission(Example4Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(int id)
         {

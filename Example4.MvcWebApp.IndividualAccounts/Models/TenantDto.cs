@@ -1,10 +1,14 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
+using Microsoft.EntityFrameworkCore;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Models
 {
@@ -22,6 +26,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
 
         public string DataKey { get; set; }
 
+        public List<KeyValuePair<int,string>> ListOfTenants { get; private set; }
+
+        public int ParentId { get; set; }
+
         public static IQueryable<TenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
         {
             return inQuery.Select(x => new TenantDto
@@ -31,6 +39,19 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
                 TenantName = x.GetTenantName(),
                 DataKey = x.GetTenantDataKey()
             });
+        }
+
+        public static async Task<TenantDto> SetupForCreateAsync(IAuthTenantAdminService tenantAdminService)
+        {
+            var result = new TenantDto
+            {
+                ListOfTenants = await tenantAdminService.QueryTenants()
+                    .Select(x => new KeyValuePair<int, string>(x.TenantId, x.TenantFullName))
+                    .ToListAsync()
+            };
+            result.ListOfTenants.Insert(0, new KeyValuePair<int, string>(0, "< none >"));
+
+            return result;
         }
 
         public static TenantDto SetupForEdit(Tenant tenant)

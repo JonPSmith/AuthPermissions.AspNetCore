@@ -91,9 +91,9 @@ namespace AuthPermissions.AdminCode.Services
         /// This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
         /// </summary>
         /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
-        /// <param name="parentFullTenantName">The name of the parent that this tenant </param>
+        /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, string parentFullTenantName)
+        public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId)
         {
             var status = new StatusGenericHandler {  };
 
@@ -105,13 +105,14 @@ namespace AuthPermissions.AdminCode.Services
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
                         nameof(tenantName).CamelToPascal());
 
+
             Tenant parentTenant = null;
-            if (parentFullTenantName != null)
+            if (parentTenantId != 0)
             {
                 //We need to find the parent
-                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == parentFullTenantName);
+                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
                 if (parentTenant == null)
-                    return status.AddError($"Could not find the parent tenant with the name {parentFullTenantName}",nameof(parentFullTenantName).CamelToPascal());
+                    return status.AddError($"Could not find the parent tenant you asked for.");
             }
 
             var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
@@ -182,8 +183,8 @@ namespace AuthPermissions.AdminCode.Services
         /// This changes the TenantFullName and the TenantDataKey of the selected tenant and all of its children
         /// WARNING: If the tenants have data in your database, then you need to change their DataKey using the <see param="getOldNewDataKey"/> action.
         /// </summary>
-        /// <param name="fullTenantName">The full name of the tenant to move to another parent </param>
-        /// <param name="newParentFullName">he full name of the new parent tenant (can be null, in which case the tenant moved to the top level</param>
+        /// <param name="tenantToMoveId">Primary key of the tenant to move to another parent</param>
+        /// <param name="parentTenantId">Primary key of the new parent, if 0 then you move the tenant to </param>
         /// <param name="getOldNewDataKey">optional: This action is called at every tenant that is moved.
         /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved so that you can move the data</param>
         /// Providing an action will also stops SaveChangesAsync being called so that you can
@@ -192,49 +193,43 @@ namespace AuthPermissions.AdminCode.Services
         /// This allows you to call the SaveChangesAsync within your 
         /// </returns>
         public async Task<IStatusGeneric<AuthPermissionsDbContext>> MoveHierarchicalTenantToAnotherParentAsync(
-            string fullTenantName, string newParentFullName, 
+            int tenantToMoveId, int parentTenantId, 
             Action<(string previousDataKey, string newDataKey)> getOldNewDataKey = null)
         {
-            if (fullTenantName == null) throw new ArgumentNullException(nameof(fullTenantName));
-            if (newParentFullName == null) throw new ArgumentNullException(nameof(newParentFullName));
-
-            fullTenantName = fullTenantName.Trim();
-            newParentFullName = newParentFullName.Trim();
-
             var status = new StatusGenericHandler<AuthPermissionsDbContext> { };
 
             if (_tenantType != TenantTypes.HierarchicalTenant)
                 return status.AddError(
                     $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}");
 
-            if (fullTenantName == newParentFullName)
-                return status.AddError("You cannot move a tenant to itself", nameof(newParentFullName).CamelToPascal());
+            if (tenantToMoveId == parentTenantId)
+                return status.AddError("You cannot move a tenant to itself.", nameof(tenantToMoveId).CamelToPascal());
 
+            var tenantToMove = await _context.Tenants
+                .SingleOrDefaultAsync(x => x.TenantId == tenantToMoveId);
+            
             var tenantsWithChildren = await _context.Tenants
                 .Include(x => x.Parent)
                 .Include(x => x.Children)
-                .Where(x => x.TenantFullName.StartsWith(fullTenantName))
+                .Where(x => x.TenantFullName.StartsWith(tenantToMove.TenantFullName))
                 .ToListAsync();
 
             var existingTenantWithChildren = tenantsWithChildren
-                .SingleOrDefault(x => x.TenantFullName == fullTenantName);
+                .Single(x => x.TenantId == tenantToMoveId);
 
-            if (existingTenantWithChildren == null)
-                return status.AddError($"Could not find the tenant with the name {fullTenantName}", nameof(fullTenantName).CamelToPascal());
-
-            if ( tenantsWithChildren.Select(x => x.TenantFullName).Contains(newParentFullName))
-                return status.AddError("You cannot move a tenant one of its children.", nameof(newParentFullName).CamelToPascal());
-
-            Tenant newParentTenant = null;
-            if (newParentFullName != null)
+            Tenant parentTenant = null;
+            if (parentTenantId != 0)
             {
                 //We need to find the parent
-                newParentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == newParentFullName);
-                if (newParentTenant == null)
-                    return status.AddError($"Could not find the parent tenant with the name {newParentFullName}", nameof(newParentFullName).CamelToPascal());
+                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
+                if (parentTenant == null)
+                    return status.AddError("Could not find the parent tenant you asked for.");
+
+                if (tenantsWithChildren.Select(x => x.TenantFullName).Contains(parentTenant.TenantFullName))
+                    return status.AddError("You cannot move a tenant one of its children.", nameof(parentTenantId).CamelToPascal());
             }
 
-            existingTenantWithChildren.MoveTenantToNewParent(newParentTenant, getOldNewDataKey);
+            existingTenantWithChildren.MoveTenantToNewParent(parentTenant, getOldNewDataKey);
 
             if (getOldNewDataKey != null)
             {

@@ -45,9 +45,9 @@ namespace AuthPermissions.AdminCode
         /// This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
         /// </summary>
         /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
-        /// <param name="parentFullTenantName">The name of the parent that this tenant </param>
+        /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, string parentFullTenantName);
+        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId);
 
         /// <summary>
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.
@@ -64,8 +64,8 @@ namespace AuthPermissions.AdminCode
         /// This changes the TenantFullName and the TenantDataKey of the selected tenant and all of its children
         /// WARNING: If the tenants have data in your database, then you need to change their DataKey using the <see param="getOldNewDataKey"/> action.
         /// </summary>
-        /// <param name="fullTenantName">The full name of the tenant to move to another parent </param>
-        /// <param name="newParentFullName">The full name of the new parent tenant (can be null, in which case the tenant moved to the top level</param>
+        /// <param name="tenantToMoveId">Primary key of the tenant to move to another parent</param>
+        /// <param name="parentTenantId">Primary key of the new parent, if 0 then you move the tenant to </param>
         /// <param name="getOldNewDataKey">optional: This action is called at every tenant that is moved.
         /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved so that you can move the data</param>
         /// Providing an action will also stops SaveChangesAsync being called so that you can
@@ -74,7 +74,7 @@ namespace AuthPermissions.AdminCode
         /// This allows you to call the SaveChangesAsync within your 
         /// </returns>
         Task<IStatusGeneric<AuthPermissionsDbContext>> MoveHierarchicalTenantToAnotherParentAsync(
-            string fullTenantName, string newParentFullName,
+            int tenantToMoveId, int parentTenantId,
             Action<(string previousDataKey, string newDataKey)> getOldNewDataKey = null);
 
         /// <summary>
