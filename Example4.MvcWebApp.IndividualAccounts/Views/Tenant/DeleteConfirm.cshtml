@@ -1,0 +1,44 @@
+﻿@model Example4.MvcWebApp.IndividualAccounts.Models.TenantDeleteInfo
+
+@{
+    ViewData["Title"] = "DeleteInfo";
+}
+
+<h3 class="text-success">@Model.Message</h3>
+
+<h4>The tenant has not been deleted the data, but the data cannot be accessed.</h4>
+<p>The following data will allow you to:</p>
+<ol>
+    <li>Reintroduce this data via code to link to new tenants.</li>
+    <p>or</p>
+    <li>Manually delete the data.</li>
+</ol>
+<p>We recommend you copy this data in case it is useful later</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Full tenant name
+        </th>
+        <th>
+            DataKey
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.DataDropped)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.fullTenantName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.dataKey)
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a asp-action="Index">Back to List</a>

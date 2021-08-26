@@ -189,9 +189,9 @@ namespace AuthPermissions.DataLayer.Classes
         /// This moves the current tenant to a another tenant
         /// </summary>
         /// <param name="newParentTenant">Can be null if moving to top</param>
-        /// <param name="getOldNewDataKey">Optional: This action is called at every tenant that is effected.
+        /// <param name="getOldNewDataKey">This action is called at every tenant that is effected.
         /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved</param>
-        public void MoveTenantToNewParent(Tenant newParentTenant, Action<(string previousDataKey, string newDataKey)> getOldNewDataKey = null)
+        public void MoveTenantToNewParent(Tenant newParentTenant, Action<(string previousDataKey, string newDataKey)> getOldNewDataKey)
         {
             if (!IsHierarchical)
                 throw new AuthPermissionsException("You can only move a hierarchical tenant to a new parent");
@@ -200,8 +200,9 @@ namespace AuthPermissions.DataLayer.Classes
 
             var oldDataKey = GetTenantDataKey();
             TenantFullName = CombineParentNameWithTenantName(ExtractEndLeftTenantName(this.TenantFullName), newParentTenant?.TenantFullName);
+            Parent = newParentTenant;
             ParentDataKey = newParentTenant?.GetTenantDataKey();
-            getOldNewDataKey?.Invoke((oldDataKey, GetTenantDataKey()));
+            getOldNewDataKey((oldDataKey, GetTenantDataKey()));
 
             RecursivelyChangeChildNames(this, Children, (parent, child) =>
             {

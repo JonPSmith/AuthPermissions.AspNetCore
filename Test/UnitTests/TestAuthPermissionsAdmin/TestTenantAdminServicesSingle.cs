@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using EntityFramework.Exceptions.SqlServer;
@@ -145,14 +146,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.SetupSingleTenantsInDb();
+            var tenantIds = context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
             var deleteLogs = new List<(string fullTenantName, string dataKey)>();
 
             //ATTEMPT
-            var status = await service.DeleteTenantAsync("Tenant2",
+            var status = await service.DeleteTenantAsync(tenantIds[1],
                 (tuple => deleteLogs.Add(tuple)));
 
             //VERIFY
@@ -165,6 +166,31 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
             var tenants = context.Tenants.ToList();
             tenants.Select(x => x.TenantFullName).ShouldEqual(new[] { "Tenant1", "Tenant3" });
+        }
+
+        [Fact]
+        public async Task TestDeleteSingleTenantAsyncBadBecauseUserLinkedToIt()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var tenantIds = context.SetupSingleTenantsInDb();
+            var tenant = context.Find<Tenant>(tenantIds[1]);
+            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenant));
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+
+            //ATTEMPT
+            var status = await service.DeleteTenantAsync(tenant.TenantId,
+                (tuple => { }));
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse(status.GetAllErrors());
+            status.GetAllErrors().ShouldEqual("This delete is aborted because this tenant is linked to the user 'Mr Me'.");
         }
 
 

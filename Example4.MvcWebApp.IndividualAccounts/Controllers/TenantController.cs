@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
@@ -40,6 +41,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HasPermission(Example4Permissions.TenantCreate)]
         public async Task<IActionResult> Create(TenantDto input)
         {
             var status = await _authTenantAdmin
@@ -54,7 +56,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(int id)
         {
-            var status = await _authTenantAdmin.GetTenantViaId(id);
+            var status = await _authTenantAdmin.GetTenantViaIdAsync(id);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
@@ -64,6 +66,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HasPermission(Example4Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(TenantDto input)
         {
             var status = await _authTenantAdmin
@@ -76,20 +79,62 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         }
 
 
-        [HasPermission(Example4Permissions.TenantUpdate)]
-        public async Task<IActionResult> TenantMove(int id)
+        [HasPermission(Example4Permissions.TenantMove)]
+        public async Task<IActionResult> Move(int id)
         {
-            var status = await _authTenantAdmin.GetTenantViaId(id);
+            var status = await _authTenantAdmin.GetTenantViaIdAsync(id);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View();
+            return View(await TenantDto.SetupForMoveAsync(status.Result, _authTenantAdmin));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [HasPermission(Example4Permissions.TenantMove)]
+        public async Task<IActionResult> Move(TenantDto input)
+        {
+            var status = await _authTenantAdmin
+                .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId,
+                    (tuple => { }));
 
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //ONLY FOR TEST
+            await status.Result.SaveChangesAsync();
 
+            return status.HasErrors
+                ? RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() })
+                : RedirectToAction(nameof(Index), new { message = status.Message + " NOTE: DATE UPDATE NOT WRITTEN!!!!." });
+        }
 
+        [HasPermission(Example4Permissions.TenantDelete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var status = await _authTenantAdmin.GetTenantViaIdAsync(id);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return View(await TenantDto.SetupForDeleteAsync(status.Result, _authTenantAdmin));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [HasPermission(Example4Permissions.TenantDelete)]
+        public async Task<IActionResult> Delete(TenantDto input)
+        {
+            var deleteInfo = new List<(string fullTenantName, string dataKey)>();
+            var status = await _authTenantAdmin
+                .DeleteTenantAsync(input.TenantId, (tuple => deleteInfo.Add(tuple)));
+
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return View("DeleteConfirm", new TenantDeleteInfo(status.Message, deleteInfo));
+        }
 
         public ActionResult ErrorDisplay(string errorMessage)
         {

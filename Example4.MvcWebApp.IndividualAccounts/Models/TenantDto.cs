@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.DataLayer.Classes;
@@ -25,6 +26,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
         public string TenantName { get; set; }
 
         public string DataKey { get; set; }
+
+        //-------------------------------------------
+        //used for Create and Move
 
         public List<KeyValuePair<int,string>> ListOfTenants { get; private set; }
 
@@ -54,6 +58,24 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             return result;
         }
 
+        public static async Task<TenantDto> SetupForMoveAsync(Tenant tenant, IAuthTenantAdminService tenantAdminService)
+        {
+            var result = new TenantDto
+            {
+                TenantId = tenant.TenantId,
+                TenantFullName = tenant.TenantFullName,
+                TenantName = tenant.GetTenantName(),
+
+                ListOfTenants = await tenantAdminService.QueryTenants()
+                    .Select(x => new KeyValuePair<int, string>(x.TenantId, x.TenantFullName))
+                    .ToListAsync(),
+                ParentId = tenant.ParentTenantId ?? 0
+            };
+            result.ListOfTenants.Insert(0, new KeyValuePair<int, string>(0, "< none >"));
+
+            return result;
+        }
+
         public static TenantDto SetupForEdit(Tenant tenant)
         {
             return new TenantDto
@@ -61,6 +83,19 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
                 TenantId = tenant.TenantId,
                 TenantFullName = tenant.TenantFullName,
                 TenantName = tenant.GetTenantName()
+            };
+        }
+
+        public static async Task<TenantDto> SetupForDeleteAsync(Tenant tenant, IAuthTenantAdminService tenantAdminService)
+        {
+            return new TenantDto
+            {
+                TenantId = tenant.TenantId,
+                TenantFullName = tenant.TenantFullName,
+                TenantName = tenant.GetTenantName(), 
+                ListOfTenants = (await tenantAdminService.GetHierarchicalTenantChildrenViaIdAsync(tenant.TenantId))
+                    .Select(x => new KeyValuePair<int,string>(x.TenantId, x.TenantFullName) )
+                    .ToList()
             };
         }
     }

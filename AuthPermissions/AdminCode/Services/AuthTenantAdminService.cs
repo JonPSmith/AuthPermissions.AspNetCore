@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
@@ -9,6 +10,7 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using StatusGeneric;
 
 namespace AuthPermissions.AdminCode.Services
@@ -53,19 +55,46 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This returns a tenant  with the given TenantId
+        /// This returns a tenant, with its Parent but no children, that has the given TenantId
         /// </summary>
-        /// <param name="tenantId"></param>
+        /// <param name="tenantId">primary key of the tenant you are looking for</param>
         /// <returns>Status. If successful, then contains the Tenant</returns>
-        public async Task<IStatusGeneric<Tenant>> GetTenantViaId(int tenantId)
+        public async Task<IStatusGeneric<Tenant>> GetTenantViaIdAsync(int tenantId)
         {
             var status = new StatusGenericHandler<Tenant>();
 
             var result = await _context.Tenants
+                .Include(x => x.Parent)
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
             return result == null 
                 ? status.AddError("Could not find the tenant you were looking for.") 
                 : status.SetResult(result);
+        }
+
+        /// <summary>
+        /// This returns a list of all the child tenants
+        /// </summary>
+        /// <param name="tenantId">primary key of the tenant you are looking for</param>
+        /// <returns>A list of child tenants for this tenant (can be empty)</returns>
+        public async Task<List<Tenant>> GetHierarchicalTenantChildrenViaIdAsync(int tenantId)
+        {
+            var status = new StatusGenericHandler<List<Tenant>>();
+
+            var tenant = await _context.Tenants
+                .SingleOrDefaultAsync(x => x.TenantId == tenantId);
+            if (tenant == null)
+                throw new AuthPermissionsException($"Could not find the tenant with id of {tenantId}");
+
+            if (!tenant.IsHierarchical)
+                throw new AuthPermissionsException("This method is only for hierarchical tenants");
+
+            return await _context.Tenants
+                .Include(x => x.Parent)
+                .Include(x => x.Children)
+                .Where(x => x.TenantFullName.StartsWith(tenant.TenantFullName) && 
+                            x.TenantId != tenantId)
+                .ToListAsync();
+
         }
 
         /// <summary>
@@ -185,7 +214,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="tenantToMoveId">Primary key of the tenant to move to another parent</param>
         /// <param name="parentTenantId">Primary key of the new parent, if 0 then you move the tenant to </param>
-        /// <param name="getOldNewDataKey">optional: This action is called at every tenant that is moved.
+        /// <param name="getOldNewDataKey">This action is called at every tenant that is moved.
         /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved so that you can move the data</param>
         /// Providing an action will also stops SaveChangesAsync being called so that you can
         /// <returns>
@@ -194,7 +223,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </returns>
         public async Task<IStatusGeneric<AuthPermissionsDbContext>> MoveHierarchicalTenantToAnotherParentAsync(
             int tenantToMoveId, int parentTenantId, 
-            Action<(string previousDataKey, string newDataKey)> getOldNewDataKey = null)
+            Action<(string previousDataKey, string newDataKey)> getOldNewDataKey)
         {
             var status = new StatusGenericHandler<AuthPermissionsDbContext> { };
 
@@ -231,49 +260,56 @@ namespace AuthPermissions.AdminCode.Services
 
             existingTenantWithChildren.MoveTenantToNewParent(parentTenant, getOldNewDataKey);
 
-            if (getOldNewDataKey != null)
-            {
-                status.Message = $"WARNING: It is your job to call the SaveChangesAsync to finish the move to tenant {existingTenantWithChildren.TenantFullName}.";
-                status.SetResult(_context);
-                return status;
-            }
-
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-
-            status.Message = $"Successfully moved the new hierarchical tenant to {existingTenantWithChildren.TenantFullName}.";
-
+            status.Message = "WARNING: Call SaveChangesAsync on the provided DbContext to update the " +
+                             "AuthP database once you have updated the DataKey on the moved data.";
+            status.SetResult(_context);
             return status;
         }
 
         /// <summary>
-        /// This will delete the tenant and all its children. It returns a status with the tenant's DataKey
+        /// This will delete the tenant (and all its children if the data is hierarchical
         /// WARNING: This method does NOT delete the data in your application. You need to do that using the DataKey returned in the status Result
         /// </summary>
-        /// <param name="fullTenantName">The full name of the tenant to delete, and if hierarchical it deletes all children tenants</param>
-        /// <param name="getDeletedTenantData"></param>
+        /// <param name="tenantId">The primary key of the tenant you want to </param>
+        /// <param name="getDeletedTenantData">This action is called for each tenant that was deleted to tell you what has been deleted.
+        /// You can either use the DataKeys to delete the multi-tenant data, 
+        /// or don't delete the data (because it can't be accessed anyway) but show it to the admin user in case you want to re-link it to new tenants</param>
         /// <returns>Status</returns>
-        public async Task<IStatusGeneric> DeleteTenantAsync(string fullTenantName,
-            Action<(string fullTenantName, string dataKey)> getDeletedTenantData = null)
+        public async Task<IStatusGeneric> DeleteTenantAsync(int tenantId,
+            Action<(string fullTenantName, string dataKey)> getDeletedTenantData)
         {
             var status = new StatusGenericHandler();
 
-            if (_tenantType == TenantTypes.NotUsingTenants)
-                return status.AddError(
-                    "You haven't configured the TenantType in the configuration.");
-
-            if (string.IsNullOrEmpty(fullTenantName))
-                return status.AddError("The new name was empty", nameof(fullTenantName).CamelToPascal());
-
             var tenantToDelete = await _context.Tenants
-                .SingleOrDefaultAsync(x => x.TenantFullName == fullTenantName);
+                .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
             if (tenantToDelete == null)
-                return status.AddError($"Could not find the tenant with the full name of {fullTenantName}.");
+                return status.AddError("Could not find the tenant you were looking for.");
+
+            var allTenantIdsAffectedByThisDelete = await _context.Tenants
+                .Include(x => x.Parent)
+                .Include(x => x.Children)
+                .Where(x => x.TenantFullName.StartsWith(tenantToDelete.TenantFullName))
+                .Select(x => x.TenantId)
+                .ToListAsync();
+
+            var usersOfThisTenant = await _context.AuthUsers.Where(x => allTenantIdsAffectedByThisDelete.Contains(x.TenantId  ?? 0))
+                .Select(x => x.UserName ?? x.Email)
+                .ToListAsync();
+
+            var tenantOrChildren = allTenantIdsAffectedByThisDelete.Count > 1
+                ? "tenant or its children tenants are"
+                : "tenant is";
+            if (usersOfThisTenant.Any())
+                usersOfThisTenant.ForEach(x => status.AddError($"This delete is aborted because this {tenantOrChildren} linked to the user '{x}'."));
+
+            if (status.HasErrors)
+                return status;
 
             //Get the DataKey to send back
-            getDeletedTenantData?.Invoke((tenantToDelete.TenantFullName, tenantToDelete.GetTenantDataKey()));
+            getDeletedTenantData.Invoke((tenantToDelete.TenantFullName, tenantToDelete.GetTenantDataKey()));
 
-            var message = $"Successfully deleted the tenant called '{fullTenantName}'";
+            var message = $"Successfully deleted the tenant called '{tenantToDelete.TenantFullName}'";
             if (tenantToDelete.IsHierarchical)
             {
                 //need to delete all the tenants that have the 
@@ -283,7 +319,7 @@ namespace AuthPermissions.AdminCode.Services
 
                 foreach (var tenant in children)
                 {
-                    getDeletedTenantData?.Invoke((tenant.TenantFullName, tenant.GetTenantDataKey()));
+                    getDeletedTenantData((tenant.TenantFullName, tenant.GetTenantDataKey()));
                 }
                 if (children.Count > 0)
                 {

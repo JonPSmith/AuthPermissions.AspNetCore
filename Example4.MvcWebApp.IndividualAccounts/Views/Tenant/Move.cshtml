@@ -1,0 +1,36 @@
+﻿@model Example4.MvcWebApp.IndividualAccounts.Models.TenantDto
+
+@{
+    ViewData["Title"] = "Move";
+}
+
+<div class="h3">Moving the <span class="h2">@Model.TenantName</span> tenant to a different parent.</div>
+
+<h4 class="text-danger">WARNING: This command is very powerful. Please consider what you are about to do.</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Move">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.HiddenFor(x => x.TenantId)
+            <div class="form-group">
+                <label class="control-label">Select Parent Tenant</label>
+                @Html.DropDownListFor(model => model.ParentId,
+                    new SelectList(Model.ListOfTenants, "Key", "Value"),
+                    new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using EntityFramework.Exceptions.SqlServer;
@@ -47,6 +48,29 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             tenants.Select(x => x.GetTenantName()).OrderBy(x => x).ToArray()
                 .ShouldEqual(new[] { "Shop1", "Shop2", "Shop3", "Shop4" });
         }
+
+        [Fact]
+        public async Task TestGetHierarchicalTenantChildrenViaIdAsync()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var tenantIds = await context.SetupHierarchicalTenantInDb();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+
+            //ATTEMPT
+            var children = await service.GetHierarchicalTenantChildrenViaIdAsync(tenantIds[1]);
+
+            //VERIFY
+            children.Count.ShouldEqual(3);
+            children.Select(x => x.GetTenantName()).OrderBy(x => x).ToArray()
+                .ShouldEqual(new[] { "SanFran", "Shop1", "Shop2" });
+        }
+
 
         [Fact]
         public async Task TestAddHierarchicalTenantAsyncOk()
@@ -146,59 +170,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             tenants.Count(x => x.TenantFullName.StartsWith("Company | West Area")).ShouldEqual(4);
         }
 
-        [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncBaseNoActionOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
 
-            await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-
-            //ATTEMPT
-            var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
-                7, 4);
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = context.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
-            tenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | New York | Shop1")).ShouldEqual(1);
-        }
-
-        [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncNoActionOk()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-
-            //ATTEMPT
-            var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
-                2, 3);
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = context.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
-            tenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | West Coast")).ShouldEqual(4);
-        }
 
         [Fact]
         public async Task TestMoveHierarchicalTenantToAnotherParentAsyncBaseWithActionOkButSaveChangesNotCalled()
@@ -221,7 +193,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.Message.ShouldEqual("WARNING: It is your job to call the SaveChangesAsync to finish the move to tenant Company | East Coast | New York | Shop1.");
+            status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
             beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
             {
                 (".1.2.5.7", ".1.3.4.7")
@@ -257,7 +229,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.Message.ShouldEqual("WARNING: It is your job to call the SaveChangesAsync to finish the move to tenant Company | East Coast | New York | Shop1.");
+            status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
             beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
             {
                 (".1.2.5.7", ".1.3.4.7")
@@ -294,7 +266,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.Message.ShouldEqual("WARNING: It is your job to call the SaveChangesAsync to finish the move to tenant Company | East Coast | West Coast.");
+            status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
             beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
             {
                 (".1.2", ".1.3.2"),
@@ -333,7 +305,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.Message.ShouldEqual("WARNING: It is your job to call the SaveChangesAsync to finish the move to tenant Company | East Coast | West Coast.");
+            status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
             beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
             {
                 (".1.2", ".1.3.2"),
@@ -373,7 +345,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.Message.ShouldEqual("WARNING: It is your job to call the SaveChangesAsync to finish the move to tenant East Coast.");
+            status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
             beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
             {
                 (".1.3", ".3"), 
@@ -410,7 +382,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
-                2, parentTenantId);
+                2, parentTenantId, tuple => { });
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -432,7 +404,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
-                2, 2);
+                2, 2, tuple =>{} );
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -447,14 +419,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenantNames = await context.SetupHierarchicalTenantInDb();
+            var tenantIds = await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
             var deleteLogs = new List<(string fullTenantName, string dataKey)>();
 
             //ATTEMPT
-            var status = await service.DeleteTenantAsync("Company | West Coast | SanFran | Shop1",
+            var status = await service.DeleteTenantAsync(7,
                 (tuple => deleteLogs.Add(tuple)));
 
             //VERIFY
@@ -471,7 +443,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 _output.WriteLine(tenant.ToString());
             }
             tenants.SingleOrDefault(x => x.TenantFullName == "Company | West Coast | SanFran | Shop1").ShouldBeNull();
-            tenants.Count.ShouldEqual(tenantNames.Count - 1);
+            tenants.Count.ShouldEqual(tenantIds.Count - 1);
         }
 
         [Fact]
@@ -482,14 +454,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenantNames = await context.SetupHierarchicalTenantInDb();
+            var tenantIds = await context.SetupHierarchicalTenantInDb();
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
             var deleteLogs = new List<(string fullTenantName, string dataKey)>();
 
             //ATTEMPT
-            var status = await service.DeleteTenantAsync("Company | West Coast",
+            var status = await service.DeleteTenantAsync(2,
                 (tuple => deleteLogs.Add(tuple)));
 
             //VERIFY
@@ -509,6 +481,56 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             }
             tenants.Count(x => x.TenantFullName.StartsWith("Company | West Coast")).ShouldEqual(0);
             tenants.Count.ShouldEqual(5);
+        }
+
+        [Fact]
+        public async Task TestDeleteTenantAsyncUserOnActualTenant()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            await context.SetupHierarchicalTenantInDb();
+            var tenantToDelete = context.Find<Tenant>(7);
+            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenantToDelete));
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+
+            //ATTEMPT
+            var status = await service.DeleteTenantAsync(tenantToDelete.TenantId,
+                (tuple => { }));
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse(status.GetAllErrors());
+            status.GetAllErrors().ShouldEqual("This delete is aborted because this tenant is linked to the user 'Mr Me'.");
+        }
+
+        [Fact]
+        public async Task TestDeleteTenantAsyncUserOnChildTenant()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            await context.SetupHierarchicalTenantInDb();
+            var childTenant = context.Find<Tenant>(7);
+            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), childTenant));
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+
+            //ATTEMPT
+            var status = await service.DeleteTenantAsync(2,
+                (tuple => { }));
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse(status.GetAllErrors());
+            status.GetAllErrors().ShouldEqual("This delete is aborted because this tenant or its children tenants are linked to the user 'Mr Me'.");
         }
     }
 }
