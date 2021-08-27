@@ -15,11 +15,13 @@ namespace Example4.ShopCode.EfCoreCode
         public RetailDbContext(DbContextOptions<RetailDbContext> options, IDataKeyFilter dataKeyFilter)
             : base(options)
         {
-            //You have two options on what to do if the DataKey is null
-            // (null means no logged in, background service, or user hasn't got an assigned tenant)
-            // 1. Set DataKey  to ".", which will means all the multi-data can be seen (good for admin, but watch out for 'no logged in' user)
-            // 2. Set DataKey  to a string NOT starting with ".", e.g. "NoAccess". Then no multi-tenant data will be seen
-            DataKey = dataKeyFilter?.DataKey ?? "."; 
+            // The DataKey is null when: no one is logged in, its a background service, or user hasn't got an assigned tenant
+            // In these cases its best to set the data key that doesn't match any possible DataKey 
+            // Another (very dangerous) option is to set the DataKey  to ".", which will means all the tenant data can be seen by
+            //  - users without a tenant (good for admin)
+            //  - background services
+            //  - and 'no logged in' users! (vey scarey)
+            DataKey = dataKeyFilter?.DataKey ?? "stop any user without a DataKey to access the data"; 
         }
 
         public DbSet<RetailOutlet> RetailOutlets { get; set; }

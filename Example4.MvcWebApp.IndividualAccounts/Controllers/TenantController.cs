@@ -99,14 +99,15 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId,
                     (tuple => { }));
 
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
             //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //ONLY FOR TEST
             await status.Result.SaveChangesAsync();
 
-            return status.HasErrors
-                ? RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = status.GetAllErrors() })
-                : RedirectToAction(nameof(Index), new { message = status.Message + " NOTE: DATE UPDATE NOT WRITTEN!!!!." });
+            return RedirectToAction(nameof(Index), new { message = status.Message + " NOTE: DATE UPDATE NOT WRITTEN!!!!." });
         }
 
         [HasPermission(Example4Permissions.TenantDelete)]
