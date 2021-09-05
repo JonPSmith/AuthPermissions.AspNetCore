@@ -19,22 +19,10 @@ namespace AuthPermissions.AdminCode
         string TenantFullName { get; }
 
         /// <summary>
-        /// This is true if the tenant is an hierarchical 
-        /// </summary>
-        bool IsHierarchical { get; }
-
-        /// <summary>
         /// This calculates the data key for this tenant.
         /// If it is a single layer multi-tenant it will by the TenantId as a string
         /// If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId in the parents as well
         /// </summary>
         string GetTenantDataKey();
-
-        /// <summary>
-        /// This will provide a single tenant name.
-        /// If its an hierarchical tenant, then it will be the last name in the hierarchy
-        /// </summary>
-        /// <returns></returns>
-        string GetTenantName();
     }
 }

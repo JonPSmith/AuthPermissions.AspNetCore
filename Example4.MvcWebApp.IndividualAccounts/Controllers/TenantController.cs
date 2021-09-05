@@ -95,19 +95,17 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantMove)]
         public async Task<IActionResult> Move(TenantDto input)
         {
+            var moveData = new List<(string previousDataKey, string newDataKey, string newFullName)>();
             var status = await _authTenantAdmin
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId,
-                    (tuple => { }));
+                    (tuple => moveData.Add(tuple)));
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //ONLY FOR TEST
-            await status.Result.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index), new { message = status.Message + " NOTE: DATE UPDATE NOT WRITTEN!!!!." });
+            return View("MoveConfirm", new TenantMoveInfo(status.Message, moveData)); ;
         }
 
         [HasPermission(Example4Permissions.TenantDelete)]

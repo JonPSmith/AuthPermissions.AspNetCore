@@ -1,0 +1,49 @@
+﻿@model Example4.MvcWebApp.IndividualAccounts.Models.TenantMoveInfo
+
+@{
+    ViewData["Title"] = "MoveInfo";
+}
+
+<h3 class="text-success">@Model.Message</h3>
+
+<h1>The tenants have NOT been moved.</h1>
+<p>
+    To move the tenant you would need to build a code in your application 
+    which creates a database transaction in which you alter the DataKey (and fullname) 
+    of all of your data that has a DataKey.
+</p>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Old DataKey
+            </th>
+            <th>
+                New DataKey
+            </th>
+            <th>
+                New FullName
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.MoveData)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.previousDataKey)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.newDataKey)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.newFullName)
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a asp-action="Index">Back to List</a>

@@ -189,9 +189,10 @@ namespace AuthPermissions.DataLayer.Classes
         /// This moves the current tenant to a another tenant
         /// </summary>
         /// <param name="newParentTenant">Can be null if moving to top</param>
-        /// <param name="getOldNewDataKey">This action is called at every tenant that is effected.
-        /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved</param>
-        public void MoveTenantToNewParent(Tenant newParentTenant, Action<(string previousDataKey, string newDataKey)> getOldNewDataKey)
+        /// <param name="getOldNewData">This action is called at every tenant that is effected.
+        /// This allows you to obtains the previous DataKey, the new DataKey and the fullname of every tenant that was moved</param>
+        public void MoveTenantToNewParent(Tenant newParentTenant,
+            Action<(string previousDataKey, string newDataKey, string newFullName)> getOldNewData)
         {
             if (!IsHierarchical)
                 throw new AuthPermissionsException("You can only move a hierarchical tenant to a new parent");
@@ -202,7 +203,7 @@ namespace AuthPermissions.DataLayer.Classes
             TenantFullName = CombineParentNameWithTenantName(ExtractEndLeftTenantName(this.TenantFullName), newParentTenant?.TenantFullName);
             Parent = newParentTenant;
             ParentDataKey = newParentTenant?.GetTenantDataKey();
-            getOldNewDataKey((oldDataKey, GetTenantDataKey()));
+            getOldNewData((oldDataKey, GetTenantDataKey(), TenantFullName));
 
             RecursivelyChangeChildNames(this, Children, (parent, child) =>
             {
@@ -211,7 +212,7 @@ namespace AuthPermissions.DataLayer.Classes
                 var previousDataKey = child.GetTenantDataKey();
                 child.ParentDataKey = parent?.GetTenantDataKey();
                 var newDataKey = child.GetTenantDataKey();
-                getOldNewDataKey?.Invoke((previousDataKey, newDataKey));
+                getOldNewData?.Invoke((previousDataKey, newDataKey, child.TenantFullName));
             });
         }
 

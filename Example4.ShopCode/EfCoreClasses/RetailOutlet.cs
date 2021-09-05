@@ -4,6 +4,7 @@
 using System;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
+using AuthPermissions.DataLayer.Classes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.ShopCode.EfCoreClasses
@@ -18,7 +19,6 @@ namespace Example4.ShopCode.EfCoreClasses
             if (authPTenant == null) throw new ArgumentNullException(nameof(authPTenant));
 
             FullName = authPTenant.TenantFullName;
-            ShortName = authPTenant.GetTenantName();
             DataKey = authPTenant.GetTenantDataKey();
             AuthPTenantId = authPTenant.TenantId;
         }
@@ -30,7 +30,7 @@ namespace Example4.ShopCode.EfCoreClasses
         /// </summary>
         public string FullName { get; private set; }
 
-        public string ShortName { get; private set; }
+        public string ShortName => Tenant.ExtractEndLeftTenantName(FullName);
 
         /// <summary>
         /// This contains the datakey from the AuthP's Tenant

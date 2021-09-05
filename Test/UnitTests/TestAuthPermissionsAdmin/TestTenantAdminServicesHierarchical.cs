@@ -170,10 +170,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             tenants.Count(x => x.TenantFullName.StartsWith("Company | West Area")).ShouldEqual(4);
         }
 
-
-
         [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncBaseWithActionOkButSaveChangesNotCalled()
+        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncBaseOk()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -184,7 +182,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey)>();
+            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey, string newFullName)>();
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
@@ -194,59 +192,23 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
-            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
+            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey, string newFullName)>
             {
-                (".1.2.5.7", ".1.3.4.7")
-            });
-
-            context.ChangeTracker.Clear();
-            var tenants = context.Tenants.ToList();
-            tenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | New York | Shop1")).ShouldEqual(0);
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
-        }
-
-        [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncBaseWithActionOkButSaveChangesCalled()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey)>();
-
-            //ATTEMPT
-            var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
-                7, 4,
-                (tuple => beforeAfterLogs.Add(tuple)));
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
-            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
-            {
-                (".1.2.5.7", ".1.3.4.7")
+                (".1.2.5.7", ".1.3.4.7", "Company | East Coast | New York | Shop1")
             });
             status.Result.SaveChanges();
-
             context.ChangeTracker.Clear();
             var tenants = context.Tenants.ToList();
+            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
+            {
+                _output.WriteLine(tenant.ToString());
+            }
             tenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | New York | Shop1")).ShouldEqual(1);
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
+
         }
 
         [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncWithActionOkButSaveChangesNotCalled()
+        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncOk()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -257,7 +219,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey)>();
+            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey, string newFullName)>();
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
@@ -267,51 +229,12 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
-            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
+            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey, string newFullName)>
             {
-                (".1.2", ".1.3.2"),
-                (".1.2.5", ".1.3.2.5"),
-                (".1.2.5.6", ".1.3.2.5.6"),
-                (".1.2.5.7", ".1.3.2.5.7")
-            });
-
-            context.ChangeTracker.Clear();
-            var tenants = context.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
-            tenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | West Coast")).ShouldEqual(0);
-        }
-
-        [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncWithActionOkButSaveChangesCalled()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            await context.SetupHierarchicalTenantInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey)>();
-
-            //ATTEMPT
-            var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
-                2, 3,
-                (tuple => beforeAfterLogs.Add(tuple)));
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
-            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
-            {
-                (".1.2", ".1.3.2"),
-                (".1.2.5", ".1.3.2.5"),
-                (".1.2.5.6", ".1.3.2.5.6"),
-                (".1.2.5.7", ".1.3.2.5.7")
+                (".1.2", ".1.3.2", "Company | East Coast | West Coast"),
+                (".1.2.5", ".1.3.2.5", "Company | East Coast | West Coast | SanFran"),
+                (".1.2.5.6", ".1.3.2.5.6", "Company | East Coast | West Coast | SanFran | Shop2"),
+                (".1.2.5.7", ".1.3.2.5.7", "Company | East Coast | West Coast | SanFran | Shop1")
             });
             status.Result.SaveChanges();
 
@@ -336,7 +259,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
-            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey)>();
+            var beforeAfterLogs = new List<(string previousDataKey, string newDataKey, string newFullName)>();
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(
@@ -346,12 +269,12 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             status.Message.ShouldStartWith("WARNING: Call SaveChangesAsync on the provided DbContext");
-            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey)>
+            beforeAfterLogs.ShouldEqual(new List<(string previousDataKey, string newDataKey, string newFullName)>
             {
-                (".1.3", ".3"), 
-                (".1.3.4", ".3.4"), 
-                (".1.3.4.8", ".3.4.8"), 
-                (".1.3.4.9", ".3.4.9")
+                (".1.3", ".3", "East Coast"), 
+                (".1.3.4", ".3.4", "East Coast | New York"), 
+                (".1.3.4.8", ".3.4.8", "East Coast | New York | Shop3"), 
+                (".1.3.4.9", ".3.4.9", "East Coast | New York | Shop4")
             });
             status.Result.SaveChanges();
 

@@ -210,20 +210,20 @@ namespace AuthPermissions.AdminCode.Services
         /// <summary>
         /// This moves a hierarchical tenant to a new parent (which might be null)
         /// This changes the TenantFullName and the TenantDataKey of the selected tenant and all of its children
-        /// WARNING: If the tenants have data in your database, then you need to change their DataKey using the <see param="getOldNewDataKey"/> action.
+        /// WARNING: If the tenants have data in your database, then you need to change their DataKey using the <see param="getOldNewData"/> action.
         /// </summary>
         /// <param name="tenantToMoveId">Primary key of the tenant to move to another parent</param>
         /// <param name="parentTenantId">Primary key of the new parent, if 0 then you move the tenant to </param>
-        /// <param name="getOldNewDataKey">This action is called at every tenant that is moved.
-        /// This allows you to obtains the previous DataKey and the new DataKey of every tenant that was moved so that you can move the data</param>
-        /// Providing an action will also stops SaveChangesAsync being called so that you can
+        /// <param name="getOldNewData">This action is called at every tenant that is moved.
+        /// This allows you to obtains the previous DataKey, the new DataKey and the fullname of every tenant that was moved
+        /// so that you can move the data</param>
         /// <returns>
-        /// Returns a status, which has the current AuthPermissionsDbContext, if the <see param="getOldNewDataKey"/> is provided.
+        /// Returns a status, which has the current AuthPermissionsDbContext, if the <see param="getOldNewData"/> is provided.
         /// This allows you to call the SaveChangesAsync within your 
         /// </returns>
         public async Task<IStatusGeneric<AuthPermissionsDbContext>> MoveHierarchicalTenantToAnotherParentAsync(
             int tenantToMoveId, int parentTenantId, 
-            Action<(string previousDataKey, string newDataKey)> getOldNewDataKey)
+            Action<(string previousDataKey, string newDataKey, string newFullName)> getOldNewData)
         {
             var status = new StatusGenericHandler<AuthPermissionsDbContext> { };
 
@@ -258,7 +258,7 @@ namespace AuthPermissions.AdminCode.Services
                     return status.AddError("You cannot move a tenant one of its children.", nameof(parentTenantId).CamelToPascal());
             }
 
-            existingTenantWithChildren.MoveTenantToNewParent(parentTenant, getOldNewDataKey);
+            existingTenantWithChildren.MoveTenantToNewParent(parentTenant, getOldNewData);
 
             status.Message = "WARNING: Call SaveChangesAsync on the provided DbContext to update the " +
                              "AuthP database once you have updated the DataKey on the moved data.";
