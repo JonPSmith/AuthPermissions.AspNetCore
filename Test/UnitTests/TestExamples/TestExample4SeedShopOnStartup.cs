@@ -48,7 +48,7 @@ namespace Test.UnitTests.TestExamples
             await service.CreateShopsAndSeedStockAsync("Shop1: Flower dress|50, Tiny dress|22");
 
             //VERIFY
-            context.RetailOutlets.Select(x => x.ShortName)
+            context.RetailOutlets.Select(x => x.ShortName).ToList()
                 .OrderBy(x => x).ToArray()
                 .ShouldEqual(new[] { "Shop1", "Shop2", "Shop3", "Shop4" });
         }

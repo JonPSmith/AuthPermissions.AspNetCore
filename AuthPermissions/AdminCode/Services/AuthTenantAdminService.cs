@@ -10,7 +10,6 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using StatusGeneric;
 
 namespace AuthPermissions.AdminCode.Services
@@ -78,8 +77,6 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>A list of child tenants for this tenant (can be empty)</returns>
         public async Task<List<Tenant>> GetHierarchicalTenantChildrenViaIdAsync(int tenantId)
         {
-            var status = new StatusGenericHandler<List<Tenant>>();
-
             var tenant = await _context.Tenants
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
             if (tenant == null)
@@ -94,7 +91,6 @@ namespace AuthPermissions.AdminCode.Services
                 .Where(x => x.TenantFullName.StartsWith(tenant.TenantFullName) && 
                             x.TenantId != tenantId)
                 .ToListAsync();
-
         }
 
         /// <summary>
@@ -107,8 +103,8 @@ namespace AuthPermissions.AdminCode.Services
             var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
             if (_tenantType != TenantTypes.SingleLevel)
-                return status.AddError(
-                    $"You cannot add a single tenant because the tenant configuration is {_tenantType}", nameof(tenantName).CamelToPascal());
+                throw new AuthPermissionsException(
+                    $"You cannot add a single tenant  because the tenant configuration is {_tenantType}");
 
             _context.Add(new Tenant(tenantName));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -124,11 +120,11 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>A status with any errors found</returns>
         public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId)
         {
-            var status = new StatusGenericHandler {  };
+            var status = new StatusGenericHandler();
 
             if (_tenantType != TenantTypes.HierarchicalTenant)
-                return status.AddError(
-                    $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}", nameof(tenantName).CamelToPascal());
+                throw new AuthPermissionsException(
+                    $"You must set the {nameof(AuthPermissionsOptions.TenantType)} before you can use tenants");
             if (tenantName.Contains('|'))
                 return status.AddError(
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
@@ -164,10 +160,6 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName)
         {
             var status = new StatusGenericHandler();
-
-            if (_tenantType == TenantTypes.NotUsingTenants)
-                return status.AddError(
-                    "You haven't configured the TenantType in the configuration.");
 
             if (string.IsNullOrEmpty(newTenantName))
                 return status.AddError("The new name was empty", nameof(newTenantName).CamelToPascal());
@@ -228,7 +220,7 @@ namespace AuthPermissions.AdminCode.Services
             var status = new StatusGenericHandler<AuthPermissionsDbContext> { };
 
             if (_tenantType != TenantTypes.HierarchicalTenant)
-                return status.AddError(
+                throw new AuthPermissionsException(
                     $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}");
 
             if (tenantToMoveId == parentTenantId)
