@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore.JwtTokenCode;
+using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.CommonCode;
 using AuthPermissions.PermissionsCode;
 using Example2.WebApiWithToken.IndividualAccounts.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -107,6 +109,21 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
                 return result.updatedTokens;
 
             return StatusCode(result.HttpStatusCode);
+        }
+
+        /// <summary>
+        /// This will mark the JST refresh as used, so the user cannot refresh the JWT Token
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPost]
+        [Route("logout")]
+        public async Task<ActionResult> Logout([FromServices]IDisableJwtRefreshToken service)
+        {
+            var userId = User.Claims.GetUserIdFromClaims();
+            await service.MarkJwtRefreshTokenAsUsedAsync(userId);
+
+            return Ok();
         }
 
         /// <summary>
