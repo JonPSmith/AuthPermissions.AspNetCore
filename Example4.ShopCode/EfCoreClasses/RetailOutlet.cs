@@ -19,6 +19,7 @@ namespace Example4.ShopCode.EfCoreClasses
             if (authPTenant == null) throw new ArgumentNullException(nameof(authPTenant));
 
             FullName = authPTenant.TenantFullName;
+            ShortName = Tenant.ExtractEndLeftTenantName(FullName);
             DataKey = authPTenant.GetTenantDataKey();
             AuthPTenantId = authPTenant.TenantId;
         }
@@ -30,7 +31,7 @@ namespace Example4.ShopCode.EfCoreClasses
         /// </summary>
         public string FullName { get; private set; }
 
-        public string ShortName => Tenant.ExtractEndLeftTenantName(FullName);
+        public string ShortName { get; private set; }
 
         /// <summary>
         /// This contains the datakey from the AuthP's Tenant
@@ -42,5 +43,17 @@ namespace Example4.ShopCode.EfCoreClasses
         /// It this happens the DataKey and the FullName will change, so you need to update the RetailOutlet
         /// </summary>
         public int AuthPTenantId { get; private set; }
+
+        //------------------------------------------------------------------------------
+        //access methods
+
+        public void UpdateNames(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName))
+                throw new ArgumentException("The FullName cannot be null or empty");
+
+            FullName = fullName;
+            ShortName = Tenant.ExtractEndLeftTenantName(FullName);
+        }
     }
 }

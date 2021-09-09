@@ -3,13 +3,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SetupCode.Factories;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using StatusGeneric;
 
 namespace AuthPermissions.AdminCode.Services
@@ -20,6 +27,10 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthTenantAdminService : IAuthTenantAdminService
     {
         private readonly AuthPermissionsDbContext _context;
+        private readonly AuthPermissionsOptions _options;
+        private readonly IAuthPServiceFactory<ITenantChangeService> _tenantChangeServiceFactory;
+        private readonly ILogger _logger;
+
         private readonly TenantTypes _tenantType;
 
         /// <summary>
@@ -27,9 +38,18 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        public AuthTenantAdminService(AuthPermissionsDbContext context, AuthPermissionsOptions options)
+        /// <param name="tenantChangeServiceFactory"></param>
+        /// <param name="logger"></param>
+        public AuthTenantAdminService(AuthPermissionsDbContext context, 
+            AuthPermissionsOptions options, 
+            IAuthPServiceFactory<ITenantChangeService> tenantChangeServiceFactory,
+            ILogger<AuthTenantAdminService> logger)
         {
             _context = context;
+            _options = options;
+            _tenantChangeServiceFactory = tenantChangeServiceFactory;
+            _logger = logger;
+
             _tenantType = options.TenantType;
         }
 
@@ -88,8 +108,7 @@ namespace AuthPermissions.AdminCode.Services
             return await _context.Tenants
                 .Include(x => x.Parent)
                 .Include(x => x.Children)
-                .Where(x => x.TenantFullName.StartsWith(tenant.TenantFullName) && 
-                            x.TenantId != tenantId)
+                .Where(x => x.ParentDataKey.StartsWith(tenant.GetTenantDataKey()))
                 .ToListAsync();
         }
 
@@ -168,32 +187,71 @@ namespace AuthPermissions.AdminCode.Services
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
                         nameof(newTenantName).CamelToPascal());
 
-            var tenant = await _context.Tenants
-                .SingleOrDefaultAsync(x => x.TenantId == tenantId);
+            var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            if (tenant == null)
-                return status.AddError("Could not find the tenant you were looking for.");
+            var sqlConnection = GetSqlConnectionWithChecks();
 
-            if (tenant.IsHierarchical)
+            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
+            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
+
+            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
             {
-                //We need to load the children and this is the simplest way to do that
-                var tenantsWithChildren = await _context.Tenants
-                    .Include(x => x.Parent)
-                    .Include(x => x.Children)
-                    .Where(x => x.TenantFullName.StartsWith(tenant.TenantFullName))
-                    .ToListAsync();
+                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
+                
+                var tenant = await tempAuthContext.Tenants
+                    .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
-                var existingTenantWithChildren = tenantsWithChildren
-                    .Single(x => x.TenantId == tenantId);
+                if (tenant == null)
+                    return status.AddError("Could not find the tenant you were looking for.");
 
-                existingTenantWithChildren.UpdateTenantName(newTenantName);
+                if (tenant.IsHierarchical)
+                {
+                    //We need to load the main tenant and any children and this is the simplest way to do that
+                    var tenantsWithChildren = await tempAuthContext.Tenants
+                        .Include(x => x.Parent)
+                        .Include(x => x.Children)
+                        .Where(x => x.TenantFullName.StartsWith(tenant.TenantFullName))
+                        .ToListAsync();
+
+                    var existingTenantWithChildren = tenantsWithChildren
+                        .Single(x => x.TenantId == tenantId);
+
+                    existingTenantWithChildren.UpdateTenantName(newTenantName);
+
+                    foreach (var tenantToUpdate in tenantsWithChildren)
+                    {
+                        var errorString = await tenantChangeService.HandleUpdateNameAsync(appContext, tenantToUpdate.GetTenantDataKey(),
+                            tenantToUpdate.TenantId, tenantToUpdate.TenantFullName);
+                        if (errorString != null)
+                            return status.AddError(errorString);
+                    }
+                }
+                else
+                {
+                    tenant.UpdateTenantName(newTenantName);
+
+                    var errorString = await tenantChangeService.HandleUpdateNameAsync(appContext, tenant.GetTenantDataKey(),
+                        tenant.TenantId,
+                        tenant.TenantFullName);
+                    if (errorString != null)
+                        return status.AddError(errorString);
+                }
+
+                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+
+                if (status.IsValid)
+                    await transaction.CommitAsync();
             }
-            else
+            catch (Exception e)
             {
-                tenant.UpdateTenantName(newTenantName);
-            }
+                if (_logger == null)
+                    throw;
 
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                _logger.LogError(e, $"Failed to {status.Message}");
+                return status.AddError(
+                    "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
+            }
             status.Message = $"Successfully updated the tenant name to '{newTenantName}'.";
 
             return status;
@@ -259,76 +317,142 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This will delete the tenant (and all its children if the data is hierarchical
-        /// WARNING: This method does NOT delete the data in your application. You need to do that using the DataKey returned in the status Result
+        /// This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="ITenantChangeService"/>
+        /// you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService"/> to delete the application's tenant data
         /// </summary>
-        /// <param name="tenantId">The primary key of the tenant you want to </param>
-        /// <param name="getDeletedTenantData">This action is called for each tenant that was deleted to tell you what has been deleted.
-        /// You can either use the DataKeys to delete the multi-tenant data, 
-        /// or don't delete the data (because it can't be accessed anyway) but show it to the admin user in case you want to re-link it to new tenants</param>
-        /// <returns>Status</returns>
-        public async Task<IStatusGeneric> DeleteTenantAsync(int tenantId,
-            Action<(string fullTenantName, string dataKey)> getDeletedTenantData)
+        /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
+        public async Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericHandler<ITenantChangeService>();
+            string message;
 
-            var tenantToDelete = await _context.Tenants
-                .SingleOrDefaultAsync(x => x.TenantId == tenantId);
+            var tenantChangeService = _tenantChangeServiceFactory.GetService();
+            status.SetResult(tenantChangeService);
 
-            if (tenantToDelete == null)
-                return status.AddError("Could not find the tenant you were looking for.");
+            var sqlConnection = GetSqlConnectionWithChecks();
 
-            var allTenantIdsAffectedByThisDelete = await _context.Tenants
-                .Include(x => x.Parent)
-                .Include(x => x.Children)
-                .Where(x => x.TenantFullName.StartsWith(tenantToDelete.TenantFullName))
-                .Select(x => x.TenantId)
-                .ToListAsync();
+            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
+            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
 
-            var usersOfThisTenant = await _context.AuthUsers.Where(x => allTenantIdsAffectedByThisDelete.Contains(x.TenantId  ?? 0))
-                .Select(x => x.UserName ?? x.Email)
-                .ToListAsync();
-
-            var tenantOrChildren = allTenantIdsAffectedByThisDelete.Count > 1
-                ? "tenant or its children tenants are"
-                : "tenant is";
-            if (usersOfThisTenant.Any())
-                usersOfThisTenant.ForEach(x => status.AddError($"This delete is aborted because this {tenantOrChildren} linked to the user '{x}'."));
-
-            if (status.HasErrors)
-                return status;
-
-            //Get the DataKey to send back
-            getDeletedTenantData.Invoke((tenantToDelete.TenantFullName, tenantToDelete.GetTenantDataKey()));
-
-            var message = $"Successfully deleted the tenant called '{tenantToDelete.TenantFullName}'";
-            if (tenantToDelete.IsHierarchical)
+            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
             {
-                //need to delete all the tenants that have the 
-                var children = await _context.Tenants
-                    .Where(x => x.ParentDataKey.StartsWith(tenantToDelete.GetTenantDataKey()))
+                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
+
+                var tenantToDelete = await tempAuthContext.Tenants
+                    .SingleOrDefaultAsync(x => x.TenantId == tenantId);
+
+                if (tenantToDelete == null)
+                    return status.AddError("Could not find the tenant you were looking for.");
+
+                var allTenantIdsAffectedByThisDelete = await tempAuthContext.Tenants
+                    .Include(x => x.Parent)
+                    .Include(x => x.Children)
+                    .Where(x => x.TenantFullName.StartsWith(tenantToDelete.TenantFullName))
+                    .Select(x => x.TenantId)
                     .ToListAsync();
 
-                foreach (var tenant in children)
+                var usersOfThisTenant = await tempAuthContext.AuthUsers
+                    .Where(x => allTenantIdsAffectedByThisDelete.Contains(x.TenantId ?? 0))
+                    .Select(x => x.UserName ?? x.Email)
+                    .ToListAsync();
+
+                var tenantOrChildren = allTenantIdsAffectedByThisDelete.Count > 1
+                    ? "tenant or its children tenants are"
+                    : "tenant is";
+                if (usersOfThisTenant.Any())
+                    usersOfThisTenant.ForEach(x =>
+                        status.AddError(
+                            $"This delete is aborted because this {tenantOrChildren} linked to the user '{x}'."));
+
+                if (status.HasErrors)
+                    return status;
+
+                message = $"Successfully deleted the tenant called '{tenantToDelete.TenantFullName}'";
+
+                if (tenantToDelete.IsHierarchical)
                 {
-                    getDeletedTenantData((tenant.TenantFullName, tenant.GetTenantDataKey()));
+                    //need to delete all the tenants that starts with the main tenant DataKey
+                    //We order the tenants with the children first in case a higher level links to a higher level
+                    var children = await tempAuthContext.Tenants
+                        .Where(x => x.ParentDataKey.StartsWith(tenantToDelete.GetTenantDataKey()))
+                        .OrderByDescending(x => x.TenantFullName.Length)
+                        .ToListAsync();
+
+                    foreach (var tenant in children)
+                    {
+                        var childError = await tenantChangeService.HandleTenantDeleteAsync(appContext, tenant.GetTenantDataKey(),
+                            tenant.TenantId,
+                            tenant.TenantFullName);
+                        if (childError != null)
+                            return status.AddError(childError);
+                    }
+
+                    if (children.Count > 0)
+                    {
+                        tempAuthContext.RemoveRange(children);
+                        message += $" and its {children.Count} linked tenants";
+                    }
                 }
-                if (children.Count > 0)
-                {
-                    _context.RemoveRange(children);
-                    message += $" and its {children.Count} linked tenants";
-                }
+
+                //Finally we delete the tenant that the user defines
+                var mainError = await tenantChangeService.HandleTenantDeleteAsync(appContext, tenantToDelete.GetTenantDataKey(),
+                    tenantToDelete.TenantId,
+                    tenantToDelete.TenantFullName);
+                if (mainError != null)
+                    return status.AddError(mainError);
+                tempAuthContext.Remove(tenantToDelete);
+
+                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+
+                if (status.IsValid)
+                    await transaction.CommitAsync();
             }
+            catch (Exception e)
+            {
+                if (_logger == null)
+                    throw;
 
-            //now delete the actual tenant
-            _context.Remove(tenantToDelete);
-
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                _logger.LogError(e, $"Failed to {status.Message}");
+                return status.AddError(
+                    "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
+            }
 
             status.Message = message + ".";
             return status;
         }
 
+        //----------------------------------------------------------
+        // private methods
 
+        private SqlConnection GetSqlConnectionWithChecks([CallerMemberName] string callingMethod = "")
+        {
+            //when unit testing with Sqlite in-memory we use the given context, so no checks
+            if (_context.Database.IsSqlite())
+                return null;
+
+            var sqlConnection = new SqlConnection(_options.AppConnectionString ?? throw new AuthPermissionsException(
+                $"You must set the {nameof(AuthPermissionsOptions.AppConnectionString)} to your application's connection string to use {callingMethod}."));
+            if (sqlConnection.ConnectionString != _context.Database.GetConnectionString())
+                throw new AuthPermissionsException(
+                    $"For the tenant method {callingMethod} to work your application data has to be in the same database as the AuthP data.");
+
+            return sqlConnection;
+        }
+
+        //NOTE: when we have multiple database types, then need to pull all creation of a AuthPermissionsDbContext into one place
+        private AuthPermissionsDbContext CreateAuthPermissionsDbContext(SqlConnection sqlConnection)
+        {
+            //when unit testing with Sqlite in-memory we use the given context
+            if (_context.Database.IsSqlite())
+                return _context;
+
+            var options = new DbContextOptionsBuilder<AuthPermissionsDbContext>()
+                .UseSqlServer(sqlConnection, dbOptions =>
+                dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
+            EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
+
+            return new AuthPermissionsDbContext(options.Options);
+        }
     }
 }

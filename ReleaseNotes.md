@@ -1,8 +1,17 @@
 # Release Notes
 
+
 ## 1.2.0
 
+- TODO Example4
+  - Handle tenant name change (update Retail)
+  - Handle delete tenant
+  - Handle move tenant
+  - Add Example3 - single level multi-tenant example app
+
+- BREAKING CHANGE: Different AuthTenantAdminService to be more useful
 - Improvements to AuthUsersAdminService for hierarchical move/delete
+
 
 ## 1.1.0
 

@@ -86,15 +86,10 @@ namespace AuthPermissions.AdminCode
             Action<(string previousDataKey, string newDataKey, string newFullName)> getOldNewData);
 
         /// <summary>
-        /// This will delete the tenant (and all its children if the data is hierarchical
-        /// WARNING: This method does NOT delete the data in your application. You need to do that using the DataKey returned in the status Result
+        /// This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="ITenantChangeService"/>
+        /// you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService"/> to delete the application's tenant data
         /// </summary>
-        /// <param name="tenantId">The primary key of the tenant you want to </param>
-        /// <param name="getDeletedTenantData">This action is called for each tenant that was deleted to tell you what has been deleted.
-        /// You can either use the DataKeys to delete the multi-tenant data, 
-        /// or don't delete the data (because it can't be accessed anyway) but show it to the admin user in case you want to re-link it to new tenants</param>
-        /// <returns>Status</returns>
-        Task<IStatusGeneric> DeleteTenantAsync(int tenantId,
-            Action<(string fullTenantName, string dataKey)> getDeletedTenantData);
+        /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
+        Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId);
     }
 }

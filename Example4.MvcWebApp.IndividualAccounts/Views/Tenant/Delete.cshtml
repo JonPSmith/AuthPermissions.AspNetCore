@@ -4,7 +4,7 @@
     ViewData["Title"] = "Delete";
 }
 
-<div class="h3">Delete the <span class="h2">@Model.TenantName</span> tenant?</div>
+<div class="h3">Delete the <span class="h2">@Model.TenantName</span> tenant and all its data</div>
 <h3>Are you sure you want to delete this?</h3>
 
 @if (Model.ListOfTenants.Any())
@@ -18,12 +18,7 @@
     </ul>
 }
 
-<h4 class="text-danger">WARNING: This command is very powerful. Please consider what you are doing.</h4>
-
-<p>
-    The design of this delete is that the data linked to the tenant(s) aren't be deleted.
-    You will see a page after the delete has finished which tells you what the data was linked to and the data's DataKey
-</p>
+<h4 class="text-danger">WARNING: This will delete the tenant and its data.</h4>
 
 <div>
     <hr />

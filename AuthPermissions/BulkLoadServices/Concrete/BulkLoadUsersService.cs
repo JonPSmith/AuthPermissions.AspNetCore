@@ -29,12 +29,12 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         /// Ctor
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="findUserInfoServicefactory"></param>
+        /// <param name="findUserInfoServiceFactory"></param>
         /// <param name="options"></param>
-        public BulkLoadUsersService(AuthPermissionsDbContext context, IAuthPServiceFactory<IFindUserInfoService> findUserInfoServicefactory, AuthPermissionsOptions options)
+        public BulkLoadUsersService(AuthPermissionsDbContext context, IAuthPServiceFactory<IFindUserInfoService> findUserInfoServiceFactory, AuthPermissionsOptions options)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            _findUserInfoServiceFactory = findUserInfoServicefactory;
+            _findUserInfoServiceFactory = findUserInfoServiceFactory;
             _options = options;
         }
 

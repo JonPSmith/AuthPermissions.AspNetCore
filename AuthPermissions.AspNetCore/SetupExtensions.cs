@@ -107,7 +107,7 @@ namespace AuthPermissions.AspNetCore
         private static void RegisterCommonServices(this AuthSetupData setupData)
         {
             //Internal services
-            setupData.Services.AddSingleton<AuthPermissionsOptions>(setupData.Options);
+            setupData.Services.AddSingleton(setupData.Options);
             setupData.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
             setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
@@ -119,6 +119,7 @@ namespace AuthPermissions.AspNetCore
             //The factories for the optional services
             setupData.Services.AddTransient<IAuthPServiceFactory<ISyncAuthenticationUsers>, SyncAuthenticationUsersFactory>();
             setupData.Services.AddTransient<IAuthPServiceFactory<IFindUserInfoService>, FindUserInfoServiceFactory>();
+            setupData.Services.AddTransient<IAuthPServiceFactory<ITenantChangeService>, TenantChangeServiceFactory>();
 
             //Admin services
             setupData.Services.AddTransient<IAuthRolesAdminService, AuthRolesAdminService>();

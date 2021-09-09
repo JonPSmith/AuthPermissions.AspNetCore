@@ -35,7 +35,7 @@ namespace Test.UnitTests.TestExamples
             using var authPContext = new AuthPermissionsDbContext(authPOptions);
             authPContext.Database.EnsureCreated();
             await authPContext.SetupHierarchicalTenantInDb();
-            var tenantService = new AuthTenantAdminService(authPContext, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+            var tenantService = new AuthTenantAdminService(authPContext, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant}, null, null);
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();
             //var rOptions = this.CreateUniqueClassOptions<RetailDbContext>();
@@ -61,7 +61,7 @@ namespace Test.UnitTests.TestExamples
             using var authPContext = new AuthPermissionsDbContext(authPOptions);
             authPContext.Database.EnsureCreated();
             await authPContext.SetupHierarchicalTenantInDb();
-            var tenantService = new AuthTenantAdminService(authPContext, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant });
+            var tenantService = new AuthTenantAdminService(authPContext, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant}, null, null);
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();
             //var rOptions = this.CreateUniqueClassOptions<RetailDbContext>();

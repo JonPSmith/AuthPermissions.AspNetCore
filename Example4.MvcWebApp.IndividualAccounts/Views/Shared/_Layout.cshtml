@@ -14,7 +14,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Example4.MvcWebApp.IndividualAccounts</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Example4</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -24,6 +24,27 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        @if (User.HasPermission(Example4Permissions.StockRead))
+                        {
+                            <li class="nav-item">
+                                <div class="dropdown">
+                                    <a class="nav-link text-dark dropdown-toggle" role="button" id="dropdown1MenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Shop
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdown1MenuButton">
+                                        @if (User.HasPermission(Example4Permissions.SalesSell))
+                                        {
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Till">Till</a>
+                                        }
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Stock">Stock</a>
+                                        @if (User.HasPermission(Example4Permissions.SalesRead))
+                                        {
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Sales">Sales</a>
+                                        }
+                                    </div>
+                                </div>
+                            </li>
+                        }
                         <li class="dropdown nav-link text-dark">
                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                 Auth Admin
@@ -45,27 +66,6 @@
                                 <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="UserPermissions">Your Permissions</a>
                             </div>
                         </li>
-                        @if (User.HasPermission(Example4Permissions.SalesRead))
-                        {
-                            <li class="nav-item">
-                                <div class="dropdown">
-                                    <a class="nav-link text-dark dropdown-toggle" role="button" id="dropdown1MenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Shop
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="dropdown1MenuButton">
-                                        @if (User.HasPermission(Example4Permissions.SalesSell))
-                                        {
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Till">Till</a>
-                                        }
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Stock">Stock</a>
-                                        @if (User.HasPermission(Example4Permissions.SalesRead))
-                                        {
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Sales">Sales</a>
-                                        }
-                                    </div>
-                                </div>
-                            </li>
-                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>

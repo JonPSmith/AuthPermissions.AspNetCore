@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.AdminCode;
 using AuthPermissions.SetupCode;
 
 namespace AuthPermissions
@@ -17,6 +18,12 @@ namespace AuthPermissions
         /// Defaults no using tenants
         /// </summary>
         public TenantTypes TenantType { get; set; }
+
+        /// <summary>
+        /// You should set this property to your application's ConnectionString if you are using Tenants
+        /// It's used with the <see cref="ITenantChangeService"/> to update, move, or delete the tenant data in your application
+        /// </summary>
+        public string AppConnectionString { get; set; }
 
         /// <summary>
         /// This is where you configure the JwtToken

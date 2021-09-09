@@ -51,9 +51,11 @@ namespace Example4.MvcWebApp.IndividualAccounts
             services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
+                    options.AppConnectionString = Configuration.GetConnectionString("DefaultConnection");
                 })
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection")) 
+                .RegisterTenantChangeService<RetailTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
                 .AddAuthUsersIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)

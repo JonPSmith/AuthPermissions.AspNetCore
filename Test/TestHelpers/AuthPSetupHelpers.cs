@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
-using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
@@ -15,7 +14,7 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers
 {
-    public static class SetupHelpers
+    public static class AuthPSetupHelpers
     {
         public static AuthPJwtConfiguration CreateTestJwtSetupData(TimeSpan expiresIn = default)
         {

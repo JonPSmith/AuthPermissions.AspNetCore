@@ -42,7 +42,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
-                SetupHelpers.TestUserDefineWithUserId());
+                AuthPSetupHelpers.TestUserDefineWithUserId());
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 
@@ -70,7 +70,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
-                SetupHelpers.TestUserDefineNoUserId());
+                AuthPSetupHelpers.TestUserDefineNoUserId());
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 
@@ -97,7 +97,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadUsersService(context, new StubIFindUserInfoFactory(true), new AuthPermissionsOptions());
 
             //ATTEMPT
-            var status = await service.AddUsersRolesToDatabaseAsync(SetupHelpers.TestUserDefineNoUserId(null));
+            var status = await service.AddUsersRolesToDatabaseAsync(AuthPSetupHelpers.TestUserDefineNoUserId(null));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -120,7 +120,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
-                SetupHelpers.TestUserDefineWithUserId(""));
+                AuthPSetupHelpers.TestUserDefineWithUserId(""));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -143,7 +143,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
-                SetupHelpers.TestUserDefineWithUserId("Role99"));
+                AuthPSetupHelpers.TestUserDefineWithUserId("Role99"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -167,7 +167,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
-                SetupHelpers.TestUserDefineWithTenants());
+                AuthPSetupHelpers.TestUserDefineWithTenants());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -192,7 +192,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
-                SetupHelpers.TestUserDefineWithTenants("Tenant99"));
+                AuthPSetupHelpers.TestUserDefineWithTenants("Tenant99"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -216,7 +216,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //ATTEMPT
             var status = await service.AddUsersRolesToDatabaseAsync(
-                SetupHelpers.TestUserDefineWithTenants(null));
+                AuthPSetupHelpers.TestUserDefineWithTenants(null));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());

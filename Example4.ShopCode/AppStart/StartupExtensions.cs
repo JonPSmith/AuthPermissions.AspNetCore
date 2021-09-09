@@ -1,12 +1,8 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Reflection;
-using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.CommonCode;
 using Example4.ShopCode.EfCoreCode;
 using ExamplesCommonCode.DemoSetupCode;
-using GenericServices.Setup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

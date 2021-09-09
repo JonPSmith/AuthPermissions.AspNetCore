@@ -29,7 +29,7 @@ namespace Test.UnitTests.TestAuthPermissions
                 _context = context;
 
                 var options = new AuthPermissionsOptions
-                    {ConfigureAuthPJwtToken = SetupHelpers.CreateTestJwtSetupData(expiresIn)};
+                    {ConfigureAuthPJwtToken = AuthPSetupHelpers.CreateTestJwtSetupData(expiresIn)};
                 AuthPJwtConfiguration = options.ConfigureAuthPJwtToken;
                 var claimsCalc = new StubClaimsCalculator("This:That");
                 var logger = new Logger<TokenBuilder>(new LoggerFactory(new[] { new MyLoggerProviderActionOut(Logs.Add) }));

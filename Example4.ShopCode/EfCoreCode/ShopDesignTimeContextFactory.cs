@@ -38,6 +38,7 @@ namespace Example4.ShopCode.EfCoreCode
     * 2. Using Package Manager Console commands
     * The steps are:
     * a) Make sure the default project is Example4.ShopCode
+    * b) Set the Example4 project as the startup project
     * b) Use the PMC command
     *    Add-Migration Initial -Context RetailDbContext -OutputDir EfCoreCode/Migrations
     * c) Don't migrate the database using the Update-database, but use the AddDatabaseOnStartup extension

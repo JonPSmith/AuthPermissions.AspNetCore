@@ -124,15 +124,12 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantDelete)]
         public async Task<IActionResult> Delete(TenantDto input)
         {
-            var deleteInfo = new List<(string fullTenantName, string dataKey)>();
-            var status = await _authTenantAdmin
-                .DeleteTenantAsync(input.TenantId, (tuple => deleteInfo.Add(tuple)));
+            var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
 
-            if (status.HasErrors)
-                return RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = status.GetAllErrors() });
-
-            return View("DeleteConfirm", new TenantDeleteInfo(status.Message, deleteInfo));
+            return status.HasErrors
+                ? RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() })
+                : RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

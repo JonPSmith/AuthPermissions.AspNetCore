@@ -43,5 +43,23 @@ namespace AuthPermissions
 
             return setupData;
         }
+
+        /// <summary>
+        /// Use this to provide the <see cref="ITenantChangeService"/> service which AuthP uses to alter your tenant data when you call the
+        /// AuthP tenant's methods to Update, Move, or Delete a tenant
+        /// NOTE: You also have to set the AuthP's options <see cref="AuthPermissionsOptions.AppConnectionString"/> with the connection used
+        /// for your application DbContext. This is used to check that the AuthP entities and your application entities are in the same database.
+        /// </summary>
+        /// <typeparam name="TTenantChangeService"></typeparam>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData RegisterTenantChangeService<TTenantChangeService>(
+            this AuthSetupData setupData)
+            where TTenantChangeService : class, ITenantChangeService
+        {
+            setupData.Services.AddTransient<ITenantChangeService, TTenantChangeService>();
+
+            return setupData;
+        }
     }
 }

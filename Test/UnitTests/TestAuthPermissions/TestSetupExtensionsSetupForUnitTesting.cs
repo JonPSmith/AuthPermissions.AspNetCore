@@ -81,7 +81,7 @@ Role3: One";
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(lines)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
                 .SetupForUnitTestingAsync();
             var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
 
@@ -114,7 +114,7 @@ Tenant3";
                 .AddRolesPermissionsIfEmpty(rolesLines)
                 .AddTenantsIfEmpty(tenantLines)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithTenants())
+                .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithTenants())
                 .SetupForUnitTestingAsync();
             var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
 

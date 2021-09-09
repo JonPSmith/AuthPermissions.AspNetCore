@@ -14,7 +14,7 @@ namespace AuthPermissions.AspNetCore.Services
     /// from the applications authentication provider.
     /// This works for the Individual Accounts authentication provider
     /// </summary>
-    public partial class IndividualAccountUserLookup : IFindUserInfoService
+    public class IndividualAccountUserLookup : IFindUserInfoService
     {
         private readonly UserManager<IdentityUser> _userManager;
 

@@ -113,7 +113,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
                 .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -141,7 +141,7 @@ Role3: One")
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
-                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithUserId())
+                .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
                 .RegisterAuthenticationProviderReader<StubSyncAuthenticationUsersFactory.StubSyncAuthenticationUsers>()
                 .SetupAspNetCoreAndDatabase();
 
@@ -164,7 +164,7 @@ Role3: One")
                 .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
 Role2 |my description|: One, Two, Two, Three
 Role3: One")
-                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithSuperUser())
+                .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithSuperUser())
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCoreAndDatabase();
@@ -204,7 +204,7 @@ Role3: One")
 Tenant2
 Tenant3")
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddAuthUsersIfEmpty(SetupHelpers.TestUserDefineWithTenants())
+                .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithTenants())
                 .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
