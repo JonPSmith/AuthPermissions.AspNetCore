@@ -159,7 +159,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //SETUP
             using var contexts = new TenantChangeSqlServerSetup(this);
             var tenantIds = contexts.AuthPContext.SetupSingleTenantsInDb();
-            contexts.RetailDbContext.SetupRetailAndStock();
+            contexts.RetailDbContext.SetupSingleRetailAndStock();
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
@@ -205,7 +205,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 //VERIFY
                 status.IsValid.ShouldBeTrue(status.GetAllErrors());
-                var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).ReturnedTuples; 
+                var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples; 
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
                     ("Tenant2", ".2")
@@ -224,7 +224,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //SETUP
             using var contexts = new TenantChangeSqlServerSetup(this);
             var tenantIds = contexts.AuthPContext.SetupSingleTenantsInDb();
-            contexts.RetailDbContext.SetupRetailAndStock();
+            contexts.RetailDbContext.SetupSingleRetailAndStock();
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions

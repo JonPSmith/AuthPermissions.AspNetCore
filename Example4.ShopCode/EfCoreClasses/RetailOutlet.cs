@@ -47,6 +47,11 @@ namespace Example4.ShopCode.EfCoreClasses
         //------------------------------------------------------------------------------
         //access methods
 
+        public void UpdateDataKey(string newDataKey)
+        {
+            DataKey = newDataKey;
+        }
+
         public void UpdateNames(string fullName)
         {
             if (string.IsNullOrEmpty(fullName))

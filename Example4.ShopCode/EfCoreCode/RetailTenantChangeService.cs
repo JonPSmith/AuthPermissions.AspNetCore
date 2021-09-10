@@ -66,17 +66,60 @@ namespace Example4.ShopCode.EfCoreCode
         /// <param name="dataKey">The DataKey of the tenant</param>
         /// <param name="tenantId">The TenantId of the tenant</param>
         /// <param name="fullTenantName">The full name of the tenant</param>
-        /// <returns>Returns null if all OK, otherwise the delete is rolled back and the return string is shown to the user</returns>
+        /// <returns>Returns null if all OK, otherwise the update is rolled back and the return string is shown to the user</returns>
         public async Task<string> HandleUpdateNameAsync(DbContext appTransactionContext, string dataKey, int tenantId,
             string fullTenantName)
         {
-            //Higher hierarchical levels don't have data in this example, so it only tries to delete data if there is a RetailOutlet
+            //Higher hierarchical levels don't have data in this example
             var retailOutletToUpdate =
                 await appTransactionContext.Set<RetailOutlet>()
                     .IgnoreQueryFilters().SingleOrDefaultAsync(x => x.AuthPTenantId == tenantId);
 
-            retailOutletToUpdate.UpdateNames(fullTenantName);
-            await appTransactionContext.SaveChangesAsync();
+            if(retailOutletToUpdate != null)
+            {
+                retailOutletToUpdate.UpdateNames(fullTenantName);
+                await appTransactionContext.SaveChangesAsync();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// This is used with hierarchical tenants, where you move one tenant (and its children) to another tenant
+        /// This requires you to change the DataKeys of each application's tenant data, so they link to the new tenant.
+        /// Also, if you contain the name of the tenant in your data, then you need to update its new FullName
+        /// Notes:
+        /// - The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read
+        /// - You can get multiple calls if move a higher level 
+        /// </summary>
+        /// <param name="appTransactionContext"></param>
+        /// <param name="oldDataKey">The old DataKey to look for</param>
+        /// <param name="newDataKey">The new DataKey to change to</param>
+        /// <param name="tenantId">The TenantId of the tenant being moved</param>
+        /// <param name="newFullTenantName">The new full name of the tenant</param>
+        /// <returns>Returns null if all OK, otherwise the move is rolled back and the return string is shown to the user</returns>
+        public async Task<string> MoveTenantDataAsync(DbContext appTransactionContext, string oldDataKey,
+            string newDataKey,
+            int tenantId, string newFullTenantName)
+        {
+            //Higher hierarchical levels don't have data in this example, so it only tries to move data if there is a RetailOutlet
+            var retailOutletMove =
+                await appTransactionContext.Set<RetailOutlet>()
+                    .IgnoreQueryFilters().SingleOrDefaultAsync(x => x.AuthPTenantId == tenantId);
+            if (retailOutletMove != null)
+            {
+                //yes, its a shop so move all the stock / sales 
+                var moveSalesSql = $"UPDATE retail.{nameof(RetailDbContext.ShopSales)} " +
+                                     $"SET DataKey = '{newDataKey}' WHERE DataKey = '{oldDataKey}'";
+                await appTransactionContext.Database.ExecuteSqlRawAsync(moveSalesSql);
+                var moveStockSql = $"UPDATE retail.{nameof(RetailDbContext.ShopStocks)} " +
+                                     $"SET DataKey = '{newDataKey}' WHERE DataKey = '{oldDataKey}'";
+                await appTransactionContext.Database.ExecuteSqlRawAsync(moveStockSql);
+
+                retailOutletMove.UpdateNames(newFullTenantName);
+                retailOutletMove.UpdateDataKey(newDataKey);
+                await appTransactionContext.SaveChangesAsync();
+            }
 
             return null;
         }

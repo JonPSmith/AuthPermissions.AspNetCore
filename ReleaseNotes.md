@@ -11,7 +11,7 @@
 
 - BREAKING CHANGE: Different AuthTenantAdminService to be more useful
 - Improvements to AuthUsersAdminService for hierarchical move/delete
-
+- Updated Microsoft's NuGets to fix a security issue in example2
 
 ## 1.1.0
 

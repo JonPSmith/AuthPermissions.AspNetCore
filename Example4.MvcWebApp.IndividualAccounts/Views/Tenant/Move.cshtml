@@ -6,7 +6,7 @@
 
 <div class="h3">Moving the <span class="h2">@Model.TenantName</span> tenant to a different parent.</div>
 
-<h4 class="text-danger">WARNING: This command is very powerful. Please consider what you are about to do.</h4>
+<h4 class="text-danger">WARNING: This command locks the database during the move.</h4>
 
 <hr />
 <div class="row">
@@ -21,7 +21,7 @@
                     new { @class = "form-control" })
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Move" class="btn btn-primary" />
             </div>
         </form>
     </div>

@@ -95,17 +95,17 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantMove)]
         public async Task<IActionResult> Move(TenantDto input)
         {
-            var moveData = new List<(string previousDataKey, string newDataKey, string newFullName)>();
             var status = await _authTenantAdmin
-                .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId,
-                    (tuple => moveData.Add(tuple)));
+                .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-
-            return View("MoveConfirm", new TenantMoveInfo(status.Message, moveData)); ;
+            return status.HasErrors
+                ? RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() })
+                : RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
         [HasPermission(Example4Permissions.TenantDelete)]

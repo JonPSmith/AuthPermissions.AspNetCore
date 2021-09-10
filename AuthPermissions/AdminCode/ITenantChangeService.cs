@@ -44,5 +44,23 @@ namespace AuthPermissions.AdminCode
         /// <param name="fullTenantName">The full name of the tenant</param>
         /// <returns>Returns null if all OK, otherwise the delete is rolled back and the return string is shown to the user</returns>
         Task<string> HandleUpdateNameAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName);
+
+        /// <summary>
+        /// This is used with hierarchical tenants, where you move one tenant (and its children) to another tenant
+        /// This requires you to change the DataKeys of each application's tenant data, so they link to the new tenant.
+        /// Also, if you contain the name of the tenant in your data, then you need to update its new FullName
+        /// Notes:
+        /// - The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read
+        /// - You can get multiple calls if move a higher level
+        /// </summary>
+        /// <param name="appTransactionContext"></param>
+        /// <param name="oldDataKey">The old DataKey to look for</param>
+        /// <param name="newDataKey">The new DataKey to change to</param>
+        /// <param name="tenantId">The TenantId of the tenant being moved</param>
+        /// <param name="newFullTenantName">The new full name of the tenant</param>
+        /// <returns>Returns null if all OK, otherwise the move is rolled back and the return string is shown to the user</returns>
+        Task<string> MoveTenantDataAsync(DbContext appTransactionContext, string oldDataKey, string newDataKey,
+            int tenantId, string newFullTenantName);
+
     }
 }

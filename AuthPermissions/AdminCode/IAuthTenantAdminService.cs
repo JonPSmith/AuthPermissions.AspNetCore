@@ -1,12 +1,10 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.EfCode;
 using StatusGeneric;
 
 namespace AuthPermissions.AdminCode
@@ -19,7 +17,7 @@ namespace AuthPermissions.AdminCode
         /// <summary>
         /// This simply returns a IQueryable of Tenants
         /// </summary>
-        /// <returns>query on the database</returns>
+        /// <returns>query on the AuthP database</returns>
         IQueryable<Tenant> QueryTenants();
 
         /// <summary>
@@ -60,34 +58,29 @@ namespace AuthPermissions.AdminCode
         /// <summary>
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.
         /// This also means all the children underneath need to have their full name updated too
+        /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
+        /// to update the application's tenant data. You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
         /// </summary>
-        /// <param name="tenantId"></param>
-        /// <param name="newTenantName"></param>
+        /// <param name="tenantId">Primary key of the tenant to change</param>
+        /// <param name="newTenantName">This is the new name for this tenant name</param>
         /// <returns></returns>
         Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName);
 
-
         /// <summary>
-        /// This moves a hierarchical tenant to a new parent (which might be null)
-        /// This changes the TenantFullName and the TenantDataKey of the selected tenant and all of its children
-        /// WARNING: If the tenants have data in your database, then you need to change their DataKey using the <see param="getOldNewData"/> action.
+        /// This moves a hierarchical tenant to a new parent (which might be null). This changes the TenantFullName and the
+        /// TenantDataKey of the selected tenant and all of its children
+        /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
+        /// to move the application's tenant data. You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
         /// </summary>
-        /// <param name="tenantToMoveId">Primary key of the tenant to move to another parent</param>
-        /// <param name="parentTenantId">Primary key of the new parent, if 0 then you move the tenant to </param>
-        /// <param name="getOldNewData">This action is called at every tenant that is moved.
-        /// This allows you to obtains the previous DataKey, the new DataKey and the fullname of every tenant that was moved
-        /// so that you can move the data</param>
-        /// <returns>
-        /// Returns a status, which has the current AuthPermissionsDbContext, if the <see param="getOldNewData"/> is provided.
-        /// This allows you to call the SaveChangesAsync within your 
-        /// </returns>
-        Task<IStatusGeneric<AuthPermissionsDbContext>> MoveHierarchicalTenantToAnotherParentAsync(
-            int tenantToMoveId, int parentTenantId,
-            Action<(string previousDataKey, string newDataKey, string newFullName)> getOldNewData);
+        /// <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
+        /// <param name="parentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
+        /// <returns>status</returns>
+        Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(int tenantToMoveId, int parentTenantId);
 
         /// <summary>
         /// This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="ITenantChangeService"/>
-        /// you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService"/> to delete the application's tenant data
+        /// you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/> to delete the application's tenant data.
+        /// You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
         /// </summary>
         /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
         Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId);

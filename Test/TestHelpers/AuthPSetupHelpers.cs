@@ -82,7 +82,7 @@ Role3: Three";
             return new List<int> { t1.TenantId, t2.TenantId, t3.TenantId };
         }
 
-        public static async Task<List<int>> SetupHierarchicalTenantInDb(this AuthPermissionsDbContext context)
+        public static async Task<List<int>> SetupHierarchicalTenantInDbAsync(this AuthPermissionsDbContext context)
         {
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions {TenantType = TenantTypes.HierarchicalTenant};

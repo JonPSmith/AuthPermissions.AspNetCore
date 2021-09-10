@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.CommonCode;
 using StatusGeneric;
 
