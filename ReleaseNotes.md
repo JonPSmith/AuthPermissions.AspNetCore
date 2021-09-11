@@ -3,14 +3,10 @@
 
 ## 1.2.0
 
-- TODO Example4
-  - Handle tenant name change (update Retail)
-  - Handle delete tenant
-  - Handle move tenant
-  - Add Example3 - single level multi-tenant example app
+- TODO Add Example3 - single level multi-tenant example app
 
 - BREAKING CHANGE: Different AuthTenantAdminService to be more useful
-- Improvements to AuthUsersAdminService for hierarchical move/delete
+- Improvements to AuthUsersAdminService for rename, delete and hierarchical move
 - Updated Microsoft's NuGets to fix a security issue in example2
 
 ## 1.1.0
