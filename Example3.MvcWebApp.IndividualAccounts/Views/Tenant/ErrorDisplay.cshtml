@@ -1,0 +1,14 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "ErrorDisplay";
+}
+
+@foreach (var error in @Model.Split(Environment.NewLine))
+{
+    <h4 class="text-danger">@error</h4>
+}
+
+<div>
+    <a asp-action="Index">Back to home</a>
+</div>

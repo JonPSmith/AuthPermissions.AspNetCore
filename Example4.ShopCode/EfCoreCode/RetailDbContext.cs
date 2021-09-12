@@ -36,7 +36,7 @@ namespace Example4.ShopCode.EfCoreCode
             {
                 if (typeof(IDataKeyFilter).IsAssignableFrom(entityType.ClrType))
                 {
-                    entityType.AddStartsWithQueryFilter(this);
+                    entityType.AddHierarchicalTenantReadOnlyQueryFilter(this);
                 }
 
                 foreach (var mutableProperty in entityType.GetProperties())

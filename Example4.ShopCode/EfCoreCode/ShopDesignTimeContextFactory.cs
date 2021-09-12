@@ -11,6 +11,7 @@ namespace Example4.ShopCode.EfCoreCode
 {
     public class ShopDesignTimeContextFactory : IDesignTimeDbContextFactory<RetailDbContext>          
     {
+        // This connection links to an invalidate database, but that's OK as I only used the Add-Migration command
         private const string connectionString =
             "Server=(localdb)\\mssqllocaldb;Database=AuthPermissions;Trusted_Connection=True;MultipleActiveResultSets=true";
 

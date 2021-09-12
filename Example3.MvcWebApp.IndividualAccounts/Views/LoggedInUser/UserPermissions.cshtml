@@ -1,0 +1,29 @@
+﻿@model IEnumerable<string>
+
+@{
+    ViewData["Title"] = "UserPermissions";
+}
+
+
+@if (Model == null)
+{
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        <h3>This user is not in the AuthUser database.</h3>
+    }
+    else
+    {
+        <h3>No user logged in</h3>
+    }
+}
+else
+{
+    <h3>List of permissions for user @User.Identity.Name</h3>
+    <ul>
+        @foreach (var permissionName in Model)
+        {
+            <li>@permissionName</li>
+        }
+    </ul>
+
+}

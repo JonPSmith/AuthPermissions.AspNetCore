@@ -59,7 +59,7 @@ namespace Test.TestHelpers
                 return Task.FromResult(_errorMessage);
             }
 
-            public Task<string> MoveTenantDataAsync(DbContext appTransactionContext, string oldDataKey, string newDataKey, int tenantId,
+            public Task<string> MoveHierarchicalTenantDataAsync(DbContext appTransactionContext, string oldDataKey, string newDataKey, int tenantId,
                 string newFullTenantName)
             {
                 _factory.MoveReturnedTuples.Add((oldDataKey, newDataKey, tenantId, newFullTenantName));

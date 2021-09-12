@@ -4,7 +4,7 @@
 using Example4.ShopCode.EfCoreClasses;
 using GenericServices;
 
-namespace Example4.ShopCode.Shop
+namespace Example4.ShopCode.Dtos
 {
     public class ListSalesDto : ILinkToEntity<ShopSale>
     {

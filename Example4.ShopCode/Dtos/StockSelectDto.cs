@@ -4,15 +4,15 @@
 using Example4.ShopCode.EfCoreClasses;
 using GenericServices;
 
-namespace Example4.ShopCode.Shop
+namespace Example4.ShopCode.Dtos
 {
-    public class ListStockDto : ILinkToEntity<ShopStock>
+    public class StockSelectDto : ILinkToEntity<ShopStock>
     {
         public int ShopStockId { get; set; }
         public string StockName { get; set; }
         public decimal RetailPrice { get; set; }
         public int NumInStock { get; set; }
 
-        public string ShopShortName { get; set; }
+        public string DisplayText => $"{StockName}, {RetailPrice:C} ({NumInStock} left)";
     }
 }

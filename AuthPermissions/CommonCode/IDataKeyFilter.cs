@@ -7,6 +7,7 @@ namespace AuthPermissions.CommonCode
 {
     /// <summary>
     /// This is the interface used by the GetDataKeyFilterFromUser and <see cref="DataKeyQueryExtension"/>
+    /// Also used on entity classes where the DataKey isn't set by setting the DataKey directly
     /// </summary>
     public interface IDataKeyFilter
     {

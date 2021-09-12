@@ -1,0 +1,22 @@
+﻿@model System.Security.Claims.ClaimsPrincipal
+@{
+    ViewData["Title"] = "User";
+}
+
+<h1>Current logged in user claims</h1>
+
+@if (Model?.Identity.IsAuthenticated == true)
+{
+    <h4>User '@User.Identity.Name'</h4>
+    <ul>
+
+        @foreach (var claim in @Model.Claims)
+        {
+            <li>@claim.ToString()</li>
+        }
+    </ul>
+}
+else
+{
+    <h4>No user is logged in.</h4>
+}

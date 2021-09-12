@@ -13,8 +13,8 @@ using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Example4.ShopCode.AppStart;
+using Example4.ShopCode.Dtos;
 using Example4.ShopCode.EfCoreCode;
-using Example4.ShopCode.Shop;
 using ExamplesCommonCode.DemoSetupCode;
 using GenericServices.Setup;
 

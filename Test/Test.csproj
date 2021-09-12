@@ -46,6 +46,8 @@
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
     <ProjectReference Include="..\Example1.RazorPages.IndividualAccounts\Example1.RazorPages.IndividualAccounts.csproj" />
     <ProjectReference Include="..\Example2.WebApiWithToken.IndividualAccounts\Example2.WebApiWithToken.IndividualAccounts.csproj" />
+    <ProjectReference Include="..\Example3.InvoiceCode\Example3.InvoiceCode.csproj" />
+    <ProjectReference Include="..\Example3.MvcWebApp.IndividualAccounts\Example3.MvcWebApp.IndividualAccounts.csproj" />
     <ProjectReference Include="..\Example4.MvcWebApp.IndividualAccounts\Example4.MvcWebApp.IndividualAccounts.csproj" />
     <ProjectReference Include="..\Example4.ShopCode\Example4.ShopCode.csproj" />
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />

@@ -1,0 +1,62 @@
+﻿@model AppSummary
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1>Example3.MvcWebApp.IndividualAccounts</h1>
+</div>
+<p>
+    This example web application contains a lot of the AuthPermissions.AspNetCore library. They are:
+</p>
+<ul>
+    <li>It contains a more comprehensive set of AuthPermissions' roles and permissions.</li>
+    <li>It implements a <code>AuthUser</code> controller with control over the AuthPermissions' users.</li>
+    <li>It uses AuthPermissions' hierarchical multi-tenant feature to implement SaaS application for managing a shop's stock and sales.</li>
+</ul>
+<p>The list of articles below describe how AuthPermissions works.</p>
+<ul>
+    <li><a href="#">not written yet!</a></li>
+</ul>
+
+<h4>Application summary</h4>
+<ul>
+    <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.Application</li>
+    <li><strong>@nameof(AppSummary.AuthorizationProvider)</strong>:&nbsp;@Model.AuthorizationProvider</li>
+    <li><strong>@nameof(AppSummary.CookieOrToken)</strong>:&nbsp;@Model.CookieOrToken</li>
+    <li><strong>@nameof(AppSummary.MultiTenant)</strong>:&nbsp;@Model.MultiTenant</li>
+    <li>
+        <strong>@nameof(AppSummary.Databases)</strong>:&nbsp;
+        <ul>
+            @foreach (var database in Model.Databases)
+            {
+                <li>@database</li>
+            }
+        </ul>
+    </li>
+    @if (@Model.Note != null)
+    {
+        <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.Note</li>
+    }
+</ul>
+
+<h2>How to use use this application</h2>
+<p>
+    <ol>
+        <li>
+            Log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
+            Pick a user that has a <strong>CompanyUser</strong> Role if you want to see  something.
+                                   <i>NOTE: The email is also the password.</i>
+        </li>
+        <li>
+            Once you have logged in then a menu should have a "Invoice" dropdown to get a list of invoices.
+        </li>
+        <li>When log in you can see your claims, permissions and other user/role info via the "User Admin" menu button.</li>
+        <li>
+            Go to the <a asp-area="" asp-controller="AuthUsers" asp-action="Index">User Admin -> List all users</a> to see the users.
+            This would normally be only available to admin users, but for this demo anyone can see it.
+            <i>NOTE: if you log in as an 'admin' user, or Super@g1.com to have full admin rights.</i>
+        </li>
+    </ol>
+</p>
+

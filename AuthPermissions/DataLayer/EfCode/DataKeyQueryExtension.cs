@@ -12,11 +12,35 @@ namespace AuthPermissions.DataLayer.EfCode
 {
     /// <summary>
     /// Contains code to allow you to automate the adding of a multi-tenant query filter to your application's DbContext
-    /// See the Example4.ShopCode project with its hierarchical multi-tenant database (RetailDbContext)
+    /// See Example3.InvoiceCode and Example4.ShopCode projects with the two types of multi-tenant: single and hierarchical
     /// This more secure as you can't forget to add a multi-tenant query filter, which would let anyone access that data
     /// </summary>
     public static class DataKeyQueryExtension
     {
+        /// <summary>
+        /// This method will set up a single level tenant query filter exact match query filter
+        /// See the Example3.InvoiceCode project with its single level multi-tenant database (InvoiceDbContext)
+        /// </summary>
+        /// <param name="entityData"></param>
+        /// <param name="dataKeyFilterProvider"></param>
+        public static void AddSingleTenantReadWriteQueryFilter(this IMutableEntityType entityData,
+            IDataKeyFilter dataKeyFilterProvider)
+        {
+            var methodToCall = typeof(DataKeyQueryExtension)
+                .GetMethod(nameof(SetupSingleTenantQueryFilter),
+                    BindingFlags.NonPublic | BindingFlags.Static)
+                .MakeGenericMethod(entityData.ClrType);
+            var filter = methodToCall.Invoke(null, new object[] { dataKeyFilterProvider });
+            entityData.SetQueryFilter((LambdaExpression)filter);
+            entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadWrite.DataKey)));
+        }
+
+        private static LambdaExpression SetupSingleTenantQueryFilter<TEntity>(IDataKeyFilter dataKeyFilterProvider)
+            where TEntity : class, IDataKeyFilterReadWrite
+        {
+            Expression<Func<TEntity, bool>> filter = x => x.DataKey == dataKeyFilterProvider.DataKey;
+            return filter;
+        }
 
         /// <summary>
         /// This method will set up a multi-tenant query filter using the "startswith" query filter
@@ -24,7 +48,7 @@ namespace AuthPermissions.DataLayer.EfCode
         /// </summary>
         /// <param name="entityData"></param>
         /// <param name="dataKeyFilterProvider"></param>
-        public static void AddStartsWithQueryFilter(this IMutableEntityType entityData,
+        public static void AddHierarchicalTenantReadOnlyQueryFilter(this IMutableEntityType entityData,
             IDataKeyFilter dataKeyFilterProvider)
         {
             var methodToCall = typeof(DataKeyQueryExtension)
@@ -39,8 +63,7 @@ namespace AuthPermissions.DataLayer.EfCode
         private static LambdaExpression SetupMultiTenantQueryFilter<TEntity>(IDataKeyFilter dataKeyFilterProvider)
             where TEntity : class, IDataKeyFilter
         {
-            Expression<Func<TEntity, bool>> filter = x => x.DataKey.StartsWith(
-                dataKeyFilterProvider.DataKey);
+            Expression<Func<TEntity, bool>> filter = x => x.DataKey.StartsWith(dataKeyFilterProvider.DataKey);
             return filter;
         }
     }

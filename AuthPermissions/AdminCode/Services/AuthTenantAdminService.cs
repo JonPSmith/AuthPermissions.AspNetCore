@@ -325,7 +325,7 @@ namespace AuthPermissions.AdminCode.Services
                 //Then we send them to the tenantChangeService to apply those changes to the application's data
                 foreach (var tuple in listOfChanges)
                 {
-                    var errorString = await tenantChangeService.MoveTenantDataAsync(appContext,
+                    var errorString = await tenantChangeService.MoveHierarchicalTenantDataAsync(appContext,
                         tuple.oldDataKey, tuple.newDataKey, tuple.tenantId, tuple.newFullTenantName);
                     if (errorString != null)
                         return status.AddError(errorString);

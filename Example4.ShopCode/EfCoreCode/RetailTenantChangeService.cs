@@ -98,7 +98,7 @@ namespace Example4.ShopCode.EfCoreCode
         /// <param name="tenantId">The TenantId of the tenant being moved</param>
         /// <param name="newFullTenantName">The new full name of the tenant</param>
         /// <returns>Returns null if all OK, otherwise the move is rolled back and the return string is shown to the user</returns>
-        public async Task<string> MoveTenantDataAsync(DbContext appTransactionContext, string oldDataKey,
+        public async Task<string> MoveHierarchicalTenantDataAsync(DbContext appTransactionContext, string oldDataKey,
             string newDataKey,
             int tenantId, string newFullTenantName)
         {
