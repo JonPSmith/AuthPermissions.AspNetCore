@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using AuthPermissions.CommonCode;
 
 namespace Example3.InvoiceCode.EfCoreClasses
@@ -11,6 +12,7 @@ namespace Example3.InvoiceCode.EfCoreClasses
     {
         public int InvoiceId { get; set; }
 
+        [Required(AllowEmptyStrings = false)]
         public string InvoiceName { get; set; }
 
         public DateTime DateCreated { get; set; }

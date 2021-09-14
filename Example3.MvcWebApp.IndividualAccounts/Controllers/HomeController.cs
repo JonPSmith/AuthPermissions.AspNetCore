@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Example3.InvoiceCode.Services;
 
 namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -14,9 +16,14 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task< IActionResult> Index([FromServices] ICompanyNameService service)
         {
-            return View();
+            var companyName = await service.GetCurrentCompanyNameAsync();
+
+            if (companyName == null)
+                return View(new AppSummary());
+
+            return RedirectToAction("Index", "Invoice");
         }
 
         public IActionResult Privacy()

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
@@ -30,7 +31,7 @@ namespace Example3.InvoiceCode.AppStart
                 {
                     AuthPTenantId = authTenant.TenantId,
                     CompanyName = authTenant.TenantFullName,
-                    DataKey = authTenant.GetTenantDataKey()
+                    DataKey = authTenant.GetTenantDataKey(),
                 };
                 _context.Add(company);
 
@@ -38,8 +39,9 @@ namespace Example3.InvoiceCode.AppStart
                 {
                     var invoice = new Invoice
                     {
-                        InvoiceName = $"{authTenant.TenantFullName}.{i:D}",
+                        InvoiceName = $"{authTenant.TenantFullName}{i:D}",
                         DataKey = authTenant.GetTenantDataKey(),
+                        DateCreated = DateTime.UtcNow,
                         LineItems = new List<LineItem>()
                     };
                     for (int j = 0; j < i + 1; j++)

@@ -1,18 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.AppStart;
+using Example3.InvoiceCode.EfCoreCode;
 using Example3.MvcWebApp.IndividualAccounts.Data;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.DemoSetupCode;
@@ -56,7 +52,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 })
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
-                //.RegisterTenantChangeService<RetailTenantChangeService>()
+                .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example3AppAuthSetupData.BulkSingleTenants)
                 .AddAuthUsersIfEmpty(Example3AppAuthSetupData.UsersRolesDefinition)
@@ -74,6 +70,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseMigrationsEndPoint();
             }
             else
             {
@@ -86,6 +83,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -93,6 +91,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
     }

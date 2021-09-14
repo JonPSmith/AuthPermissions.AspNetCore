@@ -13,24 +13,26 @@ SuperAdmin | Super admin - only use for setup|: AccessAll,
 App Admin | Overall app Admin |: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate
 
 Tenant Admin | Tenant-level admin|: EmployeeRead, UserRead, UserSync, UserChange, RoleRead
-Tenant User | Can access invoices |: InvoiceRead";
+Tenant User | Can access invoices |: InvoiceRead, InvoiceCreate";
 
         public const string BulkSingleTenants = @"
-Company1
-Company2
-Company3";
+4U Inc.
+Pets Ltd.
+Big Rocks Inc.";
 
         public static readonly List<DefineUserWithRolesTenant> UsersRolesDefinition = new List<DefineUserWithRolesTenant>
         {
             new DefineUserWithRolesTenant("Super@g1.com", null, "SuperAdmin"),
             new DefineUserWithRolesTenant("AppAdmin@g1.com", null, "App Admin"),
             //Company admins.
-            new DefineUserWithRolesTenant("user@C1.com", null,
-                "Tenant User, Store Manager", tenantNameForDataKey: "Company1"),
-            new DefineUserWithRolesTenant("user@C2.com", null,
-                "Tenant User, Store Manager", tenantNameForDataKey: "Company2"),
-            new DefineUserWithRolesTenant("user@C3.com", null,
-                "Tenant User, Store Manager", tenantNameForDataKey: "Company3"),
+            new DefineUserWithRolesTenant("user1@4uInc.com", null,
+                "Tenant User", tenantNameForDataKey: "4U Inc."),
+            new DefineUserWithRolesTenant("user2@4uInc.com", null,
+                "Tenant User", tenantNameForDataKey: "4U Inc."),
+            new DefineUserWithRolesTenant("user1@Pets.com", null,
+                "Tenant User", tenantNameForDataKey: "Pets Ltd."),
+            new DefineUserWithRolesTenant("user1@BigR.com", null,
+                "Tenant User", tenantNameForDataKey: "Big Rocks Inc."),
         };
     }
 }

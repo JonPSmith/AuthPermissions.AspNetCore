@@ -33,7 +33,7 @@ namespace Example3.InvoiceCode.EfCoreCode.Migrations
                 {
                     InvoiceId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    InvoiceName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InvoiceName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DataKey = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },

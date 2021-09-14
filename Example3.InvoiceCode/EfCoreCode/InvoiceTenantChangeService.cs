@@ -3,10 +3,8 @@
 
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.Classes;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreClasses;
-using GenericServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 

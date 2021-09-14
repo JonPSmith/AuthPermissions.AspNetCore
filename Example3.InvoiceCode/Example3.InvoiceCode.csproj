@@ -14,11 +14,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+    <PackageReference Include="NetCore.AutoRegisterDi" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Dtos\" />
     <Folder Include="EfCoreClasses\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>

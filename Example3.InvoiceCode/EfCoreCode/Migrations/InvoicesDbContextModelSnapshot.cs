@@ -57,6 +57,7 @@ namespace Example3.InvoiceCode.EfCoreCode.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("InvoiceName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("InvoiceId");

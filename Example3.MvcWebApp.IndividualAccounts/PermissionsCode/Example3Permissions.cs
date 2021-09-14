@@ -16,8 +16,14 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         NotSet = 0, //error condition
 
         //Here is an example of detailed control over some feature
-        [Display(GroupName = "Invoices", Name = "Read users", Description = "Can see invoices")]
+        [Display(GroupName = "Invoices", Description = "Can see invoices")]
         InvoiceRead = 10,
+        [Display(GroupName = "Invoices",Description = "Can create invoices")]
+        InvoiceCreate = 10,
+
+        //Used by application to list the users in a specific tenant
+        [Display(GroupName = "Employees", Description = "Can read company employees")]
+        EmployeeRead = 30,
 
         //----------------------------------------------------
         //This is an example of what to do with permission you don't used anymore.

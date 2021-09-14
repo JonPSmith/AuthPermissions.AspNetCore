@@ -4,21 +4,8 @@
 }
 
 <div class="text-center">
-    <h1>Example3.MvcWebApp.IndividualAccounts</h1>
+    <h1>Example3 - single level multi-tenant</h1>
 </div>
-<p>
-    This example web application contains a lot of the AuthPermissions.AspNetCore library. They are:
-</p>
-<ul>
-    <li>It contains a more comprehensive set of AuthPermissions' roles and permissions.</li>
-    <li>It implements a <code>AuthUser</code> controller with control over the AuthPermissions' users.</li>
-    <li>It uses AuthPermissions' hierarchical multi-tenant feature to implement SaaS application for managing a shop's stock and sales.</li>
-</ul>
-<p>The list of articles below describe how AuthPermissions works.</p>
-<ul>
-    <li><a href="#">not written yet!</a></li>
-</ul>
-
 <h4>Application summary</h4>
 <ul>
     <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.Application</li>
@@ -45,8 +32,11 @@
     <ol>
         <li>
             Log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
-            Pick a user that has a <strong>CompanyUser</strong> Role if you want to see  something.
                                    <i>NOTE: The email is also the password.</i>
+            <ol>
+                <li>Pick a user that with a company name to see the invoice version.</li>
+                <li>Pick the ''Super@@g1.com' or 'AppAdmin@g1.com' to access the AuthP features.</li>
+            </ol>
         </li>
         <li>
             Once you have logged in then a menu should have a "Invoice" dropdown to get a list of invoices.

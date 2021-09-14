@@ -9,7 +9,6 @@ using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Example4.ShopCode.AppStart;
 using Example4.ShopCode.EfCoreCode;
-using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

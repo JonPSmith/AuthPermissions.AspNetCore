@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Example3.InvoiceCode.EfCoreCode.Migrations
 {
     [DbContext(typeof(InvoicesDbContext))]
-    [Migration("20210914090021_Initial")]
+    [Migration("20210914135415_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,6 +59,7 @@ namespace Example3.InvoiceCode.EfCoreCode.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("InvoiceName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("InvoiceId");
