@@ -47,7 +47,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
 
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
-                    options.TenantType = TenantTypes.HierarchicalTenant;
+                    options.TenantType = TenantTypes.SingleLevel;
                     options.AppConnectionString = Configuration.GetConnectionString("DefaultConnection");
                 })
                 //NOTE: This uses the same database as the individual accounts DB

@@ -22,7 +22,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Index(string message)
         {
             var tenantNames = await TenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
-                .OrderBy(x => x.TenantFullName)
+                .OrderBy(x => x.TenantName)
                 .ToListAsync();
 
             ViewBag.Message = message;
@@ -33,9 +33,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.TenantCreate)]
         public async Task<IActionResult> Create()
         {
-            var model = await TenantDto.SetupForCreateAsync(_authTenantAdmin);
-
-            return View(model);
+            return View();
         }
 
         [HttpPost]
@@ -43,8 +41,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.TenantCreate)]
         public async Task<IActionResult> Create(TenantDto input)
         {
-            var status = await _authTenantAdmin
-                .AddHierarchicalTenantAsync(input.TenantName, input.ParentId);
+            var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -60,7 +57,11 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(TenantDto.SetupForEdit(status.Result));
+            return View(new TenantDto
+            {
+                TenantId = id,
+                TenantName = status.Result.TenantFullName
+            });
         }
 
         [HttpPost]
@@ -86,7 +87,11 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(await TenantDto.SetupForDeleteAsync(status.Result, _authTenantAdmin));
+            return View(new TenantDto
+            {
+                TenantId = id,
+                TenantName = status.Result.TenantFullName
+            });
         }
 
         [HttpPost]

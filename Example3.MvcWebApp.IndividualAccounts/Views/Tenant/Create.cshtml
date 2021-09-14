@@ -18,12 +18,6 @@
                 <span asp-validation-for="TenantName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label class="control-label">Select Parent Tenant</label>
-                @Html.DropDownListFor(model => model.ParentId,
-                    new SelectList(Model.ListOfTenants, "Key", "Value"),
-                    new { @class = "form-control" })
-            </div>
-            <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
