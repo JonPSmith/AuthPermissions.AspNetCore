@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using AuthPermissions.CommonCode;
-using Example3.InvoiceCode.EfCoreCode;
 
 namespace Example3.InvoiceCode.EfCoreClasses
 {

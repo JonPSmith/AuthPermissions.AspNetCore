@@ -125,8 +125,42 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsException(
                     $"You cannot add a single tenant  because the tenant configuration is {_tenantType}");
 
-            _context.Add(new Tenant(tenantName));
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            var tenantChangeService = _tenantChangeServiceFactory.GetService();
+
+            var sqlConnection = GetSqlConnectionWithChecks();
+
+            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
+            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
+
+            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
+            {
+                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
+
+                var newTenant = new Tenant(tenantName);
+                tempAuthContext.Add(newTenant);
+                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+
+                if (status.HasErrors)
+                    return status;
+
+                var errorString = await tenantChangeService.CreateNewTenantAsync(appContext,
+                    newTenant.GetTenantDataKey(),
+                    newTenant.TenantId, newTenant.TenantFullName);
+                if (errorString != null)
+                    return status.AddError(errorString);
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                if (_logger == null)
+                    throw;
+
+                _logger.LogError(e, $"Failed to {status.Message}");
+                return status.AddError(
+                    "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
+            }
 
             return status;
         }
@@ -149,22 +183,54 @@ namespace AuthPermissions.AdminCode.Services
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
                         nameof(tenantName).CamelToPascal());
 
+            var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            Tenant parentTenant = null;
-            if (parentTenantId != 0)
+            var sqlConnection = GetSqlConnectionWithChecks();
+
+            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
+            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
+
+            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
             {
-                //We need to find the parent
-                parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
-                if (parentTenant == null)
-                    return status.AddError($"Could not find the parent tenant you asked for.");
+                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
+
+                Tenant parentTenant = null;
+                if (parentTenantId != 0)
+                {
+                    //We need to find the parent
+                    parentTenant = await tempAuthContext.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
+                    if (parentTenant == null)
+                        return status.AddError($"Could not find the parent tenant you asked for.");
+                }
+
+                var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
+                status.Message = $"Successfully added the new hierarchical tenant {fullTenantName}.";
+
+                var newTenant = new Tenant(fullTenantName, parentTenant);
+                tempAuthContext.Add(newTenant);
+                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+
+                if (status.HasErrors)
+                    return status;
+
+                var errorString = await tenantChangeService.CreateNewTenantAsync(appContext,
+                    newTenant.GetTenantDataKey(),
+                    newTenant.TenantId, newTenant.TenantFullName);
+                if (errorString != null)
+                    return status.AddError(errorString);
+
+                await transaction.CommitAsync();
             }
+            catch (Exception e)
+            {
+                if (_logger == null)
+                    throw;
 
-            var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
-
-            _context.Add(new Tenant(fullTenantName, parentTenant));
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-
-            status.Message = $"Successfully added the new hierarchical tenant {fullTenantName}.";
+                _logger.LogError(e, $"Failed to {status.Message}");
+                return status.AddError(
+                    "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
+            }
 
             return status;
         }

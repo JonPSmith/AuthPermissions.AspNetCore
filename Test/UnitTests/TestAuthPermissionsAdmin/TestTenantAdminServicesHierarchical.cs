@@ -79,64 +79,95 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
+            options.TurnOffDispose();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
 
-            var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
-            context.ChangeTracker.Clear();
+                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                    builder.UseSqlite(context.Database.GetDbConnection()));
+                appOptions.TurnOffDispose();
+                var retailContext = new RetailDbContext(appOptions, null);
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant }, null, null);
+                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                context.ChangeTracker.Clear();
 
-            //ATTEMPT
-            var status = await service.AddHierarchicalTenantAsync("LA", tenantIds[1]);
+                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var service = new AuthTenantAdminService(context,
+                    new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                    subTenantChangeService, null);
 
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = context.Tenants.ToList();
-            var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "Company | West Coast | LA");
-            tenants.Count.ShouldEqual(10);
-            newTenant.ShouldNotBeNull();
-            newTenant.GetTenantDataKey().ShouldEqual(".1.2.10");
+                //ATTEMPT
+                var status = await service.AddHierarchicalTenantAsync("LA", tenantIds[1]);
+
+                //VERIFY
+                status.IsValid.ShouldBeTrue(status.GetAllErrors());
+                subTenantChangeService.NewTenantName.ShouldEqual("Company | West Coast | LA");
+            }
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                var tenants = context.Tenants.ToList();
+                var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "Company | West Coast | LA");
+                tenants.Count.ShouldEqual(10);
+                newTenant.ShouldNotBeNull();
+                newTenant.GetTenantDataKey().ShouldEqual(".1.2.10");
+            }
         }
 
         [Fact]
-        public async Task TestAddHierarchicalTenantAsyncTopeLevelOk()
+        public async Task TestAddHierarchicalTenantAsyncTopLevelOk()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
+            options.TurnOffDispose();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
 
-            var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
-            context.ChangeTracker.Clear();
+                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                    builder.UseSqlite(context.Database.GetDbConnection()));
+                appOptions.TurnOffDispose();
+                var retailContext = new RetailDbContext(appOptions, null);
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant }, null, null);
+                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                context.ChangeTracker.Clear();
 
-            //ATTEMPT
-            var status = await service.AddHierarchicalTenantAsync("New Company", 0);
+                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var service = new AuthTenantAdminService(context,
+                    new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                    subTenantChangeService, null);
 
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = context.Tenants.ToList();
-            var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "New Company");
-            tenants.Count.ShouldEqual(10);
-            newTenant.ShouldNotBeNull();
-            newTenant.GetTenantDataKey().ShouldEqual(".10");
+                //ATTEMPT
+                var status = await service.AddHierarchicalTenantAsync("New Company", 0);
+
+                //VERIFY
+                status.IsValid.ShouldBeTrue(status.GetAllErrors());
+                subTenantChangeService.NewTenantName.ShouldEqual("New Company");
+            }
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                var tenants = context.Tenants.ToList();
+                var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "New Company");
+                tenants.Count.ShouldEqual(10);
+                newTenant.ShouldNotBeNull();
+                newTenant.GetTenantDataKey().ShouldEqual(".10");
+            }
         }
 
         [Fact]
         public async Task TestAddHierarchicalTenantAsyncDuplicate()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            using var contexts = new TenantChangeSqlServerSetup(this);
+            var tenantIds = await contexts.AuthPContext.SetupHierarchicalTenantInDbAsync();
+            contexts.RetailDbContext.SetupHierarchicalRetailAndStock(contexts.AuthPContext);
 
-            var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant }, null, null);
+            var subTenantChangeService = new StubITenantChangeServiceFactory(contexts.RetailDbContext);
+            var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
+            {
+                TenantType = TenantTypes.HierarchicalTenant,
+                AppConnectionString = contexts.ConnectionString
+            }, new StubRetailTenantChangeServiceFactory(), null);
 
             //ATTEMPT
             var status = await service.AddHierarchicalTenantAsync("West Coast", tenantIds[0]);

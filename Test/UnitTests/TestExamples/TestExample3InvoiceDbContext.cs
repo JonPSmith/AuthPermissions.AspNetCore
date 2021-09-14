@@ -3,6 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using AuthPermissions.DataLayer.EfCode;
+using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreClasses;
 using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +27,7 @@ namespace Test.UnitTests.TestExamples
         }
 
         [Fact]
-        public void TestRetailDbContextInvoices()
+        public void TestInvoicesDbContextInvoices()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<InvoicesDbContext>();
@@ -50,7 +53,7 @@ namespace Test.UnitTests.TestExamples
         }
 
         [Fact]
-        public void TestRetailDbContextLineItems()
+        public void TestInvoicesDbContextLineItems()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<InvoicesDbContext>();
@@ -79,6 +82,33 @@ namespace Test.UnitTests.TestExamples
             context.ChangeTracker.Clear();
             context.Invoices.Include(x => x.LineItems).All(x => x.LineItems.Count == 2).ShouldBeTrue();
             context.LineItems.IgnoreQueryFilters().Count().ShouldEqual(3);
+        }
+
+        [Fact]
+        public async Task TestInvoicesDbContextSeed()
+        {
+            //SETUP
+            var options1 = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var authContext = new AuthPermissionsDbContext(options1);
+            authContext.Database.EnsureCreated();
+            authContext.SetupSingleTenantsInDb();
+
+            var options2 = SqliteInMemory.CreateOptions<InvoicesDbContext>();
+            using var invoiceContext = new InvoicesDbContext(options2, null);
+            invoiceContext.Database.EnsureCreated();
+
+            var seeder = new SeedInvoiceDbContext(invoiceContext);
+
+            //ATTEMPT
+            await seeder.SeedInvoicesForAllTenantsAsync(authContext.Tenants.ToArray());
+
+            //VERIFY
+            invoiceContext.ChangeTracker.Clear();
+            invoiceContext.Companies.IgnoreQueryFilters().Select(x => x.CompanyName)
+                .OrderBy(x => x).ToArray()
+                .ShouldEqual(new []{ "Tenant1", "Tenant2", "Tenant3" });
+            invoiceContext.Invoices.IgnoreQueryFilters().Count().ShouldEqual(5 * 3);
+            invoiceContext.LineItems.IgnoreQueryFilters().Count().ShouldEqual(45);
         }
 
 

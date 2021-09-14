@@ -16,6 +16,8 @@ namespace Test.TestHelpers
         private readonly DbContext _appContext;
         private readonly string _errorMessage;
 
+        public string NewTenantName { get; set; }
+
         public List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> MoveReturnedTuples =
             new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>();
 
@@ -44,6 +46,13 @@ namespace Test.TestHelpers
             public DbContext GetNewInstanceOfAppContext(SqlConnection sqlConnection)
             {
                 return _appContext;
+            }
+
+            public Task<string> CreateNewTenantAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName)
+            {
+                _factory.NewTenantName = fullTenantName;
+
+                return Task.FromResult(_errorMessage);
             }
 
             public Task<string> HandleTenantDeleteAsync(DbContext appTransactionContext, string dataKey, int tenantId,

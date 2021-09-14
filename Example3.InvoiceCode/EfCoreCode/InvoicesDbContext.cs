@@ -22,6 +22,7 @@ namespace Example3.InvoiceCode.EfCoreCode
             DataKey = dataKeyFilter?.DataKey ?? "stop any user without a DataKey to access the data";
         }
 
+        public DbSet<CompanyTenant> Companies { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<LineItem> LineItems { get; set; }
 

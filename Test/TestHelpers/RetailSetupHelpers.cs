@@ -22,7 +22,7 @@ namespace Test.TestHelpers
             foreach (var tenantName in tenantNames)
             {
                 i++;
-                var retail = new RetailOutlet(new StubAuthTenant($".{i}", i, tenantName));
+                var retail = new RetailOutlet(i, tenantName, ".{i}");
                 var stock = new ShopStock("stuff", 123, 5, retail);
                 context.AddRange(retail, stock);
             }
@@ -36,29 +36,13 @@ namespace Test.TestHelpers
 
             foreach (var tenant in leafTenants)
             {
-                var retail = new RetailOutlet(tenant);
+                var retail = new RetailOutlet(tenant.TenantId, tenant.TenantFullName, tenant.GetTenantDataKey());
                 var stock = new ShopStock("stuff", 123, 5, retail);
                 var sale = ShopSale.CreateSellAndUpdateStock(1, stock, "stuff").Result;
                 context.AddRange(retail, stock, sale);
             }
 
             context.SaveChanges();
-        }
-
-        private class StubAuthTenant : ITenantPartsToExport
-        {
-            private readonly string _dataKey;
-
-            public StubAuthTenant(string dataKey, int tenantId, string tenantFullName)
-            {
-                _dataKey = dataKey;
-                TenantId = tenantId;
-                TenantFullName = tenantFullName;
-            }
-
-            public int TenantId { get; }
-            public string TenantFullName { get; }
-            public string GetTenantDataKey() => _dataKey;
         }
     }
 }

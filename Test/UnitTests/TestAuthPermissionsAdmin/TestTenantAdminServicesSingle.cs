@@ -78,37 +78,52 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
+            options.TurnOffDispose();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
 
-            context.SetupSingleTenantsInDb();
-            context.ChangeTracker.Clear();
+                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                    builder.UseSqlite(context.Database.GetDbConnection()));
+                appOptions.TurnOffDispose();
+                var retailContext = new RetailDbContext(appOptions, null);
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel}, null, null);
+                var tenantIds = context.SetupSingleTenantsInDb();
+                context.ChangeTracker.Clear();
 
-            //ATTEMPT
-            var status = await service.AddSingleTenantAsync("Tenant4");
+                var tenantChange = new StubITenantChangeServiceFactory(retailContext);
+                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                    tenantChange, null);
 
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = context.Tenants.ToList();
-            tenants.Count.ShouldEqual(4);
-            tenants.Last().TenantFullName.ShouldEqual("Tenant4");
+                //ATTEMPT
+                var status = await service.AddSingleTenantAsync("Tenant4");
+
+                //VERIFY
+                status.IsValid.ShouldBeTrue(status.GetAllErrors());
+                tenantChange.NewTenantName.ShouldEqual( "Tenant4" );
+            }
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                var tenants = context.Tenants.ToList();
+                tenants.Count.ShouldEqual(4);
+                tenants.Last().TenantFullName.ShouldEqual("Tenant4");
+            }
         }
 
         [Fact]
         public async Task TestAddSingleTenantAsyncDuplicate()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            using var contexts = new TenantChangeSqlServerSetup(this);
+            var tenantIds = contexts.AuthPContext.SetupSingleTenantsInDb();
+            contexts.RetailDbContext.SetupSingleRetailAndStock();
+            contexts.AuthPContext.ChangeTracker.Clear();
 
-            context.SetupSingleTenantsInDb();
-            context.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel}, null, null);
+            var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
+            {
+                TenantType = TenantTypes.SingleLevel,
+                AppConnectionString = contexts.ConnectionString
+            }, new StubRetailTenantChangeServiceFactory(), null);
 
             //ATTEMPT
             var status = await service.AddSingleTenantAsync("Tenant2");

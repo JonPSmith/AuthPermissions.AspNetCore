@@ -21,6 +21,18 @@ namespace AuthPermissions.AdminCode
         DbContext GetNewInstanceOfAppContext(SqlConnection sqlConnection);
 
         /// <summary>
+        /// When a new AuthP Tenant is created, then this method is called. If you have a tenant-type entity in your
+        /// application's database, then this allows you to create a new entity for the new tenant
+        /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children
+        /// </summary>
+        /// <param name="appTransactionContext">The application's DbContext within a transaction</param>
+        /// <param name="dataKey">The DataKey of the tenant being deleted</param>
+        /// <param name="tenantId">The TenantId of the tenant being deleted</param>
+        /// <param name="fullTenantName">The full name of the tenant being deleted</param>
+        /// <returns>Returns null if all OK, otherwise the delete is rolled back and the return string is shown to the user</returns>
+        Task<string> CreateNewTenantAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName);
+
+        /// <summary>
         /// This is called within a transaction to allow the the application-side of the database to either
         /// a) delete all the application-side data with the given DataKey, or b) list the changes to show to the admin user
         /// Notes:

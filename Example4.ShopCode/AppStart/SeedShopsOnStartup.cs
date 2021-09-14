@@ -43,7 +43,8 @@ Kitten Place: Scratch pole|60, Play mouse|5, Cat food (small)|12";
         {
             var tenantsThatAreShops = await _authTenantAdmin.QueryEndLeafTenants().ToListAsync();
 
-            var retailLookup = tenantsThatAreShops.Select(x => new RetailOutlet(x))
+            var retailLookup = tenantsThatAreShops.Select(x => 
+                    new RetailOutlet(x.TenantId, x.TenantFullName, x.GetTenantDataKey()))
                 .ToDictionary(x => x.ShortName);
 
             _context.AddRange(retailLookup.Values);

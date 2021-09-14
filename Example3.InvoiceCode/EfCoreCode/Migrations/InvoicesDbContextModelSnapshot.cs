@@ -20,6 +20,29 @@ namespace Example3.InvoiceCode.EfCoreCode.Migrations
                 .HasAnnotation("ProductVersion", "5.0.9")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Example3.InvoiceCode.EfCoreClasses.CompanyTenant", b =>
+                {
+                    b.Property<int>("CompanyTenantId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AuthPTenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DataKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("CompanyTenantId");
+
+                    b.HasIndex("DataKey");
+
+                    b.ToTable("Companies");
+                });
+
             modelBuilder.Entity("Example3.InvoiceCode.EfCoreClasses.Invoice", b =>
                 {
                     b.Property<int>("InvoiceId")

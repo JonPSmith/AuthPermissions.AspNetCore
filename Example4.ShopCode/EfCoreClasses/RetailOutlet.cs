@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using Microsoft.EntityFrameworkCore;
@@ -14,14 +13,14 @@ namespace Example4.ShopCode.EfCoreClasses
     {
         private RetailOutlet() { } //Needed by EF Core
 
-        public RetailOutlet(ITenantPartsToExport authPTenant)
+        public RetailOutlet(int authPTenantId, string fullName, string dataKey)
         {
-            if (authPTenant == null) throw new ArgumentNullException(nameof(authPTenant));
+            if (authPTenantId == 0) throw new ArgumentNullException(nameof(authPTenantId));
 
-            FullName = authPTenant.TenantFullName;
+            AuthPTenantId = authPTenantId;
+            FullName = fullName ?? throw new ArgumentNullException(nameof(fullName));
             ShortName = Tenant.ExtractEndLeftTenantName(FullName);
-            DataKey = authPTenant.GetTenantDataKey();
-            AuthPTenantId = authPTenant.TenantId;
+            DataKey = dataKey ?? throw new ArgumentNullException(nameof(dataKey));
         }
 
         public int RetailOutletId { get; private set; }

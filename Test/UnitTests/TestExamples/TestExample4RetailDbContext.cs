@@ -56,7 +56,7 @@ namespace Test.UnitTests.TestExamples
             context.Database.EnsureClean();
 
             //ATTEMPT
-            var retailOutlet = new RetailOutlet(new StubTenantParts("SanFran | Dress4U", ".1.2"));
+            var retailOutlet = new RetailOutlet(1, "SanFran | Dress4U", ".1.2");
             context.Add(new ShopStock("white dress", 123, 5, retailOutlet));
             context.SaveChanges();
 
@@ -77,7 +77,7 @@ namespace Test.UnitTests.TestExamples
             using var context = new RetailDbContext(options, new StubGetDataKeyFilter(retailKey));
             context.Database.EnsureClean();
 
-            var retailOutlet = new RetailOutlet(new StubTenantParts("SanFran | Dress4U", ".1.2"));
+            var retailOutlet = new RetailOutlet(1, "SanFran | Dress4U", ".1.2");
             var stock = new ShopStock("white dress", 123, 5, retailOutlet);
             context.Add(stock);
             context.SaveChanges();
@@ -108,7 +108,7 @@ namespace Test.UnitTests.TestExamples
             using var context = new RetailDbContext(options, new StubGetDataKeyFilter(".1.2"));
             context.Database.EnsureClean();
 
-            var retailOutlet = new RetailOutlet(new StubTenantParts("SanFran | Dress4U", ".1.2"));
+            var retailOutlet = new RetailOutlet(1, "SanFran | Dress4U", ".1.2");
             var stock = new ShopStock("white dress", 123, 5, retailOutlet);
             context.Add(stock);
             context.SaveChanges();

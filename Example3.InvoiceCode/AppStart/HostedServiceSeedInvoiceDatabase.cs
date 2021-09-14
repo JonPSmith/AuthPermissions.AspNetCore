@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
@@ -38,49 +39,12 @@ namespace Example3.InvoiceCode.AppStart
                 {
                     var authTenantAdmin = services.GetRequiredService<IAuthTenantAdminService>();
 
-                    await SeedInvoicesForAllTenants(context, authTenantAdmin);
+                    var seeder = new SeedInvoiceDbContext(context);
+                    await seeder.SeedInvoicesForAllTenantsAsync(authTenantAdmin.QueryTenants().ToArray());
                 }
             }
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-
-        //-----------------------------------------------------------
-        // private methods
-
-        private async Task SeedInvoicesForAllTenants(InvoicesDbContext context, IAuthTenantAdminService authTenantAdmin)
-        {
-
-            foreach (var authTenant in await authTenantAdmin.QueryTenants().ToArrayAsync())
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    var invoice = new Invoice
-                    {
-                        InvoiceName = $"{authTenant.TenantFullName}.{i:D}",
-                        DataKey = authTenant.GetTenantDataKey(),
-                        LineItems = new List<LineItem>()
-                    };
-                    for (int j = 0; j < i + 1; j++)
-                    {
-                        invoice.LineItems.Add(new LineItem
-                        {
-                            ItemName = $"Item{j+1}",
-                            NumberItems = j+ 1,
-                            TotalPrice = 123,
-                            DataKey = authTenant.GetTenantDataKey()
-                        });
-                    }
-
-                    context.Add(invoice);
-                }
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-
-
     }
 }

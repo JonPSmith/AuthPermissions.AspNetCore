@@ -20,7 +20,7 @@ namespace AuthPermissions.DataLayer.Classes
     /// 2. TenantName - the last name in FullTenantName
     /// The FullTenantName is saved to the database, but the TenantName is derived from the FullTenantName
     /// </summary>
-    public class Tenant : INameToShowOnException, ITenantPartsToExport
+    public class Tenant : INameToShowOnException
     {
 #pragma warning disable 649
         // ReSharper disable once CollectionNeverUpdated.Local

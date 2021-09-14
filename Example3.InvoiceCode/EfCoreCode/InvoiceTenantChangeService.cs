@@ -3,7 +3,10 @@
 
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
+using AuthPermissions.DataLayer.Classes;
 using Example3.InvoiceCode.AppStart;
+using Example3.InvoiceCode.EfCoreClasses;
+using GenericServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +24,20 @@ namespace Example3.InvoiceCode.EfCoreCode
             return new InvoicesDbContext(options, null);
         }
 
+        public async Task<string> CreateNewTenantAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName)
+        {
+            var newCompanyTenant = new CompanyTenant
+            {
+                DataKey = dataKey,
+                AuthPTenantId = tenantId,
+                CompanyName = fullTenantName
+            };
+            appTransactionContext.Add(newCompanyTenant);
+            await appTransactionContext.SaveChangesAsync();
+
+            return null;
+        }
+
         public async Task<string> HandleTenantDeleteAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName)
         {
             var deleteSalesSql = $"DELETE FROM invoice.{nameof(InvoicesDbContext.LineItems)} WHERE DataKey = '{dataKey}'";
@@ -28,12 +45,26 @@ namespace Example3.InvoiceCode.EfCoreCode
             var deleteStockSql = $"DELETE FROM invoice.{nameof(InvoicesDbContext.Invoices)} WHERE DataKey = '{dataKey}'";
             await appTransactionContext.Database.ExecuteSqlRawAsync(deleteStockSql);
 
+            var companyTenant = await appTransactionContext.Set<CompanyTenant>()
+                .SingleOrDefaultAsync(x => x.AuthPTenantId == tenantId);
+            if (companyTenant != null)
+            {
+                appTransactionContext.Remove(companyTenant);
+                await appTransactionContext.SaveChangesAsync();
+            }
+
             return null;
         }
 
-        public Task<string> HandleUpdateNameAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName)
+        public async Task<string> HandleUpdateNameAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName)
         {
-            //This example doesn't use the tenant name, so we don't need to do anything 
+            var companyTenant = await appTransactionContext.Set<CompanyTenant>()
+                .SingleOrDefaultAsync(x => x.AuthPTenantId == tenantId);
+            if (companyTenant != null)
+            {
+                companyTenant.CompanyName = fullTenantName;
+                await appTransactionContext.SaveChangesAsync();
+            }
 
             return null;
         }
