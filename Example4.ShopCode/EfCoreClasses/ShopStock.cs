@@ -11,7 +11,7 @@ namespace Example4.ShopCode.EfCoreClasses
     /// <summary>
     /// This contains an item stocked in the shop, and how many they have
     /// </summary>
-    public class ShopStock : IDataKeyFilter
+    public class ShopStock : IDataKeyFilterReadOnly
     {
         private ShopStock() {} //needed by EF Core
 

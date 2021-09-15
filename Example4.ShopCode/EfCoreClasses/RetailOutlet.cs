@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Example4.ShopCode.EfCoreClasses
 {
     [Index(nameof(FullName), IsUnique = true)]
-    public class RetailOutlet : IDataKeyFilter
+    public class RetailOutlet : IDataKeyFilterReadOnly
     {
         private RetailOutlet() { } //Needed by EF Core
 

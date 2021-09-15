@@ -8,7 +8,7 @@ using StatusGeneric;
 
 namespace Example4.ShopCode.EfCoreClasses
 {
-    public class ShopSale : IDataKeyFilter
+    public class ShopSale : IDataKeyFilterReadOnly
     {
         private ShopSale() { } //needed by EF Core
 

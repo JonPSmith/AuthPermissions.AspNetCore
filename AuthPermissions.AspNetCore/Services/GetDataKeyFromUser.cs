@@ -10,13 +10,13 @@ namespace AuthPermissions.AspNetCore.Services
     /// <summary>
     /// This service is registered if a multi-tenant setup is defined <see cref="AuthPermissionsOptions.TenantType"/>
     /// </summary>
-    public class GetDataKeyFilterFromUser : IDataKeyFilter
+    public class GetDataKeyFromUser : IGetDataKeyFromUser
     {
         /// <summary>
         /// This will return the AuthP' DataKey claim. If no user, or no claim then returns null
         /// </summary>
         /// <param name="accessor"></param>
-        public GetDataKeyFilterFromUser(IHttpContextAccessor accessor)
+        public GetDataKeyFromUser(IHttpContextAccessor accessor)
         {
             DataKey = accessor.HttpContext?.User.GetAuthDataKeyFromUser();
         }

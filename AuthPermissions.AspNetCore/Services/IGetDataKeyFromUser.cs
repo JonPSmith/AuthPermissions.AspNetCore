@@ -1,12 +1,14 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-namespace AuthPermissions.CommonCode
+using AuthPermissions.DataLayer.EfCode;
+
+namespace AuthPermissions.AspNetCore.Services
 {
     /// <summary>
-    /// This is used on entity classes where the DataKey isn't set by setting the DataKey directly
+    /// This is the interface used by the GetDataKeyFilterFromUser and <see cref="DataKeyQueryExtension"/>
     /// </summary>
-    public interface IDataKeyFilterReadOnly
+    public interface IGetDataKeyFromUser
     {
         /// <summary>
         /// The DataKey to be used for multi-tenant applications

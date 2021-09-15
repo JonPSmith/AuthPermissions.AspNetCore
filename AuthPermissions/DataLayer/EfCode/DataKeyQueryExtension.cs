@@ -22,23 +22,23 @@ namespace AuthPermissions.DataLayer.EfCode
         /// See the Example3.InvoiceCode project with its single level multi-tenant database (InvoiceDbContext)
         /// </summary>
         /// <param name="entityData"></param>
-        /// <param name="dataKeyFilterProvider"></param>
+        /// <param name="dataKey"></param>
         public static void AddSingleTenantReadWriteQueryFilter(this IMutableEntityType entityData,
-            IDataKeyFilter dataKeyFilterProvider)
+            IDataKeyFilterReadOnly dataKey)
         {
             var methodToCall = typeof(DataKeyQueryExtension)
                 .GetMethod(nameof(SetupSingleTenantQueryFilter),
                     BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(entityData.ClrType);
-            var filter = methodToCall.Invoke(null, new object[] { dataKeyFilterProvider });
+            var filter = methodToCall.Invoke(null, new object[] { dataKey });
             entityData.SetQueryFilter((LambdaExpression)filter);
             entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadWrite.DataKey)));
         }
 
-        private static LambdaExpression SetupSingleTenantQueryFilter<TEntity>(IDataKeyFilter dataKeyFilterProvider)
+        private static LambdaExpression SetupSingleTenantQueryFilter<TEntity>(IDataKeyFilterReadOnly dataKey)
             where TEntity : class, IDataKeyFilterReadWrite
         {
-            Expression<Func<TEntity, bool>> filter = x => x.DataKey == dataKeyFilterProvider.DataKey;
+            Expression<Func<TEntity, bool>> filter = x => x.DataKey == dataKey.DataKey;
             return filter;
         }
 
@@ -47,23 +47,23 @@ namespace AuthPermissions.DataLayer.EfCode
         /// See the Example4.ShopCode project with its hierarchical multi-tenant database (RetailDbContext)
         /// </summary>
         /// <param name="entityData"></param>
-        /// <param name="dataKeyFilterProvider"></param>
+        /// <param name="dataKey"></param>
         public static void AddHierarchicalTenantReadOnlyQueryFilter(this IMutableEntityType entityData,
-            IDataKeyFilter dataKeyFilterProvider)
+            IDataKeyFilterReadOnly dataKey)
         {
             var methodToCall = typeof(DataKeyQueryExtension)
                 .GetMethod(nameof(SetupMultiTenantQueryFilter),
                     BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(entityData.ClrType);
-            var filter = methodToCall.Invoke(null, new object[] { dataKeyFilterProvider });
+            var filter = methodToCall.Invoke(null, new object[] { dataKey });
             entityData.SetQueryFilter((LambdaExpression) filter);
-            entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilter.DataKey)));
+            entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadOnly.DataKey)));
         }
 
-        private static LambdaExpression SetupMultiTenantQueryFilter<TEntity>(IDataKeyFilter dataKeyFilterProvider)
-            where TEntity : class, IDataKeyFilter
+        private static LambdaExpression SetupMultiTenantQueryFilter<TEntity>(IDataKeyFilterReadOnly dataKey)
+            where TEntity : class, IDataKeyFilterReadOnly
         {
-            Expression<Func<TEntity, bool>> filter = x => x.DataKey.StartsWith(dataKeyFilterProvider.DataKey);
+            Expression<Func<TEntity, bool>> filter = x => x.DataKey.StartsWith(dataKey.DataKey);
             return filter;
         }
     }

@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using Example3.InvoiceCode.EfCoreClasses;
@@ -10,11 +11,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Example3.InvoiceCode.EfCoreCode
 {
-    public class InvoicesDbContext : DbContext, IDataKeyFilter
+    public class InvoicesDbContext : DbContext, IDataKeyFilterReadOnly
     {
         public string DataKey { get; }
 
-        public InvoicesDbContext(DbContextOptions<InvoicesDbContext> options, IDataKeyFilter dataKeyFilter)
+        public InvoicesDbContext(DbContextOptions<InvoicesDbContext> options, IGetDataKeyFromUser dataKeyFilter)
             : base(options)
         {
             // The DataKey is null when: no one is logged in, its a background service, or user hasn't got an assigned tenant

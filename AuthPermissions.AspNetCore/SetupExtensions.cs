@@ -114,7 +114,7 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
             if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)
-                setupData.Services.AddScoped<IDataKeyFilter, GetDataKeyFilterFromUser>();
+                setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUser>();
 
             //The factories for the optional services
             setupData.Services.AddTransient<IAuthPServiceFactory<ISyncAuthenticationUsers>, SyncAuthenticationUsersFactory>();
