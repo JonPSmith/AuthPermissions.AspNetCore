@@ -21,7 +21,7 @@ The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith
 
 The AuthPermissions.AspNetCore repo contains the following example of using AuthP with ASP.NET Core applications listed below. All of them can be run and show a HOME page describes what the application does (apart from the WebAPI example, which shows the Swagger display).
 
-### Example1.RazorPages.IndividualAccounts
+### Example1 - Roles and permissions
 
 This is a ASP.NET Core Razor Pages application using the Individual Accounts authentication provider with Cookie authentication. Look at this example for:
 
@@ -29,28 +29,31 @@ This is a ASP.NET Core Razor Pages application using the Individual Accounts aut
 - A comparision between ASP.NET Core authorization with AuthP's authorization
 - A basic admin of Auth Users.
 
-### Example2.WebApiWithToken.IndividualAccounts
+### Example2 - JWT Token in ASP.NET Core Web API
 
 This is a ASP.NET Core WebAPI application using the Individual Accounts authentication provider with JWT Token authentication. Look at this example for:
 
 - An example of using AuthP to create a JWT Token for you.
 - An example of using AuthP's JWT refresh feature.
 
+See the video [Improving JWT Token Security](https://www.youtube.com/watch?v=DtfNUHgwKyU) for more about this feature works.
+
 _NOTE: When running this example and you want to login you must run one of the authentication login WebAPIs and then copy the just the JWT Token string in into Swagger's Authorize box. Also, the default lifetime of the JWT Token is 5 minutes, so you wll get logged out quickly (this is done to check the AuthP's JWT refresh feature)._
 
-### Example3 - not built yet
+### Example3 - Single level multi-tenant application
 
-This example shows how AuthP would work with [Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-whatis) as the authentication provider.
+This is a ASP.NET Core MVC application using the Individual Accounts authentication provider with Cookie authentication. Look at this example for:
 
-### Example4.MvcWebApp.IndividualAccounts
+- How to use AuthP to create a single-level multi-tenant system.
+- Demo of changing the look and feel of an app when a tenant logs in.
 
-This is a ASP.NET Core MVC application using the Individual Accounts authentication provider with Cookie authentication.
-Look at this example for:
+### Example4 - Hierarchical multi-tenant application
 
-- A more substantial application with lots of Permissions, Roles, Tenants and Users.
+This is a ASP.NET Core MVC application using the Individual Accounts authentication provider with Cookie authentication. Look at this example for:
+
 - how to use AuthP to create a hierarchical multi-tenant system.
+- A more substantial application with lots of Permissions, Roles, Tenants and Users.
 - How the AuthP' admin code can be used to control Roles, Users and Tenants.
-
 
 ## Notes on creating a NuGet package
 
