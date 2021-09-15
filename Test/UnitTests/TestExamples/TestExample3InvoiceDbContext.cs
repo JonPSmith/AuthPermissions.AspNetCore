@@ -37,10 +37,12 @@ namespace Test.UnitTests.TestExamples
             //ATTEMPT
             var invoice1 = new Invoice
             {
+                InvoiceName = "Test.1",
                 DataKey = ".1"
             };
             var invoice2 = new Invoice
             {
+                InvoiceName = "Test.2",
                 DataKey = ".2"
             };
             context.AddRange(invoice1, invoice2);
@@ -63,6 +65,7 @@ namespace Test.UnitTests.TestExamples
             //ATTEMPT
             var invoice1 = new Invoice
             {
+                InvoiceName = "Test.1",
                 DataKey = ".1",
                 LineItems = new List<LineItem>
                 {
@@ -72,6 +75,7 @@ namespace Test.UnitTests.TestExamples
             };
             var invoice2 = new Invoice
             {
+                InvoiceName = "Test.2",
                 DataKey = ".2",
                 LineItems = new List<LineItem> { new LineItem { DataKey = ".2", NumberItems = 1, TotalPrice = 123 } }
             };
