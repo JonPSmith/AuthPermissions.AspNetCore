@@ -38,6 +38,7 @@ namespace AuthPermissions
             options?.Invoke(authOptions);
             authOptions.InternalData.EnumPermissionsType = typeof(TEnumPermissions);
             authOptions.InternalData.EnumPermissionsType.ThrowExceptionIfEnumIsNotCorrect();
+            authOptions.InternalData.EnumPermissionsType.ThrowExceptionIfEnumHasMembersHaveDuplicateValues();
 
             return new AuthSetupData(services, authOptions);
         }

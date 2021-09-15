@@ -2,7 +2,9 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Security.Claims;
+using AuthPermissions.CommonCode;
 using AuthPermissions.PermissionsCode;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -43,6 +45,41 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             result.ShouldEqual(isAllowed);
+        }
+
+
+        enum BadEnum {One, Two};
+        
+        [Fact]
+        public void TestThrowExceptionIfEnumIsNotCorrect()
+        {
+            //SETUP
+            
+
+            //ATTEMPT
+            Assert.Throws<AuthPermissionsException>( () => typeof(BadEnum).ThrowExceptionIfEnumIsNotCorrect());
+
+            //VERIFY
+        }
+
+        enum  DuplicateEnum : ushort { One = 1, Two = 1, Three = 3, Four = 4, Five = 4, Six = 4 };
+
+        [Fact]
+        public void TestThrowExceptionIfEnumHasMembersHaveDuplicateValues()
+        {
+            //SETUP
+
+
+            //ATTEMPT
+            var ex = Assert.Throws<AuthPermissionsException>(() => typeof(DuplicateEnum).ThrowExceptionIfEnumHasMembersHaveDuplicateValues());
+
+            //VERIFY
+            ex.Message.Split('\n').ShouldEqual(new string[]
+            {
+                "The following enum members in the 'DuplicateEnum' enum have the same value, which will cause problems",
+                "One, Two all have the value 1",
+                "Four, Five, Six all have the value 4"
+            });
         }
     }
 }

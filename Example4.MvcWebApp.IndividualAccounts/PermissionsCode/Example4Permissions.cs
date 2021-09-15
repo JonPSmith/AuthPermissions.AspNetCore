@@ -83,11 +83,11 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
         [Display(GroupName = "TenantAdmin", Name = "Create new Tenant", Description = "Can create new Tenants", AutoGenerateFilter = true)]
         TenantCreate = 42_001,
         [Display(GroupName = "TenantAdmin", Name = "Alter Tenants info", Description = "Can update Tenant's name", AutoGenerateFilter = true)]
-        TenantUpdate = 42_001,
+        TenantUpdate = 42_002,
         [Display(GroupName = "TenantAdmin", Name = "Move tenant to another parent", Description = "Can move tenant to different parent (WARNING)", AutoGenerateFilter = true)]
-        TenantMove = 42_002,
+        TenantMove = 42_003,
         [Display(GroupName = "TenantAdmin", Name = "Delete tenant", Description = "Can delete tenant (WARNING)", AutoGenerateFilter = true)]
-        TenantDelete = 42_003,
+        TenantDelete = 42_004,
 
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions

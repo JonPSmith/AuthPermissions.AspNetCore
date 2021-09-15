@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using StatusGeneric;
 
@@ -25,6 +26,31 @@ namespace AuthPermissions.CommonCode
                     $"The enum permissions {permissionType.Name} should by 16 bits in size to work.\n" +
                     $"Please add ': ushort' to your permissions declaration, i.e. public enum {permissionType.Name} : ushort " + "{...};");
         }
+
+        /// <summary>
+        /// Checks the permission type members don't have duplicate values, as that causes problems
+        /// </summary>
+        /// <param name="permissionType"></param>
+        public static void ThrowExceptionIfEnumHasMembersHaveDuplicateValues(this Type permissionType)
+        {
+            var duplicates = Enum.GetNames(permissionType)
+                .Select(x => new KeyValuePair<ushort, string>((ushort)Enum.Parse(permissionType, x), x))
+                .GroupBy(x => x.Key)
+                .Where(x => x.Count() > 1)
+                .ToList();
+
+            if (duplicates.Any())
+            {
+                var errorStrings = duplicates
+                    .Select(x => 
+                        string.Join(", ", x.Select(y => y.Value).ToList()) + $" all have the value {x.Key}");
+
+                throw new AuthPermissionsException(
+                    $"The following enum members in the '{permissionType.Name}' enum have the same value, which will cause problems\n" +
+                    string.Join('\n', errorStrings));
+            }
+        }
+
 
 
         /// <summary>

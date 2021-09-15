@@ -1,5 +1,4 @@
-﻿@using AuthPermissions.AdminCode
-@model ExamplesCommonCode.CommonAdmin.SetupManualUserChange
+﻿@model ExamplesCommonCode.CommonAdmin.SetupManualUserChange
 
 @{
     ViewData["Title"] = "Edit";
@@ -14,7 +13,6 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @Html.HiddenFor(x => x.UserId)
-            @Html.HiddenFor(x => x.FoundChangeType)
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" />

@@ -43,6 +43,20 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             return View(status.Result);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(SetupManualUserChange change)
+        {
+            var status = await _authUsersAdmin.UpdateUserAsync(change.UserId,
+                change.Email, change.UserName, change.RoleNames, change.TenantName);
+
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return RedirectToAction(nameof(Index), new { message = status.Message });
+        }
+
         public async Task<ActionResult> SyncUsers()
         {
             var syncChanges = await _authUsersAdmin.SyncAndShowChangesAsync();
