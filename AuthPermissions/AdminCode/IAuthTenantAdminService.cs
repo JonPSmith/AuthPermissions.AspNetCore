@@ -41,7 +41,7 @@ namespace AuthPermissions.AdminCode
         Task<List<Tenant>> GetHierarchicalTenantChildrenViaIdAsync(int tenantId);
 
         /// <summary>
-        /// This adds a new, non-Hierarchical Tenant
+        /// This adds a new, single level Tenant
         /// </summary>
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
         /// <returns>A status with any errors found</returns>
