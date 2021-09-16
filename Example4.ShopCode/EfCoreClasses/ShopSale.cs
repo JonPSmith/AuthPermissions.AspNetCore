@@ -15,7 +15,8 @@ namespace Example4.ShopCode.EfCoreClasses
         private ShopSale(int numSoldReturned, string returnReason, ShopStock foundStock)
         {
             if (numSoldReturned == 0) throw new ArgumentException("cannot be zero", nameof(numSoldReturned));
-            if (numSoldReturned < 0 && returnReason == null) throw new ArgumentException("cannot be null if its a return", nameof(returnReason));
+            if (numSoldReturned < 0 && returnReason == null) 
+                throw new ArgumentException("cannot be null if its a return", nameof(returnReason));
 
             NumSoldReturned = numSoldReturned;
             ReturnReason = returnReason;

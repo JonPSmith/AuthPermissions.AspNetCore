@@ -40,7 +40,7 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This returns a IQueryable of AuthUser, with optional filtering by dataKey (useful for tenant admin
+        /// This returns a IQueryable of AuthUser, with optional filtering by dataKey (useful for tenant admin)
         /// </summary>
         /// <param name="dataKey">optional dataKey. If provided then it only returns AuthUsers that fall within that dataKey</param>
         /// <returns>query on the database</returns>

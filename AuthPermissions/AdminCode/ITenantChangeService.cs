@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AuthPermissions.AdminCode
 {
     /// <summary>
-    /// This is the interface for the deleting, updating, or hierarchical moving of tenants
+    /// This is the interface for the creating, deleting, updating, or hierarchical moving of tenants
     /// This allows the changes to the AuthP's Tenant to be applied to the application's tenant data within a transaction.
     /// This means if either the AuthP's Tenant, or the application's tenant data fails, then both changes will be rolled back
     /// </summary>

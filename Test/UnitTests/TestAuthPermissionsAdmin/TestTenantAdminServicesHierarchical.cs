@@ -9,7 +9,6 @@ using AuthPermissions.AdminCode.Services;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
-using EntityFramework.Exceptions.SqlServer;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;

@@ -332,9 +332,9 @@ namespace AuthPermissions.AdminCode.Services
         /// to move the application's tenant data. You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
-        /// <param name="parentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
+        /// <param name="newParentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
         /// <returns>status</returns>
-        public async Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(int tenantToMoveId, int parentTenantId)
+        public async Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(int tenantToMoveId, int newParentTenantId)
         {
             var status = new StatusGenericHandler { };
 
@@ -342,7 +342,7 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsException(
                     $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}");
 
-            if (tenantToMoveId == parentTenantId)
+            if (tenantToMoveId == newParentTenantId)
                 return status.AddError("You cannot move a tenant to itself.", nameof(tenantToMoveId).CamelToPascal());
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
@@ -371,16 +371,16 @@ namespace AuthPermissions.AdminCode.Services
                     .Single(x => x.TenantId == tenantToMoveId);
 
                 Tenant parentTenant = null;
-                if (parentTenantId != 0)
+                if (newParentTenantId != 0)
                 {
                     //We need to find the parent
-                    parentTenant = await tempAuthContext.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
+                    parentTenant = await tempAuthContext.Tenants.SingleOrDefaultAsync(x => x.TenantId == newParentTenantId);
                     if (parentTenant == null)
                         return status.AddError("Could not find the parent tenant you asked for.");
 
                     if (tenantsWithChildren.Select(x => x.TenantFullName).Contains(parentTenant.TenantFullName))
                         return status.AddError("You cannot move a tenant one of its children.",
-                            nameof(parentTenantId).CamelToPascal());
+                            nameof(newParentTenantId).CamelToPascal());
                 }
 
                 //Now we ask the Tenant entity to do the move on the AuthP's Tenants, and capture each change
@@ -418,9 +418,10 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="ITenantChangeService"/>
-        /// you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService"/> to delete the application's tenant data.
-        /// You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
+        /// This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="ITenantChangeService"/>,
+        /// but only if no AuthP user are linked to this tenant (it will return errors listing all the AuthP user that are linked to this tenant
+        /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
+        /// to delete the application's tenant data.  You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
         /// </summary>
         /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
         public async Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId)
