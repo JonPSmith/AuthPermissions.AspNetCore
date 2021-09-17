@@ -2,17 +2,15 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization features to a ASP.NET Core application.</description>
     <releaseNotes>
-      - BREAKING CHANGE: Different AuthRolesAdminService to be more useful
-      - BREAKING CHANGE: Different AuthUsersAdminService to be more useful
-      - Improvements to the Example AuthUsersController and RolesController
-      - BUG: Fixed bug in Example4 "sync users" feature
-      - BUG: Fixed bug in using in-memory database in an application
+- BREAKING CHANGE: Different AuthTenantAdminService to be more useful
+- New Feature: Added ITenantChangeService to apply tenant changes to application DbContext
+- Updated Microsoft's NuGets to fix a security issue in example2
     </releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
@@ -23,15 +21,15 @@
         <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="3.1.4" />
         <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="3.1.4" />
         <dependency id="GenericServices.StatusGeneric" version="1.1.0" />
-        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="5.0.7" />
-        <dependency id="Microsoft.Data.Sqlite.Core" version="5.0.7" />
-        <dependency id="Microsoft.EntityFrameworkCore" version="5.0.7" />
-        <dependency id="Microsoft.EntityFrameworkCore.InMemory" version="5.0.7" />
-        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="5.0.7" />
-        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="5.0.7" />
-        <dependency id="Microsoft.EntityFrameworkCore.Tools" version="5.0.7" />
+        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="5.0.9" />
+        <dependency id="Microsoft.Data.Sqlite.Core" version="5.0.9" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="5.0.9" />
+        <dependency id="Microsoft.EntityFrameworkCore.InMemory" version="5.0.9" />
+        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="5.0.9" />
+        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="5.0.9" />
+        <dependency id="Microsoft.EntityFrameworkCore.Tools" version="5.0.9" />
         <dependency id="Microsoft.Extensions.Hosting" version="5.0.0" />
-        <dependency id="Microsoft.AspNetCore.Authorization" version="5.0.7" />
+        <dependency id="Microsoft.AspNetCore.Authorization" version="5.0.9" />
         <dependency id="Microsoft.AspNetCore.Http" version="2.2.2" />
       </group>
     </dependencies>

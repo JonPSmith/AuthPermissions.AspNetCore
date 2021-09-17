@@ -11,7 +11,7 @@
     <description>Provides extra authorization features to a ASP.NET Core application.</description>
     <releaseNotes>
 - BREAKING CHANGE: Different AuthTenantAdminService to be more useful
-- Improvements to AuthUsersAdminService for rename, delete and hierarchical move
+- New Feature: Added ITenantChangeService to apply tenant changes to application DbContext
 - Updated Microsoft's NuGets to fix a security issue in example2
     </releaseNotes>
     <license type="expression">MIT</license>

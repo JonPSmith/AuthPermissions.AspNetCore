@@ -3,10 +3,8 @@
 
 ## 1.2.0
 
-- TODO Add Example3 - single level multi-tenant example app
-
 - BREAKING CHANGE: Different AuthTenantAdminService to be more useful
-- Improvements to AuthUsersAdminService for rename, delete and hierarchical move
+- New Feature: Added ITenantChangeService to apply tenant changes to application DbContext
 - Updated Microsoft's NuGets to fix a security issue in example2
 
 ## 1.1.0
