@@ -10,10 +10,13 @@
     <h3 class="text-success">@ViewBag.Message</h3>
 }
 
-<h1>Index</h1>
+<h1>@ViewBag.CompanyName invoices</h1>
+<p>
+    Welcome to the example multi-tenant application managing invoices for lots of companies.
+</p>
 
 <p>
-    <a asp-action="CreateInvoice">Create Invoice</a>
+    <a class="btn btn-primary" asp-action="CreateInvoice">Create Invoice</a>
 </p>
 <table class="table">
     <thead>

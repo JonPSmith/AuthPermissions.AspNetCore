@@ -15,7 +15,7 @@ namespace Example3.InvoiceCode.AppStart
         private readonly Dictionary<ExampleInvoiceTypes, string[]> LineItemsDict = new Dictionary<ExampleInvoiceTypes, string[]>()
         {
             { ExampleInvoiceTypes.Computer, new [] {"Windows PC", "Keyboard", "BIG Screen" } },
-            { ExampleInvoiceTypes.Office, new [] {"Desk", "Chair", "Waste bin" } },
+            { ExampleInvoiceTypes.Office, new [] {"Desk", "Chair", "Filing cabinet", "Waste bin" } },
             { ExampleInvoiceTypes.Travel, new [] { "Taxi", "Flight", "Hotel", "Taxi", "Lunch", "Flight", "Taxi" } },
         };
 

@@ -1,17 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions.DataLayer.EfCode;
 using Example3.InvoiceCode.AppStart;
-using Example3.InvoiceCode.EfCoreClasses;
-using Example3.InvoiceCode.EfCoreCode;
-using Microsoft.EntityFrameworkCore;
-using Test.TestHelpers;
-using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -29,7 +19,7 @@ namespace Test.UnitTests.TestExamples
 
         [Theory]
         [InlineData(ExampleInvoiceTypes.Computer, 3)]
-        [InlineData(ExampleInvoiceTypes.Office, 3)]
+        [InlineData(ExampleInvoiceTypes.Office, 4)]
         [InlineData(ExampleInvoiceTypes.Travel, 7)]
         public void TestCreateExampleInvoice(ExampleInvoiceTypes type, int numItems)
         {
