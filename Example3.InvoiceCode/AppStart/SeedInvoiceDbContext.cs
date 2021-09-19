@@ -24,9 +24,9 @@ namespace Example3.InvoiceCode.AppStart
 
         public async Task SeedInvoicesForAllTenantsAsync(IEnumerable<Tenant> authTenants)
         {
-
             foreach (var authTenant in authTenants)
             {
+
                 var company = new CompanyTenant
                 {
                     AuthPTenantId = authTenant.TenantId,
@@ -34,27 +34,11 @@ namespace Example3.InvoiceCode.AppStart
                     DataKey = authTenant.GetTenantDataKey(),
                 };
                 _context.Add(company);
+                var invoiceBuilder = new ExampleInvoiceBuilder(authTenant.GetTenantDataKey());
 
                 for (int i = 0; i < 5; i++)
                 {
-                    var invoice = new Invoice
-                    {
-                        InvoiceName = $"{authTenant.TenantFullName}{i:D}",
-                        DataKey = authTenant.GetTenantDataKey(),
-                        DateCreated = DateTime.UtcNow,
-                        LineItems = new List<LineItem>()
-                    };
-                    for (int j = 0; j < i + 1; j++)
-                    {
-                        invoice.LineItems.Add(new LineItem
-                        {
-                            ItemName = $"Item{j + 1}",
-                            NumberItems = j + 1,
-                            TotalPrice = 123,
-                            DataKey = authTenant.GetTenantDataKey()
-                        });
-                    }
-
+                    var invoice = invoiceBuilder.CreateRandomInvoice(null);
                     _context.Add(invoice);
                 }
             }

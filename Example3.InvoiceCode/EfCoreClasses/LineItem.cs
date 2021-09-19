@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.CommonCode;
-using Example3.InvoiceCode.EfCoreCode;
 
 namespace Example3.InvoiceCode.EfCoreClasses
 {

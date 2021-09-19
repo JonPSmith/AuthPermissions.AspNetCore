@@ -112,7 +112,7 @@ namespace Test.UnitTests.TestExamples
                 .OrderBy(x => x).ToArray()
                 .ShouldEqual(new []{ "Tenant1", "Tenant2", "Tenant3" });
             invoiceContext.Invoices.IgnoreQueryFilters().Count().ShouldEqual(5 * 3);
-            invoiceContext.LineItems.IgnoreQueryFilters().Count().ShouldEqual(45);
+            invoiceContext.LineItems.IgnoreQueryFilters().Count().ShouldBeInRange(5 * 3 * 3, 5 * 3 * 7);
         }
 
 

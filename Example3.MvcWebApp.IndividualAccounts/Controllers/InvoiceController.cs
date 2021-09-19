@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore;
+using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.Dtos;
 using Example3.InvoiceCode.EfCoreClasses;
 using Example3.InvoiceCode.EfCoreCode;
@@ -51,11 +52,12 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         {
             ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
 
-            invoice.DateCreated = DateTime.UtcNow;
-            _context.Add(invoice);
+            var builder = new ExampleInvoiceBuilder(null);
+            _context.Add(builder.CreateRandomInvoice(invoice.InvoiceName));
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", new { message = $"Added the invoice '{invoice.InvoiceName}'." });
+
         }
 
     }
