@@ -27,7 +27,7 @@ namespace Test.UnitTests.TestExamples
             var builder = new ExampleInvoiceBuilder(".");
 
             //ATTEMPT
-            var invoice = builder.CreateExampleInvoice(type, type.ToString());
+            var invoice = builder.CreateExampleInvoice(type, type.ToString(), "Company");
 
             //VERIFY
             invoice.LineItems.Count.ShouldEqual(numItems);
@@ -40,7 +40,7 @@ namespace Test.UnitTests.TestExamples
             var builder = new ExampleInvoiceBuilder(".");
 
             //ATTEMPT
-            var invoice = builder.CreateRandomInvoice(null);
+            var invoice = builder.CreateRandomInvoice("Company");
 
             //VERIFY
             invoice.LineItems.Count.ShouldBeInRange(3,7);

@@ -53,11 +53,11 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
 
             var builder = new ExampleInvoiceBuilder(null);
-            _context.Add(builder.CreateRandomInvoice(invoice.InvoiceName));
+            var newInvoice = builder.CreateRandomInvoice(ViewBag.CompanyName, invoice.InvoiceName);
+            _context.Add(newInvoice);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", new { message = $"Added the invoice '{invoice.InvoiceName}'." });
-
+            return RedirectToAction("Index", new { message = $"Added the invoice '{newInvoice.InvoiceName}'." });
         }
 
     }

@@ -38,7 +38,7 @@ namespace Example3.InvoiceCode.AppStart
 
                 for (int i = 0; i < 5; i++)
                 {
-                    var invoice = invoiceBuilder.CreateRandomInvoice(null);
+                    var invoice = invoiceBuilder.CreateRandomInvoice(authTenant.TenantFullName);
                     _context.Add(invoice);
                 }
             }
