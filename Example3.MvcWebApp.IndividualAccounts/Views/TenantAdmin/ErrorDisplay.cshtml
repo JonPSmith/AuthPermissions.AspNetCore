@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "ErrorDisplay";
+    Layout = "_CompanyLayout";
 }
 
 @foreach (var error in @Model.Split(Environment.NewLine))
