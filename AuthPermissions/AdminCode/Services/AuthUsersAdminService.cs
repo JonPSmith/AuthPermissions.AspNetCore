@@ -162,12 +162,15 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="userId"></param>
         /// <param name="email">if not null, then checked to be a valid email</param>
         /// <param name="userName"></param>
-        /// <param name="roleNames">The rolenames of this user - if null then assumes no roles</param>
+        /// <param name="roleNames">The rolenames of this user</param>
         /// <param name="tenantName">optional: full name of the tenant</param>
         /// <returns></returns>
         public async Task<IStatusGeneric> UpdateUserAsync(string userId, string email,
             string userName, List<string> roleNames, string tenantName = null)
         {
+            if (userId == null) throw new ArgumentNullException(nameof(userId));
+            if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
+
             var status = new StatusGenericHandler
             { Message = $"Successfully updated a AuthUser with the name {userName ?? email}" };
 
@@ -200,9 +203,13 @@ namespace AuthPermissions.AdminCode.Services
 
             //Now we update the existing AuthUser
             authUserToUpdate.ChangeUserNameAndEmailWithChecks(email, userName);
+
+            var existingRoleNames = authUserToUpdate.UserRoles
+                .Select(x => x.RoleName).OrderBy(x => x)
+                .ToList();
+               
             authUserToUpdate.UpdateUserTenant(foundTenant);
-            if (foundRoles.Any() && authUserToUpdate.UserRoles.Select(x => x.RoleName).OrderBy(x => x) !=
-                roleNames.OrderBy(x => x))
+            if (foundRoles.Count != existingRoleNames.Count || existingRoleNames != roleNames.OrderBy(x => x))
                 //Different roles, so change
                 authUserToUpdate.ReplaceAllRoles(foundRoles);
 

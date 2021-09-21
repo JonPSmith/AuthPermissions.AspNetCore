@@ -1,0 +1,64 @@
+﻿@using AuthPermissions.PermissionsCode
+@using Example3.MvcWebApp.IndividualAccounts.PermissionsCode
+@model IEnumerable<ExamplesCommonCode.CommonAdmin.AuthUserDisplay>
+
+@{
+    ViewData["Title"] = "Auth Users";
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+<h1>Employees</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                AuthRoles
+            </th>
+            @if (User.HasPermission(Example3Permissions.EmployeeRevokeActivate))
+            {
+                <th>
+                    Revoke / Activate
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @(item.RoleNames.Any() ? string.Join(", ", item.RoleNames) : "<none>")
+                </td>
+                @if (User.HasPermission(Example3Permissions.EmployeeRevokeActivate))
+                {
+                    <td>
+                        <form method="post" asp-action="RevokeActivate">
+                            @Html.Hidden("userId", item.UserId)
+                            @Html.Hidden("activate", !item.RoleNames.Any())
+                            <input type="submit" value="@(item.RoleNames.Any() ? "Revoke" : "Activate")" class="btn btn-primary" />
+                        </form>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.AntiForgeryToken()

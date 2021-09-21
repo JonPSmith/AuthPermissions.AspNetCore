@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.2.1
+
+- Bug fix: UpdateUserAsync didn't handle no roles properly
+- Change: UpdateUserAsync method parameter roleNames cannot be null
 
 ## 1.2.0
 

@@ -25,6 +25,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             _companyService = companyService;
         }
 
+        [HasPermission(Example3Permissions.InvoiceRead)]
         public async Task<IActionResult> Index(string message)
         {
             ViewBag.Message = message;

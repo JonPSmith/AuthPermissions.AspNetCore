@@ -15,7 +15,7 @@ namespace AuthPermissions.AdminCode
     public interface ITenantChangeService
     {
         /// <summary>
-        /// This is the application's DbContext to use within an transaction with the AuthPermissionsDbContext
+        /// This creates an instance of the application's DbContext to use within an transaction with the AuthPermissionsDbContext
         /// </summary>
         DbContext GetNewInstanceOfAppContext(SqlConnection sqlConnection);
 

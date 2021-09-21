@@ -44,6 +44,11 @@ namespace Example3.InvoiceCode.EfCoreCode
         {
             modelBuilder.HasDefaultSchema("invoice");
 
+            // You could manually set up the Query Filter, but there is a easier approach
+            //modelBuilder.Entity<Invoice>().HasQueryFilter(x => x.DataKey == DataKey);
+            //modelBuilder.Entity<LineItem>().HasQueryFilter(x => x.DataKey == DataKey);
+            //modelBuilder.Entity<CompanyTenant>().HasQueryFilter(x => x.DataKey == DataKey);
+
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(IDataKeyFilterReadWrite).IsAssignableFrom(entityType.ClrType))

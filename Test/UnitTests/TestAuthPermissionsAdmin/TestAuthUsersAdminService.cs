@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -131,6 +132,38 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var rereadUser = (await service.FindAuthUserByEmailAsync("User1@gmail.com")).Result;
                 rereadUser.UserName.ShouldEqual("new user name");
             }
+        }
+
+        [Theory]
+        [InlineData("Role1")]
+        [InlineData("Role1,Role2,Role3")]
+        [InlineData(null)]
+        public async Task TestChangeRolesAsyncOk(string roleNamesCommaDelimited)
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            await context.SetupRolesInDbAsync();
+            context.AddMultipleUsersWithRolesInDb();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
+
+            //ATTEMPT
+            var newRoleNames = roleNamesCommaDelimited == null 
+            ? new List<string>()
+            : roleNamesCommaDelimited.Split(',').ToList();
+            var status = await service.UpdateUserAsync(authUser.UserId, "User2@gmail.com", "new user name",
+                newRoleNames, null);
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            context.ChangeTracker.Clear();
+            (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result.UserRoles
+                .Select(x => x.RoleName).OrderBy(x => x).ToList().ShouldEqual(newRoleNames);
         }
 
         [Theory]

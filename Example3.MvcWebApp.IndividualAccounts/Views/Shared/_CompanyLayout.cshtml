@@ -1,4 +1,5 @@
 ﻿@using Example3.MvcWebApp.IndividualAccounts.PermissionsCode
+@using AuthPermissions.PermissionsCode
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,6 +23,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Invoice" asp-action="Index">Home</a>
                         </li>
+                        @if (User.HasPermission(Example3Permissions.EmployeeRead))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="TenantAdmin" asp-action="Index">Employees</a>
+                            </li>
+                        }
                         <li class="dropdown nav-link text-dark">
                         <li class="dropdown nav-link text-dark">
                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -32,9 +39,6 @@
                                 <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="AuthUserInfo">Your auth data</a>
                                 <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="UserPermissions">Your Permissions</a>
                             </div>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                         <partial name="_LoginPartial" />
                     </ul>

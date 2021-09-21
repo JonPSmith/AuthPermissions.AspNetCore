@@ -21,9 +21,11 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         [Display(GroupName = "Invoices", Description = "Can create invoices")]
         InvoiceCreate = 11,
 
-        //Used by application to list the users in a specific tenant
-        [Display(GroupName = "Employees", Description = "Can read company employees")]
+        //Used by tenant-level admin user
+        [Display(GroupName = "Employees", Description = "Can read tenant employees")]
         EmployeeRead = 30,
+        [Display(GroupName = "Employees", Description = "Can revoke or activate a tenant employee")]
+        EmployeeRevokeActivate = 31,
 
         //----------------------------------------------------
         //This is an example of what to do with permission you don't used anymore.

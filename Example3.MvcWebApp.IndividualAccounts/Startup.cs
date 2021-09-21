@@ -50,7 +50,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                     options.TenantType = TenantTypes.SingleLevel;
                     options.AppConnectionString = Configuration.GetConnectionString("DefaultConnection");
                 })
-                //NOTE: This uses the same database as the individual accounts DB
+                //NOTE: This uses the same database as the InvoiceDbContext
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.BulkLoadRolesWithPermissions)

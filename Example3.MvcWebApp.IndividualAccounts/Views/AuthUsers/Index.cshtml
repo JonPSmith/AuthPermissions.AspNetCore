@@ -57,7 +57,7 @@
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
                 <td>
-                    @string.Join(", ", item.RoleNames)
+                    @(item.RoleNames.Any() ? string.Join(", ", item.RoleNames) : "<none>")
                 </td>
                 <td>
                     <a href="#" data-toggle="tooltip" title='@item.TenantName'>

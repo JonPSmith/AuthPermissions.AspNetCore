@@ -12,7 +12,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
 SuperAdmin | Super admin - only use for setup|: AccessAll,
 App Admin | Overall app Admin |: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate
 
-Tenant Admin | Tenant-level admin|: EmployeeRead, UserRead, UserSync, UserChange, RoleRead
+Tenant Admin | Tenant-level admin |: InvoiceRead, EmployeeRead, EmployeeRevokeActivate
 Tenant User | Can access invoices |: InvoiceRead, InvoiceCreate";
 
         public const string BulkSingleTenants = @"
@@ -24,7 +24,11 @@ Big Rocks Inc.";
         {
             new DefineUserWithRolesTenant("Super@g1.com", null, "SuperAdmin"),
             new DefineUserWithRolesTenant("AppAdmin@g1.com", null, "App Admin"),
+            new DefineUserWithRolesTenant("extraUser@g1.com", null, "Tenant User"),
             //Company admins.
+            new DefineUserWithRolesTenant("admin@4uInc.com", null,
+                "Tenant Admin,Tenant User", tenantNameForDataKey: "4U Inc."),
+            //Company users
             new DefineUserWithRolesTenant("user1@4uInc.com", null,
                 "Tenant User", tenantNameForDataKey: "4U Inc."),
             new DefineUserWithRolesTenant("user2@4uInc.com", null,

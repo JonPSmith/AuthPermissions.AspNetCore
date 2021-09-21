@@ -53,7 +53,7 @@ namespace AuthPermissions.AdminCode
         /// <param name="userId"></param>
         /// <param name="email">if not null, then checked to be a valid email</param>
         /// <param name="userName"></param>
-        /// <param name="roleNames">The rolenames of this user - if null then assumes no roles</param>
+        /// <param name="roleNames">The rolenames of this user</param>
         /// <param name="tenantName">optional: full name of the tenant</param>
         /// <returns></returns>
         Task<IStatusGeneric> AddNewUserAsync(string userId, string email,
