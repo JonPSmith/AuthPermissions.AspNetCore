@@ -52,7 +52,8 @@
                         <form method="post" asp-action="RevokeActivate">
                             @Html.Hidden("userId", item.UserId)
                             @Html.Hidden("activate", !item.RoleNames.Any())
-                            <input type="submit" value="@(item.RoleNames.Any() ? "Revoke" : "Activate")" class="btn btn-primary" />
+                            <input type="submit" value="@(item.RoleNames.Any() ? "Revoke" : "Activate")" 
+                                   class="btn @(item.RoleNames.Any() ? "btn-danger" : "btn-success")" />
                         </form>
                     </td>
                 }

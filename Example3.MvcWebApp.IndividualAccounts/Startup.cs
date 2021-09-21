@@ -51,8 +51,8 @@ namespace Example3.MvcWebApp.IndividualAccounts
                     options.AppConnectionString = Configuration.GetConnectionString("DefaultConnection");
                 })
                 //NOTE: This uses the same database as the InvoiceDbContext
-                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
+                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example3AppAuthSetupData.BulkSingleTenants)
                 .AddAuthUsersIfEmpty(Example3AppAuthSetupData.UsersRolesDefinition)
