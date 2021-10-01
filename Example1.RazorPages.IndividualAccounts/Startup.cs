@@ -49,6 +49,7 @@ namespace Example1.RazorPages.IndividualAccounts
 
             services.RegisterAuthPermissions<Example1Permissions>()
                 .UsingInMemoryDatabase()
+                .UsingIndividualAccounts()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()

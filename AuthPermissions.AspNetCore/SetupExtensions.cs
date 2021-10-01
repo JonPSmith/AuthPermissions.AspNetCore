@@ -29,6 +29,21 @@ namespace AuthPermissions.AspNetCore
     /// </summary>
     public static class SetupExtensions
     {
+
+        /// <summary>
+        /// This registers the code to add AuthP's claims into 
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData UsingIndividualAccounts(this AuthSetupData setupData)
+        {
+            setupData.Options.InternalData.AuthorizationType = SetupInternalData.AuthorizationTypes.IndividualAccounts;
+            setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
+
+            return setupData;
+        }
+
+
         /// <summary>
         /// This will add a single user to ASP.NET Core individual accounts identity system using data in the appsettings.json file.
         /// This is here to allow you add a super-admin user when you first start up the application on a new system
@@ -37,6 +52,11 @@ namespace AuthPermissions.AspNetCore
         /// <returns></returns>
         public static AuthSetupData AddSuperUserToIndividualAccounts(this AuthSetupData setupData)
         {
+            if (setupData.Options.InternalData.AuthorizationType !=
+                SetupInternalData.AuthorizationTypes.IndividualAccounts)
+                throw new AuthPermissionsException(
+                    $"You must add the {nameof(UsingIndividualAccounts)} method before you call this method");
+
             setupData.Services.AddHostedService<IndividualAccountsAddSuperUser>();
 
             return setupData;
@@ -106,11 +126,16 @@ namespace AuthPermissions.AspNetCore
 
         private static void RegisterCommonServices(this AuthSetupData setupData)
         {
+            //common tests
+            if (setupData.Options.InternalData.AuthorizationType ==
+                SetupInternalData.AuthorizationTypes.NotSet)
+                throw new AuthPermissionsException(
+                    $"You must add a Using... method to define what authentication you are using, e.g. .{nameof(UsingIndividualAccounts)}() for Individual Accounts");
+
             //Internal services
             setupData.Services.AddSingleton(setupData.Options);
             setupData.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
-            setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
             if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)

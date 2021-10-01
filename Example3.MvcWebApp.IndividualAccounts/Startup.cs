@@ -47,12 +47,13 @@ namespace Example3.MvcWebApp.IndividualAccounts
 
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
-                    options.TenantType = TenantTypes.SingleLevel;
+                    options.TenantType = TenantTypes.HierarchicalTenant;
                     options.AppConnectionString = Configuration.GetConnectionString("DefaultConnection");
                 })
-                //NOTE: This uses the same database as the InvoiceDbContext
-                .RegisterTenantChangeService<InvoiceTenantChangeService>()
+                //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                .UsingIndividualAccounts()
+                .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example3AppAuthSetupData.BulkSingleTenants)
                 .AddAuthUsersIfEmpty(Example3AppAuthSetupData.UsersRolesDefinition)

@@ -30,6 +30,25 @@ namespace AuthPermissions.SetupCode
             SqlServer
         }
 
+        /// <summary>
+        /// Used to check what form of authorization you are using.
+        /// </summary>
+        public enum AuthorizationTypes
+        {
+            /// <summary>
+            /// This is the default - AuthPermissions will throw an exception to say you must define the Authorization Type
+            /// </summary>
+            NotSet,
+            /// <summary>
+            /// This says you are using IndividualAccount authorization
+            /// </summary>
+            IndividualAccounts,
+            /// <summary>
+            /// This says you are using OpenIdConnect authorization
+            /// </summary>
+            OpenIdConnect
+        }
+
 
         //--------------------------------------------------
         //Tenant settings
@@ -43,6 +62,11 @@ namespace AuthPermissions.SetupCode
         /// Internal: This contains the type of database used
         /// </summary>
         public SetupInternalData.DatabaseTypes DatabaseType { get; internal set; }
+
+        /// <summary>
+        /// Internal: this contains the type of authorization your application uses
+        /// </summary>
+        public SetupInternalData.AuthorizationTypes AuthorizationType { get; set; }
 
         /// <summary>
         /// Internal: This holds the a string containing the definition of the tenants
