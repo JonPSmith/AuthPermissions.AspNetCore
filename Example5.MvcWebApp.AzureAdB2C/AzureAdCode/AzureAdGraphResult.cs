@@ -2,16 +2,13 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
+using Newtonsoft.Json;
 
 namespace Example5.MvcWebApp.AzureAdB2C.AzureAdCode
 {
-    public class SyncAzureAdUsers : ISyncAuthenticationUsers
+    public class AzureAdGraphResult
     {
-        public Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
-        {
-            throw new System.NotImplementedException();
-        }
+        [JsonProperty(PropertyName = "value")]
+        public List<AzureUserInfo> Users { get; set; }
     }
 }

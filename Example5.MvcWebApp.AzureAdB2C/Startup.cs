@@ -41,6 +41,9 @@ namespace Example5.MvcWebApp.AzureAdB2C
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
 
+            //Needed by the SyncAzureAdUsers code
+            services.Configure<AzureAdOptions>(Configuration.GetSection("AzureAd"));
+
             services.RegisterAuthPermissions<Example5Permissions>()
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))

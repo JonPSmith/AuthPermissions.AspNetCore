@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 
 namespace Example5.MvcWebApp.AzureAdB2C.Controllers
 {
@@ -23,6 +24,13 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        public async Task<IActionResult> Test([FromServices] ISyncAuthenticationUsers service)
+        {
+            var adUsers = await service.GetAllActiveUserInfoAsync();
+
+            return View(nameof(Index));
         }
 
         public IActionResult Privacy()
