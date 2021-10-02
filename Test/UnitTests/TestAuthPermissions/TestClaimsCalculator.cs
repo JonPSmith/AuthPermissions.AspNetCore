@@ -38,7 +38,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants });
 
             //ATTEMPT
-            var claims = await service.GetClaimsForAuthUser("User1");
+            var claims = await service.GetClaimsForAuthUserAsync("User1");
 
             //VERIFY
             claims.Count.ShouldEqual(1);
@@ -68,7 +68,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants });
 
             //ATTEMPT
-            var claims = await service.GetClaimsForAuthUser("User1");
+            var claims = await service.GetClaimsForAuthUserAsync("User1");
 
             //VERIFY
             claims.Count.ShouldEqual(1);
@@ -87,7 +87,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants });
 
             //ATTEMPT
-            var claims = await service.GetClaimsForAuthUser("User1");
+            var claims = await service.GetClaimsForAuthUserAsync("User1");
 
             //VERIFY
             claims.Count.ShouldEqual(0);
@@ -112,7 +112,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
-            var claims = await service.GetClaimsForAuthUser("User1");
+            var claims = await service.GetClaimsForAuthUserAsync("User1");
 
             //VERIFY
             claims.Count.ShouldEqual(2);
@@ -132,7 +132,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
 
             //ATTEMPT
-            var claims = await service.GetClaimsForAuthUser("NoUser");
+            var claims = await service.GetClaimsForAuthUserAsync("NoUser");
 
             //VERIFY
             claims.Count.ShouldEqual(0);

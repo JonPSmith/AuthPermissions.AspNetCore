@@ -8,6 +8,7 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.JwtTokenCode;
+using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BulkLoadServices;
@@ -29,6 +30,20 @@ namespace AuthPermissions.AspNetCore
     /// </summary>
     public static class SetupExtensions
     {
+        /// <summary>
+        /// This registers an OpenIDConnect set up to work with Azure AD authorization
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <param name="settings">This contains the data needed to add the AuthP claims to the Azure AD login</param>
+        /// <returns></returns>
+        public static AuthSetupData UsingAzureAd(this AuthSetupData setupData, AzureAdSettings settings)
+        {
+            setupData.Options.InternalData.AuthorizationType = SetupInternalData.AuthorizationTypes.OpenIdConnect;
+            setupData.Services.SetupOpenAzureAdOpenId(settings);
+
+            return setupData;
+        }
+
 
         /// <summary>
         /// This registers the code to add AuthP's claims into 

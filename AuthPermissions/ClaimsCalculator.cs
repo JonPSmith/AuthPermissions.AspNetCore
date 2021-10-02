@@ -36,7 +36,7 @@ namespace AuthPermissions
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<List<Claim>> GetClaimsForAuthUser(string userId)
+        public async Task<List<Claim>> GetClaimsForAuthUserAsync(string userId)
         {
             var result = new List<Claim>();
 

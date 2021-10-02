@@ -51,7 +51,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
         /// <returns></returns>
         public async Task<string> GenerateJwtTokenAsync(string userId)
         {
-            var claims = await _claimsCalculator.GetClaimsForAuthUser(userId);
+            var claims = await _claimsCalculator.GetClaimsForAuthUserAsync(userId);
             var tokenAndDesc = GenerateJwtTokenHandler(userId, claims);
             var token = tokenAndDesc.tokenHandler.CreateToken(tokenAndDesc.tokenDescriptor);
             return tokenAndDesc.tokenHandler.WriteToken(token);
@@ -68,7 +68,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
                 throw new AuthPermissionsBadDataException(
                     $"The {nameof(AuthPJwtConfiguration)}.{nameof(AuthPJwtConfiguration.RefreshTokenExpires)} must be set with a TimeSpan value.");
 
-            var claims = await _claimsCalculator.GetClaimsForAuthUser(userId);
+            var claims = await _claimsCalculator.GetClaimsForAuthUserAsync(userId);
             var tokenAndDesc = GenerateJwtTokenHandler(userId, claims);
             var token = tokenAndDesc.tokenHandler.CreateToken(tokenAndDesc.tokenDescriptor);
 

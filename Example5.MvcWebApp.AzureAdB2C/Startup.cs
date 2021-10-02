@@ -1,3 +1,10 @@
+using AuthPermissions;
+using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.OpenIdCode;
+using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.SetupCode;
+using Example5.MvcWebApp.AzureAdB2C.AzureAdCode;
+using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,6 +40,15 @@ namespace Example5.MvcWebApp.AzureAdB2C
             });
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
+
+            services.RegisterAuthPermissions<Example5Permissions>()
+                //NOTE: This uses the same database as the individual accounts DB
+                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                .UsingAzureAd(AzureAdSettings.AzureAdDefaultSettings())
+                .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()
+                .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.BulkLoadRolesWithPermissions)
+                .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)
+                .SetupAspNetCoreAndDatabase();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

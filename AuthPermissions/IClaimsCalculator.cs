@@ -17,6 +17,6 @@ namespace AuthPermissions
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<List<Claim>> GetClaimsForAuthUser(string userId);
+        Task<List<Claim>> GetClaimsForAuthUserAsync(string userId);
     }
 }

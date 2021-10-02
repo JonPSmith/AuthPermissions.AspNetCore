@@ -21,7 +21,7 @@ namespace Test.TestHelpers
             }
         }
 
-        public Task<List<Claim>> GetClaimsForAuthUser(string userId)
+        public Task<List<Claim>> GetClaimsForAuthUserAsync(string userId)
         {
             return Task.FromResult(Claims) ;
         }

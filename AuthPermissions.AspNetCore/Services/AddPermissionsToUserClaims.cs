@@ -42,7 +42,7 @@ namespace AuthPermissions.AspNetCore.Services
         {
             var identity = await base.GenerateClaimsAsync(user);
             var userId = identity.Claims.GetUserIdFromClaims();
-            var claims = await _claimsCalculator.GetClaimsForAuthUser(userId);
+            var claims = await _claimsCalculator.GetClaimsForAuthUserAsync(userId);
             identity.AddClaims(claims);
 
             return identity;
