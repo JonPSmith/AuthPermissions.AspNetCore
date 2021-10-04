@@ -1,0 +1,86 @@
+﻿@using AuthPermissions.PermissionsCode
+@using Example5.MvcWebApp.AzureAdB2C.PermissionCode
+@model IEnumerable<ExamplesCommonCode.CommonAdmin.AuthUserDisplay>
+
+@{
+    ViewData["Title"] = "Auth Users";
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+<h1>Auth Users</h1>
+
+@if (User.HasPermission(Example5Permissions.UserSync))
+{
+    <a asp-action="SyncUsers" class="btn btn-primary">Sync with authentication provider's users</a>
+    <p> </p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                AuthRoles
+            </th>
+            <th>
+                @if (User.HasPermission(Example5Permissions.UserChange))
+                {
+                    Html.Raw(" Change |");
+                }
+                @if (User.HasPermission(Example5Permissions.UserChange))
+                {
+                    Html.Raw(" Delete");
+                }
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @(item.RoleNames.Any() ? string.Join(", ", item.RoleNames) : "<none>")
+                </td>
+                <td>
+                    @if (User.HasPermission(Example5Permissions.UserChange))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { userId = item.UserId });
+                        @Html.Raw(" |");
+                    }
+
+                    @if (User.HasPermission(Example5Permissions.UserChange))
+                    {
+                        @Html.ActionLink("Delete", "Delete", new { UserId = item.UserId })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

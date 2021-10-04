@@ -1,0 +1,122 @@
+﻿@using AuthPermissions.AdminCode
+@model List<AuthPermissions.AdminCode.SyncAuthUserWithChange>
+
+@{
+    ViewData["Title"] = "SyncUsers";
+}
+
+@if (!@Model.Any())
+{
+    <h3>There are no changes to apply to the AuthUsers</h3>
+    return;
+}
+
+<h3>Changes needed based on authentication provider's users</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Change type</th>
+            <th>Email</th>
+            <th>UserName</th>
+            <th>Roles Count</th>
+            <th>Manual Change</th>
+        </tr>
+    </thead>
+    <tbody id="contains-changes">
+
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>@item.FoundChangeType</td>
+
+            <td @(item.EmailChanged ? "class=bg-warning text-dark" : "")>@item.Email</td>
+            <td @(item.UserNameChanged ? "class=bg-warning text-dark" : "")>@item.UserName</td>
+            <td>@item.NumRoles</td>
+            <td>
+                <form id="@item.UserId" asp-action="EditFromSync" method="get">
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.UserId), item.UserId)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.Email), item.Email)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.UserName), item.UserName)
+                    @Html.Hidden(nameof(SyncAuthUserWithChange.FoundChangeType), item.FoundChangeType)
+
+                    <button type="submit" class="btn-sm btn-primary">@item.FoundChangeType</button>
+                    <button type="button" class="btn-sm btn-primary" onclick="SetIgnore('#@item.UserId', this)">Ignore</button>
+                </form>
+            </td>
+        </tr>
+        }
+
+    </tbody>
+</table>
+
+
+<input id="btnSubmit" type="submit" onclick="CreateFormAndSubmit()" value="Update all" class="btn btn-primary" />
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>
+
+@Html.AntiForgeryToken()
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+
+        function CreateFormAndSubmit() {
+            var forms = $('#contains-changes').find('form');
+            var params = {};
+
+            for (var i = 0; i < forms.length; i++) {
+                params['data[' + i + '].@nameof(SyncAuthUserWithChange.UserId)'] = $(forms[i]).find('#UserId').val();
+                params['data[' + i + '].@nameof(SyncAuthUserWithChange.Email)'] = $(forms[i]).find('#Email').val();
+                params['data[' + i + '].@nameof(SyncAuthUserWithChange.UserName)'] = $(forms[i]).find('#UserName').val();
+                params['data[' + i + '].@nameof(SyncAuthUserWithChange.FoundChangeType)'] = $(forms[i]).find('#FoundChangeType').val();
+            };
+            params['__RequestVerificationToken'] = $('input:hidden[name="__RequestVerificationToken"]').val();
+
+            postParamsAsFormSubmit('@Url.Action("SyncUsers")', params);
+        }
+
+        function SetIgnore(elementId, button) {
+            //Change the text to Ignored and change the color
+            $(button).text('Ignored');
+            $(button).removeClass('btn-primary');
+            $(button).addClass('btn-warning');
+            //Change FoundChange to 'NoChange'
+            $(elementId).find('#FoundChange').val('NoChange');
+            //Change the format of the parent td to grey
+            $(elementId).closest('tr').addClass('text-muted');
+        }
+
+        //---------------------------------------------------------------------
+        // General code used to send back data as if from a form
+
+        //thanks to https://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
+        // Post to the provided URL with the specified parameters.
+        function postParamsAsFormSubmit(path, parameters) {
+            var form = $('<form></form>');
+
+            form.attr("method", "post");
+            form.attr("action", path);
+
+            $.each(parameters,
+                function (key, value) {
+                    var field = $('<input></input>');
+
+                    field.attr("type", "hidden");
+                    field.attr("name", key);
+                    field.attr("value", value);
+
+                    form.append(field);
+                });
+
+            // The form needs to be a part of the document in
+            // order for us to be able to submit it.
+            $(document.body).append(form);
+            form.submit();
+        }
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+

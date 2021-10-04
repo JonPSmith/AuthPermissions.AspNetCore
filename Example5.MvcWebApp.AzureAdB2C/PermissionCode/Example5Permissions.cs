@@ -60,20 +60,6 @@ namespace Example5.MvcWebApp.AzureAdB2C.PermissionCode
         //41_100 - Permissions 
         [Display(GroupName = "RolesAdmin", Name = "See permissions", Description = "Can display the list of permissions", AutoGenerateFilter = true)]
         PermissionRead = 41_100,
-        [Display(GroupName = "RolesAdmin", Name = "See all permissions", Description = "list will included filtered Permission ", AutoGenerateFilter = true)]
-        IncludeFilteredPermissions = 41_101,
-
-        //42_000 - tenant admin
-        [Display(GroupName = "TenantAdmin", Name = "Read Tenants", Description = "Can list Tenants")]
-        TenantList = 42_000,
-        [Display(GroupName = "TenantAdmin", Name = "Create new Tenant", Description = "Can create new Tenants", AutoGenerateFilter = true)]
-        TenantCreate = 42_001,
-        [Display(GroupName = "TenantAdmin", Name = "Alter Tenants info", Description = "Can update Tenant's name", AutoGenerateFilter = true)]
-        TenantUpdate = 42_002,
-        [Display(GroupName = "TenantAdmin", Name = "Move tenant to another parent", Description = "Can move tenant to different parent (WARNING)", AutoGenerateFilter = true)]
-        TenantMove = 42_003,
-        [Display(GroupName = "TenantAdmin", Name = "Delete tenant", Description = "Can delete tenant (WARNING)", AutoGenerateFilter = true)]
-        TenantDelete = 42_004,
 
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions

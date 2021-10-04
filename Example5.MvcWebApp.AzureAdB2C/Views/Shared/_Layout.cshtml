@@ -23,6 +23,16 @@
                         </li>
                         <li class="dropdown nav-link text-dark">
                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Auth Admin
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" asp-area="" asp-controller="AuthUsers" asp-action="Index">List all AuthUsers</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="Index">List Roles</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
+                            </div>
+                        </li>
+                        <li class="dropdown nav-link text-dark">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                 Users info
                             </a>
                             <div class="dropdown-menu">

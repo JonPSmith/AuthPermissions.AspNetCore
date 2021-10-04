@@ -10,7 +10,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.PermissionCode
     {
         public const string BulkLoadRolesWithPermissions = @"
 SuperAdmin | Super admin - only use for setup|: AccessAll,
-Admin Role | Overall app Admin |: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate
+Admin Role | Overall app Admin |: UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead
 
 Basic Role | Normal User |: BasicFeature";
 
@@ -20,7 +20,7 @@ Basic Role | Normal User |: BasicFeature";
             new DefineUserWithRolesTenant("Test@authpermissions.onmicrosoft.com", "Test User", "Basic Role", 
                 "0ee0f6cb-4a2e-4aaf-8e4b-dc0c4cd01613"),
             new DefineUserWithRolesTenant("Admin@authpermissions.onmicrosoft.com", "Admin User", "Admin Role",
-                "196c54a6-13a8-4c94-923e-a203a53c82c1"),
+                "a5a10d86-27cf-4fff-8bdd-ca6ee9c93f27"),
         };
     }
 }
