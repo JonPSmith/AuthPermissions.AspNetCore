@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="UnitTests\TestAzureAd\" />
     <Folder Include="UnitTests\TestExampleCommonCode\" />
   </ItemGroup>
 
@@ -50,6 +51,7 @@
     <ProjectReference Include="..\Example3.MvcWebApp.IndividualAccounts\Example3.MvcWebApp.IndividualAccounts.csproj" />
     <ProjectReference Include="..\Example4.MvcWebApp.IndividualAccounts\Example4.MvcWebApp.IndividualAccounts.csproj" />
     <ProjectReference Include="..\Example4.ShopCode\Example4.ShopCode.csproj" />
+    <ProjectReference Include="..\Example5.MvcWebApp.AzureAdB2C\Example5.MvcWebApp.AzureAdB2C.csproj" />
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />
   </ItemGroup>
 

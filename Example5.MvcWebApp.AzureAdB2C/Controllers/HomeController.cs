@@ -26,13 +26,6 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Test([FromServices] ISyncAuthenticationUsers service)
-        {
-            var adUsers = await service.GetAllActiveUserInfoAsync();
-
-            return View(nameof(Index));
-        }
-
         public IActionResult Privacy()
         {
             return View();

@@ -16,13 +16,16 @@ using Newtonsoft.Json.Linq;
 
 namespace Example5.MvcWebApp.AzureAdB2C.AzureAdCode
 {
-    //code taken from https://github.com/Azure-Samples/active-directory-dotnetcore-daemon-v2/tree/master/1-Call-MSGraph
-    //see https://github.com/Azure-Samples/active-directory-dotnetcore-daemon-v2/tree/master/1-Call-MSGraph#register-the-client-app-daemon-console on how to set it up
+    /// <summary>
+    /// This provides a <see cref="ISyncAuthenticationUsers"/> service that returns all the Azure AD users who's account is enabled
+    /// code taken from https://github.com/Azure-Samples/active-directory-dotnetcore-daemon-v2/tree/master/1-Call-MSGraph
+    /// see https://github.com/Azure-Samples/active-directory-dotnetcore-daemon-v2/tree/master/1-Call-MSGraph#register-the-client-app-daemon-console on how to set it up
+    /// </summary>
     public class SyncAzureAdUsers : ISyncAuthenticationUsers
     {
         //See this SO answer https://stackoverflow.com/a/52497226/1434764 for using filter
-        const string ReadUsersGraphApi = "https://graph.microsoft.com/v1.0/users";//"?$select=displayName,id,userPrincipalName,preferred_username";
-        //const string ReadUsersGraphApi = "https://graph.microsoft.com/v1.0/users";
+        //This will only return Azure AD users that are enabled
+        private const string ReadUsersGraphApi = "https://graph.microsoft.com/v1.0/users?$filter=AccountEnabled eq true";
 
         private readonly AzureAdOptions _config;
         private readonly HttpClient _httpClient;
