@@ -34,6 +34,7 @@ namespace Test.UnitTests.TestExamples
             //ATTEMPT
             services.RegisterAuthPermissions<Example1Permissions>()
                 .UsingInMemoryDatabase()
+                .IndividualAccountsAuthentication()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
@@ -58,6 +59,7 @@ namespace Test.UnitTests.TestExamples
                 })
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(connectionString)
+                .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example3AppAuthSetupData.BulkSingleTenants)

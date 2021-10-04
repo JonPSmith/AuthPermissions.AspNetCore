@@ -55,7 +55,7 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 })
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
-                .UsingIndividualAccounts()
+                .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<RetailTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)

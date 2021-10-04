@@ -44,7 +44,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
             var options = services.GetRequiredService<AuthPermissionsOptions>();
             try
             {
-                if (options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.SqliteInMemory)
+                if (options.InternalData.AuthPDatabaseType == AuthPDatabaseTypes.SqliteInMemory)
                     throw new AuthPermissionsException(
                         $"The in-memory database is created by the {nameof(AuthPermissions.SetupExtensions.UsingInMemoryDatabase)} extension method");
                 else

@@ -31,33 +31,43 @@ namespace AuthPermissions.AspNetCore
     public static class SetupExtensions
     {
         /// <summary>
-        /// This registers an OpenIDConnect set up to work with Azure AD authorization
-        /// </summary>
-        /// <param name="setupData"></param>
-        /// <param name="settings">This contains the data needed to add the AuthP claims to the Azure AD login</param>
-        /// <returns></returns>
-        public static AuthSetupData UsingAzureAd(this AuthSetupData setupData, AzureAdSettings settings)
-        {
-            setupData.Options.InternalData.AuthorizationType = SetupInternalData.AuthorizationTypes.OpenIdConnect;
-            setupData.Services.SetupOpenAzureAdOpenId(settings);
-
-            return setupData;
-        }
-
-
-        /// <summary>
-        /// This registers the code to add AuthP's claims into 
+        /// This registers the code to add AuthP's claims using IndividualAccounts
         /// </summary>
         /// <param name="setupData"></param>
         /// <returns></returns>
-        public static AuthSetupData UsingIndividualAccounts(this AuthSetupData setupData)
+        public static AuthSetupData IndividualAccountsAuthentication(this AuthSetupData setupData)
         {
-            setupData.Options.InternalData.AuthorizationType = SetupInternalData.AuthorizationTypes.IndividualAccounts;
+            setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.IndividualAccounts;
             setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
 
             return setupData;
         }
 
+        /// <summary>
+        /// This registers an OpenIDConnect set up to work with Azure AD authorization
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <param name="settings">This contains the data needed to add the AuthP claims to the Azure AD login</param>
+        /// <returns></returns>
+        public static AuthSetupData AzureAdAuthentication(this AuthSetupData setupData, AzureAdSettings settings)
+        {
+            setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.AzureAd;
+            setupData.Services.SetupOpenAzureAdOpenId(settings);
+
+            return setupData;
+        }
+
+        /// <summary>
+        /// This says you have manually set up the Authentication code which adds the AuthP Roles and Tenant claims to the cookie or JWT Token
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData ManualSetupOfAuthentication(this AuthSetupData setupData)
+        {
+            setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.UserProvidedAuthentication;
+
+            return setupData;
+        }
 
         /// <summary>
         /// This will add a single user to ASP.NET Core individual accounts identity system using data in the appsettings.json file.
@@ -67,11 +77,7 @@ namespace AuthPermissions.AspNetCore
         /// <returns></returns>
         public static AuthSetupData AddSuperUserToIndividualAccounts(this AuthSetupData setupData)
         {
-            if (setupData.Options.InternalData.AuthorizationType !=
-                SetupInternalData.AuthorizationTypes.IndividualAccounts)
-                throw new AuthPermissionsException(
-                    $"You must add the {nameof(UsingIndividualAccounts)} method before you call this method");
-
+            setupData.CheckAuthorizationIsIndividualAccounts();
             setupData.Services.AddHostedService<IndividualAccountsAddSuperUser>();
 
             return setupData;
@@ -90,18 +96,18 @@ namespace AuthPermissions.AspNetCore
         /// <summary>
         /// This finalizes the setting up of the AuthPermissions parts needed by ASP.NET Core
         /// This may trigger code to run on startup, before ASP.NET Core active, to
-        /// 1) Migrate the AuthP's database 
+        /// 1) Migrate the AuthP's database
+        /// 2) Run a bulk load process
         /// </summary>
         /// <param name="setupData"></param>
         public static void SetupAspNetCoreAndDatabase(this AuthSetupData setupData)
         {
-            if (setupData.Options.InternalData.DatabaseType == SetupInternalData.DatabaseTypes.NotSet)
-                throw new AuthPermissionsException("You must register a database type for the AuthP's database.");
+            setupData.CheckDatabaseTypeIsSet();
                 
             setupData.RegisterCommonServices();
 
             //These are the services that can only be run on 
-            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
+            if (setupData.Options.InternalData.AuthPDatabaseType != AuthPDatabaseTypes.SqliteInMemory)
                 //Only run the migration on the AuthP's database if its not a in-memory database
                 setupData.Services.AddHostedService<SetupAuthDatabaseOnStartup>();
 
@@ -112,7 +118,6 @@ namespace AuthPermissions.AspNetCore
                 setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
         }
 
-
         /// <summary>
         /// This will set up the basic AppPermissions parts and and any roles, tenants and users in the in-memory database
         /// </summary>
@@ -120,9 +125,7 @@ namespace AuthPermissions.AspNetCore
         /// <returns>The built ServiceProvider for access to AuthP's services</returns>
         public static async Task<ServiceProvider> SetupForUnitTestingAsync(this AuthSetupData setupData)
         {
-            if (setupData.Options.InternalData.DatabaseType != SetupInternalData.DatabaseTypes.SqliteInMemory)
-                throw new AuthPermissionsException(
-                    $"You can only call the {nameof(SetupForUnitTestingAsync)} if you used the {nameof(AuthPermissions.SetupExtensions.UsingInMemoryDatabase)} method.");
+            setupData.CheckDatabaseTypeIsSetToSqliteInMemory();
 
             setupData.RegisterCommonServices();
 
@@ -142,10 +145,7 @@ namespace AuthPermissions.AspNetCore
         private static void RegisterCommonServices(this AuthSetupData setupData)
         {
             //common tests
-            if (setupData.Options.InternalData.AuthorizationType ==
-                SetupInternalData.AuthorizationTypes.NotSet)
-                throw new AuthPermissionsException(
-                    $"You must add a Using... method to define what authentication you are using, e.g. .{nameof(UsingIndividualAccounts)}() for Individual Accounts");
+            setupData.CheckThatAuthorizationTypeIsSetIfNotInUnitTestMode();
 
             //Internal services
             setupData.Services.AddSingleton(setupData.Options);

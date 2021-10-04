@@ -63,6 +63,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
+                .IndividualAccountsAuthentication()
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCorePart();
 
@@ -86,6 +87,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var aspNetConnectionString = this.GetUniqueDatabaseConnectionString();
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
+                .IndividualAccountsAuthentication()
                 .UsingEfCoreSqlServer(aspNetConnectionString)
                 .SetupAspNetCoreAndDatabase();
 
@@ -166,6 +168,7 @@ Role2 |my description|: One, Two, Two, Three
 Role3: One")
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithSuperUser())
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
+                .IndividualAccountsAuthentication()
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCoreAndDatabase();
 

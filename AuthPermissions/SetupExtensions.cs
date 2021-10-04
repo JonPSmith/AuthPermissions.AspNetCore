@@ -3,15 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
-using AuthPermissions.AdminCode.Services;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
-using AuthPermissions.SetupCode.Factories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.Sqlite;
@@ -52,8 +47,7 @@ namespace AuthPermissions
         /// <returns></returns>
         public static AuthSetupData UsingEfCoreSqlServer(this AuthSetupData setupData, string connectionString)
         {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new AuthPermissionsException("You must provide a connection string to the database");
+            connectionString.CheckConnectString();
 
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(
                 options =>
@@ -62,7 +56,7 @@ namespace AuthPermissions
                         dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
                     EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
                 });
-            setupData.Options.InternalData.DatabaseType = SetupInternalData.DatabaseTypes.SqlServer;
+            setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.SqlServer;
 
             return setupData;
         }
@@ -81,7 +75,7 @@ namespace AuthPermissions
                 EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions);
             });
                 
-            setupData.Options.InternalData.DatabaseType = SetupInternalData.DatabaseTypes.SqliteInMemory;
+            setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.SqliteInMemory;
 
             //We build a local AuthPermissionsDbContext and create the database
             var builder = new DbContextOptionsBuilder<AuthPermissionsDbContext>()

@@ -11,44 +11,6 @@ namespace AuthPermissions.SetupCode
     /// </summary>
     public class SetupInternalData
     {
-        /// <summary>
-        /// The different database types that AuthPermissions supports
-        /// </summary>
-        public enum DatabaseTypes
-        {
-            /// <summary>
-            /// This is the default - AuthPermissions will throw an exception to say you must define the database type
-            /// </summary>
-            NotSet,
-            /// <summary>
-            /// This is a in-memory database - useful for unit testing
-            /// </summary>
-            SqliteInMemory, 
-            /// <summary>
-            /// SQL Server database is used
-            /// </summary>
-            SqlServer
-        }
-
-        /// <summary>
-        /// Used to check what form of authorization you are using.
-        /// </summary>
-        public enum AuthorizationTypes
-        {
-            /// <summary>
-            /// This is the default - AuthPermissions will throw an exception to say you must define the Authorization Type
-            /// </summary>
-            NotSet,
-            /// <summary>
-            /// This says you are using IndividualAccount authorization
-            /// </summary>
-            IndividualAccounts,
-            /// <summary>
-            /// This says you are using OpenIdConnect authorization
-            /// </summary>
-            OpenIdConnect
-        }
-
 
         //--------------------------------------------------
         //Tenant settings
@@ -61,12 +23,12 @@ namespace AuthPermissions.SetupCode
         /// <summary>
         /// Internal: This contains the type of database used
         /// </summary>
-        public SetupInternalData.DatabaseTypes DatabaseType { get; internal set; }
+        public AuthPDatabaseTypes AuthPDatabaseType { get; internal set; }
 
         /// <summary>
         /// Internal: this contains the type of authorization your application uses
         /// </summary>
-        public SetupInternalData.AuthorizationTypes AuthorizationType { get; set; }
+        public AuthPAuthenticationTypes AuthPAuthenticationType { get; set; }
 
         /// <summary>
         /// Internal: This holds the a string containing the definition of the tenants
