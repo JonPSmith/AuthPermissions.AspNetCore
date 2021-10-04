@@ -28,7 +28,7 @@ namespace Test.UnitTests.TestAzureAd
         /// </summary>
         /// <returns></returns>
         [RunnableInDebugOnly]
-        public async Task TestAddDemoUsersAsync()
+        public async Task TestOldGraphSyncAzureAdUsersAsync()
         {
             //SETUP
             var config = AppSettings.GetConfiguration();
@@ -51,5 +51,6 @@ namespace Test.UnitTests.TestAzureAd
             }
             users.Any().ShouldBeTrue();
         }
+
     }
 }

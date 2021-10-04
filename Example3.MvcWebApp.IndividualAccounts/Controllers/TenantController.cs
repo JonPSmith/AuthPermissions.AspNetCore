@@ -31,7 +31,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         }
 
         [HasPermission(Example3Permissions.TenantCreate)]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             return View();
         }

@@ -38,7 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UnitTests\TestAzureAd\" />
     <Folder Include="UnitTests\TestExampleCommonCode\" />
   </ItemGroup>
 

@@ -62,6 +62,7 @@ namespace AuthPermissions.SetupCode
         /// This checks that the <see cref="SetupInternalData.AuthPDatabaseType"/> enum is set to a database type
         /// </summary>
         /// <param name="setupData"></param>
+        /// <param name="callingMethod">DO NOT USE - used to get the calling method name</param>
         public static void CheckDatabaseTypeIsSetToSqliteInMemory(this AuthSetupData setupData, [CallerMemberName] string callingMethod = "")
         {
             if (setupData.Options.InternalData.AuthPDatabaseType != AuthPDatabaseTypes.SqliteInMemory)
