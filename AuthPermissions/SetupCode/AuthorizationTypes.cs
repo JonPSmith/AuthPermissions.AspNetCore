@@ -17,9 +17,9 @@ namespace AuthPermissions.SetupCode
         /// </summary>
         IndividualAccounts,
         /// <summary>
-        /// This says you are using AzureAd Authentication
+        /// This says you are using an authentication provider that uses OpenID
         /// </summary>
-        AzureAd,
+        OpenId,
         /// <summary>
         /// This means you have manually set up the Authentication code which adds the AuthP Roles and Tenant claims to the cookie or JWT Token
         /// </summary>

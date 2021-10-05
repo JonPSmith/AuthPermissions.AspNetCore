@@ -51,7 +51,7 @@ namespace AuthPermissions.AspNetCore
         /// <returns></returns>
         public static AuthSetupData AzureAdAuthentication(this AuthSetupData setupData, AzureAdSettings settings)
         {
-            setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.AzureAd;
+            setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.OpenId;
             setupData.Services.SetupOpenAzureAdOpenId(settings);
 
             return setupData;

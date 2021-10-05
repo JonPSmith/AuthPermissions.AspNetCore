@@ -2,8 +2,8 @@
 
 ## 1.3.0
 
-- BREAKING CHANGE: When registering AuthP you need to state what authentication provider you are using - see !!!!!!!!!!!!!!!!!!!!!!!!!
-- New Feature: New AzureAdAuthentication method that causes an Azure AD via Login will add AuthP claims to the user.
+- BREAKING CHANGE: When registering AuthP you need to state what authentication provider you are using - see https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Authentication-explained
+- New Feature: New AzureAdAuthentication method that causes an Azure AD via Login will add AuthP claims to the user. See Example5 for for how this works.
 
 
 ## 1.2.1

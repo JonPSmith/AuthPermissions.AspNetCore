@@ -45,9 +45,7 @@ namespace Example5.MvcWebApp.AzureAdB2C
             services.Configure<AzureAdOptions>(Configuration.GetSection("AzureAd"));
 
             services.RegisterAuthPermissions<Example5Permissions>()
-                //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
-                //This uses the 
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
                 .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.BulkLoadRolesWithPermissions)
