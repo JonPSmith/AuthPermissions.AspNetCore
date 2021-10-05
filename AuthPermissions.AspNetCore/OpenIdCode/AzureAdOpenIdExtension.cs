@@ -2,10 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;

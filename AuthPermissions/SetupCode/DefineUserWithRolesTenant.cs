@@ -19,7 +19,7 @@ namespace AuthPermissions.SetupCode
         /// <param name="email">Unique email</param>
         /// <param name="userName">name to help the admin team to work out who the user is</param>
         /// <param name="roleNamesCommaDelimited">A string containing a comma delimited set of auth roles that the user</param>
-        /// <param name="userId"></param>
+        /// <param name="userId">If null, then you must register a <see cref="IFindUserInfoService"/> to provide a lookup of the UserId</param>
         /// <param name="uniqueUserName">A string that is unique for each user, e.g. email. If not provided then uses the userName</param>
         /// <param name="tenantNameForDataKey">Optional: The unique name of your multi-tenant that this user is linked to</param>
         public DefineUserWithRolesTenant(string email, string userName, string roleNamesCommaDelimited,
@@ -36,8 +36,9 @@ namespace AuthPermissions.SetupCode
         }
 
         /// <summary>
-        /// This is what AuthPermissions needs to setup the <see cref="UserToRole"/>
-        /// You can add the userId directly or provide a FindUserId function to set value
+        /// This is what AuthPermissions needs to create a new AuthP User
+        /// You can set the userId directly or if you leave it as null then you must provide <see cref="IFindUserInfoService"/>
+        /// which will interrogate the authentication provider for the UserId
         /// </summary>
         public string UserId { get; set; }
 
