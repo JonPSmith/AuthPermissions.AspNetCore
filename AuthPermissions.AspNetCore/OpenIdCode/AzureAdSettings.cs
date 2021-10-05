@@ -10,19 +10,18 @@ namespace AuthPermissions.AspNetCore.OpenIdCode
         /// <summary>
         /// This provides a standard set of claim names when working with Azure AD
         /// </summary>
-        /// <param name="addNewUserIfNotPresent">Optional: defaults to NOT adding a new user if that user isn't in the AuthP list</param>
+        /// <param name="addNewUserIfNotPresent">If true and the logging in user isn't in the AuthP users, then a new AuthP user is created</param>
         /// <param name="authenticationSchemeName">Optional:
         /// Needs to be that same as used in AddAuthentication call - defaults to <see cref="OpenIdConnectDefaults.AuthenticationScheme"/></param>
-        /// <returns></returns>
-        public static AzureAdSettings AzureAdDefaultSettings(bool addNewUserIfNotPresent = false, 
+        /// <returns>AzureAdSettings</returns>
+        public static AzureAdSettings AzureAdDefaultSettings(bool addNewUserIfNotPresent, 
             string authenticationSchemeName = OpenIdConnectDefaults.AuthenticationScheme)
         {
             return new AzureAdSettings(
                 "http://schemas.microsoft.com/identity/claims/objectidentifier",
-                "name",
                 "preferred_username",
-                authenticationSchemeName,
-                addNewUserIfNotPresent);
+                "name",
+                addNewUserIfNotPresent, authenticationSchemeName);
         }
 
         /// <summary>
@@ -31,10 +30,11 @@ namespace AuthPermissions.AspNetCore.OpenIdCode
         /// <param name="userIdClaimName"></param>
         /// <param name="emailClaimName"></param>
         /// <param name="usernameClaimName"></param>
-        /// <param name="authenticationSchemeName"></param>
         /// <param name="addNewUserIfNotPresent"></param>
+        /// <param name="authenticationSchemeName"></param>
         public AzureAdSettings(string userIdClaimName, string emailClaimName, string usernameClaimName,
-            string authenticationSchemeName, bool addNewUserIfNotPresent)
+            bool addNewUserIfNotPresent,
+            string authenticationSchemeName)
         {
             UserIdClaimName = userIdClaimName;
             EmailClaimName = emailClaimName;

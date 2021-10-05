@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.3.0
+
+- BREAKING CHANGE: When registering AuthP you need to state what authentication provider you are using - see !!!!!!!!!!!!!!!!!!!!!!!!!
+- New Feature: New AzureAdAuthentication method that causes an Azure AD via Login will add AuthP claims to the user.
+
+
 ## 1.2.1
 
 - Bug fix: UpdateUserAsync didn't handle no roles properly

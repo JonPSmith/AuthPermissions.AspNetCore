@@ -8,7 +8,7 @@ The AuthPermissions.AspNetCore library (shortened to AuthP) provides extra autho
 
 The AuthP library also:
 
-- Works with any ASP.NET Core authentication provider.
+- Works with any ASP.NET Core authentication provider. Currently has built-in individual accounts and Azure Active Directory versions, but you can create your own.
 - Works with either Cookie authentication or JWT Token authentication.
 - Contains an admin services to sync the authentication provider users with  AuthP's users.
 - Has a comprehensive set of admin services to manage AuthP's Roles, Tenants and Users.
@@ -54,6 +54,13 @@ This is a ASP.NET Core MVC application using the Individual Accounts authenticat
 - how to use AuthP to create a hierarchical multi-tenant system.
 - A more substantial application with lots of Permissions, Roles, Tenants and Users.
 - How the AuthP' admin code can be used to control Roles, Users and Tenants.
+
+### Example5 - Login via Azure AD
+
+This is a ASP.NET Core MVC application using the Azure AD authentication provider with Cookie authentication. Look at this example for:
+
+- How to use Azure AD authentication with the AuthP library.
+
 
 ## Notes on creating a NuGet package
 

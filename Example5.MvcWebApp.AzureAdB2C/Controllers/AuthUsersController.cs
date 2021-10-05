@@ -74,7 +74,6 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
             }
 
             throw new ArgumentOutOfRangeException();
-
         }
 
         [HttpPost]

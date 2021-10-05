@@ -1,8 +1,50 @@
-﻿@{
+﻿@model AppSummary
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1>Example4 - hierarchical multi-tenant</h1>
 </div>
+<h4>Application summary</h4>
+<ul>
+    <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.Application</li>
+    <li><strong>@nameof(AppSummary.AuthorizationProvider)</strong>:&nbsp;@Model.AuthorizationProvider</li>
+    <li><strong>@nameof(AppSummary.CookieOrToken)</strong>:&nbsp;@Model.CookieOrToken</li>
+    <li>
+        <strong>@nameof(AppSummary.Databases)</strong>:&nbsp;
+        <ul>
+            @foreach (var database in Model.Databases)
+            {
+                <li>@database</li>
+            }
+        </ul>
+    </li>
+    @if (@Model.Note != null)
+    {
+        <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.Note</li>
+    }
+</ul>
+
+<h2>How to use use this application</h2>
+<p>
+    <ol>
+        <li>
+            Log in using one of these two users.
+            <ul>
+                <li>
+                    <strong>Test@authpermissions.onmicrosoft.com</strong>, password <strong>Luna0017</strong>
+                    <br />
+                    This use has the Basic Role
+                </li>
+                <li>
+                    <strong>Admin@authpermissions.onmicrosoft.com</strong>, password <strong>YourIn7189</strong>
+                    <br />
+                    This use has the Admin Role
+                </li>
+            </ul>
+        </li>
+        <li>When log in you can see your claims, permissions and other user/role info via the "User Admin" menu button.</li>
+    </ol>
+</p>
+

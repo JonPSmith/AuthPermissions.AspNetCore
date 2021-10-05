@@ -29,10 +29,5 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
             }
             return View((AuthUserDisplay)null);
         }
-
-        public IActionResult UserPermissions([FromServices] IUsersPermissionsService service)
-        {
-            return View(service.PermissionsFromUser(HttpContext.User));
-        }
     }
 }
