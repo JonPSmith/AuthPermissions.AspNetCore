@@ -1,4 +1,4 @@
-﻿@model AppSummary
+﻿@model AppSummaryPlus
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -8,11 +8,11 @@
 </div>
 <h4>Application summary</h4>
 <ul>
-    <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.Application</li>
-    <li><strong>@nameof(AppSummary.AuthorizationProvider)</strong>:&nbsp;@Model.AuthorizationProvider</li>
-    <li><strong>@nameof(AppSummary.CookieOrToken)</strong>:&nbsp;@Model.CookieOrToken</li>
+    <li><strong>@nameof(AppSummaryPlus.Application)</strong>:&nbsp;@Model.Application</li>
+    <li><strong>@nameof(AppSummaryPlus.AuthorizationProvider)</strong>:&nbsp;@Model.AuthorizationProvider</li>
+    <li><strong>@nameof(AppSummaryPlus.CookieOrToken)</strong>:&nbsp;@Model.CookieOrToken</li>
     <li>
-        <strong>@nameof(AppSummary.Databases)</strong>:&nbsp;
+        <strong>@nameof(AppSummaryPlus.Databases)</strong>:&nbsp;
         <ul>
             @foreach (var database in Model.Databases)
             {
@@ -22,11 +22,14 @@
     </li>
     @if (@Model.Note != null)
     {
-        <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.Note</li>
+        <li><strong>@nameof(AppSummaryPlus.Note)</strong>:&nbsp;@Model.Note</li>
     }
 </ul>
 
-<h2>How to use use this application</h2>
+
+<h1 class=text-primary>@Model.WhatTypeOfAuthUser</h1>
+
+<h3>How to use use this application</h3>
 <p>
     <ol>
         <li>
