@@ -45,11 +45,11 @@ namespace Example5.MvcWebApp.AzureAdB2C
             services.Configure<AzureAdOptions>(Configuration.GetSection("AzureAd"));
 
             services.RegisterAuthPermissions<Example5Permissions>()
-                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
-                .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()
+                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.BulkLoadRolesWithPermissions)
                 .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)
+                .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()
                 .SetupAspNetCoreAndDatabase();
         }
 
