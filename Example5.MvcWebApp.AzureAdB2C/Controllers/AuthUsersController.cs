@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
 using Example5.MvcWebApp.AzureAdB2C.Models;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.AspNetCore.Mvc;
@@ -70,7 +69,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
                             new { errorMessage = status.GetAllErrors() });
                     return View(nameof(Edit), status.Result);
                 case SyncAuthUserChangeTypes.Delete:
-                    return View(nameof(Delete), new { userId = input.UserId });
+                    return RedirectToAction(nameof(Delete), new { userId = input.UserId});
             }
 
             throw new ArgumentOutOfRangeException();
@@ -83,7 +82,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
             if (!ModelState.IsValid)
             {
                 await input.SetupDropDownListsAsync(_authUsersAdmin);//refresh dropdown
-                return View(input.FoundChangeType);
+                return View(input.FoundChangeType.ToString(),  input.FoundChangeType);
             }
 
             var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin);

@@ -5,11 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.EfCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.EntityFrameworkCore;
-using StatusGeneric;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -74,11 +72,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                             new { errorMessage = status.GetAllErrors() });
                     return View(nameof(Edit), status.Result);
                 case SyncAuthUserChangeTypes.Delete:
-                    return View(nameof(Delete), new { userId = input.UserId });
+                    return RedirectToAction(nameof(Delete), new { userId = input.UserId });
             }
 
             throw new ArgumentOutOfRangeException();
-
         }
 
         [HttpPost]
@@ -88,7 +85,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
             if (!ModelState.IsValid)
             {
                 await input.SetupDropDownListsAsync(_authUsersAdmin);//refresh dropdown
-                return View(input.FoundChangeType);
+                return View(input.FoundChangeType.ToString());
             }
 
             var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin);
