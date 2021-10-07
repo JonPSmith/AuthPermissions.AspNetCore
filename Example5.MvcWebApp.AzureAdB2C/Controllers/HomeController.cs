@@ -26,9 +26,9 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
             if (User.Identity?.IsAuthenticated != true)
                 appSummary.WhatTypeOfAuthUser = "There is no logged in user";
             else if (User.Claims.All(x => x.Type != PermissionConstants.PackedPermissionClaimType))
-                appSummary.WhatTypeOfAuthUser = "Logged in user is in AuthP, but no setup";
-            else if (User.GetPackedPermissionsFromUser() == null)
                 appSummary.WhatTypeOfAuthUser = "Logged in user is not known by AuthP";
+            else if (User.GetPackedPermissionsFromUser() == null)
+                appSummary.WhatTypeOfAuthUser = "Logged in user is in AuthP, but no setup";
             else if (User.HasPermission(Example5Permissions.UserRead))
                 appSummary.WhatTypeOfAuthUser = "Logged in user is an AuthP Admin user";
             else

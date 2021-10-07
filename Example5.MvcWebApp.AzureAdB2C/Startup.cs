@@ -31,13 +31,7 @@ namespace Example5.MvcWebApp.AzureAdB2C
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
 
-            services.AddControllersWithViews(options =>
-            {
-                //var policy = new AuthorizationPolicyBuilder()
-                //    .RequireAuthenticatedUser()
-                //    .Build();
-                //options.Filters.Add(new AuthorizeFilter(policy));
-            });
+            services.AddControllersWithViews();
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
 
