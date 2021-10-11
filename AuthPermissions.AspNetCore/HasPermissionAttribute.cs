@@ -15,7 +15,7 @@ namespace AuthPermissions.AspNetCore
     public class HasPermissionAttribute : AuthorizeAttribute
     {
         /// <summary>
-        /// T
+        /// This creates an HasPermission attribute with a Permission enum member
         /// </summary>
         /// <param name="permission"></param>
         public HasPermissionAttribute(object permission) : base(permission?.ToString()!)

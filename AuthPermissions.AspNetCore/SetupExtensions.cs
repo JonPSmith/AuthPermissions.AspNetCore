@@ -38,7 +38,21 @@ namespace AuthPermissions.AspNetCore
         public static AuthSetupData IndividualAccountsAuthentication(this AuthSetupData setupData)
         {
             setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.IndividualAccounts;
-            setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims>();
+            setupData.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AddPermissionsToUserClaims<IdentityUser>>();
+
+            return setupData;
+        }
+
+        /// <summary>
+        /// This registers the code to add AuthP's claims using IndividualAccounts that has a custom Identity User
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData IndividualAccountsAuthentication<TCustomIdentityUser>(this AuthSetupData setupData)
+            where TCustomIdentityUser : IdentityUser
+        {
+            setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.IndividualAccounts;
+            setupData.Services.AddScoped<IUserClaimsPrincipalFactory<TCustomIdentityUser>, AddPermissionsToUserClaims<TCustomIdentityUser>>();
 
             return setupData;
         }
@@ -78,7 +92,22 @@ namespace AuthPermissions.AspNetCore
         public static AuthSetupData AddSuperUserToIndividualAccounts(this AuthSetupData setupData)
         {
             setupData.CheckAuthorizationIsIndividualAccounts();
-            setupData.Services.AddHostedService<IndividualAccountsAddSuperUser>();
+            setupData.Services.AddHostedService<IndividualAccountsAddSuperUser<IdentityUser>>();
+
+            return setupData;
+        }
+
+        /// <summary>
+        /// This will add a single user to ASP.NET Core individual accounts (with custom identity)using data in the appsettings.json file.
+        /// This is here to allow you add a super-admin user when you first start up the application on a new system
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData AddSuperUserToIndividualAccounts<TCustomIdentityUser>(this AuthSetupData setupData)
+            where TCustomIdentityUser : IdentityUser, new()
+        {
+            setupData.CheckAuthorizationIsIndividualAccounts();
+            setupData.Services.AddHostedService<IndividualAccountsAddSuperUser<TCustomIdentityUser>>();
 
             return setupData;
         }

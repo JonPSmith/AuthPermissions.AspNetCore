@@ -72,7 +72,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUser>();
+            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUser<IdentityUser>>();
             await startupServices.Last().StartAsync(default);
 
             //VERIFY
@@ -177,7 +177,7 @@ Role3: One")
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser>();
+            startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser<IdentityUser>>();
             await startupServices[1].StartAsync(default);
             startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
             await startupServices[2].StartAsync(default);

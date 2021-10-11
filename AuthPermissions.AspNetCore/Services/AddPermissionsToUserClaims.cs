@@ -1,8 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
@@ -16,7 +15,8 @@ namespace AuthPermissions.AspNetCore.Services
     /// - Adds Permissions and DataKey claims to the user's claims.
     /// </summary>
     // Thanks to https://korzh.com/blogs/net-tricks/aspnet-identity-store-user-data-in-claims
-    public class AddPermissionsToUserClaims : UserClaimsPrincipalFactory<IdentityUser>
+    public class AddPermissionsToUserClaims<TIdentityUser> : UserClaimsPrincipalFactory<TIdentityUser>
+        where TIdentityUser : IdentityUser
     {
         private readonly IClaimsCalculator _claimsCalculator;
 
@@ -26,7 +26,7 @@ namespace AuthPermissions.AspNetCore.Services
         /// <param name="userManager"></param>
         /// <param name="optionsAccessor"></param>
         /// <param name="claimsCalculator"></param>
-        public AddPermissionsToUserClaims(UserManager<IdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor,
+        public AddPermissionsToUserClaims(UserManager<TIdentityUser> userManager, IOptions<IdentityOptions> optionsAccessor,
             IClaimsCalculator claimsCalculator)
             : base(userManager, optionsAccessor)
         {
@@ -38,7 +38,7 @@ namespace AuthPermissions.AspNetCore.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        protected override async Task<ClaimsIdentity> GenerateClaimsAsync(IdentityUser user)
+        protected override async Task<ClaimsIdentity> GenerateClaimsAsync(TIdentityUser user)
         {
             var identity = await base.GenerateClaimsAsync(user);
             var userId = identity.Claims.GetUserIdFromClaims();

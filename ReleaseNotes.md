@@ -1,5 +1,10 @@
 # Release Notes
 
+## 1.4.0
+
+New Feature: Added IndividualAccountsAuthentication<TCustomIdentityUser> and AddSuperUserToIndividualAccounts<TCustomIdentityUser> to handle Individual Accounts provider with a custom IdentityUser. See https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Setup-Authentication for more info.
+
+
 ## 1.3.0
 
 - BREAKING CHANGE: When registering AuthP you need to state what authentication provider you are using - see https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Authentication-explained

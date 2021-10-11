@@ -17,7 +17,8 @@ namespace AuthPermissions.AspNetCore.HostedServices
     /// authentication provider  when the application is deployed with a new database.
     /// It takes the new user's email and password from the appsettings file
     /// </summary>
-    public class IndividualAccountsAddSuperUser : IHostedService
+    public class IndividualAccountsAddSuperUser<TIdentityUser> : IHostedService
+        where TIdentityUser : IdentityUser, new()
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -40,7 +41,7 @@ namespace AuthPermissions.AspNetCore.HostedServices
             using var scope = _serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
 
-            var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = services.GetRequiredService<UserManager<TIdentityUser>>();
 
             var (email, password) = services.GetSuperUserConfigData();
             if (!string.IsNullOrEmpty(email))
@@ -61,13 +62,13 @@ namespace AuthPermissions.AspNetCore.HostedServices
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        private static async Task<IdentityUser> CheckAddNewUserAsync(UserManager<IdentityUser> userManager, string email, string password)
+        private static async Task<TIdentityUser> CheckAddNewUserAsync(UserManager<TIdentityUser> userManager, string email, string password)
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user != null)
                 return user;
 
-            user = new IdentityUser { UserName = email, Email = email };
+            user = new TIdentityUser { UserName = email, Email = email };
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
