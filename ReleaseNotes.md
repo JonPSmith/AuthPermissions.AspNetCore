@@ -1,5 +1,11 @@
 # Release Notes
 
+## 2.0.0
+
+- Updated to net6.0
+
+
+
 ## 1.4.0
 
 New Feature: Added IndividualAccountsAuthentication<TCustomIdentityUser> and AddSuperUserToIndividualAccounts<TCustomIdentityUser> to handle Individual Accounts provider with a custom IdentityUser. See https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Setup-Authentication for more info.
