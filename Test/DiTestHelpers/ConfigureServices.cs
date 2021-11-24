@@ -32,15 +32,14 @@ namespace Test.DiTestHelpers
             return services;
         }
 
-        public static ServiceCollection SetupServicesForTest<TIdentityUser>(this object callingClass, bool useSqlDbs = false)
-            where TIdentityUser : IdentityUser, new()
+        public static ServiceCollection SetupServicesForTestCustomIdentityUser(this object callingClass, bool useSqlDbs = false)
         {
             var services = new ServiceCollection();
             services.RegisterCustomDatabases(callingClass, useSqlDbs);
 
             //Wanted to use the line below but just couldn't get the right package for it
             //services.AddDefaultIdentity<IdentityUser>()
-            services.AddIdentity<TIdentityUser, IdentityRole>()
+            services.AddIdentity<CustomIdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<CustomApplicationDbContext>();
             var startupConfig = AppSettings.GetConfiguration();
             services.AddLogging();

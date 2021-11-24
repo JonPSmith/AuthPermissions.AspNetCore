@@ -83,7 +83,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
         public async Task TestSetupAspNetCoreIndividualAccountsAddSuperUser_CustomIdentityUser()
         {
             //SETUP
-            var services = this.SetupServicesForTest<CustomIdentityUser>();
+            var services = this.SetupServicesForTestCustomIdentityUser();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
                 .IndividualAccountsAuthentication<CustomIdentityUser>()
