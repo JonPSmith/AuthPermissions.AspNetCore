@@ -92,7 +92,7 @@ namespace AuthPermissions.AspNetCore
         public static AuthSetupData AddSuperUserToIndividualAccounts(this AuthSetupData setupData)
         {
             setupData.CheckAuthorizationIsIndividualAccounts();
-            setupData.Services.AddHostedService<IndividualAccountsAddSuperUser<IdentityUser>>();
+            setupData.Services.AddHostedService<HostedIndividualAccountsAddSuperUser<IdentityUser>>();
 
             return setupData;
         }
@@ -107,7 +107,7 @@ namespace AuthPermissions.AspNetCore
             where TCustomIdentityUser : IdentityUser, new()
         {
             setupData.CheckAuthorizationIsIndividualAccounts();
-            setupData.Services.AddHostedService<IndividualAccountsAddSuperUser<TCustomIdentityUser>>();
+            setupData.Services.AddHostedService<HostedIndividualAccountsAddSuperUser<TCustomIdentityUser>>();
 
             return setupData;
         }
@@ -132,19 +132,19 @@ namespace AuthPermissions.AspNetCore
         public static void SetupAspNetCoreAndDatabase(this AuthSetupData setupData)
         {
             setupData.CheckDatabaseTypeIsSet();
-                
+
             setupData.RegisterCommonServices();
 
             //These are the services that can only be run on 
             if (setupData.Options.InternalData.AuthPDatabaseType != AuthPDatabaseTypes.SqliteInMemory)
                 //Only run the migration on the AuthP's database if its not a in-memory database
-                setupData.Services.AddHostedService<SetupAuthDatabaseOnStartup>();
+                setupData.Services.AddHostedService<HostedSetupAuthDatabaseOnStartup>();
 
             if (!string.IsNullOrEmpty(setupData.Options.InternalData.RolesPermissionsSetupText) ||
                 !string.IsNullOrEmpty(setupData.Options.InternalData.UserTenantSetupText) ||
                 !(setupData.Options.InternalData.UserRolesSetupData == null || !setupData.Options.InternalData.UserRolesSetupData.Any()))
                 //Only run this if there is some Bulk Load data
-                setupData.Services.AddHostedService<AddRolesTenantsUsersIfEmptyOnStartup>();
+                setupData.Services.AddHostedService<HostedStartupBulkLoadAuthPInfo>();
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace AuthPermissions.AspNetCore
 
             //Other services
             setupData.Services.AddTransient<IDisableJwtRefreshToken, DisableJwtRefreshToken>();
-            if(setupData.Options.ConfigureAuthPJwtToken != null)
+            if (setupData.Options.ConfigureAuthPJwtToken != null)
             {
                 //The user is using AuthP's TokenBuilder
 

@@ -57,6 +57,7 @@ namespace AuthPermissions
                     EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
                 });
             setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.SqlServer;
+            setupData.Options.InternalData.AuthPConnectionString = connectionString;
 
             return setupData;
         }

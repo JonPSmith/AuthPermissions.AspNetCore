@@ -32,6 +32,27 @@ namespace Test.DiTestHelpers
             return services;
         }
 
+        public static ServiceCollection SetupServicesForTest<TIdentityUser>(this object callingClass, bool useSqlDbs = false)
+            where TIdentityUser : IdentityUser, new()
+        {
+            var services = new ServiceCollection();
+            services.RegisterCustomDatabases(callingClass, useSqlDbs);
+
+            //Wanted to use the line below but just couldn't get the right package for it
+            //services.AddDefaultIdentity<IdentityUser>()
+            services.AddIdentity<TIdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<CustomApplicationDbContext>();
+            var startupConfig = AppSettings.GetConfiguration();
+            services.AddLogging();
+            services.AddSingleton<IConfiguration>(startupConfig);
+
+            //make sure the  databases are created
+            var serviceProvider = services.BuildServiceProvider();
+            serviceProvider.GetRequiredService<CustomApplicationDbContext>().Database.EnsureCreated();
+
+            return services;
+        }
+
         private static void RegisterDatabases(this ServiceCollection services, object callingClass, bool useSqlDbs)
         {
             if (useSqlDbs)
@@ -46,6 +67,24 @@ namespace Test.DiTestHelpers
 
                 var aspNetAuthConnection = SetupSqliteInMemoryConnection();
                 services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(aspNetAuthConnection));
+                var appExtraConnection = SetupSqliteInMemoryConnection();
+            }
+        }
+
+        private static void RegisterCustomDatabases(this ServiceCollection services, object callingClass, bool useSqlDbs)
+        {
+            if (useSqlDbs)
+            {
+                var aspNetConnectionString = callingClass.GetUniqueDatabaseConnectionString("AspNet");
+                services.AddDbContext<CustomApplicationDbContext>(options => options.UseSqlServer(aspNetConnectionString));
+
+                var appConnectionString = callingClass.GetUniqueDatabaseConnectionString("AppData");
+            }
+            else
+            {
+
+                var aspNetAuthConnection = SetupSqliteInMemoryConnection();
+                services.AddDbContext<CustomApplicationDbContext>(options => options.UseSqlite(aspNetAuthConnection));
                 var appExtraConnection = SetupSqliteInMemoryConnection();
             }
         }

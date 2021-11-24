@@ -10,15 +10,14 @@ using System.Text;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
-using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.AspNetCore.Services;
 using Example2.WebApiWithToken.IndividualAccounts.Data;
 using Example2.WebApiWithToken.IndividualAccounts.Models;
 using Example2.WebApiWithToken.IndividualAccounts.PermissionsCode;
-using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using AuthPermissions.AspNetCore.HostedServices;
 
 namespace Example2.WebApiWithToken.IndividualAccounts
 {
@@ -81,8 +80,8 @@ namespace Example2.WebApiWithToken.IndividualAccounts
 
             //These methods come from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
-            services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json
+            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
+            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); //reads a comma delimited list of emails from appsettings.json
 
             services.RegisterAuthPermissions<Example2Permissions>( options =>
                 {

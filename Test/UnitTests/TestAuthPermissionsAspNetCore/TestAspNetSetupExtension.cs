@@ -11,7 +11,6 @@ using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
-using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -65,18 +64,42 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 .UsingInMemoryDatabase()
                 .IndividualAccountsAuthentication()
                 .AddSuperUserToIndividualAccounts()
-                .SetupAspNetCorePart();
+                .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<IndividualAccountsAddSuperUser<IdentityUser>>();
+            startupServices.Last().ShouldBeType<HostedIndividualAccountsAddSuperUser<IdentityUser>>();
             await startupServices.Last().StartAsync(default);
 
             //VERIFY
             using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            userManager.Users.Count().ShouldEqual(1);
+        }
+
+        [Fact]
+        public async Task TestSetupAspNetCoreIndividualAccountsAddSuperUser_CustomIdentityUser()
+        {
+            //SETUP
+            var services = this.SetupServicesForTest<CustomIdentityUser>();
+            services.RegisterAuthPermissions<TestEnum>()
+                .UsingInMemoryDatabase()
+                .IndividualAccountsAuthentication<CustomIdentityUser>()
+                .AddSuperUserToIndividualAccounts<CustomIdentityUser>()
+                .SetupAspNetCoreAndDatabase();
+
+            var serviceProvider = services.BuildServiceProvider();
+            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+
+            //ATTEMPT
+            startupServices.Count.ShouldEqual(2);
+            startupServices.Last().ShouldBeType<HostedIndividualAccountsAddSuperUser<CustomIdentityUser>>();
+            await startupServices.Last().StartAsync(default);
+
+            //VERIFY
+            using var userManager = serviceProvider.GetRequiredService<UserManager<CustomIdentityUser>>();
             userManager.Users.Count().ShouldEqual(1);
         }
 
@@ -96,7 +119,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<SetupAuthDatabaseOnStartup>();
+            startupServices[1].ShouldBeType<HostedSetupAuthDatabaseOnStartup>();
             await startupServices[1].StartAsync(default);
 
             //VERIFY
@@ -123,7 +146,7 @@ Role3: One")
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
+            startupServices[1].ShouldBeType<HostedStartupBulkLoadAuthPInfo>();
             await startupServices[1].StartAsync(default);
 
             //VERIFY
@@ -157,7 +180,7 @@ Role3: One")
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreSuperUserAddRolesPermissionsUsersIfEmpty()
+        public async Task TestSetupAspNetCoreAddSuperUserWithAlteredEntityUser()
         {
             //SETUP
             var services = this.SetupServicesForTest();
@@ -177,9 +200,9 @@ Role3: One")
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<IndividualAccountsAddSuperUser<IdentityUser>>();
+            startupServices[1].ShouldBeType<HostedIndividualAccountsAddSuperUser<IdentityUser>>();
             await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
+            startupServices[2].ShouldBeType<HostedStartupBulkLoadAuthPInfo>();
             await startupServices[2].StartAsync(default);
 
             //VERIFY
@@ -215,7 +238,7 @@ Tenant3")
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<AddRolesTenantsUsersIfEmptyOnStartup>();
+            startupServices[1].ShouldBeType<HostedStartupBulkLoadAuthPInfo>();
             await startupServices[1].StartAsync(default);
 
             //VERIFY

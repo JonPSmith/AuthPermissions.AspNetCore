@@ -71,12 +71,16 @@ namespace Test.UnitTests.TestExamples
             var cAnds = await SetupExample4DataAsync();
 
             //ATTEMPT
-            var dataKey = ".2.5";
+            var dataKey = ".1.3"; // 4U Inc. | West Coast
             var userQuery = cAnds.context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey+x.TenantId).StartsWith(dataKey));
             var usersToShow = userQuery.ToList();
             var allUsers = cAnds.context.AuthUsers.ToList();
 
             //VERIFY
+            foreach (var item in cAnds.context.Tenants)
+            {
+                _output.WriteLine(item.ToString());
+            }
             usersToShow.Count.ShouldEqual(6);
             allUsers.Count.ShouldEqual(18);
         }

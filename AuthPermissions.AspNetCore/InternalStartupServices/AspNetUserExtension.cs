@@ -4,20 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace ExamplesCommonCode.DemoSetupCode
+[assembly: InternalsVisibleTo("Test")]
+namespace AuthPermissions.AspNetCore.InternalStartupServices
 {
-    public static class AspNetUserExtension
+    internal static class AspNetUserExtension
     {
-
-        public static IQueryable<IdentityUser> ListAllAspNetUsers(this UserManager<IdentityUser> userManager)
-        {
-            return userManager.Users;
-        }
-
         /// <summary>
         /// This will add a user with the given email if they don't all ready exist
         /// </summary>

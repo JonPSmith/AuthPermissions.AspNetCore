@@ -11,39 +11,46 @@ namespace AuthPermissions.SetupCode
     /// </summary>
     public class SetupInternalData
     {
-
-        //--------------------------------------------------
-        //Tenant settings
-
         /// <summary>
-        /// Internal: holds the type of the Enum Permissions 
+        /// holds the type of the Enum Permissions 
         /// </summary>
         public Type EnumPermissionsType { get; internal set; }
 
         /// <summary>
-        /// Internal: This contains the type of database used
+        /// This contains the type of database used for the AuthP database
         /// </summary>
         public AuthPDatabaseTypes AuthPDatabaseType { get; internal set; }
 
         /// <summary>
-        /// Internal: this contains the type of authorization your application uses
+        /// This holds the connection string for the AuthP database.
+        /// Its used by the Net.RunMethodsSequentially to get a global lock on startup
+        /// </summary>
+        public string AuthPConnectionString { get; internal set; }
+
+        /// <summary>
+        /// this contains the type of authorization your application uses
         /// </summary>
         public AuthPAuthenticationTypes AuthPAuthenticationType { get; set; }
 
         /// <summary>
-        /// Internal: This holds the a string containing the definition of the tenants
+        /// This is used in the AddSuperUserToIndividualAccounts to add a single user to the Individual Accounts authentication database
+        /// </summary>
+        public Type IdentityUserType { get; set; }
+
+        /// <summary>
+        /// This holds the a string containing the definition of the tenants
         /// See the <see cref="SetupExtensions.AddTenantsIfEmpty"/> method for the format of the lines
         /// </summary>
         public string UserTenantSetupText { get; internal set; }
 
         /// <summary>
-        /// Internal: This holds the a string containing the definition of the RolesToPermission database class
+        /// This holds the a string containing the definition of the RolesToPermission database class
         /// See the <see cref="SetupExtensions.AddRolesPermissionsIfEmpty"/> method for the format of the lines
         /// </summary>
         public string RolesPermissionsSetupText { get; internal set; }
 
         /// <summary>
-        /// Internal: This holds the definition for a user, with its various parts
+        /// This holds the definition for a user, with its various parts
         /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
         /// </summary>
         public List<DefineUserWithRolesTenant> UserRolesSetupData { get; internal set; }

@@ -105,15 +105,15 @@ Role with space: One";
             context.ChangeTracker.Clear();
 
             //VERIFY
-            var roles = context.RoleToPermissions.ToList();
+            var roles = context.RoleToPermissions.OrderBy(x => x.RoleName).ToList();
             roles.Count.ShouldEqual(3);
             foreach (var role in roles)
             {
                 _output.WriteLine(role.ToString());
             }
-            roles[0].PackedPermissionsInRole.ShouldEqual($"{(char)1}{(char)3}");
-            roles[1].PackedPermissionsInRole.ShouldEqual($"{(char)1}{(char)2}{(char)3}");
-            roles[2].PackedPermissionsInRole.ShouldEqual($"{(char)1}");
+            roles[0].PackedPermissionsInRole.ShouldEqual($"{(char)1}");
+            roles[1].PackedPermissionsInRole.ShouldEqual($"{(char)1}{(char)3}");
+            roles[2].PackedPermissionsInRole.ShouldEqual($"{(char)1}{(char)2}{(char)3}");
         }
     }
 }

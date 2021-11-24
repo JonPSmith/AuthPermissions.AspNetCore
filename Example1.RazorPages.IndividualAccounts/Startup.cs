@@ -1,9 +1,9 @@
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
 using Example1.RazorPages.IndividualAccounts.Data;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
-using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -43,9 +43,9 @@ namespace Example1.RazorPages.IndividualAccounts
 
             //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
+            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
             //reads a comma delimited list of emails from appsettings.json and creates users in the Individual Account
-            services.AddHostedService<HostedServiceAddAspNetUsers>(); 
+            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); 
 
             services.RegisterAuthPermissions<Example1Permissions>()
                 .UsingInMemoryDatabase()

@@ -29,6 +29,26 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
+        public async Task TestSetupHierarchicalTenantInDbAsync()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            //ATTEMPT
+            await context.SetupHierarchicalTenantInDbAsync();
+
+            //VERIFY
+            context.ChangeTracker.Clear();
+            var tenants = context.Tenants.OrderBy(x => x.TenantId).ToList();
+            foreach (var tenant in tenants)
+            {
+                _output.WriteLine(tenant.ToString());
+            }
+        }
+
+        [Fact]
         public async Task TestQueryEndLeafTenantsHierarchical()
         {
             //SETUP
@@ -272,7 +292,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                     subTenantChangeService, null);
 
                 //ATTEMPT
-                var status = await service.MoveHierarchicalTenantToAnotherParentAsync(7, 4);
+                var status = await service.MoveHierarchicalTenantToAnotherParentAsync(6, 5);
 
                 //VERIFY
                 status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -280,7 +300,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 subTenantChangeService.MoveReturnedTuples
                     .ShouldEqual(new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>
                 {
-                    (".1.2.5.7", ".1.3.4.7", 7, "Company | East Coast | New York | Shop1")
+                    (".1.2.4.6", ".1.3.5.6", 6, "Company | East Coast | New York | Shop1")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -328,9 +348,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                     .ShouldEqual(new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>
                 {
                     (".1.2", ".1.3.2", 2, "Company | East Coast | West Coast"),
-                    (".1.2.5", ".1.3.2.5", 5, "Company | East Coast | West Coast | SanFran"),
-                    (".1.2.5.6", ".1.3.2.5.6", 6, "Company | East Coast | West Coast | SanFran | Shop2"),
-                    (".1.2.5.7", ".1.3.2.5.7", 7, "Company | East Coast | West Coast | SanFran | Shop1")
+                    (".1.2.4", ".1.3.2.4", 4, "Company | East Coast | West Coast | SanFran"),
+                    (".1.2.4.6", ".1.3.2.4.6", 6, "Company | East Coast | West Coast | SanFran | Shop1"),
+                    (".1.2.4.7", ".1.3.2.4.7", 7, "Company | East Coast | West Coast | SanFran | Shop2")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -420,10 +440,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 subTenantChangeService.MoveReturnedTuples
                     .ShouldEqual(new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>
                 {
-                    (".1.3", ".3", 3, "East Coast"),
-                    (".1.3.4", ".3.4", 4, "East Coast | New York"),
-                    (".1.3.4.8", ".3.4.8", 8, "East Coast | New York | Shop3"),
-                    (".1.3.4.9", ".3.4.9", 9, "East Coast | New York | Shop4")
+                    (".1.3", ".3", 3, "East Coast"), 
+                    (".1.3.5", ".3.5", 5, "East Coast | New York"), 
+                    (".1.3.5.8", ".3.5.8", 8, "East Coast | New York | Shop3"), 
+                    (".1.3.5.9", ".3.5.9", 9, "East Coast | New York | Shop4")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -440,7 +460,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
 
         [Theory]
-        [InlineData(5)]
+        [InlineData(4)]
         [InlineData(6)]
         [InlineData(7)]
         public async Task TestMoveHierarchicalTenantToAnotherParentAsyncMoveToChild(int parentTenantId)
@@ -528,14 +548,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                     new StubITenantChangeServiceFactory(retailContext), null);
 
                 //ATTEMPT
-                var status = await service.DeleteTenantAsync(7);
+                var status = await service.DeleteTenantAsync(6);
 
                 //VERIFY
                 status.IsValid.ShouldBeTrue(status.GetAllErrors());
                 var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
-                    ("Company | West Coast | SanFran | Shop1", ".1.2.5.7")
+                    ("Company | West Coast | SanFran | Shop1", ".1.2.4.6")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -581,10 +601,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
-                    ("Company | West Coast | SanFran | Shop2", ".1.2.5.6"),
-                    ("Company | West Coast | SanFran | Shop1", ".1.2.5.7"),
-                    ("Company | West Coast | SanFran", ".1.2.5"),
-                    ("Company | West Coast", ".1.2"),
+                    ("Company | West Coast | SanFran | Shop1", ".1.2.4.6"), 
+                    ("Company | West Coast | SanFran | Shop2", ".1.2.4.7"), 
+                    ("Company | West Coast | SanFran", ".1.2.4"), 
+                    ("Company | West Coast", ".1.2")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))

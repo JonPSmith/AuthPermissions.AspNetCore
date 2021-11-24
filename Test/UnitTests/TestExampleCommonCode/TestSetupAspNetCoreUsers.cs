@@ -3,10 +3,9 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using ExamplesCommonCode.DemoSetupCode;
+using AuthPermissions.AspNetCore.InternalStartupServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Test.DiTestHelpers;
 using Xunit;
 using Xunit.Abstractions;

@@ -11,27 +11,31 @@ using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreCode;
 using Example3.MvcWebApp.IndividualAccounts.Data;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
-using ExamplesCommonCode.DemoSetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using AuthPermissions.AspNetCore.HostedServices;
 
 namespace Example3.MvcWebApp.IndividualAccounts
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private readonly IConfiguration _configuration;
+        //thanks to https://stackoverflow.com/questions/52040742/get-wwwroot-path-when-in-configureservices-aspnetcore
+        //For net6 ASP.NET Core version see https://github.com/JonPSmith/RunStartupMethodsSequentially#for-aspnet-core 
+        private readonly IWebHostEnvironment _env;
 
-        public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        {
+            _configuration = configuration;
+            _env = env;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    _configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<IdentityUser>(options =>
@@ -42,16 +46,17 @@ namespace Example3.MvcWebApp.IndividualAccounts
 
             //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
-            services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json
+            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
+            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); //reads a comma delimited list of IdentityUsers from appsettings.json
 
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
-                    options.AppConnectionString = Configuration.GetConnectionString("DefaultConnection");
+                    options.AppConnectionString = _configuration.GetConnectionString("DefaultConnection");
+                    options.FolderToLock = _env.WebRootPath;
                 })
                 //NOTE: This uses the same database as the individual accounts DB
-                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
                 .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.BulkLoadRolesWithPermissions)
@@ -62,13 +67,13 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCoreAndDatabase();
 
-            services.RegisterExample3Invoices(Configuration);
+            services.RegisterExample3Invoices(_configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
+            if (_env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();

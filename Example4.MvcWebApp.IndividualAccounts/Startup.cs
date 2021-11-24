@@ -15,8 +15,8 @@ using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Example4.ShopCode.AppStart;
 using Example4.ShopCode.Dtos;
 using Example4.ShopCode.EfCoreCode;
-using ExamplesCommonCode.DemoSetupCode;
 using GenericServices.Setup;
+using AuthPermissions.AspNetCore.HostedServices;
 
 namespace Example4.MvcWebApp.IndividualAccounts
 {
@@ -45,8 +45,8 @@ namespace Example4.MvcWebApp.IndividualAccounts
 
             //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
             //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedServiceEnsureCreatedDb<ApplicationDbContext>>(); //and create db on startup
-            services.AddHostedService<HostedServiceAddAspNetUsers>(); //reads a comma delimited list of emails from appsettings.json
+            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
+            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); //reads a comma delimited list of emails from appsettings.json
 
             services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
