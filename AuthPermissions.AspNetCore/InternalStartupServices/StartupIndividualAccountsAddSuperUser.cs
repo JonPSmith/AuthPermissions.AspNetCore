@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,7 +48,9 @@ namespace AuthPermissions.AspNetCore.InternalStartupServices
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
-                throw new InvalidOperationException($"Tried to add user {email}, but failed");
+                var errorDescriptions = string.Join("\n", result.Errors.Select(x => x.Description));
+                throw new InvalidOperationException(
+                    $"Tried to add user {email}, but failed. Errors:\n {errorDescriptions}");
             }
         }
     }
