@@ -6,27 +6,31 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using RunMethodsSequentially;
 
-namespace AuthPermissions.AspNetCore.InternalStartupServices
+namespace AuthPermissions.AspNetCore.StartupServices
 {
     /// <summary>
     /// This is a complex method that can handle a individual account user with a 
     /// personalized IdentityUser type
     /// </summary>
-    internal class StartupIndividualAccountsAddSuperUser<TIdentityUser> 
+    public class StartupServiceIndividualAccountsAddSuperUser<TIdentityUser> : IStartupServiceToRunSequentially
         where TIdentityUser : IdentityUser, new()
     {
+        //These must be after migrations, after adding demo users and before AuthP bulk load is run
+        public int OrderNum { get; } = -1; //These must be after migrations, but after adding demo users. 
+
         /// <summary>
         /// This will ensure that a user whos email/password is held in the "SuperAdmin" section of 
         /// the appsettings.json file is in the individual account athentication database
         /// </summary>
-        /// <param name="scopedService">This should be a scoped service</param>
+        /// <param name="scopedServices">This should be a scoped service</param>
         /// <returns></returns>
-        public async ValueTask StartupServiceAsync(IServiceProvider scopedService)
+        public async ValueTask ApplyYourChangeAsync(IServiceProvider scopedServices)
         {
-            var userManager = scopedService.GetRequiredService<UserManager<TIdentityUser>>();
+            var userManager = scopedServices.GetRequiredService<UserManager<TIdentityUser>>();
 
-            var (email, password) = scopedService.GetSuperUserConfigData();
+            var (email, password) = scopedServices.GetSuperUserConfigData();
             if (!string.IsNullOrEmpty(email))
                 await CheckAddNewUserAsync(userManager, email, password);
         }

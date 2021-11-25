@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using RunMethodsSequentially;
 using System;
 using System.Collections.Generic;
 
@@ -22,10 +23,9 @@ namespace AuthPermissions.SetupCode
         public AuthPDatabaseTypes AuthPDatabaseType { get; internal set; }
 
         /// <summary>
-        /// This holds the connection string for the AuthP database.
-        /// Its used by the Net.RunMethodsSequentially to get a global lock on startup
+        /// This holds the Net.RunMethodsSequentially options 
         /// </summary>
-        public string AuthPConnectionString { get; internal set; }
+        public RunSequentiallyOptions RunSequentiallyOptions { get; internal set; }
 
         /// <summary>
         /// this contains the type of authorization your application uses

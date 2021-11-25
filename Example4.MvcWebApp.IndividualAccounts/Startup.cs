@@ -16,7 +16,8 @@ using Example4.ShopCode.AppStart;
 using Example4.ShopCode.Dtos;
 using Example4.ShopCode.EfCoreCode;
 using GenericServices.Setup;
-using AuthPermissions.AspNetCore.HostedServices;
+using RunMethodsSequentially;
+using AuthPermissions.AspNetCore.StartupServices;
 
 namespace Example4.MvcWebApp.IndividualAccounts
 {
@@ -43,11 +44,6 @@ namespace Example4.MvcWebApp.IndividualAccounts
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
 
-            //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
-            //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
-            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); //reads a comma delimited list of emails from appsettings.json
-
             services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
@@ -63,7 +59,18 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .AddSuperUserToIndividualAccounts()
-                .SetupAspNetCoreAndDatabase();
+                .SetupAspNetCoreAndDatabase(options =>
+                {
+                    //Migrate individual account database
+                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+                    //Add demo users to the database
+                    options.RegisterServiceToRunInJob<StartupServicesIndividualAccountsAddDemoUsers>();
+
+                    //Migrate the application part of the database
+                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<RetailDbContext>>();
+                    //This seeds the invoice database (if empty)
+                    options.RegisterServiceToRunInJob<StartupServiceServiceSeedRetailDatabase>();
+                });
 
             //This registers all the code to handle the shop part of the demo
             //Register RetailDbContext database and some services (included hosted services)

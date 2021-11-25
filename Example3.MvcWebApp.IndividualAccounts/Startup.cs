@@ -13,7 +13,8 @@ using Example3.MvcWebApp.IndividualAccounts.Data;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using AuthPermissions.AspNetCore.HostedServices;
+using RunMethodsSequentially;
+using AuthPermissions.AspNetCore.StartupServices;
 
 namespace Example3.MvcWebApp.IndividualAccounts
 {
@@ -44,16 +45,11 @@ namespace Example3.MvcWebApp.IndividualAccounts
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
 
-            //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
-            //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
-            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); //reads a comma delimited list of IdentityUsers from appsettings.json
-
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
                     options.AppConnectionString = _configuration.GetConnectionString("DefaultConnection");
-                    options.FolderToLock = _env.WebRootPath;
+                    options.PathToFolderToLock = _env.WebRootPath;
                 })
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
@@ -65,7 +61,18 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .AddSuperUserToIndividualAccounts()
-                .SetupAspNetCoreAndDatabase();
+                .SetupAspNetCoreAndDatabase(options =>
+                {
+                    //Migrate individual account database
+                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+                    //Add demo users to the database
+                    options.RegisterServiceToRunInJob<StartupServicesIndividualAccountsAddDemoUsers>();
+
+                    //Migrate the application part of the database
+                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<InvoicesDbContext>>();
+                    //This seeds the invoice database (if empty)
+                    options.RegisterServiceToRunInJob<StartupServiceSeedInvoiceDbContext>();
+                });
 
             services.RegisterExample3Invoices(_configuration);
         }

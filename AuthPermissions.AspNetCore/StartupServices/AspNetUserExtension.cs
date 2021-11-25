@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
 [assembly: InternalsVisibleTo("Test")]
-namespace AuthPermissions.AspNetCore.InternalStartupServices
+namespace AuthPermissions.AspNetCore.StartupServices
 {
     internal static class AspNetUserExtension
     {
@@ -26,7 +26,7 @@ namespace AuthPermissions.AspNetCore.InternalStartupServices
             var user = await userManager.FindByEmailAsync(email);
             if (user != null)
                 return user;
-            user = new IdentityUser {UserName = email, Email = email};
+            user = new IdentityUser { UserName = email, Email = email };
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.AspNetCore.HostedServices;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,16 +19,6 @@ namespace Example4.ShopCode.AppStart
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"), dbOptions =>
                 dbOptions.MigrationsHistoryTable(RetailDbContextHistoryName)));
-
-            //------------------------------------------------------
-            //Hosted services
-
-            //This will migrate the RetailDbContext on startup (WARNING: Only works for single instance of the ASP.NET Core app)
-            services.AddHostedService<HostedMigrateAnyDbContext<RetailDbContext>>();
-            //This will seed the retail database if no RetailOutlets are there
-            services.AddHostedService<HostedServiceSeedRetailDatabase>();
-
-
         }
     }
 }

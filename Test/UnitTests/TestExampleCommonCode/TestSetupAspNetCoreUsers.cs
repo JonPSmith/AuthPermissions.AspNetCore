@@ -3,7 +3,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.AspNetCore.InternalStartupServices;
+using AuthPermissions.AspNetCore.StartupServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Test.DiTestHelpers;

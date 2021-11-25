@@ -5,7 +5,7 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AuthPermissions.AspNetCore.InternalStartupServices
+namespace AuthPermissions.AspNetCore.StartupServices
 {
     internal static class ConfigHelper
     {

@@ -27,15 +27,16 @@ namespace AuthPermissions
 
         /// <summary>
         /// This will use the Net.RunMethodsSequentially library to safely update / seed a database 
+        /// on applications that have mutiple instances using a global lock
         /// </summary>
-        public bool UseRunMethodsSequentially { get; set; } = true;
+        public bool UseLocksToUpdateGlobalResources { get; set; } = true;
 
         /// <summary>
         /// This is used by the Net.RunMethodsSequentially library to lock a folder
         /// If UseRunMethodsSequentially is true, then this propery must be filled 
         /// with a path to a directory in your running application 
         /// </summary>
-        public string FolderToLock { get; set; }
+        public string PathToFolderToLock { get; set; }
 
         /// <summary>
         /// This is where you configure the JwtToken

@@ -17,7 +17,8 @@ using Example2.WebApiWithToken.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using AuthPermissions.AspNetCore.HostedServices;
+using RunMethodsSequentially;
+using AuthPermissions.AspNetCore.StartupServices;
 
 namespace Example2.WebApiWithToken.IndividualAccounts
 {
@@ -78,11 +79,6 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                     };
                 });
 
-            //These methods come from the ExamplesCommonCode set up some demo users in the individual accounts database
-            //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
-            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); //reads a comma delimited list of emails from appsettings.json
-
             services.RegisterAuthPermissions<Example2Permissions>( options =>
                 {
                     options.ConfigureAuthPJwtToken = new AuthPJwtConfiguration
@@ -100,7 +96,13 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
                 .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
-                .SetupAspNetCoreAndDatabase();
+                .SetupAspNetCoreAndDatabase(options =>
+                {
+                    //Migrate individual account database
+                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+                    //Add demo users to the database
+                    options.RegisterServiceToRunInJob<StartupServicesIndividualAccountsAddDemoUsers>();
+                });
 
             services.AddControllers();
 

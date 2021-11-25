@@ -12,15 +12,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="Net.RunMethodsSequentially" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="RunSequentiallyServices\" />
   </ItemGroup>
 
 </Project>

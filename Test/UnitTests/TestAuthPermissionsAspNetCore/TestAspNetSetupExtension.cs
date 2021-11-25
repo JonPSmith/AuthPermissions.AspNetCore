@@ -1,19 +1,19 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
-using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RunMethodsSequentially;
 using Test.DiTestHelpers;
 using Test.TestHelpers;
 using TestSupport.Helpers;
@@ -34,7 +34,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 
 
         [Fact]
-        public async Task TestSetupAspNetCoreSetupAspNetCorePartNoHostedService()
+        public void TestSetupAspNetCoreSetupAspNetCorePartHostedService()
         {
             //SETUP
             var services = this.SetupServicesForTest();
@@ -42,17 +42,34 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 .UsingInMemoryDatabase()
                 .SetupAspNetCorePart();
 
-            var serviceProvider = services.BuildServiceProvider();
-
             //ATTEMPT
+            var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
-            startupServices.Count.ShouldEqual(1);
-            startupServices.Single().GetType().Name.ShouldEqual("DataProtectionHostedService");
-            await startupServices.Last().StartAsync(default);
+
 
             //VERIFY
-            using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            userManager.Users.Count().ShouldEqual(0);
+            startupServices.Count.ShouldEqual(2);
+            startupServices.First().GetType().Name.ShouldEqual("DataProtectionHostedService");
+            startupServices.Last().GetType().Name.ShouldEqual("GetLockAndThenRunHostedService");
+        }
+
+        [Fact]
+        public void TestSetupAspNetCoreSetupAspNetCoreAndDatabase_Migrate()
+        {
+            //SETUP
+            var services = this.SetupServicesForTest();
+            services.RegisterAuthPermissions<TestEnum>()
+                .UsingInMemoryDatabase()
+                .IndividualAccountsAuthentication()
+                .SetupAspNetCoreAndDatabase();
+
+            //ATTEMPT
+            var serviceProvider = services.BuildServiceProvider();
+            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
+
+            //VERIFY
+            startupServices.Count.ShouldEqual(1);
+            startupServices.Single().ShouldBeType<StartupServiceMigrateAuthPDatabase>();
         }
 
         [Fact]
@@ -67,12 +84,13 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<HostedIndividualAccountsAddSuperUser<IdentityUser>>();
-            await startupServices.Last().StartAsync(default);
+            startupServices.First().ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
+            startupServices.Last().ShouldBeType<StartupServiceMigrateAuthPDatabase>();
+            await startupServices.Last().ApplyYourChangeAsync(serviceProvider);
 
             //VERIFY
             using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
@@ -91,12 +109,13 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices.Last().ShouldBeType<HostedIndividualAccountsAddSuperUser<CustomIdentityUser>>();
-            await startupServices.Last().StartAsync(default);
+            startupServices.First().ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<CustomIdentityUser>>();
+            startupServices.Last().ShouldBeType<StartupServiceMigrateAuthPDatabase>();
+            await startupServices.Last().ApplyYourChangeAsync(serviceProvider);
 
             //VERIFY
             using var userManager = serviceProvider.GetRequiredService<UserManager<CustomIdentityUser>>();
@@ -104,7 +123,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreSetupAuthDatabaseOnStartup()
+        public void TestSetupAspNetCoreSetupAuthDatabaseOnStartup()
         {
             //SETUP
             var aspNetConnectionString = this.GetUniqueDatabaseConnectionString();
@@ -112,19 +131,19 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             services.RegisterAuthPermissions<TestEnum>()
                 .IndividualAccountsAuthentication()
                 .UsingEfCoreSqlServer(aspNetConnectionString)
-                .SetupAspNetCoreAndDatabase();
-
-            var serviceProvider = services.BuildServiceProvider();
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+                .SetupAspNetCoreAndDatabase(options =>
+                {
+                    //Migrate individual account database
+                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+                });
 
             //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<HostedSetupAuthDatabaseOnStartup>();
-            await startupServices[1].StartAsync(default);
+            var serviceProvider = services.BuildServiceProvider();
+            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //VERIFY
-            var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            authContext.UserToRoles.Count().ShouldEqual(0);
+            startupServices.Count.ShouldEqual(1);
+            startupServices[1].ShouldBeType<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
         }
 
         [Fact]
@@ -142,12 +161,12 @@ Role3: One")
                 .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<HostedStartupBulkLoadAuthPInfo>();
-            await startupServices[1].StartAsync(default);
+            startupServices[1].ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
+            await startupServices[1].ApplyYourChangeAsync(serviceProvider);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -196,14 +215,14 @@ Role3: One")
                 .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<HostedIndividualAccountsAddSuperUser<IdentityUser>>();
-            await startupServices[1].StartAsync(default);
-            startupServices[2].ShouldBeType<HostedStartupBulkLoadAuthPInfo>();
-            await startupServices[2].StartAsync(default);
+            startupServices[1].ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
+            await startupServices[1].ApplyYourChangeAsync(serviceProvider);
+            startupServices[2].ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
+            await startupServices[2].ApplyYourChangeAsync(serviceProvider);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
@@ -234,12 +253,12 @@ Tenant3")
                 .SetupAspNetCoreAndDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
-            var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
+            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //ATTEMPT
             startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<HostedStartupBulkLoadAuthPInfo>();
-            await startupServices[1].StartAsync(default);
+            startupServices[1].ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
+            await startupServices[1].ApplyYourChangeAsync(serviceProvider);
 
             //VERIFY
             var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();

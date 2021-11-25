@@ -6,11 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
-using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BulkLoadServices;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.CommonCode;
@@ -22,6 +22,7 @@ using AuthPermissions.SetupCode.Factories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using RunMethodsSequentially;
 
 namespace AuthPermissions.AspNetCore
 {
@@ -92,7 +93,8 @@ namespace AuthPermissions.AspNetCore
         public static AuthSetupData AddSuperUserToIndividualAccounts(this AuthSetupData setupData)
         {
             setupData.CheckAuthorizationIsIndividualAccounts();
-            setupData.Services.AddHostedService<HostedIndividualAccountsAddSuperUser<IdentityUser>>();
+            setupData.Options.InternalData.RunSequentiallyOptions
+                .RegisterServiceToRunInJob<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
 
             return setupData;
         }
@@ -107,7 +109,8 @@ namespace AuthPermissions.AspNetCore
             where TCustomIdentityUser : IdentityUser, new()
         {
             setupData.CheckAuthorizationIsIndividualAccounts();
-            setupData.Services.AddHostedService<HostedIndividualAccountsAddSuperUser<TCustomIdentityUser>>();
+            setupData.Options.InternalData.RunSequentiallyOptions
+                .RegisterServiceToRunInJob<StartupServiceIndividualAccountsAddSuperUser<TCustomIdentityUser>>();
 
             return setupData;
         }
@@ -129,22 +132,29 @@ namespace AuthPermissions.AspNetCore
         /// 2) Run a bulk load process
         /// </summary>
         /// <param name="setupData"></param>
-        public static void SetupAspNetCoreAndDatabase(this AuthSetupData setupData)
+        /// <param name="optionsAction">You can your own startup services by adding them to the <see cref="RunSequentiallyOptions"/> options.
+        /// Your startup services will be registered after the Migrate the AuthP's database and bulk load process, so set the OrderNum in
+        /// your startup services to a negative to get them before the AuthP startup services</param>
+        public static void SetupAspNetCoreAndDatabase(this AuthSetupData setupData,
+            Action<RunSequentiallyOptions> optionsAction = null)
         {
             setupData.CheckDatabaseTypeIsSet();
 
             setupData.RegisterCommonServices();
 
-            //These are the services that can only be run on 
             if (setupData.Options.InternalData.AuthPDatabaseType != AuthPDatabaseTypes.SqliteInMemory)
                 //Only run the migration on the AuthP's database if its not a in-memory database
-                setupData.Services.AddHostedService<HostedSetupAuthDatabaseOnStartup>();
+                setupData.Options.InternalData.RunSequentiallyOptions
+                    .RegisterServiceToRunInJob<StartupServiceMigrateAuthPDatabase>();
 
             if (!string.IsNullOrEmpty(setupData.Options.InternalData.RolesPermissionsSetupText) ||
                 !string.IsNullOrEmpty(setupData.Options.InternalData.UserTenantSetupText) ||
                 !(setupData.Options.InternalData.UserRolesSetupData == null || !setupData.Options.InternalData.UserRolesSetupData.Any()))
                 //Only run this if there is some Bulk Load data
-                setupData.Services.AddHostedService<HostedStartupBulkLoadAuthPInfo>();
+                setupData.Options.InternalData.RunSequentiallyOptions
+                    .RegisterServiceToRunInJob<StartupServiceBulkLoadAuthPInfo>();
+
+            optionsAction?.Invoke(setupData.Options.InternalData.RunSequentiallyOptions);
         }
 
         /// <summary>

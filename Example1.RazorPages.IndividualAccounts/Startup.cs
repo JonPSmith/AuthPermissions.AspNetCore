@@ -1,7 +1,7 @@
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
-using AuthPermissions.AspNetCore.HostedServices;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.StartupServices;
 using Example1.RazorPages.IndividualAccounts.Data;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RunMethodsSequentially;
 
 namespace Example1.RazorPages.IndividualAccounts
 {
@@ -41,12 +42,6 @@ namespace Example1.RazorPages.IndividualAccounts
                 options.Conventions.AuthorizePage("/AuthBuiltIn/LoggedInConfigure");
             });
 
-            //These are methods from the ExamplesCommonCode set up some demo users in the individual accounts database
-            //NOTE: they are run in the order that they are registered
-            services.AddHostedService<HostedMigrateAnyDbContext<ApplicationDbContext>>(); //and create db on startup
-            //reads a comma delimited list of emails from appsettings.json and creates users in the Individual Account
-            services.AddHostedService<HostedIndividualAccountsAddDemoUsers>(); 
-
             services.RegisterAuthPermissions<Example1Permissions>()
                 .UsingInMemoryDatabase()
                 .IndividualAccountsAuthentication()
@@ -55,7 +50,13 @@ namespace Example1.RazorPages.IndividualAccounts
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .AddSuperUserToIndividualAccounts()
-                .SetupAspNetCoreAndDatabase();
+                .SetupAspNetCoreAndDatabase(options =>
+                {
+                    //Migrate individual account database
+                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+                    //Add demo users to the database
+                    options.RegisterServiceToRunInJob<StartupServicesIndividualAccountsAddDemoUsers>();
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

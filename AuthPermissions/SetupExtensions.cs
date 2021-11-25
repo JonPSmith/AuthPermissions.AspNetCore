@@ -10,6 +10,7 @@ using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.Sqlite;
+using RunMethodsSequentially;
 
 namespace AuthPermissions
 {
@@ -57,7 +58,24 @@ namespace AuthPermissions
                     EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
                 });
             setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.SqlServer;
-            setupData.Options.InternalData.AuthPConnectionString = connectionString;
+
+            setupData.Options.InternalData.RunSequentiallyOptions =
+                setupData.Services.RegisterRunMethodsSequentially(options =>
+                {
+                    if (setupData.Options.UseLocksToUpdateGlobalResources)
+                    {
+                        if (string.IsNullOrEmpty(setupData.Options.PathToFolderToLock))
+                            throw new AuthPermissionsBadDataException(
+                                $"The {nameof(AuthPermissionsOptions.PathToFolderToLock)} property in the {nameof(AuthPermissionsOptions)} must be set to a " +
+                                "directory that all the instances of your application can access. " +
+                                "This is a backup to the SQL Server lock in cases where the database doesn exist yet.");
+
+                        options.AddSqlServerLockAndRunMethods(connectionString);
+                        options.AddFileSystemLockAndRunMethods(setupData.Options.PathToFolderToLock);
+                    }
+                    else
+                        options.AddRunMethodsWithoutLock();
+                });
 
             return setupData;
         }

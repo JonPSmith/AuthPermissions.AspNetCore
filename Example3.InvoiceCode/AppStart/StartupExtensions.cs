@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.AspNetCore.HostedServices;
 using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,14 +25,6 @@ namespace Example3.InvoiceCode.AppStart
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"), dbOptions =>
                 dbOptions.MigrationsHistoryTable(InvoicesDbContextHistoryName)));
-
-            //------------------------------------------------------
-            //Hosted services
-
-            //This will migrate the RetailDbContext on startup (WARNING: Only works for single instance of the ASP.NET Core app)
-            services.AddHostedService<HostedMigrateAnyDbContext<InvoicesDbContext>>();
-            //This will seed the retail database if no RetailOutlets are there
-            services.AddHostedService<HostedServiceSeedInvoiceDatabase>();
         }
     }
 }

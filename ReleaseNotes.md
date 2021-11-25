@@ -3,6 +3,8 @@
 ## 2.0.0
 
 - Updated to net6.0
+- Move over to using Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have mutiple instances running
+
 
 
 
