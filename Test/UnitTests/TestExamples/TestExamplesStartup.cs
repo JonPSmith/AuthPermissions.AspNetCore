@@ -56,6 +56,7 @@ namespace Test.UnitTests.TestExamples
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
                     options.AppConnectionString = connectionString;
+                    options.PathToFolderToLock = TestData.GetTestDataDir();
                 })
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(connectionString)

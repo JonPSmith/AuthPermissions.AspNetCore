@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UnitTests\TestExampleCommonCode\" />
+    <Folder Include="TestData\" />
   </ItemGroup>
 
   <ItemGroup>

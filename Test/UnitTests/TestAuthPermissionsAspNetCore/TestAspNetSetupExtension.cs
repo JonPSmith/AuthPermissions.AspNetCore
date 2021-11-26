@@ -46,7 +46,6 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IHostedService>().ToList();
 
-
             //VERIFY
             startupServices.Count.ShouldEqual(2);
             startupServices.First().GetType().Name.ShouldEqual("DataProtectionHostedService");
@@ -68,12 +67,11 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //VERIFY
-            startupServices.Count.ShouldEqual(1);
-            startupServices.Single().ShouldBeType<StartupServiceMigrateAuthPDatabase>();
+            startupServices.Count.ShouldEqual(0);
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreIndividualAccountsAddSuperUser()
+        public void TestSetupAspNetCoreIndividualAccountsAddSuperUser()
         {
             //SETUP
             var services = this.SetupServicesForTest();
@@ -83,22 +81,17 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCoreAndDatabase();
 
+            //ATTEMPT
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
-            //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
-            startupServices.First().ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
-            startupServices.Last().ShouldBeType<StartupServiceMigrateAuthPDatabase>();
-            await startupServices.Last().ApplyYourChangeAsync(serviceProvider);
-
             //VERIFY
-            using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            userManager.Users.Count().ShouldEqual(1);
+            startupServices.Count.ShouldEqual(1);
+            startupServices.First().ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreIndividualAccountsAddSuperUser_CustomIdentityUser()
+        public void TestSetupAspNetCoreIndividualAccountsAddSuperUser_CustomIdentityUser()
         {
             //SETUP
             var services = this.SetupServicesForTestCustomIdentityUser();
@@ -108,18 +101,13 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                 .AddSuperUserToIndividualAccounts<CustomIdentityUser>()
                 .SetupAspNetCoreAndDatabase();
 
+            //ATTEMPT
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
-            //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
-            startupServices.First().ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<CustomIdentityUser>>();
-            startupServices.Last().ShouldBeType<StartupServiceMigrateAuthPDatabase>();
-            await startupServices.Last().ApplyYourChangeAsync(serviceProvider);
-
             //VERIFY
-            using var userManager = serviceProvider.GetRequiredService<UserManager<CustomIdentityUser>>();
-            userManager.Users.Count().ShouldEqual(1);
+            startupServices.Count.ShouldEqual(1);
+            startupServices.First().ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<CustomIdentityUser>>();
         }
 
         [Fact]
@@ -128,7 +116,10 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             //SETUP
             var aspNetConnectionString = this.GetUniqueDatabaseConnectionString();
             var services = this.SetupServicesForTest();
-            services.RegisterAuthPermissions<TestEnum>()
+            services.RegisterAuthPermissions<TestEnum>(options =>
+            {
+                options.PathToFolderToLock = TestData.GetTestDataDir();
+            })
                 .IndividualAccountsAuthentication()
                 .UsingEfCoreSqlServer(aspNetConnectionString)
                 .SetupAspNetCoreAndDatabase(options =>
@@ -142,12 +133,13 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
             //VERIFY
-            startupServices.Count.ShouldEqual(1);
-            startupServices[1].ShouldBeType<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+            startupServices.Count.ShouldEqual(2);
+            startupServices[0].ShouldBeType<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+            startupServices[1].ShouldBeType<StartupServiceMigrateAuthPDatabase>();
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreAddRolesPermissionsUsersIfEmpty()
+        public void TestSetupAspNetCoreAddRolesPermissionsUsersIfEmpty()
         {
             //SETUP
             var services = this.SetupServicesForTest();
@@ -160,18 +152,13 @@ Role3: One")
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
                 .SetupAspNetCoreAndDatabase();
 
+            //ATTEMPT
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
 
-            //ATTEMPT
-            startupServices.Count.ShouldEqual(2);
-            startupServices[1].ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
-            await startupServices[1].ApplyYourChangeAsync(serviceProvider);
-
             //VERIFY
-            var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            authContext.RoleToPermissions.Count().ShouldEqual(3);
-            authContext.UserToRoles.Count().ShouldEqual(5);
+            startupServices.Count.ShouldEqual(1);
+            startupServices.Single().ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
         }
 
         [Fact]
@@ -199,7 +186,7 @@ Role3: One")
         }
 
         [Fact]
-        public async Task TestSetupAspNetCoreAddSuperUserWithAlteredEntityUser()
+        public void TestSetupAspNetCoreAddSuperUserWithAlteredEntityUser()
         {
             //SETUP
             var services = this.SetupServicesForTest();
@@ -214,62 +201,14 @@ Role3: One")
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCoreAndDatabase();
 
+            //ATTEMPT
             var serviceProvider = services.BuildServiceProvider();
             var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
-
-            //ATTEMPT
-            startupServices.Count.ShouldEqual(3);
-            startupServices[1].ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
-            await startupServices[1].ApplyYourChangeAsync(serviceProvider);
-            startupServices[2].ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
-            await startupServices[2].ApplyYourChangeAsync(serviceProvider);
 
             //VERIFY
-            var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            authContext.RoleToPermissions.Count().ShouldEqual(3);
-            authContext.UserToRoles.Count().ShouldEqual(5);
-            var superUser = authContext.AuthUsers.First(x => x.UserName == "Super@g1.com");
-            superUser.UserId.Length.ShouldBeInRange(25,40);
-            using var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            userManager.Users.Count().ShouldEqual(1);
-        }
-
-        [Fact]
-        public async Task TestSetupAspNetCoreAddRolesPermissionsUsersIfEmptyAndTenants()
-        {
-            //SETUP
-            
-            var services = this.SetupServicesForTest();
-            services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleLevel)
-                .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role3: One")
-                .AddTenantsIfEmpty(@"Tenant1
-Tenant2
-Tenant3")
-                .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
-                .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithTenants())
-                .SetupAspNetCoreAndDatabase();
-
-            var serviceProvider = services.BuildServiceProvider();
-            var startupServices = serviceProvider.GetServices<IStartupServiceToRunSequentially>().OrderBy(x => x.OrderNum).ToList();
-
-            //ATTEMPT
             startupServices.Count.ShouldEqual(2);
+            startupServices[0].ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
             startupServices[1].ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
-            await startupServices[1].ApplyYourChangeAsync(serviceProvider);
-
-            //VERIFY
-            var authContext = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            foreach (var userToRole in authContext.UserToRoles.ToList())
-            {
-                _output.WriteLine(userToRole.ToString());
-            }
-            authContext.AuthUsers.Count().ShouldEqual(3);
-            authContext.RoleToPermissions.Count().ShouldEqual(3);
-            authContext.UserToRoles.Count().ShouldEqual(5);
-            authContext.Tenants.Count().ShouldEqual(3);
         }
     }
 }

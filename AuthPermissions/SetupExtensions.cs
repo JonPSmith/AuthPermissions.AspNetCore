@@ -103,6 +103,13 @@ namespace AuthPermissions
             using var context = new AuthPermissionsDbContext(builder.Options);
             context.Database.EnsureCreated();
 
+            setupData.Options.InternalData.RunSequentiallyOptions =
+                setupData.Services.RegisterRunMethodsSequentially(options =>
+                {
+                    //For in-memory AuthP we can't lock on anything
+                    options.AddRunMethodsWithoutLock();
+                });
+
             return setupData;
         }
 
