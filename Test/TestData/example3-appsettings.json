@@ -1,0 +1,19 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=aspnet-Example3.MvcWebApp.IndividualAccounts-66CDC4E0-F9E0-486F-8199-D13455BF1415;Trusted_Connection=True;MultipleActiveResultSets=true"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "SuperAdmin": //This holds the information on the superuser. This is useful when you first create the application's database
+  {
+    "Email": "Super@g1.com",
+    "Password": "Super@g1.com"
+  },
+  "DemoUsers": "AppAdmin@g1.com, admin@4uInc.com, extraUser@g1.com, user1@4uInc.com, user2@4uInc.com, user1@Pets.com, user1@BigR.com"
+}
