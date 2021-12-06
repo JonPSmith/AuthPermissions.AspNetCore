@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupCode;
@@ -58,7 +59,6 @@ namespace AuthPermissions
         /// <summary>
         /// This is called if the Permissions that a user needs calculating.
         /// It looks at what permissions the user has based on their roles
-        /// FUTURE FEATURE: needs upgrading if TenantId is to change the user's roles.
         /// </summary>
         /// <param name="userId"></param>
         /// <returns>a string containing the packed permissions, or null if no permissions</returns>
@@ -68,6 +68,19 @@ namespace AuthPermissions
             var permissionsForAllRoles = (await _context.UserToRoles.Where(x => x.UserId == userId)
                 .Select(x => x.Role.PackedPermissionsInRole)
                 .ToListAsync());
+
+            if (_options.TenantType != TenantTypes.NotUsingTenants)
+            {
+                //We need to add any RoleTypes.TenantAdminAdd for a tenant user
+
+                var autoAddRoles = await _context.AuthUsers
+                    .Where(x => x.UserId == userId && x.TenantId != null)
+                    .Select(x => x.UserTenant.TenantRoles.Where(y => y.RoleType == RoleTypes.TenantAutoAdd))
+                    .SingleOrDefaultAsync();
+
+                if (autoAddRoles != null)
+                    permissionsForAllRoles.AddRange(autoAddRoles.Select(x => x.PackedPermissionsInRole));
+            }
 
             if (!permissionsForAllRoles.Any())
                 return null;

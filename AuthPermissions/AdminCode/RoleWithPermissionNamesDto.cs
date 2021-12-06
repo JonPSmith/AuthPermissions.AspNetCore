@@ -25,6 +25,11 @@ namespace AuthPermissions.AdminCode
         public string Description { get; set; }
 
         /// <summary>
+        /// This returns the type of Role this is
+        /// </summary>
+        public RoleTypes RoleType { get; set; }
+
+        /// <summary>
         /// This contains the list of permissions as a series of unicode chars
         /// </summary>
         [Required(AllowEmptyStrings = false)] //A role must have at least one role in it

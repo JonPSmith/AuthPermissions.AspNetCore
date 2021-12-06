@@ -13,8 +13,7 @@ namespace AuthPermissions.DataLayer.Classes
     /// </summary>
     public class UserToRole
     {
-        private UserToRole()
-        { } //Needed by EF Core
+        private UserToRole() { } //Needed by EF Core
 
 
         /// <summary>
@@ -49,8 +48,5 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         [ForeignKey(nameof(RoleName))] 
         public RoleToPermissions Role { get; private set; }
-
-
     }
-
 }

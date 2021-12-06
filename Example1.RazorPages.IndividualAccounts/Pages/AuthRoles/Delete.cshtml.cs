@@ -21,10 +21,7 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthRoles
 
         public async Task<IActionResult> OnGet(string roleName)
         {
-            if (! await _authRolesAdmin.RoleNameExistsAsync(roleName))
-                RedirectToPage("ErrorPage", new { allErrors = $"Could not find the role with the name '{roleName}" });
             RoleName = roleName;
-
             return Page();
         }
 

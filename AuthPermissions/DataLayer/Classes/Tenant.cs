@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
@@ -25,6 +24,7 @@ namespace AuthPermissions.DataLayer.Classes
 #pragma warning disable 649
         // ReSharper disable once CollectionNeverUpdated.Local
         private HashSet<Tenant> _children; //filled in by EF Core
+        private HashSet<RoleToPermissions> _tenantRoles;
 #pragma warning restore 649
 
         private Tenant() { } //Needed by EF Core
@@ -33,9 +33,17 @@ namespace AuthPermissions.DataLayer.Classes
         /// This defines a tenant in a single tenant multi-tenant system.
         /// </summary>
         /// <param name="fullTenantName"></param>
-        public Tenant(string fullTenantName)
+        /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
+        /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
+        public Tenant(string fullTenantName, List<RoleToPermissions> tenantRoles = null)
         {
             TenantFullName = fullTenantName?.Trim() ?? throw new ArgumentNullException(nameof(fullTenantName));
+
+            if (tenantRoles != null)
+            {
+                _tenantRoles = new HashSet<RoleToPermissions>();
+                UpdateTenantRoles(tenantRoles);
+            }
         }
 
         /// <summary>
@@ -44,7 +52,9 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         /// <param name="fullTenantName">This must be the full tenant name, including the parent name</param>
         /// <param name="parent"></param>
-        public Tenant(string fullTenantName, Tenant parent)
+        /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
+        /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
+        public Tenant(string fullTenantName, Tenant parent, List<RoleToPermissions> tenantRoles = null)
         {
             TenantFullName = fullTenantName?.Trim() ?? throw new ArgumentNullException(nameof(fullTenantName));
             
@@ -56,6 +66,12 @@ namespace AuthPermissions.DataLayer.Classes
             ParentDataKey = parent?.GetTenantDataKey();
             Parent = parent;
             IsHierarchical = true;
+
+            if (tenantRoles != null)
+            {
+                _tenantRoles = new HashSet<RoleToPermissions>();
+                UpdateTenantRoles(tenantRoles);
+            }
         }
 
         /// <summary>
@@ -101,6 +117,11 @@ namespace AuthPermissions.DataLayer.Classes
         /// The optional children
         /// </summary>
         public IReadOnlyCollection<Tenant> Children => _children?.ToList();
+
+        /// <summary>
+        /// This holds any Roles that have been specifically 
+        /// </summary>
+        public IReadOnlyCollection<RoleToPermissions> TenantRoles => _tenantRoles.ToList();
 
         /// <summary>
         /// Easy way to see the tenant and its key
@@ -182,7 +203,24 @@ namespace AuthPermissions.DataLayer.Classes
                 var thisLevelTenantName = ExtractEndLeftTenantName(child.TenantFullName);
                 child.TenantFullName = CombineParentNameWithTenantName(thisLevelTenantName, parent.TenantFullName);
             });
+        }
 
+        /// <summary>
+        /// This will reset the the tenant roles 
+        /// </summary>
+        /// <param name="tenantRoles"></param>
+        /// <exception cref="AuthPermissionsException"></exception>
+        /// <exception cref="AuthPermissionsBadDataException"></exception>
+        public void UpdateTenantRoles(List<RoleToPermissions> tenantRoles)
+        {
+            if (_tenantRoles == null)
+                throw new AuthPermissionsException(
+                    $"You must include the tenant's {nameof(TenantRoles)} in your query before you can add/remove an tenant role.");
+
+            CheckRolesAreAllTenantRoles(tenantRoles);
+
+            //This will cause the links to the old TenantRoles will be 
+            _tenantRoles = new HashSet<RoleToPermissions>(tenantRoles);
         }
 
         /// <summary>
@@ -230,6 +268,22 @@ namespace AuthPermissions.DataLayer.Classes
 
         //-------------------------------------------------------
         // private methods
+
+        /// <summary>
+        /// This checks that only roles that are tenant-type are added to the TenantRoles collection
+        /// </summary>
+        /// <param name="tenantRoles"></param>
+        /// <exception cref="AuthPermissionsBadDataException"></exception>
+        private void CheckRolesAreAllTenantRoles(List<RoleToPermissions> tenantRoles)
+        {
+            var badRoles = tenantRoles
+                .Where(x => x.RoleType != RoleTypes.TenantAutoAdd && x.RoleType != RoleTypes.TenantAdminAdd)
+                .ToList();
+
+            if (badRoles.Any())
+                throw new AuthPermissionsBadDataException(
+                    $"The following Roles aren't set as tenant-type role: {string.Join(", ", badRoles.Select(x => x.RoleName))}.");
+        }
 
         /// <summary>
         /// This will recursively move through the children of a parent and call the action applies a change to each child

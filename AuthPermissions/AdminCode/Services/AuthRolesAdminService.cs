@@ -7,9 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.PermissionsCode.Internal;
+using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -22,6 +24,7 @@ namespace AuthPermissions.AdminCode.Services
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly Type _permissionType;
+        private readonly bool _isMultiTenant;
 
         /// <summary>
         /// ctor
@@ -32,38 +35,35 @@ namespace AuthPermissions.AdminCode.Services
         {
             _context = context;
             _permissionType = options.InternalData.EnumPermissionsType;
+            _isMultiTenant = options.TenantType != TenantTypes.NotUsingTenants;
         }
 
         /// <summary>
         /// This simply returns a IQueryable of the <see cref="RoleWithPermissionNamesDto"/>.
         /// This contains all the properties in the <see cref="RoleToPermissions"/> class, plus a list of the Permissions names
+        /// This can be by a user linked to a tenant and it will display all the roles that tenant can use 
         /// </summary>
+        /// <param name="currentUserId">Only used if using AuthP's multi-tenant feature you must provide the current user's ID</param>
         /// <returns>query on the database</returns>
-        public IQueryable<RoleWithPermissionNamesDto> QueryRoleToPermissions()
+        public IQueryable<RoleWithPermissionNamesDto> QueryRoleToPermissions(string currentUserId = null)
         {
-            return _context.RoleToPermissions.Select(x => new RoleWithPermissionNamesDto
-            {
-                RoleName = x.RoleName,
-                Description = x.Description,
-                PackedPermissionsInRole = x.PackedPermissionsInRole,
-                PermissionNames = x.PackedPermissionsInRole.ConvertPackedPermissionToNames(_permissionType)
-            });
-        }
+            if (!_isMultiTenant)
+                return MapToRoleWithPermissionNamesDto(_context.RoleToPermissions);
 
-        /// <summary>
-        /// This returns true if there is a RoleToPermission entry for the given name 
-        /// </summary>
-        /// <param name="roleName"></param>
-        /// <returns></returns>
-        public async Task<bool> RoleNameExistsAsync(string roleName)
-        {
-            if (roleName == null) throw new ArgumentNullException(nameof(roleName));
+            //multi-tenant version has to filter out the roles from users that have a tenant
+            var tenantId = FindTheTenantIdOfTheUser(currentUserId);
 
-            return (await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName)) != null;
+            return tenantId == null
+                ? MapToRoleWithPermissionNamesDto(_context.RoleToPermissions)
+                : MapToRoleWithPermissionNamesDto(_context.RoleToPermissions
+                    .Where(x => x.RoleType == RoleTypes.Normal
+                                || (x.RoleType == RoleTypes.TenantAutoAdd || x.RoleType == RoleTypes.TenantAdminAdd)
+                                   & x.Tenants.Select(y => y.TenantId).Contains((int)tenantId)));
         }
 
         /// <summary>
         /// This returns a list of permissions with the information from the Display attribute
+        /// NOTE: This should not be called by a user that has a tenant, but this isn't checked
         /// </summary>
         /// <param name="excludeFilteredPermissions">Optional: If set to true, then filtered permissions are also included.</param>
         /// <param name="groupName">optional: If true  it only returns permissions in a specific group</param>
@@ -80,6 +80,7 @@ namespace AuthPermissions.AdminCode.Services
 
         /// <summary>
         /// This returns a query containing all the AuthP users that have the given role name
+        /// NOTE: it assumes that the user can only look for roles that they are allowed to see
         /// </summary>
         public IQueryable<AuthUser> QueryUsersUsingThisRole(string roleName)
         {
@@ -91,10 +92,12 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="roleName">Name of the new role (must be unique)</param>
         /// <param name="permissionNames">a collection of permission names to go into this role</param>
-        /// <param name="description">An optional description to tell you what this role allows the user to use</param>
+        /// <param name="description">The description to tell you what this role allows the user to use - can be null</param>
+        /// <param name="roleType">Optional: defaults to <see cref="RoleTypes.Normal"/></param>
         /// <returns>A status with any errors found</returns>
         public async Task<IStatusGeneric> CreateRoleToPermissionsAsync(string roleName,
-            IEnumerable<string> permissionNames, string description = null)
+            IEnumerable<string> permissionNames,
+            string description, RoleTypes roleType = RoleTypes.Normal)
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new role {roleName}." };
 
@@ -105,10 +108,12 @@ namespace AuthPermissions.AdminCode.Services
             
             if (permissionNames == null)
                 return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
-            
-            var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames, 
-                x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
-                    nameof(permissionNames).CamelToPascal()));
+
+            //NOTE: If an advanced permission (i.e. has the display attribute has AutoGenerateFilter = true) is found the roleType is updated to HiddenFromTenant
+            var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
+                x => status.AddError(
+                    $"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.",
+                    nameof(permissionNames).CamelToPascal()), () => roleType = RoleTypes.HiddenFromTenant);
 
             if (status.HasErrors)
                 return status;
@@ -116,7 +121,7 @@ namespace AuthPermissions.AdminCode.Services
             if (!packedPermissions.Any())
                 return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
 
-            _context.Add(new RoleToPermissions(roleName, description, packedPermissions));
+            _context.Add(new RoleToPermissions(roleName, description, packedPermissions, roleType));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
@@ -124,12 +129,16 @@ namespace AuthPermissions.AdminCode.Services
 
         /// <summary>
         /// This updates the role's permission names, and optionally its description
+        /// You cannot change the <see cref="RoleToPermissions.RoleType"/>, but it will become a <see cref="RoleTypes.HiddenFromTenant"/>
+        /// if the new permissions contain an advanced permission
         /// </summary>
         /// <param name="roleName">Name of an existing role</param>
         /// <param name="permissionNames">a collection of permission names to go into this role</param>
         /// <param name="description">Optional: If given then updates the description for this role</param>
         /// <returns>Status</returns>
-        public async Task<IStatusGeneric> UpdateRoleToPermissionsAsync(string roleName, IEnumerable<string> permissionNames, string description = null)
+        public async Task<IStatusGeneric> UpdateRoleToPermissionsAsync(string roleName,
+            IEnumerable<string> permissionNames,
+            string description)
         {
             var status = new StatusGenericHandler { Message = $"Successfully updated the role {roleName}." };
             var existingRolePermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
@@ -139,7 +148,8 @@ namespace AuthPermissions.AdminCode.Services
 
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
                 x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
-                    nameof(permissionNames).CamelToPascal()));
+                    nameof(permissionNames).CamelToPascal()), 
+                () => existingRolePermission.SetRoleType(RoleTypes.HiddenFromTenant));
 
             if (status.HasErrors)
                 return status;
@@ -159,7 +169,7 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="roleName">name of role to delete</param>
         /// <param name="removeFromUsers">If false it will fail if any AuthP user have that role.
-        /// If true it will delete the role from all the users that have it.</param>
+        ///     If true it will delete the role from all the users that have it.</param>
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteRoleAsync(string roleName, bool removeFromUsers)
         {
@@ -182,10 +192,46 @@ namespace AuthPermissions.AdminCode.Services
                 status.Message = $"Successfully deleted the role {roleName} and removed that role from {usersWithRoles.Count} users.";
             }
 
+            if (status.HasErrors)
+                return status;
+
             _context.Remove(existingRolePermission);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
+        }
+
+        //---------------------------------------------------------
+        // private methods
+
+        private IQueryable<RoleWithPermissionNamesDto> MapToRoleWithPermissionNamesDto(
+            IQueryable<RoleToPermissions> roleToPermissions)
+        {
+            return roleToPermissions.Select(x => new RoleWithPermissionNamesDto
+            {
+                RoleName = x.RoleName,
+                Description = x.Description,
+                RoleType = x.RoleType,
+                PackedPermissionsInRole = x.PackedPermissionsInRole,
+                PermissionNames = x.PackedPermissionsInRole.ConvertPackedPermissionToNames(_permissionType)
+            });
+        }
+
+        /// <summary>
+        /// Used to find the tenantId of the current user - can be null if not an tenant user
+        /// </summary>
+        /// <param name="currentUserId"></param>
+        /// <returns></returns>
+        private int? FindTheTenantIdOfTheUser(string currentUserId)
+        {
+            if (currentUserId == null)
+                throw new ArgumentNullException(nameof(currentUserId), "You must be logged in to use this feature.");
+
+            var tenantId = _context.AuthUsers
+                .Where(x => x.UserId == currentUserId)
+                .Select(x => x.TenantId)
+                .Single();
+            return tenantId;
         }
     }
 }

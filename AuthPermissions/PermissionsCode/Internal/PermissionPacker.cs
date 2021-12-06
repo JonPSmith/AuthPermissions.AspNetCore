@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using AuthPermissions.CommonCode;
 using StatusGeneric;
@@ -31,10 +33,11 @@ namespace AuthPermissions.PermissionsCode.Internal
         /// </summary>
         /// <param name="enumPermissionsType"></param>
         /// <param name="permissionNames"></param>
-        /// <param name="reportError"></param>
+        /// <param name="reportError">Report a permission name that isn't in the list of enum members</param>
+        /// <param name="foundAdvancedPermission">Only called if an advanced permission is found</param>
         /// <returns>the packed permission string</returns>
         public static string PackPermissionsNamesWithValidation(this Type enumPermissionsType,
-            IEnumerable<string> permissionNames, Action<string> reportError)
+            IEnumerable<string> permissionNames, Action<string> reportError, Action foundAdvancedPermission)
         {
             var packedPermissions = "";
             foreach (var permissionName in permissionNames)
@@ -42,6 +45,9 @@ namespace AuthPermissions.PermissionsCode.Internal
                 try
                 {
                     Enum.Parse(enumPermissionsType, permissionName);
+                    var displayAttribute =  enumPermissionsType.GetMember(permissionName)[0].GetCustomAttribute<DisplayAttribute>();
+                    if (displayAttribute?.GetAutoGenerateFilter() == true)
+                        foundAdvancedPermission();
                 }
                 catch (ArgumentException)
                 {

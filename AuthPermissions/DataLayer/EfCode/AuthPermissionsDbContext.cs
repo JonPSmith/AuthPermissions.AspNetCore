@@ -79,6 +79,9 @@ namespace AuthPermissions.DataLayer.EfCode
                 .WithOne()
                 .HasForeignKey(x => x.UserId);
 
+            modelBuilder.Entity<RoleToPermissions>()
+                .HasIndex(x => x.RoleType);
+
             modelBuilder.Entity<UserToRole>()
                 .HasKey(x => new { x.UserId, x.RoleName });
 
@@ -88,6 +91,9 @@ namespace AuthPermissions.DataLayer.EfCode
                 .IsUnique();
             modelBuilder.Entity<Tenant>()
                 .HasIndex(x => x.ParentDataKey);
+            modelBuilder.Entity<Tenant>()
+                .HasMany(x => x.TenantRoles)
+                .WithMany(x => x.Tenants);
 
             modelBuilder.Entity<RefreshToken>()
                 .Property(x => x.TokenValue)

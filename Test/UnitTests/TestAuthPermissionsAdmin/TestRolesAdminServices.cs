@@ -6,12 +6,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.PermissionsCode.Services;
+using AuthPermissions.SetupCode;
 using EntityFramework.Exceptions.SqlServer;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestAuthPermissionsAdmin
@@ -19,9 +21,15 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
     public class TestRolesAdminServices
     {
 
+        private readonly ITestOutputHelper _output;
+
+        public TestRolesAdminServices(ITestOutputHelper output)
+        {
+            _output = output;
+        }
 
         [Fact]
-        public async Task TestQueryRoles()
+        public async Task TestQueryRolesNotMultiTenant()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -40,6 +48,38 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             roles.Count.ShouldEqual(3);
             roles.Select(x => x.RoleName).ShouldEqual(new[]{"Role1", "Role2", "Role3"});
             roles.Last().PermissionNames.ShouldEqual(new List<string>{ "Three"});
+        }
+
+        [Theory]
+        [InlineData(RoleTypes.Normal, true, 2)]
+        [InlineData(RoleTypes.TenantAutoAdd, true, 2)]
+        [InlineData(RoleTypes.TenantAdminAdd, true, 2)]
+        [InlineData(RoleTypes.HiddenFromTenant, true, 1)]
+        [InlineData(RoleTypes.HiddenFromTenant, false, 2)]
+        public void TestQueryRolesTenantUser(RoleTypes role2Type, bool hasTenant, int numRolesFound)
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var setupUser = new SetupUserWithRoles(context, role2Type, hasTenant);
+
+            var service = new AuthRolesAdminService(context, new AuthPermissionsOptions
+            {
+                TenantType = TenantTypes.SingleLevel,
+                InternalData = { EnumPermissionsType = typeof(TestEnum) }
+            });
+
+            //ATTEMPT
+            var roles = service.QueryRoleToPermissions(setupUser.CurrentUser.UserId).ToList();
+
+            //VERIFY
+            foreach (var role in roles)
+            {
+                _output.WriteLine($"{role.RoleName}: type = {role.RoleType}");
+            }
+            roles.Count.ShouldEqual(numRolesFound);
         }
 
         [Theory]

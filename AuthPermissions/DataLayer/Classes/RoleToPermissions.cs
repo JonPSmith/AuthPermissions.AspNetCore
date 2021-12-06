@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
@@ -12,6 +14,11 @@ namespace AuthPermissions.DataLayer.Classes
     /// </summary>
     public class RoleToPermissions : INameToShowOnException
     {
+#pragma warning disable 649
+        // ReSharper disable once CollectionNeverUpdated.Local
+        private HashSet<Tenant> _tenants; //filled in by EF Core
+#pragma warning restore 649
+
         private RoleToPermissions() { }
 
         /// <summary>
@@ -20,10 +27,12 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="roleName"></param>
         /// <param name="description"></param>
         /// <param name="packedPermissions">The enum values converted to unicode chars</param>
-        public RoleToPermissions(string roleName, string description, string packedPermissions)
+        /// <param name="roleType">Optional: this sets the type of the Role - only used in multi-tenant apps</param>
+        public RoleToPermissions(string roleName, string description, string packedPermissions, RoleTypes roleType = RoleTypes.Normal)
         {
             RoleName = roleName.Trim();
             Update(packedPermissions, description);
+            SetRoleType(roleType);
         }
 
         /// <summary>
@@ -40,10 +49,26 @@ namespace AuthPermissions.DataLayer.Classes
         public string Description { get; private set; }
 
         /// <summary>
+        /// This contains the RoleType. Only used in multi-tenant application
+        /// </summary>
+        public RoleTypes RoleType { get; private set; }
+
+        /// <summary>
         /// This contains the list of permissions as a series of unicode chars
         /// </summary>
         [Required(AllowEmptyStrings = false)] //A role must have at least one role in it
         public string PackedPermissionsInRole { get; private set; }
+
+        //----------------------------------------------------
+        // Relationships
+
+        /// <summary>
+        /// This links a RoleToPermission with a <see cref="RoleType"/> of
+        /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/>
+        /// </summary>
+        public IReadOnlyCollection<Tenant> Tenants => _tenants?.ToList();
+
+        //-----------------------------------------------------
 
         /// <summary>
         /// Useful summary
@@ -78,6 +103,15 @@ namespace AuthPermissions.DataLayer.Classes
 
             PackedPermissionsInRole = packedPermissions;
             Description = description?.Trim() ?? Description;
+        }
+
+        /// <summary>
+        /// This allows you to set the <see cref="RoleType"/> of this <see cref="RoleToPermissions"/>
+        /// </summary>
+        /// <param name="roleType">This sets the type of the Role. The <see cref="RoleType"/> is only used in multi-tenant apps</param>
+        public void SetRoleType(RoleTypes roleType)
+        {
+            RoleType = roleType;
         }
     }
 }
