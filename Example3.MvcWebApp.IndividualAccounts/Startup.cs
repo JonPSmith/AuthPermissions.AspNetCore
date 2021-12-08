@@ -47,7 +47,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
 
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
-                    options.TenantType = TenantTypes.HierarchicalTenant;
+                    options.TenantType = TenantTypes.SingleLevel;
                     options.AppConnectionString = _configuration.GetConnectionString("DefaultConnection");
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
