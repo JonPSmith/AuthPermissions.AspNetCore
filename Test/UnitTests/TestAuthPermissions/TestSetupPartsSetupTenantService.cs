@@ -8,6 +8,8 @@ using AuthPermissions;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using Microsoft.Extensions.Configuration;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
@@ -25,73 +27,22 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseEmptyString()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            context.ChangeTracker.Clear();
-
-            var service = new BulkLoadTenantsService(context);
-
-            //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync("", new AuthPermissionsOptions());
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        }
-
-        [Fact]
-        public async Task TestAddTenantsToDatabaseDuplicateTenantName()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            context.ChangeTracker.Clear();
-
-            var service = new BulkLoadTenantsService(context);
-            var authOptions = new AuthPermissionsOptions
-            {
-                TenantType = TenantTypes.SingleLevel
-            };
-            var lines = @"Tenant1
-Tenant1
-Tenant3";
-
-            //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
-
-            //VERIFY
-            status.IsValid.ShouldBeFalse();
-            status.GetAllErrors()
-                .ShouldEqual(
-                    $"There were tenants with duplicate names, they are: Tenant1");
-        }
-
-        [Fact]
         public async Task TestAddTenantsToDatabaseSingleTenant()
         {
             //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>(dbOptions =>
+                EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions));
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
-
-            context.ChangeTracker.Clear();
 
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions
             {
                 TenantType = TenantTypes.SingleLevel
             };
-            var lines = @"Tenant1
-Tenant2
-Tenant3";
+
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(AuthPSetupHelpers.GetSingleTenant123(), authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -100,10 +51,11 @@ Tenant3";
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseSingleTenantDuplicate()
+        public async Task TestAddTenantsToDatabaseSingleTenantNull()
         {
             //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>(dbOptions =>
+                EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions));
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
@@ -114,26 +66,48 @@ Tenant3";
             {
                 TenantType = TenantTypes.SingleLevel
             };
-            var lines = @"Tenant1
-Tenant2
-Tenant2
-Tenant3
-Tenant3";
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(null, authOptions);
 
             //VERIFY
-            status.IsValid.ShouldBeFalse(status.GetAllErrors());
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        }
+
+        [Fact]
+        public async Task TestAddTenantsToDatabaseSingleTenantDuplicateTenantName()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>(dbOptions =>
+                EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions));
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.ChangeTracker.Clear();
+
+            var service = new BulkLoadTenantsService(context);
+            var authOptions = new AuthPermissionsOptions
+            {
+                TenantType = TenantTypes.SingleLevel
+            };
+            var tenantDefine = AuthPSetupHelpers.GetSingleTenant123();
+            tenantDefine.Add(new("Tenant1"));
+
+            //ATTEMPT
+            var status = await service.AddTenantsToDatabaseAsync(tenantDefine, authOptions);
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
             status.GetAllErrors()
-                .ShouldEqual($"There were tenants with duplicate names, they are: Tenant2{Environment.NewLine}Tenant3");
+                .ShouldEqual("There is already a Tenant with the name 'Tenant1'");
         }
 
         [Fact]
         public async Task TestAddTenantsToDatabaseHierarchicalTenant()
         {
             //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>(dbOptions =>
+                EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions));
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
@@ -144,17 +118,9 @@ Tenant3";
             {
                 TenantType = TenantTypes.HierarchicalTenant
             };
-            var lines = @"Company
-Company | West Coast | 
-Company | West Coast | SanFran
-Company | West Coast | SanFran | Shop1
-Company | West Coast | SanFran | Shop2
-Company | West Coast | LA 
-Company | West Coast | LA | Shop1
-Company | West Coast | LA | Shop2";
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(AuthPSetupHelpers.GetHierarchicalDefinitionCompany(), authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -164,14 +130,15 @@ Company | West Coast | LA | Shop2";
             {
                 _output.WriteLine(tenant.ToString());
             }
-            context.Tenants.Count().ShouldEqual(8);
+            context.Tenants.Count().ShouldEqual(9);
         }
 
         [Fact]
-        public async Task TestAddTenantsToDatabaseHierarchicalTenantBadName()
+        public async Task TestAddTenantsToDatabaseHierarchicalTenantDuplicateName()
         {
             //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>(dbOptions =>
+                EntityFramework.Exceptions.Sqlite.ExceptionProcessorExtensions.UseExceptionProcessor(dbOptions));
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
@@ -182,55 +149,16 @@ Company | West Coast | LA | Shop2";
             {
                 TenantType = TenantTypes.HierarchicalTenant
             };
-            var lines = @"Company
-Company | West Coast | 
-Company | West Coast | San???
-Company | XX Coast | SanFran | Shop1
-Company | West Coast | SanFran | Shop2
-Company | West Coast | LA 
-Company | YY Coast | LA | Shop1
-Company | West Coast | LA | Shop2";
+            var tenantDef = AuthPSetupHelpers.GetHierarchicalDefinitionCompany();
+            tenantDef.Add(new ("Company"));
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
+            var status = await service.AddTenantsToDatabaseAsync(tenantDef, authOptions);
 
             //VERIFY
             status.IsValid.ShouldBeFalse(); 
-            status.Errors.Count.ShouldEqual(3);
-            status.Errors[0].ToString().ShouldStartWith("The tenant Company | XX Coast | SanFran | Shop1 on line 3 parent Company | XX Coast | SanFran was not found");
-            status.Errors[1].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran | Shop2 on line 4 parent Company | West Coast | SanFran was not found");
-            status.Errors[2].ToString().ShouldStartWith("The tenant Company | YY Coast | LA | Shop1 on line 6 parent Company | YY Coast | LA was not found");
-        }
-
-        [Fact]
-        public async Task TestAddTenantsToDatabaseHierarchicalTenantMissingName()
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            context.ChangeTracker.Clear();
-
-            var service = new BulkLoadTenantsService(context);
-            var authOptions = new AuthPermissionsOptions
-            {
-                TenantType = TenantTypes.HierarchicalTenant
-            };
-            var lines = @"Company
-Company | West Coast | SanFran
-Company | West Coast | SanFran | Shop1
-Company | West Coast | SanFran | Shop2";
-
-            //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync(lines, authOptions);
-
-            //VERIFY
-            status.IsValid.ShouldBeFalse();
-            status.Errors.Count.ShouldEqual(3);
-            status.Errors[0].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran on line 1 parent Company | West Coast was not found.");
-            status.Errors[1].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran | Shop1 on line 2 parent Company | West Coast | SanFran was not found");
-            status.Errors[2].ToString().ShouldStartWith("The tenant Company | West Coast | SanFran | Shop2 on line 3 parent Company | West Coast | SanFran was not found");
+            status.Errors.Count.ShouldEqual(1);
+            status.Errors.Single().ToString().ShouldEqual("There is already a Tenant with a value: name = Company");
         }
     }
 }

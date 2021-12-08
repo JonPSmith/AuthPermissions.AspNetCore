@@ -85,21 +85,48 @@ namespace Test.TestHelpers
             return new List<int> { t1.TenantId, t2.TenantId, t3.TenantId };
         }
 
+        public static List<BulkLoadTenantDto> GetSingleTenant123()
+        {
+            return new List<BulkLoadTenantDto>
+            {
+                new("Tenant1"),
+                new("Tenant2"),
+                new("Tenant3"),
+            };
+        }
+
+        public static List<BulkLoadTenantDto> GetHierarchicalDefinitionCompany()
+        {
+            return new List<BulkLoadTenantDto>()
+            {
+                new("Company", new BulkLoadTenantDto[]
+                {
+                    new ("West Coast", new BulkLoadTenantDto[]
+                    {
+                        new ("SanFran", new BulkLoadTenantDto[]
+                        {
+                            new ("Shop1"),
+                            new ("Shop2")
+                        })
+                    }),
+                    new ("East Coast", new BulkLoadTenantDto[]
+                    {
+                        new ("New York", new BulkLoadTenantDto[]
+                        {
+                            new ("Shop3"),
+                            new ("Shop4")
+                        })
+                    })
+                })
+            };
+        }
+            
         public static async Task<List<int>> SetupHierarchicalTenantInDbAsync(this AuthPermissionsDbContext context)
         {
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions {TenantType = TenantTypes.HierarchicalTenant};
-            var lines = @"Company
-Company | West Coast 
-Company | West Coast | SanFran
-Company | West Coast | SanFran | Shop1
-Company | West Coast | SanFran | Shop2
-Company | East Coast
-Company | East Coast | New York 
-Company | East Coast | New York | Shop3
-Company | East Coast | New York | Shop4";
 
-            (await service.AddTenantsToDatabaseAsync(lines, authOptions)).IsValid.ShouldBeTrue();
+            (await service.AddTenantsToDatabaseAsync(GetHierarchicalDefinitionCompany(), authOptions)).IsValid.ShouldBeTrue();
 
             return context.Tenants.Select(x => x.TenantId).ToList();
         }
@@ -108,9 +135,9 @@ Company | East Coast | New York | Shop4";
         {
             return new List<BulkLoadUserWithRolesTenant>
             {
-                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1"),
-                new BulkLoadUserWithRolesTenant("User2", null, user2Roles, userId: "2"),
-                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
+                new ("User1", null, "Role1", userId: "1"),
+                new ("User2", null, user2Roles, userId: "2"),
+                new ("User3", null, "Role1,Role3", userId: "3"),
             };
         }
 
@@ -118,9 +145,9 @@ Company | East Coast | New York | Shop4";
         {
             return new List<BulkLoadUserWithRolesTenant>
             {
-                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1"),
-                new BulkLoadUserWithRolesTenant("User2", null, "Role1,Role2", userId: user2Id),
-                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
+                new ("User1", null, "Role1", userId: "1"),
+                new ("User2", null, "Role1,Role2", userId: user2Id),
+                new ("User3", null, "Role1,Role3", userId: "3"),
             };
         }        
         
@@ -128,9 +155,9 @@ Company | East Coast | New York | Shop4";
         {
             return new List<BulkLoadUserWithRolesTenant>
             {
-                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1"),
-                new BulkLoadUserWithRolesTenant("Super@g1.com",null,  "Role1,Role2", userId: null),
-                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
+                new ("User1", null, "Role1", userId: "1"),
+                new ("Super@g1.com",null,  "Role1,Role2", userId: null),
+                new ("User3", null, "Role1,Role3", userId: "3"),
             };
         }
 
@@ -138,9 +165,9 @@ Company | East Coast | New York | Shop4";
         {
             return new List<BulkLoadUserWithRolesTenant>
             {
-                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1", uniqueUserName: null, tenantNameForDataKey: "Tenant1"),
-                new BulkLoadUserWithRolesTenant("User2", null, "Role1,Role2", userId: "2", uniqueUserName: null, tenantNameForDataKey: secondTenant),
-                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3", uniqueUserName: null, tenantNameForDataKey: "Tenant3")
+                new ("User1", null, "Role1", userId: "1", uniqueUserName: null, tenantNameForDataKey: "Tenant1"),
+                new ("User2", null, "Role1,Role2", userId: "2", uniqueUserName: null, tenantNameForDataKey: secondTenant),
+                new ("User3", null, "Role1,Role3", userId: "3", uniqueUserName: null, tenantNameForDataKey: "Tenant3")
             };
         }
     }

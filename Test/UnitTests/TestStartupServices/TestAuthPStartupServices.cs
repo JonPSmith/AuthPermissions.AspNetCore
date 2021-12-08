@@ -37,9 +37,7 @@ namespace Test.UnitTests.TestStartupServices
             services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = TenantTypes.SingleLevel)
             .UsingInMemoryDatabase()
             .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
-            .AddTenantsIfEmpty(@"Tenant1
-Tenant2
-Tenant3")
+            .AddTenantsIfEmpty(AuthPSetupHelpers.GetSingleTenant123())
             .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
             .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
             .SetupAspNetCoreAndDatabase();

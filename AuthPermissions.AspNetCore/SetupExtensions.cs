@@ -148,9 +148,9 @@ namespace AuthPermissions.AspNetCore
                     .RegisterServiceToRunInJob<StartupServiceMigrateAuthPDatabase>();
 
             if (!(setupData.Options.InternalData.RolesPermissionsSetupData == null || !setupData.Options.InternalData.RolesPermissionsSetupData.Any()) ||
-                !string.IsNullOrEmpty(setupData.Options.InternalData.UserTenantSetupText) ||
+                !(setupData.Options.InternalData.TenantSetupData == null || !setupData.Options.InternalData.TenantSetupData.Any()) ||
                 !(setupData.Options.InternalData.UserRolesSetupData == null || !setupData.Options.InternalData.UserRolesSetupData.Any()))
-                //Only run this if there is some Bulk Load data
+                //Only run this if there is some Bulk Load data to apply
                 setupData.Options.InternalData.RunSequentiallyOptions
                     .RegisterServiceToRunInJob<StartupServiceBulkLoadAuthPInfo>();
 

@@ -123,22 +123,15 @@ namespace AuthPermissions
         }
 
         /// <summary>
-        /// This allows you to define the name of each tenant by name
-        /// If you are using a hierarchical tenant design, then you must define the higher company first
+        /// This allows you to define the name of each tenant using the <see cref="BulkLoadTenantDto"/> class
+        /// For hierarchical tenant design you add child tenants using the <see cref="BulkLoadTenantDto.ChildrenTenants"/> property
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="linesOfText">If you are using a single layer then each line contains the a tenant name
-        /// If you are using hierarchical tenant, then each line contains the whole hierarchy with '|' as separator, e.g.
-        /// Holding company
-        /// Holding company | USA branch 
-        /// Holding company | USA branch | East Coast 
-        /// Holding company | USA branch | East Coast | Washington
-        /// Holding company | USA branch | East Coast | NewYork
-        /// </param>
+        /// <param name="tenantDefinitions">list of tenant definitions. For hierarchical tenants use the <see cref="BulkLoadTenantDto.ChildrenTenants"/> property</param>
         /// <returns></returns>
-        public static AuthSetupData AddTenantsIfEmpty(this AuthSetupData setupData, string linesOfText)
+        public static AuthSetupData AddTenantsIfEmpty(this AuthSetupData setupData, List<BulkLoadTenantDto> tenantDefinitions)
         {
-            setupData.Options.InternalData.UserTenantSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
+            setupData.Options.InternalData.TenantSetupData = tenantDefinitions;
             return setupData;
         }
 

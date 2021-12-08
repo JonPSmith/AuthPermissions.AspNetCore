@@ -50,7 +50,7 @@ namespace Test.UnitTests.TestExamples
             var service = new BulkLoadTenantsService(context);
 
             //ATTEMPT
-            var status = await service.AddTenantsToDatabaseAsync(Example4AppAuthSetupData.BulkHierarchicalTenants, 
+            var status = await service.AddTenantsToDatabaseAsync(Example4AppAuthSetupData.TenantDefinition, 
                 new AuthPermissionsOptions{TenantType = TenantTypes.HierarchicalTenant});
 
             //VERIFY

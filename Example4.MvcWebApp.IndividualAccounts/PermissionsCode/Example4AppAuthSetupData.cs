@@ -21,23 +21,37 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
             new("Sales Assistant", "Shop sales Assistant - just sells", "StockRead, SalesSell"),
         };
 
-        public const string BulkHierarchicalTenants = @"
-4U Inc.
-4U Inc. | West Coast 
-4U Inc. | West Coast | SanFran
-4U Inc. | West Coast | SanFran | Dress4U
-4U Inc. | West Coast | SanFran | Tie4U
-4U Inc. | West Coast | LA 
-4U Inc. | West Coast | LA | Shirt4U
-
-4U Inc. | East Coast
-4U Inc. | East Coast | NY Dress4U 
-4U Inc. | East Coast | Boston Shirt4U
-
-Pets2 Ltd.
-Pets2 Ltd. | London |
-Pets2 Ltd. | London | Cats Place
-Pets2 Ltd. | London | Kitten Place";
+        public static readonly List<BulkLoadTenantDto> TenantDefinition = new List<BulkLoadTenantDto>()
+        {
+            new("4U Inc.", new BulkLoadTenantDto[]
+            {
+                new ("West Coast", new BulkLoadTenantDto[]
+                {
+                    new ("SanFran", new BulkLoadTenantDto[]
+                    {
+                        new ("Dress4U"),
+                        new ("Tie4U")
+                    }),
+                    new ("LA", new BulkLoadTenantDto[]
+                    {
+                        new ("Shirt4U"),
+                    })
+                }),
+                new ("East Coast", new BulkLoadTenantDto[]
+                {
+                    new ("NY Dress4U"),
+                    new ("Boston Shirt4U"),
+                })
+            }),
+            new("Pets2 Ltd.", new BulkLoadTenantDto[]
+            {
+                new ("London", new BulkLoadTenantDto[]
+                {
+                    new ("Cats Place"),
+                    new ("Kitten Place")
+                }),
+            })
+        };
 
         public static readonly List<BulkLoadUserWithRolesTenant> UsersRolesDefinition = new List<BulkLoadUserWithRolesTenant>
         {

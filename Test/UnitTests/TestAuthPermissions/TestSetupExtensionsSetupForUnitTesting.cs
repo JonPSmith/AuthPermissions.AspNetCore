@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -92,9 +93,12 @@ namespace Test.UnitTests.TestAuthPermissions
         {
             //SETUP
             var services = new ServiceCollection();
-            var tenantLines = @"Tenant1
-Tenant2
-Tenant3";
+            var tenantDef = new List<BulkLoadTenantDto>()
+            {
+                new("Tenant1"),
+                new("Tenant2"),
+                new("Tenant3"),
+            };
 
             //ATTEMPT
             var serviceProvider = await services.RegisterAuthPermissions<TestEnum>(options =>
@@ -103,7 +107,7 @@ Tenant3";
                 })
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
-                .AddTenantsIfEmpty(tenantLines)
+                .AddTenantsIfEmpty(tenantDef)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithTenants())
                 .SetupForUnitTestingAsync();

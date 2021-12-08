@@ -29,19 +29,24 @@ public class BulkLoadRolesDto
     /// <summary>
     /// Name of the Role: must be unique and not null
     /// </summary>
-    public string RoleName { get; set; }
+    public string RoleName { get; }
     /// <summary>
     /// Human-friendly description of what the Role provides. Can be null
     /// </summary>
-    public string Description { get; set; }
+    public string Description { get; }
     /// <summary>
     /// The Type of the Role. This is only used in multi-tenant applications 
     /// </summary>
-    public RoleTypes RoleType { get; set; }
+    public RoleTypes RoleType { get; }
 
     /// <summary>
     /// A list of the names of the `Permissions` in this Role
     /// The names come from your Permissions enum members
     /// </summary>
-    public string PermissionsCommaDelimited { get; set; }
+    public string PermissionsCommaDelimited { get; }
+
+    public override string ToString()
+    {
+        return $"{nameof(RoleName)}: {RoleName}, {nameof(Description)}: {Description}, {nameof(RoleType)}: {RoleType}, {nameof(PermissionsCommaDelimited)}: {PermissionsCommaDelimited}";
+    }
 }

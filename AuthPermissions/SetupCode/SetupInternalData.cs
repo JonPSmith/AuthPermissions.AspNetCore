@@ -34,15 +34,15 @@ namespace AuthPermissions.SetupCode
 
 
         /// <summary>
-        /// This holds the a string containing the definition of the tenants
-        /// See the <see cref="SetupExtensions.AddTenantsIfEmpty"/> method for the format of the lines
-        /// </summary>
-        public string UserTenantSetupText { get; internal set; }
-
-        /// <summary>
-        /// This holds the a classes containing the definition of a RolesToPermission database class
+        /// This holds the classes containing the definition of a RolesToPermission database class
         /// </summary>
         public List<BulkLoadRolesDto> RolesPermissionsSetupData { get; internal set; }
+
+        /// <summary>
+        /// This holds the classes that defines the tenants 
+        /// Note for hierarchical tenants you add children tenants via an nested set of <see cref="BulkLoadTenantDto"/> classes
+        /// </summary>
+        public List<BulkLoadTenantDto> TenantSetupData { get; internal set; }
 
         /// <summary>
         /// This holds the definition for a user, with its various parts

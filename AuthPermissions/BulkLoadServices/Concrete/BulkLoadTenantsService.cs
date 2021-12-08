@@ -1,13 +1,11 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using StatusGeneric;
@@ -15,9 +13,8 @@ using StatusGeneric;
 namespace AuthPermissions.BulkLoadServices.Concrete
 {
     /// <summary>
-    /// This setups Tenants from a string containing a line for each tenant
-    /// non-hierarchical: Tenant1
-    /// hierarchical:     Company | West Coast | SanFran 
+    /// Bulk load multiple tenants from a list of <see cref="BulkLoadTenantDto"/>
+    /// This works with a single-level tenant scheme and a hierarchical tenant scheme
     /// </summary>
     public class BulkLoadTenantsService : IBulkLoadTenantsService
     {
@@ -33,25 +30,18 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         }
 
         /// <summary>
-        /// This allows you to define tenants in a bulk load from a string. Each line in that string should hold a tenant
-        /// (a line is ended with <see cref="Environment.NewLine"/>)
-        /// If you are using a hierarchical tenant design, then you must define the higher company first
+        /// This allows you to add tenants to the database on startup.
+        /// It gets the definition of each tenant from the <see cref="BulkLoadTenantDto"/> class
         /// </summary>
-        /// <param name="linesOfText">If you are using a single layer then each line contains the a tenant name
-        /// If you are using hierarchical tenant, then each line contains the whole hierarchy with '|' as separator, e.g.
-        /// Holding company
-        /// Holding company | USA branch 
-        /// Holding company | USA branch | East Coast 
-        /// Holding company | USA branch | East Coast | Washington
-        /// Holding company | USA branch | East Coast | NewYork
+        /// <param name="tenantSetupData">If you are using a single layer then each line contains the a tenant name
         /// </param>
         /// <param name="options">The AuthPermissionsOptions to check what type of tenant setting you have</param>
         /// <returns></returns>
-        public async Task<IStatusGeneric> AddTenantsToDatabaseAsync(string linesOfText, AuthPermissionsOptions options)
+        public async Task<IStatusGeneric> AddTenantsToDatabaseAsync(List<BulkLoadTenantDto> tenantSetupData, AuthPermissionsOptions options)
         {
             var status = new StatusGenericHandler();
 
-            if (string.IsNullOrEmpty(linesOfText))
+            if (tenantSetupData == null || !tenantSetupData.Any())
                 return status;
 
             //Check the options are set
@@ -59,81 +49,71 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 return status.AddError(
                     $"You must set the options {nameof(AuthPermissionsOptions.TenantType)} to allow tenants to be processed");
 
-            var lines = linesOfText.Split( Environment.NewLine);
-
-            //Check for duplicate tenant names
-            var dups = lines.Where(x => !string.IsNullOrWhiteSpace(x))
-                .GroupBy(line => line).Where(name => name.Count() > 1).ToList();
-            if (dups.Any())
-                return status.AddError("There were tenants with duplicate names, they are: " + string.Join(Environment.NewLine, dups.Select(x => x.Key)));
+            //This takes a COPY of the data because the code stores a tracked tenant in the database
+            var tenantsSetupCopy = tenantSetupData.ToList();
 
             if (options.TenantType == TenantTypes.SingleLevel)
             {
-                foreach (var line in lines.Where(x => !string.IsNullOrWhiteSpace(x)))
+                var duplicateNames = tenantsSetupCopy.Select(x => x.TenantName)
+                    .GroupBy(x => x).Where(x => x.Count() > 1).Select(x => x.Key).ToList();
+                duplicateNames.ForEach(x => status.AddError($"There is already a Tenant with the name '{x}'"));
+
+                if (status.HasErrors)
+                    return status;
+
+                foreach (var tenantDefinition in tenantsSetupCopy)
                 {
-                    _context.Add(new Tenant(line.Trim()));
+                    var rolesStatus = GetCheckTenantRoles(tenantDefinition.TenantRolesCommaDelimited,
+                        tenantDefinition.TenantName);
+                    _context.Add(new Tenant(tenantDefinition.TenantName, rolesStatus.Result));
                 }
 
                 return await _context.SaveChangesWithChecksAsync();
             }
-            
-            //--------------------------------------------------------------------
-            //otherwise hierarchical, which is much more complex.
-            //This decodes the hierarchical tenants
-            var entries = new List<TenantNameDecoded>();
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (string.IsNullOrWhiteSpace(lines[i]))
-                    continue;
-                entries.Add(new TenantNameDecoded(lines[i], i));
-            }
 
-            var tenantLookup = new Dictionary<string, Tenant>();
-            //This creates a group with the higher levels first
-            var groupByLayers = entries.GroupBy(x => x.TenantNamesInOrder.Count);
+            //--------------------------------------------------
+            // hierarchical 
 
             //This uses a transactions because its going to be calling SaveChanges for each layer
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                //This will save a layer, so that the next layer down can be saved
-                foreach (var groupByLayer in groupByLayers)
-                {
-                    var tenantsToAddToDb = new List<Tenant>();
-                    foreach (var tenantNameDecoded in groupByLayer)
-                    {
-                        Tenant parent = null;
-                        if (tenantNameDecoded.ParentFullName != null)
-                        {
-                            if (!tenantLookup.TryGetValue(tenantNameDecoded.ParentFullName, out parent))
-                                status.AddError(
-                                    $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} parent {tenantNameDecoded.ParentFullName} was not found.  Make sure you defined that tenant earlier in the list.");
 
-                            if (parent != null && parent.TenantId == default)
-                                status.AddError(
-                                    $"The tenant {parent.TenantFullName} used on line {tenantNameDecoded.LineNum} hasn't been added to the database. Make sure you defined that tenant earlier in the list.");
+                var tenantLevel = tenantsSetupCopy.ToList();
+                while (tenantLevel.Any() && status.IsValid)
+                {
+                    var thisTenantLevel = tenantLevel.ToList();
+                    tenantLevel.Clear();
+
+                    foreach (var tenantInfo in thisTenantLevel)
+                    {
+                        if (tenantInfo.ChildrenTenants != null)
+                            tenantLevel.AddRange(tenantInfo.ChildrenTenants);
+
+                        var fullname = Tenant.CombineParentNameWithTenantName(tenantInfo.TenantName,
+                            tenantInfo.Parent?.CreatedTenant.TenantFullName);
+                        List<RoleToPermissions> tenantRoles = null;
+                        if (tenantInfo.TenantRolesCommaDelimited == null)
+                            //Use the parents TenantRoles
+                            tenantRoles = tenantInfo.Parent?.CreatedTenant.TenantRoles.ToList();
+                        else
+                        {
+                            //Has its 
+                            var rolesStatus = GetCheckTenantRoles(tenantInfo.TenantRolesCommaDelimited, fullname);
+                            status.CombineStatuses(rolesStatus);
+                            if (rolesStatus.IsValid)
+                                tenantRoles = rolesStatus.Result;
                         }
 
-                        if (tenantLookup.ContainsKey(tenantNameDecoded.TenantFullName))
-                            status.AddError(
-                                $"The tenant {tenantNameDecoded.TenantFullName} on line {tenantNameDecoded.LineNum} is a duplicate of the same name defined earlier");
-                        
-                        if (status.HasErrors)
-                            continue;
-
-                        var newTenant = new Tenant(tenantNameDecoded.TenantFullName, parent);
-                        tenantsToAddToDb.Add(newTenant);
-                        tenantLookup[tenantNameDecoded.TenantFullName] = newTenant;
+                        tenantInfo.CreatedTenant = new Tenant(fullname, tenantInfo.Parent?.CreatedTenant, tenantRoles);
+                        _context.Add(tenantInfo.CreatedTenant);
                     }
 
+                    //We have a level done - save them so that the primary key is set
                     if (status.IsValid)
-                    {
-                        //we add all the tenants in this layer
-                        _context.AddRange(tenantsToAddToDb);
-
                         status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-                    }
                 }
 
+                //Done all levels so commit if no errors
                 if (status.IsValid)
                     await transaction.CommitAsync();
             }
@@ -144,61 +124,29 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         //-----------------------------------------------------------
         //private parts
 
-        private class TenantNameDecoded
+        private IStatusGeneric<List<RoleToPermissions>> GetCheckTenantRoles(string tenantRolesCommaDelimited, string fullTenantName)
         {
-            public TenantNameDecoded(string line, int lineNum)
+            var status = new StatusGenericHandler<List<RoleToPermissions>>();
+
+            if (tenantRolesCommaDelimited == null)
+                return status.SetResult(null);
+
+            var result = new List<RoleToPermissions>();
+            
+            var roleNames = tenantRolesCommaDelimited.Split(',').Select(x => x.Trim());
+            foreach (var roleName in roleNames)
             {
-                DecodeNamesDelimitedBy(line, '|');
-                LineNum = lineNum;
-
-                if (!TenantNamesInOrder.Any())
-                    throw new AuthPermissionsException($"line {lineNum} produced no tenant names");
-
-                ParentFullName = TenantNamesInOrder.Count > 1
-                    ? CombineName(TenantNamesInOrder.Take(TenantNamesInOrder.Count - 1))
-                    : (string)null;
-                TenantFullName = CombineName(TenantNamesInOrder);
+                var roleToPermission = _context.RoleToPermissions.SingleOrDefault(x => x.RoleName == roleName);
+                if (roleToPermission == null)
+                    status.AddError($"tenant '{fullTenantName}': the role '{roleName}' was not found in the database");
+                else if (roleToPermission.RoleType != RoleTypes.TenantAutoAdd && roleToPermission.RoleType != RoleTypes.TenantAdminAdd)
+                    status.AddError($"tenant '{fullTenantName}': the role '{roleName}'s {nameof(RoleToPermissions.RoleType)} must be " +
+                                    $"{nameof(RoleTypes.TenantAutoAdd)} or {nameof(RoleTypes.TenantAdminAdd)}");
+                else
+                    result.Add(roleToPermission);
             }
 
-            public List<string> TenantNamesInOrder { get; } = new List<string>();
-            public List<int> TenantNameStartCharNum { get; } = new List<int>();
-
-            public int LineNum { get; }
-
-            public string ParentFullName { get; }
-            public string TenantFullName { get; }
-
-            private string CombineName(IEnumerable<string> names)
-            {
-                return string.Join(" | ", names);
-            }
-
-            private void DecodeNamesDelimitedBy(string line, char delimiterChar)
-            {
-                var charNum = 0;
-                while (charNum < line.Length)
-                {
-                    if (line[charNum] == ' ')
-                    {
-                        charNum++;
-                        continue;
-                    }
-
-                    var foundName = "";
-                    var startOfName = charNum;
-                    while (charNum < line.Length && line[charNum] != delimiterChar)
-                    {
-                        foundName += line[charNum];
-                        charNum++;
-                    }
-                    if (foundName.Length > 0)
-                    {
-                        TenantNamesInOrder.Add(foundName.TrimEnd());
-                        TenantNameStartCharNum.Add( startOfName);
-                    }
-                    charNum++;
-                }
-            }
+            return status.SetResult(result.Any() ? result : null);
         }
 
     }

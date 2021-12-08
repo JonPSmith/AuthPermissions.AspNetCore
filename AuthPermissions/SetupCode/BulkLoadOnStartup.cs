@@ -40,7 +40,7 @@ namespace AuthPermissions.SetupCode
             if (status is { IsValid: true } && options.TenantType != TenantTypes.NotUsingTenants && !context.Tenants.Any())
             {
                 var tenantLoader = new BulkLoadTenantsService(context);
-                status = await tenantLoader.AddTenantsToDatabaseAsync(options.InternalData.UserTenantSetupText, options);
+                status = await tenantLoader.AddTenantsToDatabaseAsync(options.InternalData.TenantSetupData, options);
             }
 
             if (status is { IsValid: true } && !context.UserToRoles.Any())

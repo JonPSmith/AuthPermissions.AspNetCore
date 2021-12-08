@@ -39,9 +39,9 @@ namespace AuthPermissions.DataLayer.Classes
         {
             TenantFullName = fullTenantName?.Trim() ?? throw new ArgumentNullException(nameof(fullTenantName));
 
+            _tenantRoles = new HashSet<RoleToPermissions>();
             if (tenantRoles != null)
             {
-                _tenantRoles = new HashSet<RoleToPermissions>();
                 UpdateTenantRoles(tenantRoles);
             }
         }
@@ -67,9 +67,9 @@ namespace AuthPermissions.DataLayer.Classes
             Parent = parent;
             IsHierarchical = true;
 
+            _tenantRoles = new HashSet<RoleToPermissions>();
             if (tenantRoles != null)
             {
-                _tenantRoles = new HashSet<RoleToPermissions>();
                 UpdateTenantRoles(tenantRoles);
             }
         }

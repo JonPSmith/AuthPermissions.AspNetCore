@@ -56,7 +56,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.RolesDefinition)
-                .AddTenantsIfEmpty(Example3AppAuthSetupData.BulkSingleTenants)
+                .AddTenantsIfEmpty(Example3AppAuthSetupData.TenantDefinition)
                 .AddAuthUsersIfEmpty(Example3AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()

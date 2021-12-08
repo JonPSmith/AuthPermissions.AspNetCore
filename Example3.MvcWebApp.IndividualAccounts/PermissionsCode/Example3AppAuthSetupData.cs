@@ -17,10 +17,12 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),
         };
 
-        public const string BulkSingleTenants = @"
-4U Inc.
-Pets Ltd.
-Big Rocks Inc.";
+        public static readonly List<BulkLoadTenantDto> TenantDefinition = new List<BulkLoadTenantDto>()
+        {
+            new("4U Inc."),
+            new("Pets Ltd."),
+            new("Big Rocks Inc."),
+        };
 
         public static readonly List<BulkLoadUserWithRolesTenant> UsersRolesDefinition = new List<BulkLoadUserWithRolesTenant>
         {
