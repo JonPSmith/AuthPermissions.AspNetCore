@@ -48,14 +48,11 @@ namespace Test.UnitTests.TestAuthPermissions
         {
             //SETUP
             var services = new ServiceCollection();
-            var lines = @"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role3: One";
 
             //ATTEMPT
             var serviceProvider = await services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(lines)
+                .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
                 .SetupForUnitTestingAsync();
             var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
 
@@ -72,14 +69,11 @@ Role3: One";
         {
             //SETUP
             var services = new ServiceCollection();
-            var lines = @"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role3: One";
 
             //ATTEMPT
             var serviceProvider = await services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(lines)
+                .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
                 .SetupForUnitTestingAsync();
@@ -98,9 +92,6 @@ Role3: One";
         {
             //SETUP
             var services = new ServiceCollection();
-            var rolesLines = @"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role3: One";
             var tenantLines = @"Tenant1
 Tenant2
 Tenant3";
@@ -111,7 +102,7 @@ Tenant3";
                     options.TenantType = TenantTypes.SingleLevel;
                 })
                 .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(rolesLines)
+                .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
                 .AddTenantsIfEmpty(tenantLines)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithTenants())

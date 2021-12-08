@@ -53,7 +53,7 @@ namespace Example4.MvcWebApp.IndividualAccounts
                 .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<RetailTenantChangeService>()
-                .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
+                .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.RolesDefinition)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
                 .AddAuthUsersIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()

@@ -31,17 +31,20 @@ namespace Test.TestHelpers
             return data;
         }
 
+        public static readonly List<BulkLoadRolesDto> TestRolesDefinition123 = new List<BulkLoadRolesDto>()
+        {
+            new("Role1", null, "One"),
+            new("Role2", "my description", "Two"),
+            new("Role3", null, "Three"),
+        };
 
         public static async Task SetupRolesInDbAsync(this AuthPermissionsDbContext context, string lines = null)
         {
-            lines ??= @"Role1 : One
-Role2 |my description|: Two
-Role3: Three";
 
             var authOptions = new AuthPermissionsOptions();
             authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
             var service = new BulkLoadRolesService(context, authOptions);
-            var status = await service.AddRolesToDatabaseAsync(lines);
+            var status = await service.AddRolesToDatabaseAsync(TestRolesDefinition123);
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
         }
@@ -101,43 +104,43 @@ Company | East Coast | New York | Shop4";
             return context.Tenants.Select(x => x.TenantId).ToList();
         }
 
-        public static List<DefineUserWithRolesTenant> TestUserDefineWithUserId(string user2Roles = "Role1,Role2")
+        public static List<BulkLoadUserWithRolesTenant> TestUserDefineWithUserId(string user2Roles = "Role1,Role2")
         {
-            return new List<DefineUserWithRolesTenant>
+            return new List<BulkLoadUserWithRolesTenant>
             {
-                new DefineUserWithRolesTenant("User1", null, "Role1", userId: "1"),
-                new DefineUserWithRolesTenant("User2", null, user2Roles, userId: "2"),
-                new DefineUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
+                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1"),
+                new BulkLoadUserWithRolesTenant("User2", null, user2Roles, userId: "2"),
+                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
             };
         }
 
-        public static List<DefineUserWithRolesTenant> TestUserDefineNoUserId(string user2Id = "User2")
+        public static List<BulkLoadUserWithRolesTenant> TestUserDefineNoUserId(string user2Id = "User2")
         {
-            return new List<DefineUserWithRolesTenant>
+            return new List<BulkLoadUserWithRolesTenant>
             {
-                new DefineUserWithRolesTenant("User1", null, "Role1", userId: "1"),
-                new DefineUserWithRolesTenant("User2", null, "Role1,Role2", userId: user2Id),
-                new DefineUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
+                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1"),
+                new BulkLoadUserWithRolesTenant("User2", null, "Role1,Role2", userId: user2Id),
+                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
             };
         }        
         
-        public static List<DefineUserWithRolesTenant> TestUserDefineWithSuperUser(string user2Id = "User2")
+        public static List<BulkLoadUserWithRolesTenant> TestUserDefineWithSuperUser(string user2Id = "User2")
         {
-            return new List<DefineUserWithRolesTenant>
+            return new List<BulkLoadUserWithRolesTenant>
             {
-                new DefineUserWithRolesTenant("User1", null, "Role1", userId: "1"),
-                new DefineUserWithRolesTenant("Super@g1.com",null,  "Role1,Role2", userId: null),
-                new DefineUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
+                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1"),
+                new BulkLoadUserWithRolesTenant("Super@g1.com",null,  "Role1,Role2", userId: null),
+                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3"),
             };
         }
 
-        public static List<DefineUserWithRolesTenant> TestUserDefineWithTenants(string secondTenant = "Tenant2")
+        public static List<BulkLoadUserWithRolesTenant> TestUserDefineWithTenants(string secondTenant = "Tenant2")
         {
-            return new List<DefineUserWithRolesTenant>
+            return new List<BulkLoadUserWithRolesTenant>
             {
-                new DefineUserWithRolesTenant("User1", null, "Role1", userId: "1", uniqueUserName: null, tenantNameForDataKey: "Tenant1"),
-                new DefineUserWithRolesTenant("User2", null, "Role1,Role2", userId: "2", uniqueUserName: null, tenantNameForDataKey: secondTenant),
-                new DefineUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3", uniqueUserName: null, tenantNameForDataKey: "Tenant3")
+                new BulkLoadUserWithRolesTenant("User1", null, "Role1", userId: "1", uniqueUserName: null, tenantNameForDataKey: "Tenant1"),
+                new BulkLoadUserWithRolesTenant("User2", null, "Role1,Role2", userId: "2", uniqueUserName: null, tenantNameForDataKey: secondTenant),
+                new BulkLoadUserWithRolesTenant("User3", null, "Role1,Role3", userId: "3", uniqueUserName: null, tenantNameForDataKey: "Tenant3")
             };
         }
     }

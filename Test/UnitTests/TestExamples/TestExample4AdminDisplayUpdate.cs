@@ -36,7 +36,7 @@ namespace Test.UnitTests.TestExamples
                     options.TenantType = TenantTypes.HierarchicalTenant;
                 })
                 .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.BulkLoadRolesWithPermissions)
+                .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.RolesDefinition)
                 .AddTenantsIfEmpty(Example4AppAuthSetupData.BulkHierarchicalTenants)
                 .AddAuthUsersIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()

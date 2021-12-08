@@ -28,7 +28,7 @@ namespace AuthPermissions.AspNetCore.Services
         }
 
         /// <summary>
-        /// This should find an user in the authentication provider using the <see cref="DefineUserWithRolesTenant.UniqueUserName"/>.
+        /// This should find an user in the authentication provider using the <see cref="BulkLoadUserWithRolesTenant.UniqueUserName"/>.
         /// It returns userId and its user name (if no user found with that uniqueName, then
         /// </summary>
         /// <param name="uniqueName"></param>

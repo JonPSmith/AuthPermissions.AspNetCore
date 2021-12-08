@@ -1,11 +1,13 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.SetupCode;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -24,13 +26,13 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Theory]
-        [InlineData("Role1: One,Three", true)]
-        [InlineData("Role1: Two,Four", false)]
-        [InlineData("Role1: Seven", false)]
-        [InlineData("Role1    : Seven", false)]
-        [InlineData("Role1: One, Two, Three, Four", false)]
-        [InlineData("Role1:", false)]
-        public async Task TestAddRolesToDatabaseIfEmptyOneLineNoDescription(string line, bool valid)
+        [InlineData("One,Three", true)]
+        [InlineData("Two,Four", false)]
+        [InlineData("Seven", false)]
+        [InlineData("  Seven  ", false)]
+        [InlineData("One, Two, Three, Four", false)]
+        [InlineData("", false)]
+        public async Task TestAddRolesToDatabaseIfEmptyOneLineNoDescription(string permissionsCommaDelimited, bool valid)
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -42,33 +44,10 @@ namespace Test.UnitTests.TestAuthPermissions
             var service = new BulkLoadRolesService(context, authOptions);
 
             //ATTEMPT
-            var status = await service.AddRolesToDatabaseAsync(line);
-
-            //VERIFY
-            if (!status.IsValid)
-            {
-                _output.WriteLine(status.GetAllErrors());
-            }
-            status.IsValid.ShouldEqual(valid);
-        }
-
-        [Theory]
-        [InlineData("Role1|Description|: One,Three", true)]
-        [InlineData("Role1|Description: Two", false)]
-        [InlineData("Role1 Description|: Two", false)]
-        public async Task TestAddRolesToDatabaseIfEmptyOneLineWithDescription(string line, bool valid)
-        {
-            //SETUP
-            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-            using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureCreated();
-
-            var authOptions = new AuthPermissionsOptions();
-            authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
-            var service = new BulkLoadRolesService(context, authOptions);
-
-            //ATTEMPT
-            var status = await service.AddRolesToDatabaseAsync(line);
+            var status = await service.AddRolesToDatabaseAsync(new List<BulkLoadRolesDto>
+                {
+                    new ("Role1", null, permissionsCommaDelimited)
+                });
 
             //VERIFY
             if (!status.IsValid)
@@ -93,12 +72,8 @@ namespace Test.UnitTests.TestAuthPermissions
             authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
             var service = new BulkLoadRolesService(context, authOptions);
 
-            var lines = @"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role with space: One";
-
             //ATTEMPT
-            var status = await service.AddRolesToDatabaseAsync(lines);
+            var status = await service.AddRolesToDatabaseAsync(AuthPSetupHelpers.TestRolesDefinition123);
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
 
@@ -112,8 +87,8 @@ Role with space: One";
                 _output.WriteLine(role.ToString());
             }
             roles[0].PackedPermissionsInRole.ShouldEqual($"{(char)1}");
-            roles[1].PackedPermissionsInRole.ShouldEqual($"{(char)1}{(char)3}");
-            roles[2].PackedPermissionsInRole.ShouldEqual($"{(char)1}{(char)2}{(char)3}");
+            roles[1].PackedPermissionsInRole.ShouldEqual($"{(char)2}");
+            roles[2].PackedPermissionsInRole.ShouldEqual($"{(char)3}");
         }
     }
 }

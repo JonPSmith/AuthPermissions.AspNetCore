@@ -41,11 +41,11 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         /// <summary>
         /// This allows you to add a series of users with their roles and the tenant (if <see cref="AuthPermissions.AuthPermissionsOptions.TenantType"/> says tenants are used
         /// </summary>
-        /// <param name="userDefinitions">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have.
+        /// <param name="userDefinitions">A list of <see cref="BulkLoadUserWithRolesTenant"/> containing the information on users and what auth roles they have.
         /// In this case the UserId must be filled in with the authorized users' UserId, or the <see cref="IFindUserInfoService"/> can find a user's ID
         /// </param>
         /// <returns>A status so that errors can be returned</returns>
-        public async Task<IStatusGeneric> AddUsersRolesToDatabaseAsync(List<DefineUserWithRolesTenant> userDefinitions)
+        public async Task<IStatusGeneric> AddUsersRolesToDatabaseAsync(List<BulkLoadUserWithRolesTenant> userDefinitions)
         {
             var status = new StatusGenericHandler();
 
@@ -67,7 +67,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         //------------------------------------------
         //private methods
 
-        private async Task<IStatusGeneric> CreateUserTenantAndAddToDbAsync(DefineUserWithRolesTenant userDefine, int index)
+        private async Task<IStatusGeneric> CreateUserTenantAndAddToDbAsync(BulkLoadUserWithRolesTenant userDefine, int index)
         {
             var findUserInfoService = _findUserInfoServiceFactory.GetService(throwExceptionIfNull: false);
             var status = new StatusGenericHandler();

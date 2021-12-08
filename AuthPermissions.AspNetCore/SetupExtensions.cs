@@ -147,7 +147,7 @@ namespace AuthPermissions.AspNetCore
                 setupData.Options.InternalData.RunSequentiallyOptions
                     .RegisterServiceToRunInJob<StartupServiceMigrateAuthPDatabase>();
 
-            if (!string.IsNullOrEmpty(setupData.Options.InternalData.RolesPermissionsSetupText) ||
+            if (!(setupData.Options.InternalData.RolesPermissionsSetupData == null || !setupData.Options.InternalData.RolesPermissionsSetupData.Any()) ||
                 !string.IsNullOrEmpty(setupData.Options.InternalData.UserTenantSetupText) ||
                 !(setupData.Options.InternalData.UserRolesSetupData == null || !setupData.Options.InternalData.UserRolesSetupData.Any()))
                 //Only run this if there is some Bulk Load data

@@ -2,13 +2,16 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using AuthPermissions.BulkLoadServices.Concrete.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
+using AuthPermissions.SetupCode;
 using StatusGeneric;
 
 namespace AuthPermissions.BulkLoadServices.Concrete
@@ -33,92 +36,46 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         }
 
         /// <summary>
-        /// This allows you to add Roles with their permissions from a string with contains a series of lines
-        /// (a line is ended with <see cref="Environment.NewLine"/>
+        /// This allows you to add Roles with their permissions via the <see cref="BulkLoadRolesDto"/> class
         /// </summary>
-        /// <param name="linesOfText">This contains the lines of text, each line defined a Role with Permissions. The format is
-        /// RoleName |optional-description|: PermissionName, PermissionName, PermissionName... and so on
-        /// For example:
-        /// SalesManager |Can authorize and alter sales|: SalesRead, SalesAdd, SalesUpdate, SalesAuthorize
-        /// </param>
-        /// <returns></returns>
-        public async Task<IStatusGeneric> AddRolesToDatabaseAsync(string linesOfText)
+        /// <param name="roleSetupData">A list of definitions containing the information for each Role</param>
+        /// <returns>status</returns>
+        public async Task<IStatusGeneric> AddRolesToDatabaseAsync(List<BulkLoadRolesDto> roleSetupData)
         {
-            IStatusGeneric status = new StatusGenericHandler();
+            var status = new StatusGenericHandler();
 
-            if (string.IsNullOrEmpty(linesOfText))
+            if (roleSetupData == null || !roleSetupData.Any())
                 return status;
 
             var enumNames = Enum.GetNames(_enumPermissionType);
 
-            var lines = linesOfText.Split( Environment.NewLine);
-
-            for (int i = 0; i < lines.Length; i++)
+            foreach (var roleDefinition in roleSetupData)
             {
-                if (string.IsNullOrWhiteSpace(lines[i]))
-                    continue;
-                status.CombineStatuses(DecodeLineAndAddToDb(lines[i], i, enumNames));
+                var permissionNames = roleDefinition.PermissionsCommaDelimited
+                    .Split(',').Select(x => x.Trim()).ToList();
+                var validPermissions = true;
+                foreach (var permissionName in permissionNames)
+                {
+                    if (!enumNames.Contains(permissionName))
+                    {
+                        status.AddError($"Bulk load of Role '{roleDefinition.RoleName}' has a permission called " +
+                                        $"{permissionName} which wasn't found in the Enum {_enumPermissionType.Name}");
+                        validPermissions = false;
+                    }
+                }
+
+                if (validPermissions)
+                {
+                    var role = new RoleToPermissions(roleDefinition.RoleName, roleDefinition.Description, 
+                        _enumPermissionType.PackPermissionsNames(permissionNames.Distinct()), roleDefinition.RoleType);
+                    _context.Add(role);
+                }
             }
 
             if (status.IsValid)
-                status = await _context.SaveChangesWithChecksAsync();
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
-            status.Message = $"Added {lines.Length} new RoleToPermissions to the auth database"; //If there is an error this message is removed
-            return status;
-        }
-
-        //----------------------------------------
-        //private methods
-
-        private IStatusGeneric DecodeLineAndAddToDb(string line, int lineNum, string[] enumNames)
-        {
-            var status = new StatusGenericHandler();
-            var indexColon = line.IndexOf(':');
-            if (indexColon < 1)
-                return status.AddError(line.FormErrorString(lineNum, -1,
-                    "Could not find ':' that should be after the role name"));
-
-            var indexFirstBar = line.IndexOf('|');
-            string roleName;
-            string description = null;
-            int charNum;
-            if (indexFirstBar > 0 && indexFirstBar < indexColon)
-            {
-                //we have a description
-                var indexLastBar = line.LastIndexOf('|');
-                if (indexLastBar == indexFirstBar)
-                    return status.AddError(line.FormErrorString(lineNum, indexFirstBar+1,
-                        $"There should be a '|' at the beginning and end of the description."));
-
-                description = line.Substring(indexFirstBar+1, indexLastBar - (indexFirstBar + 1));
-
-                roleName = line.Substring(0, indexFirstBar).Trim();
-                charNum = indexLastBar + 2;
-            }
-            else
-            {
-                roleName = line.Substring(0, indexColon).Trim();
-                charNum = indexColon + 2;
-            }
-
-            var validPermissionNames = line.DecodeCommaDelimitedNameWithCheck(charNum,
-                (name, startOfName) =>
-                {
-                    if (!enumNames.Contains(name))
-                        status.AddError(line.FormErrorString(lineNum, startOfName,
-                            $"The permission name {name} wasn't found in the Enum {_enumPermissionType.Name}"));
-                });
-
-            if (!validPermissionNames.Any())
-                status.AddError(line.FormErrorString(lineNum, line.Length-1,
-                    $"The role {roleName} had no permissions."));
-
-            if (status.HasErrors)
-                return status;
-
-            var role = new RoleToPermissions(roleName, description, _enumPermissionType.PackPermissionsNames(validPermissionNames.Distinct()));
-            _context.Add(role);
-
+            status.Message = $"Added {roleSetupData.Count} new RoleToPermissions to the auth database"; //If there is an error this message is removed
             return status;
         }
     }

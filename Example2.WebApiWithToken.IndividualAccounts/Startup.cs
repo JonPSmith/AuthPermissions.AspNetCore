@@ -94,7 +94,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                 .IndividualAccountsAuthentication()
                 .AddSuperUserToIndividualAccounts()
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
-                .AddRolesPermissionsIfEmpty(AppAuthSetupData.ListOfRolesWithPermissions)
+                .AddRolesPermissionsIfEmpty(AppAuthSetupData.RolesDefinition)
                 .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
                 .SetupAspNetCoreAndDatabase(options =>
                 {

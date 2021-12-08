@@ -32,10 +32,6 @@ namespace AuthPermissions.SetupCode
         /// </summary>
         public AuthPAuthenticationTypes AuthPAuthenticationType { get; set; }
 
-        /// <summary>
-        /// This is used in the AddSuperUserToIndividualAccounts to add a single user to the Individual Accounts authentication database
-        /// </summary>
-        public Type IdentityUserType { get; set; }
 
         /// <summary>
         /// This holds the a string containing the definition of the tenants
@@ -44,15 +40,14 @@ namespace AuthPermissions.SetupCode
         public string UserTenantSetupText { get; internal set; }
 
         /// <summary>
-        /// This holds the a string containing the definition of the RolesToPermission database class
-        /// See the <see cref="SetupExtensions.AddRolesPermissionsIfEmpty"/> method for the format of the lines
+        /// This holds the a classes containing the definition of a RolesToPermission database class
         /// </summary>
-        public string RolesPermissionsSetupText { get; internal set; }
+        public List<BulkLoadRolesDto> RolesPermissionsSetupData { get; internal set; }
 
         /// <summary>
         /// This holds the definition for a user, with its various parts
-        /// See the <see cref="DefineUserWithRolesTenant"/> class for information you need to provide
+        /// See the <see cref="BulkLoadUserWithRolesTenant"/> class for information you need to provide
         /// </summary>
-        public List<DefineUserWithRolesTenant> UserRolesSetupData { get; internal set; }
+        public List<BulkLoadUserWithRolesTenant> UserRolesSetupData { get; internal set; }
     }
 }

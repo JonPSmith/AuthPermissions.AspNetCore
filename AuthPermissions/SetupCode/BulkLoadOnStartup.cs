@@ -34,7 +34,7 @@ namespace AuthPermissions.SetupCode
             if (!context.RoleToPermissions.Any())
             {
                 var roleLoader = new BulkLoadRolesService(context, options);
-                status = await roleLoader.AddRolesToDatabaseAsync(options.InternalData.RolesPermissionsSetupText);
+                status = await roleLoader.AddRolesToDatabaseAsync(options.InternalData.RolesPermissionsSetupData);
             }
 
             if (status is { IsValid: true } && options.TenantType != TenantTypes.NotUsingTenants && !context.Tenants.Any())

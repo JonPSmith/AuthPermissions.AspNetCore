@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
 namespace AuthPermissions.SetupCode
@@ -11,7 +10,7 @@ namespace AuthPermissions.SetupCode
     /// <summary>
     /// Class used to define users with their roles and tenant
     /// </summary>
-    public class DefineUserWithRolesTenant
+    public class BulkLoadUserWithRolesTenant
     {
         /// <summary>
         /// This defines a user in your application
@@ -22,7 +21,7 @@ namespace AuthPermissions.SetupCode
         /// <param name="userId">If null, then you must register a <see cref="IFindUserInfoService"/> to provide a lookup of the UserId</param>
         /// <param name="uniqueUserName">A string that is unique for each user, e.g. email. If not provided then uses the userName</param>
         /// <param name="tenantNameForDataKey">Optional: The unique name of your multi-tenant that this user is linked to</param>
-        public DefineUserWithRolesTenant(string email, string userName, string roleNamesCommaDelimited,
+        public BulkLoadUserWithRolesTenant(string email, string userName, string roleNamesCommaDelimited,
             string userId = null,
             string uniqueUserName = null, string tenantNameForDataKey = null)
         {

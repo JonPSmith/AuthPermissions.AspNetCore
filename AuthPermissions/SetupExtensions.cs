@@ -146,15 +146,11 @@ namespace AuthPermissions
         /// This allows you to add Roles with their permissions, but only if the auth database contains NO RoleToPermissions
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="linesOfText">This contains the lines of text, each line defined a Role with Permissions. The format is
-        /// RoleName |optional-description|: PermissionName, PermissionName, PermissionName... and so on
-        /// For example:
-        /// SalesManager |Can authorize and alter sales|: SalesRead, SalesAdd, SalesUpdate, SalesAuthorize
-        /// </param>
+        /// <param name="rolesDefinitions">This contains a list of <see cref="BulkLoadRolesDto"/> classes defining AuthP Roles</param>
         /// <returns>AuthSetupData</returns>
-        public static AuthSetupData AddRolesPermissionsIfEmpty(this AuthSetupData setupData, string linesOfText)
+        public static AuthSetupData AddRolesPermissionsIfEmpty(this AuthSetupData setupData, List<BulkLoadRolesDto> rolesDefinitions)
         {
-            setupData.Options.InternalData.RolesPermissionsSetupText = linesOfText ?? throw new ArgumentNullException(nameof(linesOfText));
+            setupData.Options.InternalData.RolesPermissionsSetupData = rolesDefinitions;
             return setupData;
         }
 
@@ -163,11 +159,11 @@ namespace AuthPermissions
         /// The <paramref name="userRolesSetup"/> parameter must contain a list of userId+roles.
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="userRolesSetup">A list of <see cref="DefineUserWithRolesTenant"/> containing the information on users and what auth roles they have.
+        /// <param name="userRolesSetup">A list of <see cref="BulkLoadUserWithRolesTenant"/> containing the information on users and what auth roles they have.
         /// In this case the UserId must be filled in with the authorized users' UserId 
         /// </param>
         /// <returns>AuthSetupData</returns>
-        public static AuthSetupData AddAuthUsersIfEmpty(this AuthSetupData setupData, List<DefineUserWithRolesTenant> userRolesSetup)
+        public static AuthSetupData AddAuthUsersIfEmpty(this AuthSetupData setupData, List<BulkLoadUserWithRolesTenant> userRolesSetup)
         {
             setupData.Options.InternalData.UserRolesSetupData = userRolesSetup;
             return setupData;

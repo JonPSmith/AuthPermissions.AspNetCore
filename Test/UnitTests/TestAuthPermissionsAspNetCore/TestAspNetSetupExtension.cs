@@ -145,9 +145,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role3: One")
+                .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
                 .SetupAspNetCoreAndDatabase();
@@ -169,9 +167,7 @@ Role3: One")
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role3: One")
+                .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithUserId())
                 .RegisterAuthenticationProviderReader<StubSyncAuthenticationUsersFactory.StubSyncAuthenticationUsers>()
                 .SetupAspNetCoreAndDatabase();
@@ -192,9 +188,7 @@ Role3: One")
             var services = this.SetupServicesForTest();
             services.RegisterAuthPermissions<TestEnum>()
                 .UsingInMemoryDatabase()
-                .AddRolesPermissionsIfEmpty(@"Role1 : One, Three
-Role2 |my description|: One, Two, Two, Three
-Role3: One")
+                .AddRolesPermissionsIfEmpty(AuthPSetupHelpers.TestRolesDefinition123)
                 .AddAuthUsersIfEmpty(AuthPSetupHelpers.TestUserDefineWithSuperUser())
                 .RegisterFindUserInfoService<IndividualAccountUserLookup>()
                 .IndividualAccountsAuthentication()

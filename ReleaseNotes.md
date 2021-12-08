@@ -3,8 +3,9 @@
 ## 2.0.0
 
 - Updated to net6.0
-- Move over to using Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have mutiple instances running
-
+- New features: Uses Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have mutiple instances running
+- New features: Added RoleType to RoleToPermissions - this adds extra multi-tenant Roles - see issue #9 for more details
+- BREAKING CHANGE: Changes the bulk loading of role and tenants to support the new multi-tenant Roles feature
 
 
 
