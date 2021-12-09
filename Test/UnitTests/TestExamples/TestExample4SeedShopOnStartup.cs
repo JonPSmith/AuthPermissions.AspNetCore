@@ -38,7 +38,7 @@ namespace Test.UnitTests.TestExamples
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();
             //var rOptions = this.CreateUniqueClassOptions<RetailDbContext>();
-            using var context = new RetailDbContext(rOptions, new StubGetDataKeyFilter("."));
+            using var context = new RetailDbContext(rOptions, new StubGetDataKeyFilter(""));
             context.Database.EnsureCreated();
 
             var service = new SeedShopsOnStartup(context, tenantService);
@@ -64,7 +64,7 @@ namespace Test.UnitTests.TestExamples
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();
             //var rOptions = this.CreateUniqueClassOptions<RetailDbContext>();
-            using var context = new RetailDbContext(rOptions, new StubGetDataKeyFilter("."));
+            using var context = new RetailDbContext(rOptions, new StubGetDataKeyFilter(""));
             context.Database.EnsureCreated();
 
             var service = new SeedShopsOnStartup(context, tenantService);

@@ -37,7 +37,7 @@ namespace Test.UnitTests.TestExamples
                 })
                 .UsingInMemoryDatabase()
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.RolesDefinition)
-                .AddTenantsIfEmpty(Example4AppAuthSetupData.TenantDefinition.ToList()) //HAVE TO TAKE A COPY!!!
+                .AddTenantsIfEmpty(Example4AppAuthSetupData.TenantDefinition)
                 .AddAuthUsersIfEmpty(Example4AppAuthSetupData.UsersRolesDefinition)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .SetupForUnitTestingAsync();
@@ -71,7 +71,7 @@ namespace Test.UnitTests.TestExamples
             var cAnds = await SetupExample4DataAsync();
 
             //ATTEMPT
-            var dataKey = ".1.3"; // 4U Inc. | West Coast
+            var dataKey = "1.3."; // 4U Inc. | West Coast
             var userQuery = cAnds.context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey+x.TenantId).StartsWith(dataKey));
             var usersToShow = userQuery.ToList();
             var allUsers = cAnds.context.AuthUsers.ToList();

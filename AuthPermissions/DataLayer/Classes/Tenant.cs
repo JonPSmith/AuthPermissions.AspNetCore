@@ -51,7 +51,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// You MUST have parent loaded and has been written to the database
         /// </summary>
         /// <param name="fullTenantName">This must be the full tenant name, including the parent name</param>
-        /// <param name="parent"></param>
+        /// <param name="parent">Parent tenant - can be null if top level</param>
         /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
         /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
         public Tenant(string fullTenantName, Tenant parent, List<RoleToPermissions> tenantRoles = null)
@@ -154,7 +154,7 @@ namespace AuthPermissions.DataLayer.Classes
                 throw new AuthPermissionsException(
                     "The Tenant DataKey is only correct if the tenant primary key is set");
 
-            return ParentDataKey + $".{TenantId}";
+            return ParentDataKey + $"{TenantId}.";
         }
 
         /// <summary>

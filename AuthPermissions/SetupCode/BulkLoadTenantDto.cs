@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 
@@ -48,7 +49,7 @@ public class BulkLoadTenantDto
     /// - If null in a hierarchical multi-tenant system, then the parent's list of tenant Roles are used
     /// - If empty in a hierarchical multi-tenant system, then it doesn't use the parents list of tenant Roles
     /// </summary>
-    public string TenantRolesCommaDelimited { get; }
+    public string TenantRolesCommaDelimited { get; internal set; }
 
     /// <summary>
     /// Only used in hierarchical multi-tenant apps. This array holds the children tenants from this tenant 
@@ -64,7 +65,9 @@ public class BulkLoadTenantDto
     /// </summary>
     internal BulkLoadTenantDto Parent { get; set; }
 
-    internal Tenant CreatedTenant { get; set; }
+    internal int CreatedTenantId { get; set; }
+
+    internal string CreatedTenantFullName { get; set; }
 
     public override string ToString()
     {

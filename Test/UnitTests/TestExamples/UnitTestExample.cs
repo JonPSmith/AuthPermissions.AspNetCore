@@ -9,7 +9,6 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
-using ExamplesCommonCode.CommonAdmin;
 using Microsoft.Extensions.DependencyInjection;
 using Test.TestHelpers;
 using Xunit;

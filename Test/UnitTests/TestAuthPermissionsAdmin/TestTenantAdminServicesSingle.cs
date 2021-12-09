@@ -223,7 +223,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples; 
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
-                    ("Tenant2", ".2")
+                    ("Tenant2", "2.")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))

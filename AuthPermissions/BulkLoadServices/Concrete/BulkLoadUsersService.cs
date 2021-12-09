@@ -106,8 +106,6 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                     $"The user {userName} didn't have a userId and the {nameof(IFindUserInfoService)}" +
                     (findUserInfoService == null ? " wasn't available." : " couldn't find it either.")));
 
-            var xxx = _context.Tenants.ToList();
-
             Tenant userTenant = null;
             if (_options.TenantType != TenantTypes.NotUsingTenants && !string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
             {

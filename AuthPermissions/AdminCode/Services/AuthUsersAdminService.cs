@@ -48,7 +48,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             return dataKey == null
                 ? _context.AuthUsers
-                : _context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey ?? "." + x.TenantId).StartsWith(dataKey));
+                : _context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey + x.TenantId + ".").StartsWith(dataKey));
         }
 
         /// <summary>

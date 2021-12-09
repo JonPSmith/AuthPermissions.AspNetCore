@@ -8,6 +8,7 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
 namespace AuthPermissions.BulkLoadServices.Concrete
@@ -90,27 +91,33 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                             tenantLevel.AddRange(tenantInfo.ChildrenTenants);
 
                         var fullname = Tenant.CombineParentNameWithTenantName(tenantInfo.TenantName,
-                            tenantInfo.Parent?.CreatedTenant.TenantFullName);
-                        List<RoleToPermissions> tenantRoles = null;
-                        if (tenantInfo.TenantRolesCommaDelimited == null)
-                            //Use the parents TenantRoles
-                            tenantRoles = tenantInfo.Parent?.CreatedTenant.TenantRoles.ToList();
-                        else
+                            tenantInfo.Parent?.CreatedTenantFullName);
+
+                        //If this level doesn't have a list of tenant roles, then it uses the parents 
+                        tenantInfo.TenantRolesCommaDelimited ??= tenantInfo.Parent?.TenantRolesCommaDelimited;
+
+                        var rolesStatus = GetCheckTenantRoles(tenantInfo.TenantRolesCommaDelimited, fullname);
+                        status.CombineStatuses(rolesStatus);
+                        if (rolesStatus.HasErrors)
+                            continue;
+
+                        var parent = tenantInfo.Parent == null
+                            ? null
+                            : await _context.Tenants.SingleAsync(x => x.TenantId == tenantInfo.Parent.CreatedTenantId);
+                        var newTenant = new Tenant(fullname, parent, rolesStatus.Result);
+                        _context.Add(newTenant);
+
+                        if (status.IsValid)
                         {
-                            //Has its 
-                            var rolesStatus = GetCheckTenantRoles(tenantInfo.TenantRolesCommaDelimited, fullname);
-                            status.CombineStatuses(rolesStatus);
-                            if (rolesStatus.IsValid)
-                                tenantRoles = rolesStatus.Result;
+                            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+
+                            //Now we copy the data so that a child can access to the parent data
+                            tenantInfo.CreatedTenantId = newTenant.TenantId;
+                            tenantInfo.CreatedTenantFullName = newTenant.TenantFullName;
                         }
 
-                        tenantInfo.CreatedTenant = new Tenant(fullname, tenantInfo.Parent?.CreatedTenant, tenantRoles);
-                        _context.Add(tenantInfo.CreatedTenant);
-                    }
 
-                    //We have a level done - save them so that the primary key is set
-                    if (status.IsValid)
-                        status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                    }
                 }
 
                 //Done all levels so commit if no errors

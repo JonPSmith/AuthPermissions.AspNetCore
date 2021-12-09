@@ -101,7 +101,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.Errors.Single().ToString().ShouldStartWith("Line/index 1: The user User2 didn't have a userId and the IFindUserInfoService wasn't available.");
+            status.Errors.Single().ToString().ShouldStartWith("Index 1: The user User2 didn't have a userId and the IFindUserInfoService wasn't available.");
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldStartWith("Line/index 1: The user User2 didn't have any roles.");
+            status.GetAllErrors().ShouldStartWith("Index 1: The user User2 didn't have any roles.");
         }
 
         [Fact]
@@ -147,7 +147,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldStartWith("Line/index 2, char: 1: The role Role99 wasn't found in the auth database.");
+            status.GetAllErrors().ShouldStartWith("Index 2, char: 1: The role Role99 wasn't found in the auth database.");
         }
 
         [Fact]
@@ -196,7 +196,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldStartWith("Line/index 1: The user User2 has a tenant name of Tenant99 which wasn't found in the auth database.");
+            status.GetAllErrors().ShouldStartWith("Index 1: The user User2 has a tenant name of Tenant99 which wasn't found in the auth database.");
         }
 
         [Fact]

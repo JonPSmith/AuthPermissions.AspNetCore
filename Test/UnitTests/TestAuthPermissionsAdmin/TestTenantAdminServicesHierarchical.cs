@@ -129,7 +129,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "Company | West Coast | LA");
                 tenants.Count.ShouldEqual(10);
                 newTenant.ShouldNotBeNull();
-                newTenant.GetTenantDataKey().ShouldEqual(".1.2.10");
+                newTenant.GetTenantDataKey().ShouldEqual("1.2.10.");
             }
         }
 
@@ -169,7 +169,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "New Company");
                 tenants.Count.ShouldEqual(10);
                 newTenant.ShouldNotBeNull();
-                newTenant.GetTenantDataKey().ShouldEqual(".10");
+                newTenant.GetTenantDataKey().ShouldEqual("10.");
             }
         }
 
@@ -300,7 +300,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 subTenantChangeService.MoveReturnedTuples
                     .ShouldEqual(new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>
                 {
-                    (".1.2.4.6", ".1.3.5.6", 6, "Company | East Coast | New York | Shop1")
+                    ("1.2.4.6.", "1.3.5.6.", 6, "Company | East Coast | New York | Shop1")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -347,10 +347,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 subTenantChangeService.MoveReturnedTuples
                     .ShouldEqual(new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>
                 {
-                    (".1.2", ".1.3.2", 2, "Company | East Coast | West Coast"),
-                    (".1.2.4", ".1.3.2.4", 4, "Company | East Coast | West Coast | SanFran"),
-                    (".1.2.4.6", ".1.3.2.4.6", 6, "Company | East Coast | West Coast | SanFran | Shop1"),
-                    (".1.2.4.7", ".1.3.2.4.7", 7, "Company | East Coast | West Coast | SanFran | Shop2")
+                    ("1.2.", "1.3.2.", 2, "Company | East Coast | West Coast"),
+                    ("1.2.4.", "1.3.2.4.", 4, "Company | East Coast | West Coast | SanFran"),
+                    ("1.2.4.6.", "1.3.2.4.6.", 6, "Company | East Coast | West Coast | SanFran | Shop1"),
+                    ("1.2.4.7.", "1.3.2.4.7.", 7, "Company | East Coast | West Coast | SanFran | Shop2")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -440,10 +440,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 subTenantChangeService.MoveReturnedTuples
                     .ShouldEqual(new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>
                 {
-                    (".1.3", ".3", 3, "East Coast"), 
-                    (".1.3.5", ".3.5", 5, "East Coast | New York"), 
-                    (".1.3.5.8", ".3.5.8", 8, "East Coast | New York | Shop3"), 
-                    (".1.3.5.9", ".3.5.9", 9, "East Coast | New York | Shop4")
+                    ("1.3.", "3.", 3, "East Coast"), 
+                    ("1.3.5.", "3.5.", 5, "East Coast | New York"), 
+                    ("1.3.5.8.", "3.5.8.", 8, "East Coast | New York | Shop3"), 
+                    ("1.3.5.9.", "3.5.9.", 9, "East Coast | New York | Shop4")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -555,7 +555,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
-                    ("Company | West Coast | SanFran | Shop1", ".1.2.4.6")
+                    ("Company | West Coast | SanFran | Shop1", "1.2.4.6.")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -601,10 +601,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
-                    ("Company | West Coast | SanFran | Shop1", ".1.2.4.6"), 
-                    ("Company | West Coast | SanFran | Shop2", ".1.2.4.7"), 
-                    ("Company | West Coast | SanFran", ".1.2.4"), 
-                    ("Company | West Coast", ".1.2")
+                    ("Company | West Coast | SanFran | Shop1", "1.2.4.6."), 
+                    ("Company | West Coast | SanFran | Shop2", "1.2.4.7."), 
+                    ("Company | West Coast | SanFran", "1.2.4."), 
+                    ("Company | West Coast", "1.2.")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
