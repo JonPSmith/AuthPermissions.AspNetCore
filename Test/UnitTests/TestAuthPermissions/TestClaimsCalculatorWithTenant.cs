@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
@@ -109,9 +110,11 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenant = new Tenant("Tenant1");
+            var tenant = Tenant.CreateSingleTenant("Tenant1").Result
+                         ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
             var role = new RoleToPermissions("Role1", null, $"{((char) 1)}");
-            var user = new AuthUser("User1", "User1@g.com", null, new [] {role}, tenant);
+            var user = AuthUser.CreateAuthUser("User1", "User1@g.com", null, new List<RoleToPermissions>() { role }, tenant).Result;
+
             context.AddRange(tenant, role, user);
             context.SaveChanges();
 

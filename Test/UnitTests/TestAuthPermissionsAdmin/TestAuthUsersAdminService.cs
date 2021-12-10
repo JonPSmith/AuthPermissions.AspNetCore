@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
@@ -98,6 +100,38 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             status.Result.ShouldNotBeNull();
+        }
+
+        [Theory]
+        [InlineData(RoleTypes.Normal, true)]
+        [InlineData(RoleTypes.TenantAdminAdd, true)]
+        [InlineData(RoleTypes.TenantAutoAdd, false)]
+        [InlineData(RoleTypes.HiddenFromTenant, false)]
+        public async Task TestAddNewUserAsyncTenant(RoleTypes roleType, bool success)
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupSingleTenantsInDb();
+            var rolePer1 = new RoleToPermissions("Role1", null, $"{(char)1}{(char)3}");
+            var rolePer2 = new RoleToPermissions("Role2", null, $"{(char)2}{(char)3}", roleType);
+            context.AddRange(rolePer1, rolePer2);
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+
+            //ATTEMPT
+            var status = await service.AddNewUserAsync("UserId", "User1@g.com", null,
+                new List<string> { "Role1", "Role2" }, "Tenant1");
+
+            //VERIFY
+            status.IsValid.ShouldEqual(success);
+            if (status.HasErrors)
+                _output.WriteLine(status.GetAllErrors());
         }
 
         [Theory]

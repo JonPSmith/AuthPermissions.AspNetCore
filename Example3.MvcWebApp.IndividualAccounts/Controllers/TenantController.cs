@@ -41,7 +41,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.TenantCreate)]
         public async Task<IActionResult> Create(TenantDto input)
         {
-            var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName);
+            var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, input.TenantRolesName);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

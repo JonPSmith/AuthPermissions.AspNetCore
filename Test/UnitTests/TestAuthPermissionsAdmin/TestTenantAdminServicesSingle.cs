@@ -6,15 +6,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
-using EntityFramework.Exceptions.SqlServer;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
-using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -111,6 +111,113 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
+        public async Task TestAddSingleTenantAsyncWithRolesOk()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            options.TurnOffDispose();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                    builder.UseSqlite(context.Database.GetDbConnection()));
+                appOptions.TurnOffDispose();
+                var retailContext = new RetailDbContext(appOptions, null);
+
+                var role1 = new RoleToPermissions("TenantRole1", null, $"{(char)1}{(char)3}", RoleTypes.TenantAutoAdd);
+                var role2 = new RoleToPermissions("TenantRole2", null, $"{(char)2}{(char)3}", RoleTypes.TenantAdminAdd);
+                context.AddRange(role1, role2);
+                context.SaveChanges();
+                var tenantIds = context.SetupSingleTenantsInDb();
+                context.ChangeTracker.Clear();
+
+                var tenantChange = new StubITenantChangeServiceFactory(retailContext);
+                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                    tenantChange, null);
+
+                //ATTEMPT
+                var status = await service.AddSingleTenantAsync("Tenant4", new List<string>{"TenantRole1", "TenantRole2"});
+
+                //VERIFY
+                status.IsValid.ShouldBeTrue(status.GetAllErrors());
+                tenantChange.NewTenantName.ShouldEqual("Tenant4");
+            }
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                var tenants = context.Tenants.Include(x => x.TenantRoles).ToList();
+                tenants.Count.ShouldEqual(4);
+                tenants.Last().TenantRoles.Select(x => x.RoleName).ShouldEqual(new string[] { "TenantRole1", "TenantRole2" });
+            }
+        }
+
+        [Theory]
+        [InlineData("BadName", "The Role 'BadName' was not found in the lists of Roles.")]
+        [InlineData("NormalRole", "The Role 'NormalRole' is not a tenant role")]
+        public async Task TestAddSingleTenantAsyncWithRolesBad(string roleName, string errorStart)
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            options.TurnOffDispose();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                    builder.UseSqlite(context.Database.GetDbConnection()));
+                appOptions.TurnOffDispose();
+                var retailContext = new RetailDbContext(appOptions, null);
+
+                context.Add(new RoleToPermissions("NormalRole", null, $"{(char)1}{(char)3}"));
+                context.SaveChanges();
+                var tenantIds = context.SetupSingleTenantsInDb();
+                context.ChangeTracker.Clear();
+
+                var tenantChange = new StubITenantChangeServiceFactory(retailContext);
+                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                    tenantChange, null);
+
+                //ATTEMPT
+                var status = await service.AddSingleTenantAsync("Tenant4", new List<string> { roleName });
+
+                //VERIFY
+                status.IsValid.ShouldBeFalse();
+                _output.WriteLine(status.GetAllErrors());
+                status.GetAllErrors().ShouldStartWith(errorStart);
+            }
+        }
+
+        // The UpdateTenantRolesAsync is used on both single and Hierarchical tenants, so only needs one test
+        [Fact]
+        public async Task TestUpdateTenantRolesAsync()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+            var role1 = new RoleToPermissions("TenantRole1", null, $"{(char)1}{(char)3}", RoleTypes.TenantAutoAdd);
+            var role2 = new RoleToPermissions("TenantRole2", null, $"{(char)2}{(char)3}", RoleTypes.TenantAdminAdd);
+            context.AddRange(role1, role2);
+            var newTenant = Tenant.CreateSingleTenant("Tenant1", new List<RoleToPermissions> { role1 }).Result
+                            ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
+            context.Add(newTenant);
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel }, null, null);
+
+            //ATTEMPT
+            var status = await service.UpdateTenantRolesAsync(newTenant.TenantId, new List<string> { "TenantRole2" });
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            context.ChangeTracker.Clear();
+            var updatedTenant = context.Tenants.Include(x => x.TenantRoles).Single();
+            updatedTenant.TenantRoles.Select(x => x.RoleName).ShouldEqual(new string[]{ "TenantRole2" });
+        }
+
+        [Fact]
         public async Task TestAddSingleTenantAsyncDuplicate()
         {
             //SETUP
@@ -134,7 +241,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
-        public async Task TestUpdateSingleTenantAsyncOk()
+        public async Task TestUpdateNameSingleTenantAsyncOk()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -274,7 +381,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var tenantIds = context.SetupSingleTenantsInDb();
             var tenant = context.Find<Tenant>(tenantIds[1]);
-            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenant));
+            context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenant).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 

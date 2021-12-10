@@ -72,8 +72,10 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 {
                     var rolesStatus = GetCheckTenantRoles(tenantDefinition.TenantRolesCommaDelimited,
                         tenantDefinition.TenantName);
-                    if (status.CombineStatuses(rolesStatus).IsValid)
-                        _context.Add(new Tenant(tenantDefinition.TenantName, rolesStatus.Result));
+                    status.CombineStatuses(rolesStatus);
+                    var tenantStatus = Tenant.CreateSingleTenant(tenantDefinition.TenantName, rolesStatus.Result);
+                    if (status.CombineStatuses(tenantStatus).IsValid)
+                        _context.Add(tenantStatus.Result);
                 }
 
                 if (status.HasErrors)
@@ -114,16 +116,16 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         var parent = tenantInfo.Parent == null
                             ? null
                             : await _context.Tenants.SingleAsync(x => x.TenantId == tenantInfo.Parent.CreatedTenantId);
-                        var newTenant = new Tenant(fullname, parent, rolesStatus.Result);
-                        _context.Add(newTenant);
+                        var newTenantStatus = Tenant.CreateHierarchicalTenant(fullname, parent, rolesStatus.Result);
+                        _context.Add(newTenantStatus.Result);
 
                         if (status.IsValid)
                         {
                             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                             //Now we copy the data so that a child can access to the parent data
-                            tenantInfo.CreatedTenantId = newTenant.TenantId;
-                            tenantInfo.CreatedTenantFullName = newTenant.TenantFullName;
+                            tenantInfo.CreatedTenantId = newTenantStatus.Result.TenantId;
+                            tenantInfo.CreatedTenantFullName = newTenantStatus.Result.TenantFullName;
                         }
                     }
                 }
@@ -146,8 +148,6 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             if (tenantRolesCommaDelimited == null)
                 return status.SetResult(null);
 
-            var result = new List<RoleToPermissions>();
-            
             var roleNames = tenantRolesCommaDelimited.Split(',').Select(x => x.Trim())
                 .Distinct().ToList();
 

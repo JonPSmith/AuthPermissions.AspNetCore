@@ -65,13 +65,13 @@ namespace Test.UnitTests.TestEfCoreCode
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
-            context.Add(new AuthUser("123", "first@gmail.com", "first", new List<RoleToPermissions>()));
+            context.Add(AuthUser.CreateAuthUser("123", "first@gmail.com", "first", new List<RoleToPermissions>()).Result);
             context.SaveChanges();
 
             context.ChangeTracker.Clear();
 
             //ATTEMPT
-            context.Add(new AuthUser("123", "second@gmail.com", "second", new List<RoleToPermissions>()));
+            context.Add(AuthUser.CreateAuthUser("123", "second@gmail.com", "second", new List<RoleToPermissions>()).Result);
             var status = context.SaveChangesWithChecks();
 
             //VERIFY

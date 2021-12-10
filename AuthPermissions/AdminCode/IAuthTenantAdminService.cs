@@ -44,16 +44,26 @@ namespace AuthPermissions.AdminCode
         /// This adds a new, single level  Tenant
         /// </summary>
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
+        /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddSingleTenantAsync(string tenantName);
+        Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null);
 
         /// <summary>
         /// This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
         /// </summary>
         /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
+        /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId);
+        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId, List<string> tenantRoleNames = null);
+
+        /// <summary>
+        /// This replaces the <see cref="Tenant.TenantRoles"/> in the tenant with <see param="tenantId"/> primary key
+        /// </summary>
+        /// <param name="tenantId">Primary key of the tenant to change</param>
+        /// <param name="newTenantRoleNames">List of RoleName to replace the current tenant's <see cref="Tenant.TenantRoles"/></param>
+        /// <returns></returns>
+        Task<IStatusGeneric> UpdateTenantRolesAsync(int tenantId, List<string> newTenantRoleNames);
 
         /// <summary>
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.

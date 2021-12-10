@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
@@ -95,7 +96,7 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This returns a list of all the RoleNames
+        /// This returns a list of all the RoleNames in the database
         /// </summary>
         /// <returns></returns>
         public async Task<List<string>> GetAllRoleNamesAsync()
@@ -146,11 +147,17 @@ namespace AuthPermissions.AdminCode.Services
             if (foundRoles.Count != (roleNames?.Count ?? 0))
                 throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
 
+            if (foundRoles.Any())
+                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, tenantName != null));
+
             if (status.HasErrors)
                 return status;
 
-            var authUser = new AuthUser(userId, email, userName, foundRoles, foundTenant);
-            _context.Add(authUser);
+            var authUserStatus = AuthUser.CreateAuthUser(userId, email, userName, foundRoles, foundTenant);
+            if (status.CombineStatuses(authUserStatus).HasErrors)
+                return status;
+
+            _context.Add(authUserStatus.Result);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
@@ -198,6 +205,9 @@ namespace AuthPermissions.AdminCode.Services
             if (foundRoles.Count != (roleNames?.Count ?? 0))
                 throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
 
+            if (foundRoles.Any())
+                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, tenantName != null));
+
             if (status.HasErrors)
                 return status;
 
@@ -239,10 +249,13 @@ namespace AuthPermissions.AdminCode.Services
             if (role == null)
                 return status.AddError($"Could not find the role {roleName}", nameof(roleName).CamelToPascal());
 
-            var added = authUser.AddRoleToUser(role);
+            var addedStatus = authUser.AddRoleToUser(role);
+            if (status.CombineStatuses(addedStatus).HasErrors)
+                return status;
+
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
-            status.Message = added
+            status.Message = addedStatus.Result
                 ? $"Successfully added the role {roleName} to auth user {authUser.UserName ?? authUser.Email}."
                 : $"The auth user {authUser.UserName ?? authUser.Email} already had the role {roleName}";
 
@@ -389,6 +402,36 @@ namespace AuthPermissions.AdminCode.Services
             var changeStrings = Enum.GetValues<SyncAuthUserChangeTypes>().ToList()
                 .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChangeType == x)}");
             status.Message = $"Sync successful: {(string.Join(", ", changeStrings))}";
+
+            return status;
+        }
+
+        //---------------------------------------------------------
+        // private methods
+
+        /// <summary>
+        /// This checks that the roles are valid for this type of user
+        /// </summary>
+        /// <param name="foundRoles"></param>
+        /// <param name="tenantUser"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private IStatusGeneric CheckRolesAreValidForUser(List<RoleToPermissions> foundRoles, bool tenantUser)
+        {
+            var status = new StatusGenericHandler();
+
+            foreach (var foundRole in foundRoles)
+            {
+                switch (tenantUser)
+                {
+                    case true when foundRole.RoleType == RoleTypes.HiddenFromTenant:
+                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to a tenant user because it can only be used by the App Admin.");
+                        break;
+                    case true when foundRole.RoleType == RoleTypes.TenantAutoAdd:
+                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to a tenant user because it is automatically to tenant users.");
+                        break;
+                }
+            }
 
             return status;
         }

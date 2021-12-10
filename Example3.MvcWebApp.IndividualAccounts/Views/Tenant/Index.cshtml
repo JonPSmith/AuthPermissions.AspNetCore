@@ -29,6 +29,9 @@
                 DataKey
             </th>
             <th>
+                Tenant Roles?
+            </th>
+            <th>
                 @(User.HasPermission(Example3Permissions.TenantUpdate) ? "Change" : "")
             </th>
         </tr>
@@ -42,6 +45,11 @@
                 </td>
                 <td>
                     @item.DataKey
+                </td>
+                <td>
+                    <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.TenantRolesName)'>
+                        @(item.TenantRolesName.Any() ? $"{item.TenantRolesName.Count} tenant roles" : "No tenant roles")
+                    </a>
                 </td>
                 <td>
                     @if (User.HasPermission(Example3Permissions.TenantUpdate))

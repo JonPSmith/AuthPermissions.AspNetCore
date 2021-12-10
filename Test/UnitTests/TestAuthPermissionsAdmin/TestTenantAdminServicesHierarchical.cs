@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Example4.ShopCode.EfCoreCode;
@@ -92,7 +93,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 .ShouldEqual(new[] { "SanFran", "Shop1", "Shop2" });
         }
 
-
         [Fact]
         public async Task TestAddHierarchicalTenantAsyncOk()
         {
@@ -130,6 +130,87 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 tenants.Count.ShouldEqual(10);
                 newTenant.ShouldNotBeNull();
                 newTenant.GetTenantDataKey().ShouldEqual("1.2.10.");
+            }
+        }
+
+        [Fact]
+        public async Task TestAddHierarchicalTenantAsyncWithRolesOk()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            options.TurnOffDispose();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                    builder.UseSqlite(context.Database.GetDbConnection()));
+                appOptions.TurnOffDispose();
+                var retailContext = new RetailDbContext(appOptions, null);
+
+                var role1 = new RoleToPermissions("TenantRole1", null, $"{(char)1}{(char)3}", RoleTypes.TenantAutoAdd);
+                var role2 = new RoleToPermissions("TenantRole2", null, $"{(char)2}{(char)3}", RoleTypes.TenantAdminAdd);
+                context.AddRange(role1, role2);
+                context.SaveChanges();
+
+                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                context.ChangeTracker.Clear();
+
+                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var service = new AuthTenantAdminService(context,
+                    new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                    subTenantChangeService, null);
+
+                //ATTEMPT
+                var status = await service.AddHierarchicalTenantAsync("LA", tenantIds[1], new List<string> { "TenantRole1", "TenantRole2" });
+
+                //VERIFY
+                status.IsValid.ShouldBeTrue(status.GetAllErrors());
+                subTenantChangeService.NewTenantName.ShouldEqual("Company | West Coast | LA");
+            }
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                var tenants = context.Tenants.Include(x => x.TenantRoles).ToList();
+                var newTenant = tenants.SingleOrDefault(x => x.TenantFullName == "Company | West Coast | LA");
+                newTenant.TenantRoles.Select(x => x.RoleName).ShouldEqual(new string[] { "TenantRole1", "TenantRole2" }); ;
+            }
+        }
+
+        [Theory]
+        [InlineData("BadName", "The Role 'BadName' was not found in the lists of Roles.")]
+        [InlineData("NormalRole", "The Role 'NormalRole' is not a tenant role")]
+        public async Task TestAddHierarchicalTenantAsyncWithRolesBad(string roleName, string errorStart)
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            options.TurnOffDispose();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                    builder.UseSqlite(context.Database.GetDbConnection()));
+                appOptions.TurnOffDispose();
+                var retailContext = new RetailDbContext(appOptions, null);
+
+                context.Add(new RoleToPermissions("NormalRole", null, $"{(char)1}{(char)3}"));
+                context.SaveChanges();
+
+                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                context.ChangeTracker.Clear();
+
+                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var service = new AuthTenantAdminService(context,
+                    new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                    subTenantChangeService, null);
+
+                //ATTEMPT
+                var status = await service.AddHierarchicalTenantAsync("LA", tenantIds[1], new List<string> { roleName });
+
+                //VERIFY
+                status.IsValid.ShouldBeFalse();
+                _output.WriteLine(status.GetAllErrors());
+                status.GetAllErrors().ShouldStartWith(errorStart);
             }
         }
 
@@ -635,7 +716,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             await context.SetupHierarchicalTenantInDbAsync();
             var tenantToDelete = context.Find<Tenant>(7);
-            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenantToDelete));
+            context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenantToDelete).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 
@@ -667,7 +748,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             await context.SetupHierarchicalTenantInDbAsync();
             var childTenant = context.Find<Tenant>(7);
-            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), childTenant));
+            context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), childTenant).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 

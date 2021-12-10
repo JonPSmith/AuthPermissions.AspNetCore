@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AuthPermissions.DataLayer.Classes;
@@ -18,6 +19,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Models
 
         public string DataKey { get; set; }
 
+        public List<string> TenantRolesName { get; set; }
+
 
         public static IQueryable<TenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
         {
@@ -25,7 +28,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Models
             {
                 TenantId = x.TenantId,
                 TenantName = x.TenantFullName,
-                DataKey = x.GetTenantDataKey()
+                DataKey = x.GetTenantDataKey(),
+                TenantRolesName = x.TenantRoles.Select(x => x.RoleName).ToList()
             });
         }
     }

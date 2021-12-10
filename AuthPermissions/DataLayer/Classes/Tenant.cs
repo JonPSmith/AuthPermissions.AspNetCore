@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
+using StatusGeneric;
 
 
 namespace AuthPermissions.DataLayer.Classes
@@ -29,21 +30,30 @@ namespace AuthPermissions.DataLayer.Classes
 
         private Tenant() { } //Needed by EF Core
 
+        private Tenant(string tenantFullName, bool isHierarchical, Tenant parent = null)
+        {
+            TenantFullName = tenantFullName?.Trim() ?? throw new ArgumentNullException(nameof(tenantFullName));
+
+            //Hierarchical Tenant parts
+            if (isHierarchical)
+            {
+                IsHierarchical = isHierarchical;
+                ParentDataKey = parent?.GetTenantDataKey();
+                Parent = parent;
+            }
+        }
+
         /// <summary>
         /// This defines a tenant in a single tenant multi-tenant system.
         /// </summary>
         /// <param name="fullTenantName"></param>
         /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
         /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
-        public Tenant(string fullTenantName, List<RoleToPermissions> tenantRoles = null)
+        public static IStatusGeneric<Tenant> CreateSingleTenant(string fullTenantName, List<RoleToPermissions> tenantRoles = null)
         {
-            TenantFullName = fullTenantName?.Trim() ?? throw new ArgumentNullException(nameof(fullTenantName));
-
-            _tenantRoles = new HashSet<RoleToPermissions>();
-            if (tenantRoles != null)
-            {
-                UpdateTenantRoles(tenantRoles);
-            }
+            var newInstance = new Tenant(fullTenantName, false);
+            var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance);
+            return status;
         }
 
         /// <summary>
@@ -54,24 +64,11 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="parent">Parent tenant - can be null if top level</param>
         /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
         /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
-        public Tenant(string fullTenantName, Tenant parent, List<RoleToPermissions> tenantRoles = null)
+        public static IStatusGeneric<Tenant> CreateHierarchicalTenant(string fullTenantName, Tenant parent, List<RoleToPermissions> tenantRoles = null)
         {
-            TenantFullName = fullTenantName?.Trim() ?? throw new ArgumentNullException(nameof(fullTenantName));
-            
-            //We check that the higher layer has a primary key
-            if (parent?.TenantId == (int)default)
-                throw new AuthPermissionsException(
-                    "The parent in the hierarchical setup doesn't have a valid primary key");
-
-            ParentDataKey = parent?.GetTenantDataKey();
-            Parent = parent;
-            IsHierarchical = true;
-
-            _tenantRoles = new HashSet<RoleToPermissions>();
-            if (tenantRoles != null)
-            {
-                UpdateTenantRoles(tenantRoles);
-            }
+            var newInstance = new Tenant(fullTenantName, true, parent);
+            var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance);
+            return status;
         }
 
         /// <summary>
@@ -206,21 +203,19 @@ namespace AuthPermissions.DataLayer.Classes
         }
 
         /// <summary>
-        /// This will reset the the tenant roles 
+        /// This will replace the current tenant roles with a new set of tenant roles
         /// </summary>
         /// <param name="tenantRoles"></param>
         /// <exception cref="AuthPermissionsException"></exception>
         /// <exception cref="AuthPermissionsBadDataException"></exception>
-        public void UpdateTenantRoles(List<RoleToPermissions> tenantRoles)
+        public IStatusGeneric UpdateTenantRoles(List<RoleToPermissions> tenantRoles)
         {
             if (_tenantRoles == null)
                 throw new AuthPermissionsException(
                     $"You must include the tenant's {nameof(TenantRoles)} in your query before you can add/remove an tenant role.");
 
-            CheckRolesAreAllTenantRoles(tenantRoles);
-
-            //This will cause the links to the old TenantRoles will be 
-            _tenantRoles = new HashSet<RoleToPermissions>(tenantRoles);
+            var status = new StatusGenericHandler();
+            return status.CombineStatuses(CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, this));
         }
 
         /// <summary>
@@ -270,19 +265,34 @@ namespace AuthPermissions.DataLayer.Classes
         // private methods
 
         /// <summary>
-        /// This checks that only roles that are tenant-type are added to the TenantRoles collection
+        /// This checks that the given roles have a <see cref="RoleToPermissions.RoleType"/> that can be added to a tenant.
+        /// If no errors (and roles aren't null) the <see cref="_tenantRoles"/> collection is updated, otherwise the status is returned with errors
         /// </summary>
-        /// <param name="tenantRoles"></param>
+        /// <param name="tenantRoles">The list of roles to added/updated to <see param="thisTenant"/> instance. Can be null</param>
+        /// <param name="thisTenant">the current instance of the tenant</param>
         /// <exception cref="AuthPermissionsBadDataException"></exception>
-        private void CheckRolesAreAllTenantRoles(List<RoleToPermissions> tenantRoles)
+        /// <returns>status, with the <see param="thisTenant"/> instance if no errors.</returns>
+        private static IStatusGeneric<Tenant> CheckRolesAreAllTenantRolesAndSetTenantRoles(List<RoleToPermissions> tenantRoles, Tenant thisTenant)
         {
-            var badRoles = tenantRoles
-                .Where(x => x.RoleType != RoleTypes.TenantAutoAdd && x.RoleType != RoleTypes.TenantAdminAdd)
-                .ToList();
+            var status = new StatusGenericHandler<Tenant>();
+            status.SetResult(thisTenant);
 
-            if (badRoles.Any())
-                throw new AuthPermissionsBadDataException(
-                    $"The following Roles aren't set as tenant-type role: {string.Join(", ", badRoles.Select(x => x.RoleName))}.");
+            var badRoles = tenantRoles?
+                .Where(x => x.RoleType != RoleTypes.TenantAutoAdd && x.RoleType != RoleTypes.TenantAdminAdd)
+                .ToList() ?? new List<RoleToPermissions>();
+
+            foreach (var badRole in badRoles)
+            {
+                status.AddError(
+                    $"The Role '{badRole.RoleName}' is not a tenant role, i.e. only roles with a {nameof(RoleToPermissions.RoleType)} of " +
+                    $"{nameof(RoleTypes.TenantAutoAdd)} or {nameof(RoleTypes.TenantAdminAdd)} can be added to a tenant.");
+            }
+
+            if (status.HasErrors || tenantRoles == null)
+                return status; 
+            
+            thisTenant._tenantRoles = new HashSet<RoleToPermissions>(tenantRoles);
+            return status;
         }
 
         /// <summary>

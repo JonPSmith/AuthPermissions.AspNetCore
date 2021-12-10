@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
+using StatusGeneric;
 
 namespace AuthPermissions.DataLayer.Classes
 {
@@ -19,7 +20,18 @@ namespace AuthPermissions.DataLayer.Classes
     {
         private HashSet<UserToRole> _userRoles;
 
-        private AuthUser() {} //Needed for EF Core
+        private AuthUser() { } //Needed for EF Core
+
+        private AuthUser(string userId, string email, string userName, List<RoleToPermissions> roles, Tenant userTenant)
+        {
+            UserId = userId ?? throw new ArgumentNullException(nameof(userId));
+
+            ChangeUserNameAndEmailWithChecks(email, userName);
+
+            if (roles == null) throw new ArgumentNullException(nameof(roles));
+            _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(userId, x)));
+            UserTenant = userTenant;
+        }
 
         /// <summary>
         /// Define a user with there default roles and optional tenant
@@ -29,14 +41,15 @@ namespace AuthPermissions.DataLayer.Classes
         /// <param name="userName">username - used when using Windows authentication. Generally useful for admin too.</param>
         /// <param name="roles">List of AuthP Roles for this user</param>
         /// <param name="userTenant">optional: defines multi-tenant tenant for this user</param>
-        public AuthUser(string userId, string email, string userName, IEnumerable<RoleToPermissions> roles, Tenant userTenant = null)
+        public static IStatusGeneric<AuthUser> CreateAuthUser(string userId, string email, string userName, List<RoleToPermissions> roles, Tenant userTenant = null)
         {
-            UserId = userId ?? throw new ArgumentNullException(nameof(userId));
-            ChangeUserNameAndEmailWithChecks(email, userName);
+            var status = new StatusGenericHandler<AuthUser>();
+                
+            status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant == null));
+            if (status.HasErrors)
+                return status;
 
-            if (roles == null) throw new ArgumentNullException(nameof(roles));
-            _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(userId, x)));
-            UserTenant = userTenant;
+            return status.SetResult(new AuthUser(userId, email, userName, roles, userTenant));
         }
 
         /// <summary>
@@ -119,18 +132,23 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         /// <param name="role"></param>
         /// <returns>true if added. False if already there</returns>
-        public bool AddRoleToUser(RoleToPermissions role)
+        public IStatusGeneric<bool> AddRoleToUser(RoleToPermissions role)
         {
             if (role == null) throw new ArgumentNullException(nameof(role));
-
             if (_userRoles == null)
                 throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
 
+            var status = new StatusGenericHandler<bool>();
+            status.CombineStatuses(CheckRolesAreValidForUser(new List<RoleToPermissions>{role}, TenantId != null));
+            if (status.HasErrors)
+                return status;
+
+            //already in the user's roles
             if (_userRoles.Any(x => x.RoleName == role.RoleName))
-                return false;
+                return status.SetResult(false);
 
             _userRoles.Add(new UserToRole(UserId, role));
-            return true;
+            return status.SetResult(true); ;
         }
 
         /// <summary>
@@ -152,12 +170,19 @@ namespace AuthPermissions.DataLayer.Classes
         /// This will replace all the Roles for this AuthUser
         /// </summary>
         /// <param name="roles">List of roles to replace the current user's roles</param>
-        public void ReplaceAllRoles(IEnumerable<RoleToPermissions> roles)
+        public IStatusGeneric ReplaceAllRoles(List<RoleToPermissions> roles)
         {
             if (_userRoles == null)
                 throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
 
+            var status = new StatusGenericHandler();
+            status.CombineStatuses(CheckRolesAreValidForUser(roles, TenantId != null));
+            if (status.HasErrors)
+                return status;
+
             _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(UserId, x)));
+
+            return status;
         }
 
         /// <summary>
@@ -180,6 +205,36 @@ namespace AuthPermissions.DataLayer.Classes
             Email = email?.Trim();
             UserName = (userName?.Trim() ?? Email) ?? throw new AuthPermissionsBadDataException(
                 $"The {nameof(Email)} and {nameof(UserName)} can't both be null.");
+        }
+
+        //---------------------------------------------------------
+        // private methods
+
+        /// <summary>
+        /// This checks that the roles are valid for this type of user
+        /// </summary>
+        /// <param name="foundRoles"></param>
+        /// <param name="tenantUser"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private static IStatusGeneric CheckRolesAreValidForUser( List<RoleToPermissions> foundRoles, bool tenantUser)
+        {
+            var status = new StatusGenericHandler();
+
+            foreach (var foundRole in foundRoles)
+            {
+                switch (tenantUser)
+                {
+                    case true when foundRole.RoleType == RoleTypes.HiddenFromTenant:
+                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it can only be used by the App Admin.");
+                        break;
+                    case true when foundRole.RoleType == RoleTypes.TenantAutoAdd:
+                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it is automatically to tenant users.");
+                        break;
+                }
+            }
+
+            return status;
         }
     }
 }

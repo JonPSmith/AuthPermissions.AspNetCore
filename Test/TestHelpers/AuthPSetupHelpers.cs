@@ -59,7 +59,8 @@ namespace Test.TestHelpers
             var userIds = userIdCommaDelimited.Split(',');
             for (int i = 0; i < userIds.Length; i++)
             {
-                var user = new AuthUser(userIds[i], $"{userIds[i]}@gmail.com", $"first last {i}", rolesInDb.Take(i+1));
+                var user = AuthUser.CreateAuthUser(userIds[i], $"{userIds[i]}@gmail.com", 
+                    $"first last {i}", rolesInDb.Take(i+1).ToList()).Result;
                 context.Add(user);
             }
             context.SaveChanges();
@@ -67,13 +68,13 @@ namespace Test.TestHelpers
 
         public static List<int> SetupSingleTenantsInDb(this AuthPermissionsDbContext context)
         {
-            var t1 = new Tenant("Tenant1");
-            var t2 = new Tenant("Tenant2");
-            var t3 = new Tenant("Tenant3");
-            context.AddRange(t1,t2,t3);
+            var s1 = Tenant.CreateSingleTenant("Tenant1");
+            var s2 = Tenant.CreateSingleTenant("Tenant2");
+            var s3 = Tenant.CreateSingleTenant("Tenant3");
+            context.AddRange(s1.Result, s2.Result, s3.Result);
             context.SaveChanges();
 
-            return new List<int> { t1.TenantId, t2.TenantId, t3.TenantId };
+            return new List<int> { s1.Result.TenantId, s2.Result.TenantId, s3.Result.TenantId };
         }
 
         public static List<BulkLoadTenantDto> GetSingleTenant123()

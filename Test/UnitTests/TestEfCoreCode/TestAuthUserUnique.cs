@@ -24,7 +24,7 @@ namespace Test.UnitTests.TestEfCoreCode
             context.Database.EnsureClean();
 
             //ATTEMPT
-            context.Add(new AuthUser("123", null, "userName", new List<RoleToPermissions>()));
+            context.Add(AuthUser.CreateAuthUser("123", null, "userName", new List<RoleToPermissions>()).Result);
             var status = context.SaveChangesWithChecks();
 
             //VERIFY
@@ -40,8 +40,7 @@ namespace Test.UnitTests.TestEfCoreCode
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
-            //ATTEMPT
-            context.Add(new AuthUser("123", "j@gmail.com", null, new List<RoleToPermissions>()));
+            context.Add(AuthUser.CreateAuthUser("123", "j@gmail.com", "userName", new List<RoleToPermissions>()).Result);
             var status = context.SaveChangesWithChecks();
 
             //VERIFY
@@ -58,7 +57,8 @@ namespace Test.UnitTests.TestEfCoreCode
             context.Database.EnsureClean();
 
             //ATTEMPT
-            var ex = Assert.Throws<AuthPermissionsBadDataException>(() => new AuthUser("123", null, null, new List<RoleToPermissions>()));
+            var ex = Assert.Throws<AuthPermissionsBadDataException>(() =>
+                AuthUser.CreateAuthUser("123", null, null, new List<RoleToPermissions>()).Result);
 
             //VERIFY
             ex.Message.ShouldEqual("The Email and UserName can't both be null.");

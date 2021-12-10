@@ -55,7 +55,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         [InlineData(RoleTypes.TenantAutoAdd, true, 2)]
         [InlineData(RoleTypes.TenantAdminAdd, true, 2)]
         [InlineData(RoleTypes.HiddenFromTenant, true, 1)]
-        [InlineData(RoleTypes.HiddenFromTenant, false, 2)]
         public void TestQueryRolesTenantUser(RoleTypes role2Type, bool hasTenant, int numRolesFound)
         {
             //SETUP

@@ -116,8 +116,9 @@ namespace AuthPermissions.AdminCode.Services
         /// This adds a new, single level Tenant
         /// </summary>
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
+        /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddSingleTenantAsync(string tenantName)
+        public async Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null)
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
@@ -137,16 +138,22 @@ namespace AuthPermissions.AdminCode.Services
             {
                 tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
 
-                var newTenant = new Tenant(tenantName);
-                tempAuthContext.Add(newTenant);
+                var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
+                status.CombineStatuses(tenantRolesStatus);
+                var newTenantStatus = Tenant.CreateSingleTenant(tenantName, tenantRolesStatus.Result);
+
+                if (status.CombineStatuses(newTenantStatus).HasErrors)
+                    return status;
+
+                tempAuthContext.Add(newTenantStatus.Result);
                 status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
 
                 if (status.HasErrors)
                     return status;
 
                 var errorString = await tenantChangeService.CreateNewTenantAsync(appContext,
-                    newTenant.GetTenantDataKey(),
-                    newTenant.TenantId, newTenant.TenantFullName);
+                    newTenantStatus.Result.GetTenantDataKey(),
+                    newTenantStatus.Result.TenantId, newTenantStatus.Result.TenantFullName);
                 if (errorString != null)
                     return status.AddError(errorString);
 
@@ -159,7 +166,7 @@ namespace AuthPermissions.AdminCode.Services
 
                 _logger.LogError(e, $"Failed to {status.Message}");
                 return status.AddError(
-                    "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
+                    "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
             return status;
@@ -170,8 +177,10 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
+        /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId)
+        public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
+            List<string> tenantRoleNames = null)
         {
             var status = new StatusGenericHandler();
 
@@ -201,22 +210,28 @@ namespace AuthPermissions.AdminCode.Services
                     //We need to find the parent
                     parentTenant = await tempAuthContext.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
                     if (parentTenant == null)
-                        return status.AddError($"Could not find the parent tenant you asked for.");
+                        return status.AddError("Could not find the parent tenant you asked for.");
                 }
 
                 var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
                 status.Message = $"Successfully added the new hierarchical tenant {fullTenantName}.";
 
-                var newTenant = new Tenant(fullTenantName, parentTenant);
-                tempAuthContext.Add(newTenant);
+                var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
+                status.CombineStatuses(tenantRolesStatus);
+                var newTenantStatus = Tenant.CreateHierarchicalTenant(fullTenantName, parentTenant, tenantRolesStatus.Result);
+                
+                if (status.CombineStatuses(newTenantStatus).HasErrors)
+                    return status;
+
+                tempAuthContext.Add(newTenantStatus.Result);
                 status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
 
                 if (status.HasErrors)
                     return status;
 
                 var errorString = await tenantChangeService.CreateNewTenantAsync(appContext,
-                    newTenant.GetTenantDataKey(),
-                    newTenant.TenantId, newTenant.TenantFullName);
+                    newTenantStatus.Result.GetTenantDataKey(),
+                    newTenantStatus.Result.TenantId, newTenantStatus.Result.TenantFullName);
                 if (errorString != null)
                     return status.AddError(errorString);
 
@@ -233,6 +248,37 @@ namespace AuthPermissions.AdminCode.Services
             }
 
             return status;
+        }
+
+        /// <summary>
+        /// This replaces the <see cref="Tenant.TenantRoles"/> in the tenant with <see param="tenantId"/> primary key
+        /// </summary>
+        /// <param name="tenantId">Primary key of the tenant to change</param>
+        /// <param name="newTenantRoleNames">List of RoleName to replace the current tenant's <see cref="Tenant.TenantRoles"/></param>
+        /// <returns></returns>
+        public async Task<IStatusGeneric> UpdateTenantRolesAsync(int tenantId, List<string> newTenantRoleNames)
+        {
+            if (_tenantType == TenantTypes.NotUsingTenants)
+                throw new AuthPermissionsException(
+                    $"You must set the {nameof(AuthPermissionsOptions.TenantType)} parameter in the AuthP's options");
+
+            var status = new StatusGenericHandler();
+
+            var tenant = await _context.Tenants.Include(x => x.TenantRoles)
+                .SingleOrDefaultAsync(x => x.TenantId == tenantId);
+
+            if (tenant == null)
+                return status.AddError("Could not find the tenant you were looking for.");
+
+            var tenantRolesStatus = await GetRolesWithChecksAsync(newTenantRoleNames);
+            if (status.CombineStatuses(tenantRolesStatus).HasErrors)
+                return status;
+
+            var updateStatus = tenant.UpdateTenantRoles(tenantRolesStatus.Result);
+            if (updateStatus.HasErrors)
+                return updateStatus;
+
+            return await _context.SaveChangesWithChecksAsync();
         }
 
         /// <summary>
@@ -556,6 +602,34 @@ namespace AuthPermissions.AdminCode.Services
             EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
 
             return new AuthPermissionsDbContext(options.Options);
+        }
+
+        /// <summary>
+        /// This finds the roles with the given names from the AuthP database. Returns errors if not found
+        /// NOTE: The Tenant checks that the role's <see cref="RoleToPermissions.RoleType"/> are valid for a tenant
+        /// </summary>
+        /// <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
+        /// <returns>Status</returns>
+        private async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(List<string> tenantRoleNames)
+        {
+            var status = new StatusGenericHandler<List<RoleToPermissions>>();
+
+            var foundRoles = tenantRoleNames?.Any() == true
+                ? await _context.RoleToPermissions
+                    .Where(x => tenantRoleNames.Contains(x.RoleName))
+                    .Distinct()
+                    .ToListAsync()
+                : new List<RoleToPermissions>();
+
+            if (foundRoles.Count != (tenantRoleNames?.Count ?? 0))
+            {
+                foreach (var badRoleName in tenantRoleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
+                {
+                    status.AddError($"The Role '{badRoleName}' was not found in the lists of Roles.");
+                }
+            }
+
+            return status.SetResult(foundRoles);
         }
     }
 }
