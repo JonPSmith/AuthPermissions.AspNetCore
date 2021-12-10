@@ -635,7 +635,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             await context.SetupHierarchicalTenantInDbAsync();
             var tenantToDelete = context.Find<Tenant>(7);
-            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenantToDelete));
+            context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenantToDelete).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 
@@ -667,7 +667,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             await context.SetupHierarchicalTenantInDbAsync();
             var childTenant = context.Find<Tenant>(7);
-            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), childTenant));
+            context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), childTenant).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 

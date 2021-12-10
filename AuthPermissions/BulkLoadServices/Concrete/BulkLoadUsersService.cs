@@ -115,8 +115,11 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         $"The user {userName} has a tenant name of {userDefine.TenantNameForDataKey} which wasn't found in the auth database."));
             }
 
-            var authUser = new AuthUser(userId, userDefine.Email, userName, rolesToPermissions, userTenant);
-            _context.Add(authUser);
+            var authUserStatus = AuthUser.CreateAuthUser(userId, userDefine.Email, userName, rolesToPermissions, userTenant);
+            if (status.CombineStatuses(authUserStatus).HasErrors)
+                return status;
+
+            _context.Add(authUserStatus.Result);
 
             return status;
         }

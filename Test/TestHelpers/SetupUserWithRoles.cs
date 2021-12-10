@@ -34,9 +34,9 @@ public class SetupUserWithRoles
 
         context.AddRange(rolePer1, rolePer2);
         var rolesForUsers = role2Type == RoleTypes.Normal || role2Type == RoleTypes.HiddenFromTenant
-            ? new[] { rolePer1, rolePer2 }
-            : new[] { rolePer1 };
-        CurrentUser = new AuthUser("User1", "User1@g.com", null, rolesForUsers, tenant);
+            ? new List<RoleToPermissions>() { rolePer1, rolePer2 }
+            : new List<RoleToPermissions>() { rolePer1 };
+        CurrentUser = AuthUser.CreateAuthUser("User1", "User1@g.com", null, rolesForUsers, tenant).Result;
         context.Add(CurrentUser);
         context.SaveChanges();
 

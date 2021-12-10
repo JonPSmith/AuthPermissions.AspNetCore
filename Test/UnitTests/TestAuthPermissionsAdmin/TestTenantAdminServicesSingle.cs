@@ -274,7 +274,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var tenantIds = context.SetupSingleTenantsInDb();
             var tenant = context.Find<Tenant>(tenantIds[1]);
-            context.Add(new AuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenant));
+            context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenant).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 

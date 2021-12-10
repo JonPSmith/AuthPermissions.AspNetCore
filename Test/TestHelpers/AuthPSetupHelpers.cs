@@ -59,7 +59,8 @@ namespace Test.TestHelpers
             var userIds = userIdCommaDelimited.Split(',');
             for (int i = 0; i < userIds.Length; i++)
             {
-                var user = new AuthUser(userIds[i], $"{userIds[i]}@gmail.com", $"first last {i}", rolesInDb.Take(i+1));
+                var user = AuthUser.CreateAuthUser(userIds[i], $"{userIds[i]}@gmail.com", 
+                    $"first last {i}", rolesInDb.Take(i+1).ToList()).Result;
                 context.Add(user);
             }
             context.SaveChanges();

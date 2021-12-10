@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
@@ -27,7 +28,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var rolePer1 = new RoleToPermissions("Role1", null, $"{(char)1}{(char)3}");
             var rolePer2 = new RoleToPermissions("Role2", null, $"{(char)2}{(char)3}");
             context.AddRange(rolePer1, rolePer2);
-            var user = new AuthUser("User1", "User1@g.com", null, new[] { rolePer1 });
+            var user = AuthUser.CreateAuthUser("User1", "User1@g.com", null, new List<RoleToPermissions>() { rolePer1 }).Result;
             context.Add(user);
             context.SaveChanges();
 
@@ -55,7 +56,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var rolePer1 = new RoleToPermissions("Role1", null, $"{(char) 1}{(char) 3}");
             var rolePer2 = new RoleToPermissions("Role2", null, $"{(char)2}{(char)3}");
             context.AddRange(rolePer1, rolePer2);
-            var user = new AuthUser("User1", "User1@g.com", null, new[] { rolePer1, rolePer2 });
+            var user = AuthUser.CreateAuthUser("User1", "User1@g.com", null, new List<RoleToPermissions>() { rolePer1, rolePer2 }).Result;
             context.Add(user);
             context.SaveChanges();
 
