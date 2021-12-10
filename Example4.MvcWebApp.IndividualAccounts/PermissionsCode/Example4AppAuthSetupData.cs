@@ -23,29 +23,29 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
 
         public static readonly List<BulkLoadTenantDto> TenantDefinition = new List<BulkLoadTenantDto>()
         {
-            new("4U Inc.", new BulkLoadTenantDto[]
+            new("4U Inc.", null, new BulkLoadTenantDto[]
             {
-                new ("West Coast", new BulkLoadTenantDto[]
+                new ("West Coast", null, new BulkLoadTenantDto[]
                 {
-                    new ("SanFran", new BulkLoadTenantDto[]
+                    new ("SanFran", null, new BulkLoadTenantDto[]
                     {
                         new ("Dress4U"),
                         new ("Tie4U")
                     }),
-                    new ("LA", new BulkLoadTenantDto[]
+                    new ("LA", null, new BulkLoadTenantDto[]
                     {
                         new ("Shirt4U"),
                     })
                 }),
-                new ("East Coast", new BulkLoadTenantDto[]
+                new ("East Coast", null, new BulkLoadTenantDto[]
                 {
                     new ("NY Dress4U"),
                     new ("Boston Shirt4U"),
                 })
             }),
-            new("Pets2 Ltd.", new BulkLoadTenantDto[]
+            new("Pets2 Ltd.", null, new BulkLoadTenantDto[]
             {
-                new ("London", new BulkLoadTenantDto[]
+                new ("London", null, new BulkLoadTenantDto[]
                 {
                     new ("Cats Place"),
                     new ("Kitten Place")

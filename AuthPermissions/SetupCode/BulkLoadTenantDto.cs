@@ -17,12 +17,12 @@ public class BulkLoadTenantDto
     /// This defines a tenant in an multi-tenant application
     /// </summary>
     /// <param name="tenantName">Name of the specific tenant level. So, for hierarchical tenant you only give the name at this tenant level.</param>
-    /// <param name="childrenTenants">For hierarchical multi-tenants you provide the </param>
     /// <param name="tenantRolesCommaDelimited">Optional: comma delimited string containing the names of Roles designed to work in this tenant. NOTE:
     ///     - If null in a hierarchical multi-tenant system, then the parent's list of tenant Roles are used
     ///     - If empty in a hierarchical multi-tenant system, then it doesn't use the parents list of tenant Role</param>
-    public BulkLoadTenantDto(string tenantName, BulkLoadTenantDto[] childrenTenants = null,
-        string tenantRolesCommaDelimited = null)
+    /// <param name="childrenTenants">For hierarchical multi-tenants you provide the </param>
+    public BulkLoadTenantDto(string tenantName,
+        string tenantRolesCommaDelimited = null, BulkLoadTenantDto[] childrenTenants = null)
     {
         TenantName = tenantName?.Trim() ?? throw new ArgumentNullException(nameof(tenantName));
         TenantRolesCommaDelimited = tenantRolesCommaDelimited;

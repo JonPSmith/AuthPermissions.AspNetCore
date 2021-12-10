@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
     public class BulkLoadTenantsService : IBulkLoadTenantsService
     {
         private readonly AuthPermissionsDbContext _context;
+        private Lazy<List<RoleToPermissions>> _lazyRoles;
 
         /// <summary>
         /// requires access to the AuthPermissionsDbContext
@@ -28,6 +30,10 @@ namespace AuthPermissions.BulkLoadServices.Concrete
         public BulkLoadTenantsService(AuthPermissionsDbContext context)
         {
             _context = context;
+            _lazyRoles = new Lazy<List<RoleToPermissions>>(() =>
+                _context.RoleToPermissions.Where(x =>
+                        x.RoleType == RoleTypes.TenantAutoAdd || x.RoleType == RoleTypes.TenantAdminAdd)
+                    .ToList());
         }
 
         /// <summary>
@@ -66,8 +72,12 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 {
                     var rolesStatus = GetCheckTenantRoles(tenantDefinition.TenantRolesCommaDelimited,
                         tenantDefinition.TenantName);
-                    _context.Add(new Tenant(tenantDefinition.TenantName, rolesStatus.Result));
+                    if (status.CombineStatuses(rolesStatus).IsValid)
+                        _context.Add(new Tenant(tenantDefinition.TenantName, rolesStatus.Result));
                 }
+
+                if (status.HasErrors)
+                    return status;
 
                 return await _context.SaveChangesWithChecksAsync();
             }
@@ -115,8 +125,6 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                             tenantInfo.CreatedTenantId = newTenant.TenantId;
                             tenantInfo.CreatedTenantFullName = newTenant.TenantFullName;
                         }
-
-
                     }
                 }
 
@@ -140,20 +148,23 @@ namespace AuthPermissions.BulkLoadServices.Concrete
 
             var result = new List<RoleToPermissions>();
             
-            var roleNames = tenantRolesCommaDelimited.Split(',').Select(x => x.Trim());
-            foreach (var roleName in roleNames)
+            var roleNames = tenantRolesCommaDelimited.Split(',').Select(x => x.Trim())
+                .Distinct().ToList();
+
+            //check provided role names are in the database
+            var notFoundNames = roleNames
+                .Where(x => !_lazyRoles.Value.Select(y => y.RoleName).Contains(x)).ToList();
+
+            foreach (var notFoundName in notFoundNames)
             {
-                var roleToPermission = _context.RoleToPermissions.SingleOrDefault(x => x.RoleName == roleName);
-                if (roleToPermission == null)
-                    status.AddError($"tenant '{fullTenantName}': the role '{roleName}' was not found in the database");
-                else if (roleToPermission.RoleType != RoleTypes.TenantAutoAdd && roleToPermission.RoleType != RoleTypes.TenantAdminAdd)
-                    status.AddError($"tenant '{fullTenantName}': the role '{roleName}'s {nameof(RoleToPermissions.RoleType)} must be " +
-                                    $"{nameof(RoleTypes.TenantAutoAdd)} or {nameof(RoleTypes.TenantAdminAdd)}");
-                else
-                    result.Add(roleToPermission);
+                status.AddError($"Tenant '{fullTenantName}': the role called '{notFoundName}' was not found. Either it is misspent or " +
+                                $"the {nameof(RoleToPermissions.RoleType)} must be {nameof(RoleTypes.TenantAutoAdd)} or {nameof(RoleTypes.TenantAdminAdd)}");
             }
 
-            return status.SetResult(result.Any() ? result : null);
+            if (status.HasErrors)
+                return status;
+
+            return status.SetResult(_lazyRoles.Value.Where(x => roleNames.Contains(x.RoleName)).ToList());
         }
 
     }

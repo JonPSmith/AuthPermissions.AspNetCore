@@ -38,23 +38,14 @@ namespace Test.TestHelpers
             new("Role3", null, "Three"),
         };
 
-        public static async Task SetupRolesInDbAsync(this AuthPermissionsDbContext context, string lines = null)
+        public static async Task SetupRolesInDbAsync(this AuthPermissionsDbContext context)
         {
-
             var authOptions = new AuthPermissionsOptions();
             authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);
             var service = new BulkLoadRolesService(context, authOptions);
             var status = await service.AddRolesToDatabaseAsync(TestRolesDefinition123);
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             context.SaveChanges();
-        }
-
-        public static AuthUser AddUserWithRoleInDb(this AuthPermissionsDbContext context, string userId = "User1")
-        {
-            var user = new AuthUser(userId, userId, null, context.RoleToPermissions.OrderBy(x => x.RoleName));
-            context.Add(user);
-            context.SaveChanges();
-            return user;
         }
 
         /// <summary>
@@ -99,19 +90,19 @@ namespace Test.TestHelpers
         {
             return new List<BulkLoadTenantDto>()
             {
-                new("Company", new BulkLoadTenantDto[]
+                new("Company", null, new BulkLoadTenantDto[]
                 {
-                    new ("West Coast", new BulkLoadTenantDto[]
+                    new ("West Coast", null, new BulkLoadTenantDto[]
                     {
-                        new ("SanFran", new BulkLoadTenantDto[]
+                        new ("SanFran", null, new BulkLoadTenantDto[]
                         {
                             new ("Shop1"),
                             new ("Shop2")
                         })
                     }),
-                    new ("East Coast", new BulkLoadTenantDto[]
+                    new ("East Coast", null, new BulkLoadTenantDto[]
                     {
-                        new ("New York", new BulkLoadTenantDto[]
+                        new ("New York", null, new BulkLoadTenantDto[]
                         {
                             new ("Shop3"),
                             new ("Shop4")
