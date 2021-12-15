@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using AuthPermissions.CommonCode;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -32,6 +33,8 @@ namespace AuthPermissions.DataLayer.EfCode
                 .MakeGenericMethod(entityData.ClrType);
             var filter = methodToCall.Invoke(null, new object[] { dataKey });
             entityData.SetQueryFilter((LambdaExpression)filter);
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetIsUnicode(false); //Make unicode
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(12);    //and small for single multi-tenant
             entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadWrite.DataKey)));
         }
 
@@ -57,6 +60,8 @@ namespace AuthPermissions.DataLayer.EfCode
                 .MakeGenericMethod(entityData.ClrType);
             var filter = methodToCall.Invoke(null, new object[] { dataKey });
             entityData.SetQueryFilter((LambdaExpression) filter);
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetIsUnicode(false); //Make unicode
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(AuthDbConstants.TenantDataKeySize);    //and small for single multi-tenant
             entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadOnly.DataKey)));
         }
 

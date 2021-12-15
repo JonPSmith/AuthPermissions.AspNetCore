@@ -27,11 +27,11 @@ namespace AuthPermissions.DataLayer.Classes.SupportTypes
         /// <summary>
         /// Max size of the TenantFullName string
         /// </summary>
-        public const int TenantFullNameSize = 100;
+        public const int TenantFullNameSize = 400;
         /// <summary>
         /// Max size of the TenantDataKey string
         /// </summary>
-        public const int TenantDataKeySize = 100;
+        public const int TenantDataKeySize = 250;
 
         /// <summary>
         /// Max size of the TokenValue in the RefreshToken

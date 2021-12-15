@@ -90,6 +90,9 @@ namespace AuthPermissions.DataLayer.EfCode
                 .HasIndex(x => x.TenantFullName)
                 .IsUnique();
             modelBuilder.Entity<Tenant>()
+                .Property(x => x.ParentDataKey)
+                .IsUnicode(false);
+            modelBuilder.Entity<Tenant>()
                 .HasIndex(x => x.ParentDataKey);
             modelBuilder.Entity<Tenant>()
                 .HasMany(x => x.TenantRoles)
