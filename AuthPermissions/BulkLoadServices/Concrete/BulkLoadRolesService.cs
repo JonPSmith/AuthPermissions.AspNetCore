@@ -4,11 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using AuthPermissions.BulkLoadServices.Concrete.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode.Internal;
 using AuthPermissions.SetupCode;
@@ -47,27 +46,24 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             if (roleSetupData == null || !roleSetupData.Any())
                 return status;
 
-            var enumNames = Enum.GetNames(_enumPermissionType);
-
             foreach (var roleDefinition in roleSetupData)
             {
+                var perRoleStatus = new StatusGenericHandler();
                 var permissionNames = roleDefinition.PermissionsCommaDelimited
                     .Split(',').Select(x => x.Trim()).ToList();
-                var validPermissions = true;
-                foreach (var permissionName in permissionNames)
-                {
-                    if (!enumNames.Contains(permissionName))
-                    {
-                        status.AddError($"Bulk load of Role '{roleDefinition.RoleName}' has a permission called " +
-                                        $"{permissionName} which wasn't found in the Enum {_enumPermissionType.Name}");
-                        validPermissions = false;
-                    }
-                }
 
-                if (validPermissions)
+                var roleType = roleDefinition.RoleType;
+                //NOTE: If an advanced permission (i.e. has the display attribute has AutoGenerateFilter = true) is found the roleType is updated to HiddenFromTenant
+                var packedPermissions = _enumPermissionType.PackPermissionsNamesWithValidation(permissionNames,
+                    x => perRoleStatus.AddError(
+                        $"The permission name '{x}' isn't a valid name in the {_enumPermissionType.Name} enum.",
+                        nameof(permissionNames).CamelToPascal()), () => roleType = RoleTypes.HiddenFromTenant);
+
+                status.CombineStatuses(perRoleStatus);
+                if (perRoleStatus.IsValid)
                 {
-                    var role = new RoleToPermissions(roleDefinition.RoleName, roleDefinition.Description, 
-                        _enumPermissionType.PackPermissionsNames(permissionNames.Distinct()), roleDefinition.RoleType);
+                    var role = new RoleToPermissions(roleDefinition.RoleName, roleDefinition.Description,
+                        packedPermissions, roleType);
                     _context.Add(role);
                 }
             }
