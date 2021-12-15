@@ -164,7 +164,7 @@ namespace Test.UnitTests.TestExamples
 
             //ATTEMPT
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
-            authUserUpdate.RoleNames = new List<string> {"Area Manager", "App Admin"};
+            authUserUpdate.RoleNames = new List<string> {"Area Manager", "Tenant Admin" };
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
 
             //VERIFY
@@ -173,7 +173,7 @@ namespace Test.UnitTests.TestExamples
             var rereadUser = (await adminUserService.FindAuthUserByUserIdAsync(userId)).Result;
             rereadUser.Email.ShouldEqual(userId);
             rereadUser.UserName.ShouldEqual(userId);
-            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "App Admin", "Area Manager" });
+            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Area Manager", "Tenant Admin" });
             rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");
         }
 

@@ -2,13 +2,14 @@
 
 ## 2.0.0
 
-- BUG FIX / BREAKING CHANGE: The DataKey format has changed because it wasn't unique in an hierarchical system
-- New features: Uses Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have mutiple instances running
-- New features: Added RoleType to RoleToPermissions - this adds extra multi-tenant Roles - see issue #9 for more details
+- BREAKING CHANGE: The SetupAspNetCoreAndDatabase configuration method uses a different approach that supports multiple instances of your app
 - BREAKING CHANGE: Changes the bulk loading of role and tenants to support the new multi-tenant Roles feature
-- Updated to net6.0
-
-
+- BREAKING CHANGE: Updated to net6.0 only
+- MULTI-TENANT BREAKING CHANGE: The DataKey format has changed, You need to migrate your application - see issue 
+- MULTI-TENANT BREAKING CHANGE: The RoleAdmin method QueryRoleToPermissions now needs the logged-in userId in multi-tenant applications
+- New features: A Tenant Admin user can't see "Advanced Roles", i.e. Role that only an App Admin user should use  
+- New features: Added RoleType to RoleToPermissions - this adds extra multi-tenant Roles - see issue #9 for more details
+- New features: Uses Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have mutiple instances running
 
 ## 1.4.0
 

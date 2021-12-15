@@ -6,6 +6,7 @@ using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
+using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers;
 
@@ -38,7 +39,11 @@ public class SetupUserWithRoles
         var rolesForUsers = role2Type == RoleTypes.Normal || role2Type == RoleTypes.HiddenFromTenant
             ? new List<RoleToPermissions>() { rolePer1, rolePer2 }
             : new List<RoleToPermissions>() { rolePer1 };
-        CurrentUser = AuthUser.CreateAuthUser("User1", "User1@g.com", null, rolesForUsers, tenant).Result;
+
+        var status = AuthUser.CreateAuthUser("User1", "User1@g.com", null, rolesForUsers, tenant);
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+
+        CurrentUser = status.Result;
         context.Add(CurrentUser);
         context.SaveChanges();
 

@@ -148,7 +148,7 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
 
             if (foundRoles.Any())
-                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, tenantName != null));
+                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, foundTenant != null, userName ?? email));
 
             if (status.HasErrors)
                 return status;
@@ -206,7 +206,7 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
 
             if (foundRoles.Any())
-                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, tenantName != null));
+                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, foundTenant != null, userName ?? email));
 
             if (status.HasErrors)
                 return status;
@@ -414,9 +414,10 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="foundRoles"></param>
         /// <param name="tenantUser"></param>
+        /// <param name="userName">name/email of the user</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private IStatusGeneric CheckRolesAreValidForUser(List<RoleToPermissions> foundRoles, bool tenantUser)
+        private IStatusGeneric CheckRolesAreValidForUser(List<RoleToPermissions> foundRoles, bool tenantUser, string userName)
         {
             var status = new StatusGenericHandler();
 
@@ -425,10 +426,10 @@ namespace AuthPermissions.AdminCode.Services
                 switch (tenantUser)
                 {
                     case true when foundRole.RoleType == RoleTypes.HiddenFromTenant:
-                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to a tenant user because it can only be used by the App Admin.");
+                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to the user '{userName}' because this role isn't allowed to tenant users.");
                         break;
                     case true when foundRole.RoleType == RoleTypes.TenantAutoAdd:
-                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to a tenant user because it is automatically to tenant users.");
+                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to the user '{userName}' because it is automatically to tenant users.");
                         break;
                 }
             }

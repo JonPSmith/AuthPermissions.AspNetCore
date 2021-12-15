@@ -23,19 +23,23 @@ namespace Example4.MvcWebApp.IndividualAccounts
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private readonly IConfiguration _configuration;
+        //thanks to https://stackoverflow.com/questions/52040742/get-wwwroot-path-when-in-configureservices-aspnetcore
+        //For net6 ASP.NET Core version see https://github.com/JonPSmith/RunStartupMethodsSequentially#for-aspnet-core 
+        private readonly IWebHostEnvironment _env;
 
-        public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        {
+            _configuration = configuration;
+            _env = env;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<IdentityUser>(options => 
@@ -47,10 +51,11 @@ namespace Example4.MvcWebApp.IndividualAccounts
             services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
-                    options.AppConnectionString = Configuration.GetConnectionString("DefaultConnection");
+                    options.AppConnectionString = connectionString;
+                    options.PathToFolderToLock = _env.WebRootPath;
                 })
                 //NOTE: This uses the same database as the individual accounts DB
-                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                .UsingEfCoreSqlServer(connectionString)
                 .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<RetailTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example4AppAuthSetupData.RolesDefinition)
@@ -74,7 +79,7 @@ namespace Example4.MvcWebApp.IndividualAccounts
 
             //This registers all the code to handle the shop part of the demo
             //Register RetailDbContext database and some services (included hosted services)
-            services.RegisterExample4ShopCode(Configuration);
+            services.RegisterExample4ShopCode(_configuration);
             //Add GenericServices (after registering the RetailDbContext context
             services.GenericServicesSimpleSetup<RetailDbContext>(Assembly.GetAssembly(typeof(ListSalesDto)));
         }
