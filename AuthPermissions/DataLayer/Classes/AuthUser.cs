@@ -45,7 +45,7 @@ namespace AuthPermissions.DataLayer.Classes
         {
             var status = new StatusGenericHandler<AuthUser>();
                 
-            status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant == null));
+            status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant != null));
             if (status.HasErrors)
                 return status;
 
