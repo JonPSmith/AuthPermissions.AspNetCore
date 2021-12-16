@@ -7,8 +7,8 @@
 - BREAKING CHANGE: Updated to net6.0 only
 - MULTI-TENANT BREAKING CHANGE: The DataKey format has changed, You need to migrate your application - see issue 
 - MULTI-TENANT BREAKING CHANGE: The RoleAdmin method QueryRoleToPermissions now needs the logged-in userId in multi-tenant applications
-- New features: A Tenant Admin user can't see "Advanced Roles", i.e. Role that only an App Admin user should use  
-- New features: Added RoleType to RoleToPermissions - this adds extra multi-tenant Roles - see issue #9 for more details
+- New features: Each multi-tenant can have a different version, e.g. Free, Pro, Enterprise -  see issue #9
+- New features: A Tenant Admin user can't see "Advanced Roles", i.e. Role that only an App Admin user should use - see issue #9
 - New features: Uses Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have mutiple instances running
 
 ## 1.4.0
