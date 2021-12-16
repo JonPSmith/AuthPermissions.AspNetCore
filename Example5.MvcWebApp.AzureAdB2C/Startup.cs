@@ -1,8 +1,6 @@
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.OpenIdCode;
-using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.SetupCode;
 using Example5.MvcWebApp.AzureAdB2C.AzureAdCode;
 using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -18,29 +16,38 @@ namespace Example5.MvcWebApp.AzureAdB2C
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private readonly IConfiguration _configuration;
+        //thanks to https://stackoverflow.com/questions/52040742/get-wwwroot-path-when-in-configureservices-aspnetcore
+        //For net6 ASP.NET Core version see https://github.com/JonPSmith/RunStartupMethodsSequentially#for-aspnet-core 
+        private readonly IWebHostEnvironment _env;
 
-        public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        {
+            _configuration = configuration;
+            _env = env;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
+                .AddMicrosoftIdentityWebApp(_configuration.GetSection("AzureAd"));
 
             services.AddControllersWithViews();
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
 
             //Needed by the SyncAzureAdUsers code
-            services.Configure<AzureAdOptions>(Configuration.GetSection("AzureAd"));
+            services.Configure<AzureAdOptions>(_configuration.GetSection("AzureAd"));
 
-            services.RegisterAuthPermissions<Example5Permissions>()
+            services.RegisterAuthPermissions<Example5Permissions>(options =>
+                {
+                    options.AppConnectionString = connectionString;
+                    options.PathToFolderToLock = _env.WebRootPath;
+                })
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
-                .UsingEfCoreSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.RolesDefinition)
                 .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)
                 .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()
