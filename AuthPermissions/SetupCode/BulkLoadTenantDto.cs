@@ -69,6 +69,10 @@ public class BulkLoadTenantDto
 
     internal string CreatedTenantFullName { get; set; }
 
+    /// <summary>
+    /// Useful for debug
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
 

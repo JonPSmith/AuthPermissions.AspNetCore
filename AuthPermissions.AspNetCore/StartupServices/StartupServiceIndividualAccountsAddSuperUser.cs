@@ -17,8 +17,10 @@ namespace AuthPermissions.AspNetCore.StartupServices
     public class StartupServiceIndividualAccountsAddSuperUser<TIdentityUser> : IStartupServiceToRunSequentially
         where TIdentityUser : IdentityUser, new()
     {
-        //These must be after migrations, after adding demo users and before AuthP bulk load is run
-        public int OrderNum { get; } = -1; //These must be after migrations, but after adding demo users. 
+        /// <summary>
+        /// This must be after migrations, but after adding demo users.
+        /// </summary>
+        public int OrderNum { get; } = -1;
 
         /// <summary>
         /// This will ensure that a user whos email/password is held in the "SuperAdmin" section of 

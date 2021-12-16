@@ -9,7 +9,7 @@
 - MULTI-TENANT BREAKING CHANGE: The RoleAdmin method QueryRoleToPermissions now needs the logged-in userId in multi-tenant applications
 - New features: Each multi-tenant can have a different version, e.g. Free, Pro, Enterprise -  see issue #9
 - New features: A Tenant Admin user can't see "Advanced Roles", i.e. Role that only an App Admin user should use - see issue #9
-- New features: Uses Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have mutiple instances running
+- New features: Uses Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have multiple instances running
 
 ## 1.4.0
 

@@ -19,6 +19,9 @@ namespace AuthPermissions.AspNetCore.StartupServices
     /// </summary>
     public class StartupServiceBulkLoadAuthPInfo : IStartupServiceToRunSequentially
     {
+        /// <summary>
+        /// Sets the order. Default is zero. If multiple classes have same OrderNum, then run in the order they were registered
+        /// </summary>
         public int OrderNum { get; } //The order of this startup services is defined by the order it registered
 
         /// <summary>

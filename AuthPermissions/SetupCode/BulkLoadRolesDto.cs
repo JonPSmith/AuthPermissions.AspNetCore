@@ -45,6 +45,10 @@ public class BulkLoadRolesDto
     /// </summary>
     public string PermissionsCommaDelimited { get; }
 
+    /// <summary>
+    /// Useful for debugging
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         return $"{nameof(RoleName)}: {RoleName}, {nameof(Description)}: {Description}, {nameof(RoleType)}: {RoleType}, {nameof(PermissionsCommaDelimited)}: {PermissionsCommaDelimited}";
