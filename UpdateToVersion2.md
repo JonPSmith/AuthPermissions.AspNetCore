@@ -6,14 +6,15 @@ _NOTE: I shorten the AuthPermissions.AspNetCore library name to **AuthP** from n
 
 ## TABLE OF CONTENT
 
-- MUST DO: Always
-    - [[Update your application to .NET 6.0]]
-    - [Registering of the AuthP]()
-- MUST DO: If multi-tenant app
+- **MUST DO**: Always
+    - [Update your application to .NET 6.0](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#update-your-application-to-net-60)
+    - [Changes to registering AuthP in ASP.NET Core]()
+- **MUST DO**: If multi-tenant app
     - [Need to migrate your database that uses AuthP's `DataKey`]()
-    - [The `QueryRoleToPermissions` needs a userId]()
+    - [The `QueryRoleToPermissions` needs a userId](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#multi-tenant-breaking-change-the-queryroletopermissions-needs-a-userid)
 - OPTIONAL
-    - [Building/Running your own migrate / seeding code on startup]()
+    - [Building/Running your own migrate / seeding code on startup](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#multi-tenant-breaking-change-need-to-migrate-your-database-that-uses-authps-datakey)
+    - [Bulk load or Roles and Tenants have changed](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#breaking-change-bulk-load-or-roles-and-tenants-have-changed)
 
 ## Update your application to .NET 6.0
 
@@ -40,7 +41,7 @@ AuthP version 2 uses the [Net.RunMethodsSequentially](https://www.nuget.org/pack
 
 However this new feature does require to changes to the registering code in your Net 5 `Startup` code, and if you migrate / seed need your application's database on startup, then you will need to change how you do that.
 
-### 1. REQUIRED: Changing the registering of the AuthP
+### 1. REQUIRED: Changes to registering AuthP in ASP.NET Core
 
 The Net.RunMethodsSequentially library needs a global resource, such as a database, to lock against. But to handle the case of the database doesn't exist it needs a second global resource, which I have chosen as a FileSystem Directory, e.g. ASP.NET Core's wwwRoot directory.
 
