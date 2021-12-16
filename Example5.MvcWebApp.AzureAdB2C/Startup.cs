@@ -47,7 +47,7 @@ namespace Example5.MvcWebApp.AzureAdB2C
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
-                .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
+                .UsingEfCoreSqlServer(connectionString)
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.RolesDefinition)
                 .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)
                 .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()
