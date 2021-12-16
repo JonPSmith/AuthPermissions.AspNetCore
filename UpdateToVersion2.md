@@ -8,12 +8,12 @@ _NOTE: I shorten the AuthPermissions.AspNetCore library name to **AuthP** from n
 
 - **MUST DO**: Always
     - [Update your application to .NET 6.0](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#update-your-application-to-net-60)
-    - [Changes to registering AuthP in ASP.NET Core]()
+    - [Changes to registering AuthP in ASP.NET Core](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#breaking-change-changes-to-registering-authp-in-aspnet-core)
 - **MUST DO**: If multi-tenant app
-    - [Need to migrate your database that uses AuthP's `DataKey`]()
+    - [Need to migrate your database that uses AuthP's `DataKey`](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#multi-tenant-breaking-change-need-to-migrate-your-database-that-uses-authps-datakey)
     - [The `QueryRoleToPermissions` needs a userId](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#multi-tenant-breaking-change-the-queryroletopermissions-needs-a-userid)
 - OPTIONAL
-    - [Building/Running your own migrate / seeding code on startup](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#multi-tenant-breaking-change-need-to-migrate-your-database-that-uses-authps-datakey)
+    - [Building/Running your own migrate / seeding code on startup](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#2-optional-buildingrunning-your-own-migrate--seeding-code-on-startup)
     - [Bulk load or Roles and Tenants have changed](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md#breaking-change-bulk-load-or-roles-and-tenants-have-changed)
 
 ## Update your application to .NET 6.0
