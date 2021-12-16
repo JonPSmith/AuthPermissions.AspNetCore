@@ -35,7 +35,7 @@ Once you have updated all your projects, then you can  update all your NuGet pac
 
 _NOTE: ASP.NET Core 6 has a new "minimal hosting" approach - read Andrew Lock's [Upgrading a .NET 5 "Startup-based" app to .NET 6](https://andrewlock.net/exploring-dotnet-6-part-12-upgrading-a-dotnet-5-startup-based-app-to-dotnet-6/) article for your options._
 
-## BREAKING CHANGE: Registering of the AuthP
+## BREAKING CHANGE: Changes to registering AuthP in ASP.NET Core
 
 AuthP version 2 uses the [Net.RunMethodsSequentially](https://www.nuget.org/packages/Net.RunMethodsSequentially) library inside AuthP's `SetupAspNetCoreAndDatabase` configuration method. This allow you to migrate / seed your database(s) on startup even if you are running multiple instances in production (see [this article](https://www.thereformedprogrammer.net/how-to-safely-apply-an-ef-core-migrate-on-asp-net-core-startup/) for more info).
 
