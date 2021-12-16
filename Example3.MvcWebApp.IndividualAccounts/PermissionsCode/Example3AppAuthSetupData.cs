@@ -12,7 +12,9 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         {
             new("SuperAdmin", "Super admin - only use for setup", "AccessAll"),
             new("App Admin", "Overall app Admin", 
-                "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate"),
+                "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, " +
+                "UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
+                "TenantList, TenantCreate, TenantUpdate"),
             new("Tenant Admin", "Tenant-level admin", "InvoiceRead, EmployeeRead, EmployeeRevokeActivate"),
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),
         };
