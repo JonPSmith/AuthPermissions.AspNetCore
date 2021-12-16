@@ -34,9 +34,9 @@ namespace Example3.MvcWebApp.IndividualAccounts
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    _configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<IdentityUser>(options =>
@@ -48,11 +48,11 @@ namespace Example3.MvcWebApp.IndividualAccounts
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.SingleLevel;
-                    options.AppConnectionString = _configuration.GetConnectionString("DefaultConnection");
+                    options.AppConnectionString = connectionString;
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
                 //NOTE: This uses the same database as the individual accounts DB
-                .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
+                .UsingEfCoreSqlServer(connectionString)
                 .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.RolesDefinition)
