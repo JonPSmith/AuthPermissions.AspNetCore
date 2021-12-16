@@ -14,7 +14,7 @@ namespace AuthPermissions.AspNetCore.StartupServices
 {
     public class StartupServicesIndividualAccountsAddDemoUsers : IStartupServiceToRunSequentially
     {
-        //This must be run after the migation of the IndividualAccounts database
+        //This must be run after the migration of the IndividualAccounts database
         //But before the SuperUser is added
         public int OrderNum { get; } = -5; 
 

@@ -65,7 +65,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 {
                     //Migrate individual account database
                     options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
-                    //Add demo users to the database
+                    //Add demo users to the database (if no individual account exist)
                     options.RegisterServiceToRunInJob<StartupServicesIndividualAccountsAddDemoUsers>();
 
                     //Migrate the application part of the database
