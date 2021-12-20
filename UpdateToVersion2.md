@@ -75,6 +75,8 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
+_NOTE: It you are SURE that you won't have multiple instances, then you can set the options `UseLocksToUpdateGlobalResources` property to false. This tells the  Net.RunMethodsSequentially library that it can run the startup services withing obtaining a global lock. See [Example2's Startup class](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example2.WebApiWithToken.IndividualAccounts/Startup.cs) for an example of setting the `UseLocksToUpdateGlobalResources` property to false._
+
 ### 2. OPTIONAL: Building/Running your own migrate / seeding code on startup
 
 In cases where you want to migrate and/or seed your own database on startup, then you can add extra _startup services_ to the Net.RunMethodsSequentially inside AuthP. The Net.RunMethodsSequentially will each of your startup services (and the AuthP startup services) within global lock. This means if you have multiple instances of your app the startup services in each instance can't run at the same time as other startup services in another instance. But remember - each instance WILL run the startup services, so make sure your startup services check if the database has already been updated.

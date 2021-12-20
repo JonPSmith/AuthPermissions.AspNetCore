@@ -68,7 +68,7 @@ namespace AuthPermissions
                             throw new AuthPermissionsBadDataException(
                                 $"The {nameof(AuthPermissionsOptions.PathToFolderToLock)} property in the {nameof(AuthPermissionsOptions)} must be set to a " +
                                 "directory that all the instances of your application can access. " +
-                                "This is a backup to the SQL Server lock in cases where the database doesn exist yet.");
+                                "This is a backup to the SQL Server lock in cases where the database doesn't exist yet.");
 
                         options.AddSqlServerLockAndRunMethods(connectionString);
                         options.AddFileSystemLockAndRunMethods(setupData.Options.PathToFolderToLock);
