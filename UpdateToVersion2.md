@@ -75,7 +75,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-_NOTE: It you are SURE that you won't have multiple instances, then you can set the options `UseLocksToUpdateGlobalResources` property to false. This tells the  Net.RunMethodsSequentially library that it can run the startup services withing obtaining a global lock. See [Example2's Startup class](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example2.WebApiWithToken.IndividualAccounts/Startup.cs) for an example of setting the `UseLocksToUpdateGlobalResources` property to false._
+_NOTE: It you are SURE that you won't have multiple instances, then you can set the options `UseLocksToUpdateGlobalResources` property to false. This tells the  Net.RunMethodsSequentially library that it can run the startup services without obtaining a global lock. See [Example2's Startup class](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example2.WebApiWithToken.IndividualAccounts/Startup.cs) for an example of setting the `UseLocksToUpdateGlobalResources` property to false._
 
 ### 2. OPTIONAL: Building/Running your own migrate / seeding code on startup
 
