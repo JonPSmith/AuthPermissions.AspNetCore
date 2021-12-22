@@ -138,7 +138,7 @@ namespace AuthPermissions.AdminCode.Services
             {
                 tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
 
-                var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
+                var tenantRolesStatus = await GetRolesWithChecksAsync(tempAuthContext, tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
                 var newTenantStatus = Tenant.CreateSingleTenant(tenantName, tenantRolesStatus.Result);
 
@@ -216,7 +216,7 @@ namespace AuthPermissions.AdminCode.Services
                 var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
                 status.Message = $"Successfully added the new hierarchical tenant {fullTenantName}.";
 
-                var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
+                var tenantRolesStatus = await GetRolesWithChecksAsync(tempAuthContext, tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
                 var newTenantStatus = Tenant.CreateHierarchicalTenant(fullTenantName, parentTenant, tenantRolesStatus.Result);
                 
@@ -270,7 +270,7 @@ namespace AuthPermissions.AdminCode.Services
             if (tenant == null)
                 return status.AddError("Could not find the tenant you were looking for.");
 
-            var tenantRolesStatus = await GetRolesWithChecksAsync(newTenantRoleNames);
+            var tenantRolesStatus = await GetRolesWithChecksAsync(_context, newTenantRoleNames);
             if (status.CombineStatuses(tenantRolesStatus).HasErrors)
                 return status;
 
@@ -610,12 +610,13 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
         /// <returns>Status</returns>
-        private async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(List<string> tenantRoleNames)
+        private static async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(
+            AuthPermissionsDbContext tempAuthContext, List<string> tenantRoleNames)
         {
             var status = new StatusGenericHandler<List<RoleToPermissions>>();
 
             var foundRoles = tenantRoleNames?.Any() == true
-                ? await _context.RoleToPermissions
+                ? await tempAuthContext.RoleToPermissions
                     .Where(x => tenantRoleNames.Contains(x.RoleName))
                     .Distinct()
                     .ToListAsync()
