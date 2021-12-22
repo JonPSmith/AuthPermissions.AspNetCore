@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.AppStart;
@@ -52,10 +53,18 @@ namespace Test.UnitTests.TestExamples
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .SetupAspNetCorePart();
             _serviceProvider = services.BuildServiceProvider();
-            var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            authContext.Database.Migrate();
             var accountContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
             accountContext.Database.EnsureClean();
+            var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            authContext.Database.Migrate();
+        }
+
+        private static async Task SetupExample3Roles(AuthPermissionsDbContext authContext)
+        {
+            var authOptions = new AuthPermissionsOptions();
+            authOptions.InternalData.EnumPermissionsType = typeof(Example3Permissions);
+            var roleLoader = new BulkLoadRolesService(authContext, authOptions);
+            await roleLoader.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
         }
 
         [Fact]
@@ -63,6 +72,9 @@ namespace Test.UnitTests.TestExamples
         {
             //SETUP
             var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            await SetupExample3Roles(authContext);
+
+            authContext.ChangeTracker.Clear();
 
             var service = _serviceProvider.GetRequiredService<ITenantSetupServices>();
             var createTenantDto = new CreateTenantDto
@@ -84,11 +96,16 @@ namespace Test.UnitTests.TestExamples
             newUser.UserTenant.TenantFullName.ShouldEqual("TestTenant");
         }
 
+
+
         [Fact]
         public async Task TestCreateNewTenantAsyncTenantAlreadyThere()
         {
             //SETUP
             var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            await SetupExample3Roles(authContext);
+
+            authContext.ChangeTracker.Clear();
 
             var service = _serviceProvider.GetRequiredService<ITenantSetupServices>();
             var createTenantDto = new CreateTenantDto
@@ -116,6 +133,7 @@ namespace Test.UnitTests.TestExamples
         {
             //SETUP
             var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            await SetupExample3Roles(authContext);
 
             var service = _serviceProvider.GetRequiredService<ITenantSetupServices>();
             var createTenantDto = new CreateTenantDto
@@ -136,7 +154,7 @@ namespace Test.UnitTests.TestExamples
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldEqual("You are already registered as a user.");
+            status.GetAllErrors().ShouldEqual("You are already registered as a user, which means you can't ask to access another tenant.");
         }
     }
 }

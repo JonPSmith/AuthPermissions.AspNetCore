@@ -1,5 +1,6 @@
 ﻿@using AuthPermissions.PermissionsCode
 @using Example3.MvcWebApp.IndividualAccounts.PermissionsCode
+@using AuthPermissions.DataLayer.Classes.SupportTypes
 @model IEnumerable<ExamplesCommonCode.CommonAdmin.AuthUserDisplay>
 
 @{
@@ -19,6 +20,8 @@
     <p> </p>
 }
 
+<div><i>NOTE: Extra roles may be applied to a user who is linked to a tenant that has Role's of type @nameof(RoleTypes.TenantAutoAdd) added to the user's tenant.</i></div>
+<br/>
 <table class="table">
     <thead>
         <tr>

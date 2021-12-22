@@ -1,4 +1,6 @@
-﻿@model IEnumerable<Example3.InvoiceCode.Dtos.InvoiceSummaryDto>
+﻿@using AuthPermissions.PermissionsCode
+@using Example3.MvcWebApp.IndividualAccounts.PermissionsCode
+@model List<Example3.InvoiceCode.Dtos.InvoiceSummaryDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -20,24 +22,24 @@
 </p>
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.InvoiceName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateCreated)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NumItems)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalCost)
-            </th>
-            @*<th></th>*@
-        </tr>
+    <tr>
+        <th>
+            InvoiceName
+        </th>
+        <th>
+            DateCreated
+        </th>
+        <th>
+            NumItems
+        </th>
+        <th>
+            TotalCost
+        </th>
+        @*<th></th>*@
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.InvoiceName)
@@ -57,6 +59,23 @@
                 @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
             </td>*@
         </tr>
-}
+    }
     </tbody>
 </table>
+
+@if (User.HasPermission(Example3Permissions.InvoiceSum))
+{
+    <h2>Enterprise Feature!</h2>
+    @if (Model.Any())
+    {
+        <div>The sum of the @Model.Count invoices is <span class="h3">@Model.Sum(x => x.TotalCost)?.ToString("C2")</span></div>
+    }
+    else
+    {
+        <div>No invoices found</div>
+    }
+}
+else
+{
+    <div class="h4">If you upgrade to the Enterprise version you will see total cost of your invoices.</div>
+}
