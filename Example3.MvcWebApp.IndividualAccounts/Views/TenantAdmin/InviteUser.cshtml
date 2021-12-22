@@ -1,0 +1,26 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "Invite User";
+}
+
+<h1>Invite User</h1>
+
+<h4>This creates a url to send to a user to invite then to join the @Model tenant</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="InviteUser">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label name="email" class="control-label">Email of user to invite</label>
+                <input name="email" type="email" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create Invite" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+

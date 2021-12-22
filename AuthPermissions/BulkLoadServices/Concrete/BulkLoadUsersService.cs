@@ -84,9 +84,10 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         rolesToPermissions.Add(roleToPermission);
                 });
 
-            if (!rolesToPermissions.Any())
-                status.AddError(userDefine.RoleNamesCommaDelimited.FormErrorString(index-1, -1,
-                    $"The user {userDefine.UserName} didn't have any roles."));
+            //This isn't true anu more, as roles can be applied via tenants
+            //if (!rolesToPermissions.Any())
+            //    status.AddError(userDefine.RoleNamesCommaDelimited.FormErrorString(index-1, -1,
+            //        $"The user {userDefine.UserName} didn't have any roles."));
 
             if (status.HasErrors)
                 return status;

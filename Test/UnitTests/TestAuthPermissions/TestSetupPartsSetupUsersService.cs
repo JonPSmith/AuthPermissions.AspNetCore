@@ -105,7 +105,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestAddUserRolesToDatabaseIfEmptyNoRoleError()
+        public async Task TestAddUserRolesToDatabaseIfEmptyNoRole()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -123,8 +123,7 @@ namespace Test.UnitTests.TestAuthPermissions
                 AuthPSetupHelpers.TestUserDefineWithUserId(""));
 
             //VERIFY
-            status.IsValid.ShouldBeFalse();
-            status.GetAllErrors().ShouldStartWith("Index 1: The user User2 didn't have any roles.");
+            status.IsValid.ShouldBeTrue();
         }
 
         [Fact]

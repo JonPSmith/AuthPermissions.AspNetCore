@@ -7,9 +7,16 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.CommonCode;
 using Example3.InvoiceCode.Services;
+using Example3.MvcWebApp.IndividualAccounts.Models;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.CommonAdmin;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -43,6 +50,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> RevokeActivate(string userId, bool activate)
         {
+            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+
             var findUserStatus = await _authUsersAdmin.FindAuthUserByUserIdAsync(userId);
             if (findUserStatus.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -61,10 +70,47 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
                 new { message = $"{(activate ? "Activated" : "Revoked")} the user {findUserStatus.Result.UserName ?? findUserStatus.Result.Email}" });
         }
 
+        [HasPermission(Example3Permissions.InviteUsers)]
+        public async Task<ActionResult> InviteUser()
+        {
+            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+
+            return View();
+        }
+
+        [HasPermission(Example3Permissions.InviteUsers)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> InviteUser([FromServices] ITenantSetupService tenantSetup, string email)
+        {
+            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+            var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.Claims.GetUserIdFromClaims()))
+                .Result;
+
+            if (currentUser == null || currentUser.TenantId == null)
+                return RedirectToAction(nameof(ErrorDisplay), new { errorMessage = "must be logged in and have a tenant" });
+
+            var verify = tenantSetup.InviteUserToJoinTenantAsync((int)currentUser.TenantId, email);
+            var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home",  new { verify });
+
+            return View("InviteUserUrl", new InviteUserDto(email, currentUser.UserTenant.TenantFullName, inviteUrl));
+        }
 
         public ActionResult ErrorDisplay(string errorMessage)
         {
             return View((object)errorMessage);
+        }
+
+        //-------------------------------------------------------
+
+        //Thanks to https://stackoverflow.com/questions/30755827/getting-absolute-urls-using-asp-net-core
+        public string AbsoluteAction(IUrlHelper url,
+            string actionName,
+            string controllerName,
+            object routeValues = null)
+        {
+            string scheme = HttpContext.Request.Scheme;
+            return url.Action(actionName, controllerName, routeValues, scheme);
         }
     }
 }

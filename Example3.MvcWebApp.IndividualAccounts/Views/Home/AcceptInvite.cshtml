@@ -1,0 +1,36 @@
+﻿@model Example3.MvcWebApp.IndividualAccounts.Models.AcceptInviteDto
+
+@{
+    ViewData["Title"] = "AcceptInvite";
+}
+
+<h1>Accept the Invite</h1>
+
+<h4>Fill in your email and password and you will registered to the Invoice Manager</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AcceptInvite">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" type="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            @Html.HiddenFor(x => x.Verify)
+            <div class="form-group">
+                <input type="submit" value="Join" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

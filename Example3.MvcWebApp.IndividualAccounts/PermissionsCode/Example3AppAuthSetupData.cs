@@ -24,10 +24,9 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
 
         public static readonly List<BulkLoadTenantDto> TenantDefinition = new()
         {
-            new("4U Inc.", "Tenant User, Tenant Admin, Enterprise"),
-            new("Pets Ltd.", "Tenant User, Tenant Admin"),
-            new("Big Rocks Inc.", "Tenant User, Tenant Admin"),
-            new("Mr single user.", "Tenant User"),
+            new("4U Inc.", "Tenant User, Tenant Admin, Enterprise"), //Enterprise
+            new("Pets Ltd.", "Tenant User, Tenant Admin"),           //Pro
+            new("Big Rocks Inc.", "Tenant User"),                    //Free
         };
 
         public static readonly List<BulkLoadUserWithRolesTenant> UsersRolesDefinition = new()
@@ -37,7 +36,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
             new ("extraUser@g1.com", null, "Tenant User"),
             //Company admins.
             new ("admin@4uInc.com", null,
-                "Tenant Admin,Tenant User", tenantNameForDataKey: "4U Inc."),
+                "Tenant Admin", tenantNameForDataKey: "4U Inc."),
             //Company users: NOTE The Tenant User role is automatically added to all roles in the tenants
             new ("user1@4uInc.com", null,
                 "", tenantNameForDataKey: "4U Inc."),
@@ -47,8 +46,6 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
                 "", tenantNameForDataKey: "Pets Ltd."),
             new ("user1@BigR.com", null,
                 "", tenantNameForDataKey: "Big Rocks Inc."),
-            new("single@User.com", null,
-                "", tenantNameForDataKey: "Mr single user."),
         };
     }
 }

@@ -1,0 +1,18 @@
+﻿@model InviteUserDto
+
+@{
+    ViewData["Title"] = "Invite User URL";
+}
+
+<h1>Invite User URL</h1>
+
+<div>Please send the url below to the user with the @(Model.Email).</div>
+<div>This will allow the user to join the @Model.TenantName tenant</div>
+<hr />
+<div class="h4">@Html.Encode(Model.Url)</div>
+
+<hr />
+
+<div>
+    <a asp-action="Index">Back to home</a>
+</div>

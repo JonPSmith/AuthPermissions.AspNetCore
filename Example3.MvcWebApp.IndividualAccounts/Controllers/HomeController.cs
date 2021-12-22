@@ -8,6 +8,7 @@ using Example3.InvoiceCode.Dtos;
 using Example3.InvoiceCode.EfCoreClasses;
 using Example3.InvoiceCode.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -48,6 +49,37 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 
             return RedirectToAction("Index", new {message = "bad"});
             //return RedirectToAction("Index", "Invoice");
+        }
+
+        [AllowAnonymous]
+        public ActionResult AcceptInvite(string verify)
+        {
+            return View(new AcceptInviteDto { Verify = verify });
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> AcceptInvite(AcceptInviteDto data,
+            [FromServices] ITenantSetupService tenantSetup,
+            [FromServices] SignInManager<IdentityUser> signInManager)
+        {
+            var status = await tenantSetup.AcceptUserJoiningATenantAsync(data.Email, data.Password, data.Verify);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            //User has been successfully registered so now we need to log them in
+            await signInManager.SignInAsync(status.Result, isPersistent: false);
+
+
+            return RedirectToAction(nameof(Index),
+                new { message = "Welcome to the Invoice Manager" });
+        }
+
+        public ActionResult ErrorDisplay(string errorMessage)
+        {
+            return View((object)errorMessage);
         }
 
         public IActionResult Privacy()

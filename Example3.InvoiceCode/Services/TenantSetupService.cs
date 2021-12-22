@@ -11,28 +11,38 @@ using Example3.InvoiceCode.Dtos;
 using ExamplesCommonCode.UsefulCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StatusGeneric;
 
 namespace Example3.InvoiceCode.Services;
 
-public class TenantSetupServices : ITenantSetupServices
+public class TenantSetupService : ITenantSetupService
 {
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAuthUsersAdminService _authUsersAdmin;
     private readonly UserManager<IdentityUser> _userManager;
 
+    //NOTE: This is NOT the way to do this in a real app.
+    //In real apps you should load the key from appsettings.json file, and have a different (and private) key in production
     private const string EncryptionTextKey = "Asaadjn33TbAw441azn";
 
     private const string RoleToAddIfAdminUser = "Tenant Admin";
 
-    private readonly Dictionary<TenantVersionTypes, string> _rolesToAddDependingOnVersion = new()
+    private readonly Dictionary<TenantVersionTypes, List<string>> _rolesToAddUserForVersions = new()
     {
-        { TenantVersionTypes.Free, "Tenant User" },
-        { TenantVersionTypes.Pro, "Tenant User, Tenant Admin" },
-        { TenantVersionTypes.Enterprise, "Tenant User, Tenant Admin, Enterprise" },
+        { TenantVersionTypes.Free, null },
+        { TenantVersionTypes.Pro, new List<string> { "Tenant Admin" } },
+        { TenantVersionTypes.Enterprise, new List<string> { "Tenant Admin" } }
     };
 
-    public TenantSetupServices(IAuthTenantAdminService tenantAdminService, IAuthUsersAdminService authUsersAdmin, UserManager<IdentityUser> userManager)
+    private readonly Dictionary<TenantVersionTypes, List<string>> _rolesToAddTenantForVersion = new()
+    {
+        { TenantVersionTypes.Free, new List<string> { "Tenant User" } },
+        { TenantVersionTypes.Pro, new List<string> { "Tenant User", "Tenant Admin" } },
+        { TenantVersionTypes.Enterprise, new List<string> { "Tenant User", "Tenant Admin", "Enterprise" } },
+    };
+
+    public TenantSetupService(IAuthTenantAdminService tenantAdminService, IAuthUsersAdminService authUsersAdmin, UserManager<IdentityUser> userManager)
     {
         _tenantAdminService = tenantAdminService;
         _authUsersAdmin = authUsersAdmin;
@@ -70,44 +80,52 @@ public class TenantSetupServices : ITenantSetupServices
         if (status.CombineStatuses(userStatus).HasErrors)
             return status;
 
-        //Now we can create the tenant
-        var tenantRoleNames = _rolesToAddDependingOnVersion[tenantVersion]
-            .Split(',').Select(x => x.Trim())
-            .ToList();
-        var tenantStatus = await _tenantAdminService.AddSingleTenantAsync(dto.TenantName, tenantRoleNames);
+        //Now we can create the tenant, with the correct tenant roles
+        var tenantStatus = await _tenantAdminService.AddSingleTenantAsync(dto.TenantName, _rolesToAddTenantForVersion[tenantVersion]);
         if (tenantStatus.HasErrors)
             return tenantStatus;
 
-        //TODO: add tenant admin and other roles to this user
-        var adminRoleName = new List<string> { RoleToAddIfAdminUser };
-        return await _authUsersAdmin.AddNewUserAsync(userStatus.Result.Id, dto.Email, null, adminRoleName, dto.TenantName);
+        //This creates a user, with the roles suitable for the version of the version of the app
+        return await _authUsersAdmin.AddNewUserAsync(userStatus.Result.Id, dto.Email, null, 
+            _rolesToAddUserForVersions[dto.GetTenantVersionType()], dto.TenantName);
     }
 
     /// <summary>
-    /// This creates a url to send to a user, with an encrypted string containing the tenantId and the user's email
+    /// This creates a an encrypted string containing the tenantId and the user's email
     /// so that you can confirm the user is valid
     /// </summary>
     /// <param name="tenantId">Id of the tenant you want the user to join</param>
     /// <param name="emailOfJoiner">email of the user</param>
-    /// <param name="urlToGoTo">url where the user should go to to gain access to the tenant</param>
-    /// <returns></returns>
-    public string InviteUserToJoinTenantAsync(int tenantId, string emailOfJoiner, string urlToGoTo)
+    /// <returns>encrypted string to send the user encoded to work with urls</returns>
+    public string InviteUserToJoinTenantAsync(int tenantId, string emailOfJoiner)
     {
         var encryptor = new EncryptDecrypt(EncryptionTextKey);
-        var encrypted = encryptor.Encrypt($"{tenantId},{emailOfJoiner.Trim()}");
-        return $"{urlToGoTo}?verify={encrypted}";
+        var verify = encryptor.Encrypt($"{tenantId},{emailOfJoiner.Trim()}");
+        return Base64UrlEncoder.Encode(verify);
     }
 
-    public async Task<IStatusGeneric> AcceptUserJoiningATenant(string email, string password, string verify)
+    /// <summary>
+    /// This will take the new user's information plus the encrypted invite code and
+    /// 1. decides if the invite matches the user's email
+    /// 2. It will create an individual accounts user (if not there), plus a check teh user isn't already an authP user
+    /// 3. Then it will create an authP user linked to the tenant they were invited to
+    /// NOTE: You MUST sign in the user using the email and password they provided via the individual accounts signInManager
+    /// </summary>
+    /// <param name="email">email given to log in</param>
+    /// <param name="password">password given to log in</param>
+    /// <param name="verify">The encrypted part of the url encoded to work with urls
+    /// that was created by <see cref="InviteUserToJoinTenantAsync"/></param>
+    /// <returns>Status with the individual accounts user</returns>
+    public async Task<IStatusGeneric<IdentityUser>> AcceptUserJoiningATenantAsync(string email, string password, string verify)
     {
-        var status = new StatusGenericHandler();
+        var status = new StatusGenericHandler<IdentityUser>();
 
         var encryptor = new EncryptDecrypt(EncryptionTextKey);
         int tenantId;
         string emailOfJoiner;
         try
         {
-            var decrypted = encryptor.Decrypt(verify);
+            var decrypted = encryptor.Decrypt(Base64UrlEncoder.Decode(verify));
 
             var parts = decrypted.Split(',');
             tenantId = int.Parse(parts[0]);
@@ -120,7 +138,7 @@ public class TenantSetupServices : ITenantSetupServices
         }
 
         if (emailOfJoiner != email.Trim())
-            return status.AddError("Sorry, your email didn't match.");
+            return status.AddError("Sorry, your email didn't match the invite.");
 
         var tenant = await _tenantAdminService.QueryTenants()
             .SingleOrDefaultAsync(x => x.TenantId == tenantId);
@@ -137,6 +155,10 @@ public class TenantSetupServices : ITenantSetupServices
         status.CombineStatuses(await _authUsersAdmin.AddNewUserAsync(userStatus.Result.Id, email, null,
             new List<string>(), tenant.TenantFullName));
 
+        if (status.HasErrors)
+            return status;
+
+        status.SetResult(userStatus.Result);
         status.Message = $"You have successfully joined the tenant '{tenant.TenantFullName}'";
         return status;
     }

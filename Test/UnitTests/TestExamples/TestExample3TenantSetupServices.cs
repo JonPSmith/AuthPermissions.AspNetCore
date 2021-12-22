@@ -1,20 +1,22 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BulkLoadServices.Concrete;
+using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
-using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.Dtos;
 using Example3.InvoiceCode.EfCoreCode;
 using Example3.InvoiceCode.Services;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
-using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Test.DiTestHelpers;
@@ -40,7 +42,7 @@ namespace Test.UnitTests.TestExamples
             context.Database.EnsureClean();
 
             var services = this.SetupServicesForTest(true);
-            services.AddTransient<ITenantSetupServices, TenantSetupServices>();
+            services.AddTransient<ITenantSetupService, TenantSetupService>();
             services.AddTransient<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
@@ -76,7 +78,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupServices>();
+            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
             var createTenantDto = new CreateTenantDto
             {
                 TenantName = "TestTenant",
@@ -96,7 +98,37 @@ namespace Test.UnitTests.TestExamples
             newUser.UserTenant.TenantFullName.ShouldEqual("TestTenant");
         }
 
+        [Theory]
+        [InlineData("Free", null, "Tenant User")]
+        [InlineData("Pro", "Tenant Admin", "Tenant Admin,Tenant User")]
+        [InlineData("Enterprise", "Tenant Admin", "Enterprise,Tenant Admin,Tenant User")]
+        public async Task TestCreateNewTenantAsyncCheckRolesAdded(string version, string expectedUserRole, string expectedTenantRoles)
+        {
+            //SETUP
+            var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            await SetupExample3Roles(authContext);
 
+            authContext.ChangeTracker.Clear();
+
+            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var createTenantDto = new CreateTenantDto
+            {
+                TenantName = "TestTenant",
+                Email = "User1@gmail.com",
+                Password = "User1@gmail.com",
+                Version = version
+            };
+
+            //ATTEMPT
+            var status = await service.CreateNewTenantAsync(createTenantDto);
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            authContext.Tenants.Include(x => x.TenantRoles).Single()
+                .TenantRoles.Select(x => x.RoleName).ShouldEqual(expectedTenantRoles.Split(',').ToList());
+            authContext.AuthUsers.Include(x => x.UserRoles).Single()
+                .UserRoles.Select(x => x.RoleName).ShouldEqual(expectedUserRole?.Split(',').ToList() ?? new ());
+        }
 
         [Fact]
         public async Task TestCreateNewTenantAsyncTenantAlreadyThere()
@@ -107,7 +139,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupServices>();
+            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
             var createTenantDto = new CreateTenantDto
             {
                 TenantName = "TestTenant",
@@ -135,7 +167,7 @@ namespace Test.UnitTests.TestExamples
             var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
             await SetupExample3Roles(authContext);
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupServices>();
+            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
             var createTenantDto = new CreateTenantDto
             {
                 TenantName = "TestTenant",
@@ -155,6 +187,88 @@ namespace Test.UnitTests.TestExamples
             //VERIFY
             status.IsValid.ShouldBeFalse();
             status.GetAllErrors().ShouldEqual("You are already registered as a user, which means you can't ask to access another tenant.");
+        }
+
+        //--------------------------------------------------------
+        //AcceptUserJoiningATenantAsync
+
+        [Fact]
+        public async Task TestAcceptUserJoiningATenantOk()
+        {
+            //SETUP
+            var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            await SetupExample3Roles(authContext);
+
+            var newTenant = Tenant.CreateSingleTenant("Test Tenant").Result;
+            authContext.Add(newTenant);
+            authContext.SaveChanges();
+
+            authContext.ChangeTracker.Clear();
+
+            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+
+            var verify = service.InviteUserToJoinTenantAsync(newTenant.TenantId, "User1@gmail.com");
+
+            //ATTEMPT
+            var status = await service.AcceptUserJoiningATenantAsync("User1@gmail.com", "User1@gmail.com", verify);
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            authContext.ChangeTracker.Clear();
+            var addedUser = authContext.AuthUsers
+                .Include(x => x.UserTenant).Single();
+            addedUser.Email.ShouldEqual("User1@gmail.com");
+            addedUser.UserTenant.TenantFullName.ShouldEqual("Test Tenant");
+        }
+
+        [Fact]
+        public async Task TestAcceptUserJoiningATenantEmailMismatch()
+        {
+            //SETUP
+            var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            await SetupExample3Roles(authContext);
+
+            var newTenant = Tenant.CreateSingleTenant("Test Tenant").Result;
+            authContext.Add(newTenant);
+            authContext.SaveChanges();
+
+            authContext.ChangeTracker.Clear();
+
+            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+
+            var verify = service.InviteUserToJoinTenantAsync(newTenant.TenantId, "User1@gmail.com");
+
+            //ATTEMPT
+            var status = await service.AcceptUserJoiningATenantAsync("Different@gmail.com", "User1@gmail.com", verify);
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.GetAllErrors().ShouldEqual("Sorry, your email didn't match the invite.");
+        }
+
+        [Fact]
+        public async Task TestAcceptUserJoiningATenantBadVerify()
+        {
+            //SETUP
+            var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            await SetupExample3Roles(authContext);
+
+            var newTenant = Tenant.CreateSingleTenant("Test Tenant").Result;
+            authContext.Add(newTenant);
+            authContext.SaveChanges();
+
+            authContext.ChangeTracker.Clear();
+
+            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+
+            var verify = "sads3dsfgfg=";
+
+            //ATTEMPT
+            var status = await service.AcceptUserJoiningATenantAsync("User1@gmail.com", "User1@gmail.com", verify);
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse();
+            status.GetAllErrors().ShouldEqual("Sorry, the verification failed.");
         }
     }
 }
