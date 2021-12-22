@@ -56,17 +56,14 @@ namespace Test.DiTestHelpers
         {
             if (useSqlDbs)
             {
+                //NOTE: You need to ensureClean on this database
                 var aspNetConnectionString = callingClass.GetUniqueDatabaseConnectionString("AspNet");
                 services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(aspNetConnectionString));
-
-                var appConnectionString = callingClass.GetUniqueDatabaseConnectionString("AppData");
             }
             else
             {
-
-                var aspNetAuthConnection = SetupSqliteInMemoryConnection();
+                var aspNetAuthConnection = SetupSqliteInMemoryConnection(); 
                 services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(aspNetAuthConnection));
-                var appExtraConnection = SetupSqliteInMemoryConnection();
             }
         }
 

@@ -31,19 +31,19 @@ namespace Test.UnitTests.TestExamples
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<InvoicesDbContext>();
-            using var context = new InvoicesDbContext(options, new StubGetDataKeyFilter(".1"));
+            using var context = new InvoicesDbContext(options, new StubGetDataKeyFilter("1."));
             context.Database.EnsureCreated();
 
             //ATTEMPT
             var invoice1 = new Invoice
             {
                 InvoiceName = "Test.1",
-                DataKey = ".1"
+                DataKey = "1."
             };
             var invoice2 = new Invoice
             {
                 InvoiceName = "Test.2",
-                DataKey = ".2"
+                DataKey = "2."
             };
             context.AddRange(invoice1, invoice2);
             context.SaveChanges();
@@ -59,7 +59,7 @@ namespace Test.UnitTests.TestExamples
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<InvoicesDbContext>();
-            using var context = new InvoicesDbContext(options, new StubGetDataKeyFilter(".1"));
+            using var context = new InvoicesDbContext(options, new StubGetDataKeyFilter("1."));
             context.Database.EnsureCreated();
 
             //ATTEMPT
@@ -69,15 +69,15 @@ namespace Test.UnitTests.TestExamples
                 DataKey = ".1",
                 LineItems = new List<LineItem>
                 {
-                    new LineItem { DataKey = ".1", NumberItems = 1, TotalPrice = 123 },
-                    new LineItem { DataKey = ".1", NumberItems = 1, TotalPrice = 123 }
+                    new LineItem { DataKey = "1.", NumberItems = 1, TotalPrice = 123 },
+                    new LineItem { DataKey = "1.", NumberItems = 1, TotalPrice = 123 }
                 }
             };
             var invoice2 = new Invoice
             {
                 InvoiceName = "Test.2",
                 DataKey = ".2",
-                LineItems = new List<LineItem> { new LineItem { DataKey = ".2", NumberItems = 1, TotalPrice = 123 } }
+                LineItems = new List<LineItem> { new LineItem { DataKey = "2.", NumberItems = 1, TotalPrice = 123 } }
             };
             context.AddRange(invoice1, invoice2);
             context.SaveChanges();

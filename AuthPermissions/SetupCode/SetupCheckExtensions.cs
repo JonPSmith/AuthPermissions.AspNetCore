@@ -44,7 +44,7 @@ namespace AuthPermissions.SetupCode
             if (setupData.Options.InternalData.AuthPAuthenticationType ==
                 AuthPAuthenticationTypes.NotSet)
                 throw new AuthPermissionsException(
-                    $"You must add a Using... method to define what authentication you are using, e.g. .UsingIndividualAccounts() for Individual Accounts");
+                    $"You must add a Using... method to define what authentication you are using, e.g. .IndividualAccountsAuthentication() for Individual Accounts");
 
         }
 

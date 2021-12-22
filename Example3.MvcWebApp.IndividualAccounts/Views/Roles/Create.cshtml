@@ -1,4 +1,5 @@
-﻿@model ExamplesCommonCode.CommonAdmin.RoleCreateUpdateDto
+﻿@using AuthPermissions.DataLayer.Classes.SupportTypes
+@model ExamplesCommonCode.CommonAdmin.RoleCreateUpdateDto
 
 @{
     ViewData["Title"] = "Create";
@@ -20,6 +21,11 @@
                 <label class="control-label">Description</label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div>
+                <label class="control-label">RoleType</label>
+                <select asp-for="RoleType" asp-items="Html.GetEnumSelectList<RoleTypes>()"></select> 
+                <span asp-validation-for="RoleType" class="text-danger"></span>
             </div>
         </div>
         <div class="col-md-12">

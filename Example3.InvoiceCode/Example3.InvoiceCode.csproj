@@ -18,9 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\" />
     <Folder Include="EfCoreClasses\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>

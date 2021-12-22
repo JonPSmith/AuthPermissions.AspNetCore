@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.PermissionsCode;
+using AuthPermissions.SetupCode;
 
 namespace ExamplesCommonCode.CommonAdmin
 {
@@ -17,6 +18,8 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public string Description { get; set; }
 
+        public RoleTypes RoleType { get; set; }
+
         public List<PermissionInfoWithSelectDto> PermissionsWithSelect { get; set; }
 
         public IEnumerable<string> GetSelectedPermissionNames()
@@ -26,7 +29,9 @@ namespace ExamplesCommonCode.CommonAdmin
                 .Select(x => x.PermissionName);
         }
 
-        public static RoleCreateUpdateDto SetupForCreateUpdate(string roleName, string description, List<string> rolePermissions, List<PermissionDisplay> allPermissionNames)
+        public static RoleCreateUpdateDto SetupForCreateUpdate(string roleName, string description, 
+            List<string> rolePermissions, List<PermissionDisplay> allPermissionNames,
+            RoleTypes roleType = RoleTypes.Normal)
         {
             rolePermissions ??= new List<string>();
 
@@ -34,6 +39,7 @@ namespace ExamplesCommonCode.CommonAdmin
             {
                 RoleName = roleName,
                 Description = description,
+                RoleType = roleType,
                 PermissionsWithSelect = allPermissionNames
                     .Select(x => new PermissionInfoWithSelectDto
                     {

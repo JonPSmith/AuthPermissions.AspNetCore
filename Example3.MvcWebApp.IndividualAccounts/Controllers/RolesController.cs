@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.CommonCode;
@@ -23,7 +24,9 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         {
             var userId = User.Claims.GetUserIdFromClaims();
             var permissionDisplay = await
-                _authRolesAdmin.QueryRoleToPermissions(userId).ToListAsync();
+                _authRolesAdmin.QueryRoleToPermissions(userId)
+                    .OrderBy(x => x.RoleType)  
+                    .ToListAsync();
 
             ViewBag.Message = message;
 
@@ -45,7 +48,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             var role = await
                 _authRolesAdmin.QueryRoleToPermissions(userId).SingleOrDefaultAsync(x => x.RoleName == roleName);
             var permissionsDisplay = _authRolesAdmin.GetPermissionDisplay(false);
-            return View(role == null ? null : RoleCreateUpdateDto.SetupForCreateUpdate(role.RoleName, role.Description, role.PermissionNames, permissionsDisplay));
+            return View(role == null ? null : RoleCreateUpdateDto.SetupForCreateUpdate(role.RoleName, role.Description, 
+                role.PermissionNames, permissionsDisplay, role.RoleType));
         }
 
         [HasPermission(Example3Permissions.RoleChange)]

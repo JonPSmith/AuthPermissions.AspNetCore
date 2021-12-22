@@ -35,7 +35,7 @@ namespace AuthPermissions.SetupCode.Factories
             var service = (ITenantChangeService)_serviceProvider.GetService(typeof(ITenantChangeService));
             if (service == null && throwExceptionIfNull)
                 throw new AuthPermissionsException(
-                    $"A service (method {callingMethod}) needed the {nameof(IFindUserInfoService)} service, but you haven't registered it." +
+                    $"A service (method {callingMethod}) needed the {nameof(ITenantChangeService)} service, but you haven't registered it." +
                     $"You can do this using the {nameof(RegisterExtensions.RegisterTenantChangeService)} configuration method.");
 
             return service;

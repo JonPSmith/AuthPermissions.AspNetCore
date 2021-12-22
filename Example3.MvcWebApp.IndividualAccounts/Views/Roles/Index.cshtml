@@ -29,6 +29,9 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.RoleType)
+            </th>
+            <th>
                 #Permissions
             </th>
             <th></th>
@@ -43,6 +46,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoleType)
                 </td>
                 <td>
                     <a href="#" data-toggle="tooltip" title='@string.Join(", ",item.PermissionNames)'>
