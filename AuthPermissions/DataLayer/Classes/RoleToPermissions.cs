@@ -31,8 +31,7 @@ namespace AuthPermissions.DataLayer.Classes
         public RoleToPermissions(string roleName, string description, string packedPermissions, RoleTypes roleType = RoleTypes.Normal)
         {
             RoleName = roleName.Trim();
-            Update(packedPermissions, description);
-            SetRoleType(roleType);
+            Update(packedPermissions, description, roleType);
         }
 
         /// <summary>
@@ -96,22 +95,16 @@ namespace AuthPermissions.DataLayer.Classes
         /// </summary>
         /// <param name="packedPermissions"></param>
         /// <param name="description"></param>
-        public void Update(string packedPermissions, string description = null)
+        /// <param name="roleType"></param>
+        public void Update(string packedPermissions, string description = null, RoleTypes roleType = RoleTypes.Normal)
         {
             if (string.IsNullOrEmpty(packedPermissions))
                 throw new AuthPermissionsException("There should be at least one permission associated with a role.");
 
             PackedPermissionsInRole = packedPermissions;
             Description = description?.Trim() ?? Description;
-        }
-
-        /// <summary>
-        /// This allows you to set the <see cref="RoleType"/> of this <see cref="RoleToPermissions"/>
-        /// </summary>
-        /// <param name="roleType">This sets the type of the Role. The <see cref="RoleType"/> is only used in multi-tenant apps</param>
-        public void SetRoleType(RoleTypes roleType)
-        {
             RoleType = roleType;
         }
+
     }
 }

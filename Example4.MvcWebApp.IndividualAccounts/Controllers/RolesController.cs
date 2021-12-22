@@ -54,7 +54,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Edit(RoleCreateUpdateDto input)
         {
             var status = await _authRolesAdmin
-                .UpdateRoleToPermissionsAsync(input.RoleName, input.GetSelectedPermissionNames(), input.Description);
+                .UpdateRoleToPermissionsAsync(input.RoleName, input.GetSelectedPermissionNames(), input.Description, input.RoleType);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),

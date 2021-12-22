@@ -52,16 +52,17 @@ namespace AuthPermissions.AdminCode
 
         /// <summary>
         /// This updates the role's permission names, and optionally its description
-        /// You cannot change the <see cref="RoleToPermissions.RoleType"/>, but it will become a <see cref="RoleTypes.HiddenFromTenant"/>
         /// if the new permissions contain an advanced permission
-        /// NOTE: This should not be called by a user that has a tenant, but this isn't checked
         /// </summary>
         /// <param name="roleName">Name of an existing role</param>
         /// <param name="permissionNames">a collection of permission names to go into this role</param>
         /// <param name="description">Optional: If given then updates the description for this role</param>
+        /// <param name="roleType">Optional: defaults to <see cref="RoleTypes.Normal"/>.
+        /// NOTE: the roleType is changed to <see cref="RoleTypes.HiddenFromTenant"/> if advanced permissions are found</param>
         /// <returns>Status</returns>
-        Task<IStatusGeneric> UpdateRoleToPermissionsAsync(string roleName, IEnumerable<string> permissionNames, 
-            string description);
+        Task<IStatusGeneric> UpdateRoleToPermissionsAsync(string roleName,
+            IEnumerable<string> permissionNames,
+            string description, RoleTypes roleType = RoleTypes.Normal);
 
         /// <summary>
         /// This deletes a Role. If that Role is already assigned to Auth users you must set the removeFromUsers to true

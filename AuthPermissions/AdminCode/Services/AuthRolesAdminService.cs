@@ -129,16 +129,17 @@ namespace AuthPermissions.AdminCode.Services
 
         /// <summary>
         /// This updates the role's permission names, and optionally its description
-        /// You cannot change the <see cref="RoleToPermissions.RoleType"/>, but it will become a <see cref="RoleTypes.HiddenFromTenant"/>
         /// if the new permissions contain an advanced permission
         /// </summary>
         /// <param name="roleName">Name of an existing role</param>
         /// <param name="permissionNames">a collection of permission names to go into this role</param>
         /// <param name="description">Optional: If given then updates the description for this role</param>
+        /// <param name="roleType">Optional: defaults to <see cref="RoleTypes.Normal"/>.
+        /// NOTE: the roleType is changed to <see cref="RoleTypes.HiddenFromTenant"/> if advanced permissions are found</param>
         /// <returns>Status</returns>
         public async Task<IStatusGeneric> UpdateRoleToPermissionsAsync(string roleName,
             IEnumerable<string> permissionNames,
-            string description)
+            string description, RoleTypes roleType = RoleTypes.Normal)
         {
             var status = new StatusGenericHandler { Message = $"Successfully updated the role {roleName}." };
             var existingRolePermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
@@ -149,7 +150,7 @@ namespace AuthPermissions.AdminCode.Services
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
                 x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
                     nameof(permissionNames).CamelToPascal()), 
-                () => existingRolePermission.SetRoleType(RoleTypes.HiddenFromTenant));
+                () => roleType = RoleTypes.HiddenFromTenant);
 
             if (status.HasErrors)
                 return status;
@@ -157,7 +158,7 @@ namespace AuthPermissions.AdminCode.Services
             if (!packedPermissions.Any())
                 return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
 
-            existingRolePermission.Update(packedPermissions, description);
+            existingRolePermission.Update(packedPermissions, description, roleType);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;

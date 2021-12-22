@@ -173,14 +173,18 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) }});
 
             //ATTEMPT
-            var status = await service.UpdateRoleToPermissionsAsync(roleName,  new[] { "One" }, "different description");
+            var status = await service.UpdateRoleToPermissionsAsync(roleName,  new[] { "One" },
+                "different description", RoleTypes.TenantAdminAdd);
 
             //VERIFY
             status.IsValid.ShouldEqual(isValid);
             if (isValid)
             {
-                context.RoleToPermissions.Single(x => x.RoleName == roleName).ToString()
+                context.ChangeTracker.Clear();
+                var role = context.RoleToPermissions.Single(x => x.RoleName == roleName);
+                role.ToString()
                     .ShouldEqual("Role2 (description = different description) has 1 permissions.");
+                role.RoleType.ShouldEqual(RoleTypes.TenantAdminAdd);
                 status.Message.ShouldEqual("Successfully updated the role Role2.");
             }
         }
