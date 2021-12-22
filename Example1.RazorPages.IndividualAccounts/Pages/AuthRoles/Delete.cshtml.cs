@@ -19,7 +19,7 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthRoles
 
         [BindProperty] public string RoleName { get; set; }
 
-        public async Task<IActionResult> OnGet(string roleName)
+        public IActionResult OnGet(string roleName)
         {
             RoleName = roleName;
             return Page();

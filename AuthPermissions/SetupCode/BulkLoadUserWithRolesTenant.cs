@@ -67,6 +67,10 @@ public class BulkLoadUserWithRolesTenant
     /// </summary>
     public string RoleNamesCommaDelimited { get;  }
 
+    /// <summary>
+    /// Useful when debugging
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         return $"{nameof(UserId)}: {UserId ?? "null"}, {nameof(Email)}: {Email}, {nameof(UserName)}: {UserName ?? "null"}, " +

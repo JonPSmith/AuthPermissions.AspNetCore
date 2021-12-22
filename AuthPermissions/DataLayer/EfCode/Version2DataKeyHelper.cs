@@ -21,7 +21,7 @@ public static class Version2DataKeyHelper
     /// NOTE: This migration is impotent, i.e. it will only change DataKey in the version 1 format
     /// </summary>
     /// <param name="migrationBuilder"></param>
-    /// <param name="tableName">Table name: surround with appropriate </param>
+    /// <param name="tableName">Table name with any schema at the start if required</param>
     /// <param name="dataKeyColumnName"></param>
     /// <exception cref="NotImplementedException"></exception>
     public static void UpdateToVersion2DataKeyFormat(
@@ -32,11 +32,18 @@ public static class Version2DataKeyHelper
         if (tableName == null) throw new ArgumentNullException(nameof(tableName));
 
         if (!migrationBuilder.IsSqlServer())
-            throw new NotImplementedException("This only works with SQL Server");
+            throw new NotImplementedException("This only tried with SQL Server");
 
         migrationBuilder.Sql(CreateVersion2DataKeyUpdateSql(tableName, dataKeyColumnName));
     }
 
+    /// <summary>
+    /// Method to create SQL for <see cref="UpdateToVersion2DataKeyFormat"/>
+    /// Provided so that I can test this SQL
+    /// </summary>
+    /// <param name="tableName">Table name with any schema at the start if required</param>
+    /// <param name="dataKeyColumnName"></param>
+    /// <returns></returns>
     public static string CreateVersion2DataKeyUpdateSql(this string tableName,
         string dataKeyColumnName = "DataKey")
     {

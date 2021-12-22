@@ -81,6 +81,11 @@ namespace Example2.WebApiWithToken.IndividualAccounts
 
             services.RegisterAuthPermissions<Example2Permissions>( options =>
                 {
+                    //This tells AuthP that you don't have multiple instances of your app running,
+                    //so it can run the startup services without a global lock
+                    options.UseLocksToUpdateGlobalResources = false;
+
+                    //This sets up the JWT Token. The config is suitable for using the Refresh Token with your JWT Token
                     options.ConfigureAuthPJwtToken = new AuthPJwtConfiguration
                     {
                         Issuer = jwtData.Issuer,

@@ -12,10 +12,15 @@ using RunMethodsSequentially;
 
 namespace AuthPermissions.AspNetCore.StartupServices
 {
+    /// <summary>
+    /// Startup service that is run on startup: This will add Demo Individual Accounts users using data in the appsetting.json
+    /// </summary>
     public class StartupServicesIndividualAccountsAddDemoUsers : IStartupServiceToRunSequentially
     {
-        //This must be run after the migation of the IndividualAccounts database
-        //But before the SuperUser is added
+        /// <summary>
+        /// This must be run after the migration of the IndividualAccounts database,
+        /// But before the SuperUser is added
+        /// </summary>
         public int OrderNum { get; } = -5; 
 
         /// <summary>
@@ -41,7 +46,5 @@ namespace AuthPermissions.AspNetCore.StartupServices
             }
             
         }
-
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

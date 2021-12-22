@@ -10,12 +10,15 @@ using RunMethodsSequentially;
 namespace AuthPermissions.AspNetCore.StartupServices
 {
     /// <summary>
-    /// This will run EF Core's Migate method on the given DbContext
+    /// This will run EF Core's Migrate method on the given DbContext
     /// Note that if the database is an in-memory, then it will simply create it
     /// </summary>
     public class StartupServiceMigrateAnyDbContext<TContext> : IStartupServiceToRunSequentially 
         where TContext : DbContext
     {
+        /// <summary>
+        /// Set to -10 so that it is run before any other startup services
+        /// </summary>
         public int OrderNum { get; } = -10; //These must be run before any other startup services
 
         /// <summary>
