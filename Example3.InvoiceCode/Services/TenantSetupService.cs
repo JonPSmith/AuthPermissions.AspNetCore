@@ -54,12 +54,13 @@ public class TenantSetupService : ITenantSetupService
     /// - Adds the new user to the the individual account
     /// - Adds an AuthUser for this person
     /// - Creates the tenant with the correct tenant roles
+    /// NOTE: On return you MUST sign in the user using the email and password they provided via the individual accounts signInManager
     /// </summary>
     /// <param name="dto">The information from the user</param>
-    /// <returns>Status</returns>
-    public async Task<IStatusGeneric> CreateNewTenantAsync(CreateTenantDto dto)
+    /// <returns>Status with the individual accounts user</returns>
+    public async Task<IStatusGeneric<IdentityUser>> CreateNewTenantAsync(CreateTenantDto dto)
     {
-        var status = new StatusGenericHandler
+        var status = new StatusGenericHandler<IdentityUser>
         {
             Message =
                 $"Successfully created the tenant called '{dto.TenantName}' and registered you as the tenant admin"
@@ -82,12 +83,16 @@ public class TenantSetupService : ITenantSetupService
 
         //Now we can create the tenant, with the correct tenant roles
         var tenantStatus = await _tenantAdminService.AddSingleTenantAsync(dto.TenantName, _rolesToAddTenantForVersion[tenantVersion]);
-        if (tenantStatus.HasErrors)
-            return tenantStatus;
+        if (status.CombineStatuses(tenantStatus).HasErrors)
+            return status;
 
         //This creates a user, with the roles suitable for the version of the version of the app
-        return await _authUsersAdmin.AddNewUserAsync(userStatus.Result.Id, dto.Email, null, 
-            _rolesToAddUserForVersions[dto.GetTenantVersionType()], dto.TenantName);
+        status.CombineStatuses(await _authUsersAdmin.AddNewUserAsync(userStatus.Result.Id, dto.Email, null,
+            _rolesToAddUserForVersions[dto.GetTenantVersionType()], dto.TenantName));
+
+        status.SetResult(userStatus.Result);
+
+        return status;
     }
 
     /// <summary>
@@ -109,7 +114,7 @@ public class TenantSetupService : ITenantSetupService
     /// 1. decides if the invite matches the user's email
     /// 2. It will create an individual accounts user (if not there), plus a check teh user isn't already an authP user
     /// 3. Then it will create an authP user linked to the tenant they were invited to
-    /// NOTE: You MUST sign in the user using the email and password they provided via the individual accounts signInManager
+    /// NOTE: On return you MUST sign in the user using the email and password they provided via the individual accounts signInManager
     /// </summary>
     /// <param name="email">email given to log in</param>
     /// <param name="password">password given to log in</param>

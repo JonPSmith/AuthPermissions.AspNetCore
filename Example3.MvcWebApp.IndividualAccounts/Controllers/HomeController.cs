@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.Dtos;
-using Example3.InvoiceCode.EfCoreClasses;
 using Example3.InvoiceCode.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -44,11 +42,20 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateTenant(CreateTenantDto data)
+        public async Task<IActionResult> CreateTenant(CreateTenantDto data,
+            [FromServices] ITenantSetupService tenantSetup,
+            [FromServices] SignInManager<IdentityUser> signInManager)
         {
+            var status = await tenantSetup.CreateNewTenantAsync(data);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
 
-            return RedirectToAction("Index", new {message = "bad"});
-            //return RedirectToAction("Index", "Invoice");
+            //User has been successfully registered so now we need to log them in
+            await signInManager.SignInAsync(status.Result, isPersistent: false);
+
+            return RedirectToAction(nameof(Index),
+                new { message = status.Message });
         }
 
         [AllowAnonymous]
@@ -72,9 +79,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             //User has been successfully registered so now we need to log them in
             await signInManager.SignInAsync(status.Result, isPersistent: false);
 
-
             return RedirectToAction(nameof(Index),
-                new { message = "Welcome to the Invoice Manager" });
+                new { message = status.Message });
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

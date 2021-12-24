@@ -15,10 +15,11 @@ public interface ITenantSetupService
     /// - Adds the new user to the the individual account
     /// - Adds an AuthUser for this person
     /// - Creates the tenant with the correct tenant roles
+    /// NOTE: On return you MUST sign in the user using the email and password they provided via the individual accounts signInManager
     /// </summary>
     /// <param name="dto">The information from the user</param>
-    /// <returns>Status</returns>
-    Task<IStatusGeneric> CreateNewTenantAsync(CreateTenantDto dto);
+    /// <returns>Status with the individual accounts user</returns>
+   Task<IStatusGeneric<IdentityUser>> CreateNewTenantAsync(CreateTenantDto dto);
 
     /// <summary>
     /// This creates a an encrypted string containing the tenantId and the user's email
@@ -34,7 +35,7 @@ public interface ITenantSetupService
     /// 1. decides if the invite matches the user's email
     /// 2. It will create an individual accounts user (if not there), plus a check teh user isn't already an authP user
     /// 3. Then it will create an authP user linked to the tenant they were invited to
-    /// NOTE: You MUST sign in the user using the email and password they provided via the individual accounts signInManager
+    /// NOTE: On return you MUST sign in the user using the email and password they provided via the individual accounts signInManager
     /// </summary>
     /// <param name="email">email given to log in</param>
     /// <param name="password">password given to log in</param>
