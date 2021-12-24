@@ -22,7 +22,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.RoleRead)]
         public async Task<IActionResult> Index(string message)
         {
-            var userId = User.Claims.GetUserIdFromClaims();
+            var userId = User.GetUserIdFromUser();
             var permissionDisplay = await
                 _authRolesAdmin.QueryRoleToPermissions(userId)
                     .OrderBy(x => x.RoleType)  
@@ -44,7 +44,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.RoleChange)]
         public async Task<IActionResult> Edit(string roleName)
         {
-            var userId = User.Claims.GetUserIdFromClaims();
+            var userId = User.GetUserIdFromUser();
             var role = await
                 _authRolesAdmin.QueryRoleToPermissions(userId).SingleOrDefaultAsync(x => x.RoleName == roleName);
             var permissionsDisplay = _authRolesAdmin.GetPermissionDisplay(false);

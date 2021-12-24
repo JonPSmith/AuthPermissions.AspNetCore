@@ -18,7 +18,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                var userId = User.Claims.GetUserIdFromClaims();
+                var userId = User.GetUserIdFromUser();
                 var status = await service.FindAuthUserByUserIdAsync(userId);
 
                 if (status.HasErrors)

@@ -126,7 +126,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
 
             //Success, so we ...
             //a) get the UserId
-            var userId = claimsPrincipal.Claims.GetUserIdFromClaims();
+            var userId = claimsPrincipal.GetUserIdFromUser();
             if (userId == null)
             {
                 throw new AuthPermissionsException(

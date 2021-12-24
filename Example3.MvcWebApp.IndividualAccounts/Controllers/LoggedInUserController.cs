@@ -18,7 +18,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                var userId = User.Claims.GetUserIdFromClaims();
+                var userId = User.GetUserIdFromUser();
                 var status = await service.FindAuthUserByUserIdAsync(userId);
 
                 if (status.HasErrors)

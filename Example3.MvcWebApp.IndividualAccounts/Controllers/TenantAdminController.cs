@@ -84,7 +84,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         public async Task<ActionResult> InviteUser([FromServices] ITenantSetupService tenantSetup, string email)
         {
             ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-            var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.Claims.GetUserIdFromClaims()))
+            var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
                 .Result;
 
             if (currentUser == null || currentUser.TenantId == null)
