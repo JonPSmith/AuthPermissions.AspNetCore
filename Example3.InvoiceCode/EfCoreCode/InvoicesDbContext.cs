@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
@@ -54,6 +55,11 @@ namespace Example3.InvoiceCode.EfCoreCode
                 if (typeof(IDataKeyFilterReadWrite).IsAssignableFrom(entityType.ClrType))
                 {
                     entityType.AddSingleTenantReadWriteQueryFilter(this);
+                }
+                else
+                {
+                    throw new Exception(
+                        $"You haven't added the {nameof(IDataKeyFilterReadWrite)} to the entity {entityType.ClrType.Name}");
                 }
 
                 foreach (var mutableProperty in entityType.GetProperties())
