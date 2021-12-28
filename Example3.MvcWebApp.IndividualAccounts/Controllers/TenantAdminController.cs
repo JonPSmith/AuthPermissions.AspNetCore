@@ -81,7 +81,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.InviteUsers)]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> InviteUser([FromServices] ITenantSetupService tenantSetup, string email)
+        public async Task<ActionResult> InviteUser([FromServices] IUserRegisterInviteService userRegisterInvite, string email)
         {
             ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
             var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
@@ -90,7 +90,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             if (currentUser == null || currentUser.TenantId == null)
                 return RedirectToAction(nameof(ErrorDisplay), new { errorMessage = "must be logged in and have a tenant" });
 
-            var verify = tenantSetup.InviteUserToJoinTenantAsync((int)currentUser.TenantId, email);
+            var verify = userRegisterInvite.InviteUserToJoinTenantAsync((int)currentUser.TenantId, email);
             var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home",  new { verify });
 
             return View("InviteUserUrl", new InviteUserDto(email, currentUser.UserTenant.TenantFullName, inviteUrl));

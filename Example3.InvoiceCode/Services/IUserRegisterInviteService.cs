@@ -8,7 +8,7 @@ using StatusGeneric;
 
 namespace Example3.InvoiceCode.Services;
 
-public interface ITenantSetupService
+public interface IUserRegisterInviteService
 {
     /// <summary>
     /// This does three things (with lots of checks)

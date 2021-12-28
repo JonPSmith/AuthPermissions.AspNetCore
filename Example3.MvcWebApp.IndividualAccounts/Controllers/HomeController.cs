@@ -43,10 +43,10 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTenant(CreateTenantDto data,
-            [FromServices] ITenantSetupService tenantSetup,
+            [FromServices] IUserRegisterInviteService userRegisterInvite,
             [FromServices] SignInManager<IdentityUser> signInManager)
         {
-            var status = await tenantSetup.CreateNewTenantAsync(data);
+            var status = await userRegisterInvite.CreateNewTenantAsync(data);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
@@ -68,10 +68,10 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> AcceptInvite(AcceptInviteDto data,
-            [FromServices] ITenantSetupService tenantSetup,
+            [FromServices] IUserRegisterInviteService userRegisterInvite,
             [FromServices] SignInManager<IdentityUser> signInManager)
         {
-            var status = await tenantSetup.AcceptUserJoiningATenantAsync(data.Email, data.Password, data.Verify);
+            var status = await userRegisterInvite.AcceptUserJoiningATenantAsync(data.Email, data.Password, data.Verify);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

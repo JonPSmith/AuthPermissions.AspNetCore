@@ -16,7 +16,7 @@ using StatusGeneric;
 
 namespace Example3.InvoiceCode.Services;
 
-public class TenantSetupService : ITenantSetupService
+public class UserRegisterInviteService : IUserRegisterInviteService
 {
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAuthUsersAdminService _authUsersAdmin;
@@ -25,8 +25,6 @@ public class TenantSetupService : ITenantSetupService
     //NOTE: This is NOT the way to do this in a real app.
     //In real apps you should load the key from appsettings.json file, and have a different (and private) key in production
     private const string EncryptionTextKey = "Asaadjn33TbAw441azn";
-
-    private const string RoleToAddIfAdminUser = "Tenant Admin";
 
     private readonly Dictionary<TenantVersionTypes, List<string>> _rolesToAddUserForVersions = new()
     {
@@ -42,7 +40,7 @@ public class TenantSetupService : ITenantSetupService
         { TenantVersionTypes.Enterprise, new List<string> { "Tenant User", "Tenant Admin", "Enterprise" } },
     };
 
-    public TenantSetupService(IAuthTenantAdminService tenantAdminService, IAuthUsersAdminService authUsersAdmin, UserManager<IdentityUser> userManager)
+    public UserRegisterInviteService(IAuthTenantAdminService tenantAdminService, IAuthUsersAdminService authUsersAdmin, UserManager<IdentityUser> userManager)
     {
         _tenantAdminService = tenantAdminService;
         _authUsersAdmin = authUsersAdmin;

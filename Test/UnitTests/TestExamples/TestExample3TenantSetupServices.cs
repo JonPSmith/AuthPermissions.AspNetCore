@@ -42,7 +42,7 @@ namespace Test.UnitTests.TestExamples
             context.Database.EnsureClean();
 
             var services = this.SetupServicesForTest(true);
-            services.AddTransient<ITenantSetupService, TenantSetupService>();
+            services.AddTransient<IUserRegisterInviteService, UserRegisterInviteService>();
             services.AddTransient<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
@@ -78,7 +78,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var service = _serviceProvider.GetRequiredService<IUserRegisterInviteService>();
             var createTenantDto = new CreateTenantDto
             {
                 TenantName = "TestTenant",
@@ -110,7 +110,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var service = _serviceProvider.GetRequiredService<IUserRegisterInviteService>();
             var createTenantDto = new CreateTenantDto
             {
                 TenantName = "TestTenant",
@@ -139,7 +139,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var service = _serviceProvider.GetRequiredService<IUserRegisterInviteService>();
             var createTenantDto = new CreateTenantDto
             {
                 TenantName = "TestTenant",
@@ -167,7 +167,7 @@ namespace Test.UnitTests.TestExamples
             var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
             await SetupExample3Roles(authContext);
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var service = _serviceProvider.GetRequiredService<IUserRegisterInviteService>();
             var createTenantDto = new CreateTenantDto
             {
                 TenantName = "TestTenant",
@@ -205,7 +205,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var service = _serviceProvider.GetRequiredService<IUserRegisterInviteService>();
 
             var verify = service.InviteUserToJoinTenantAsync(newTenant.TenantId, "User1@gmail.com");
 
@@ -234,7 +234,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var service = _serviceProvider.GetRequiredService<IUserRegisterInviteService>();
 
             var verify = service.InviteUserToJoinTenantAsync(newTenant.TenantId, "User1@gmail.com");
 
@@ -259,7 +259,7 @@ namespace Test.UnitTests.TestExamples
 
             authContext.ChangeTracker.Clear();
 
-            var service = _serviceProvider.GetRequiredService<ITenantSetupService>();
+            var service = _serviceProvider.GetRequiredService<IUserRegisterInviteService>();
 
             var verify = "sads3dsfgfg=";
 
