@@ -28,7 +28,7 @@ namespace AuthPermissions.AdminCode
         /// <param name="dataKey">The DataKey of the tenant being deleted</param>
         /// <param name="tenantId">The TenantId of the tenant being deleted</param>
         /// <param name="fullTenantName">The full name of the tenant being deleted</param>
-        /// <returns>Returns null if all OK, otherwise the delete is rolled back and the return string is shown to the user</returns>
+        /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
         Task<string> CreateNewTenantAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName);
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace AuthPermissions.AdminCode
         /// <param name="dataKey">The DataKey of the tenant</param>
         /// <param name="tenantId">The TenantId of the tenant</param>
         /// <param name="fullTenantName">The full name of the tenant</param>
-        /// <returns>Returns null if all OK, otherwise the delete is rolled back and the return string is shown to the user</returns>
+        /// <returns>Returns null if all OK, otherwise the name change is rolled back and the return string is shown to the user</returns>
         Task<string> HandleUpdateNameAsync(DbContext appTransactionContext, string dataKey, int tenantId, string fullTenantName);
 
         /// <summary>
