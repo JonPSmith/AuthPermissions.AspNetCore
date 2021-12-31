@@ -8,18 +8,18 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
 {
     public static class AppAuthSetupData
     {
-        public static readonly List<BulkLoadRolesDto> RolesDefinition = new List<BulkLoadRolesDto>()
+        public static readonly List<BulkLoadRolesDto> RolesDefinition = new()
         {
             new("Role1", null, "Permission1"),
             new("Role2", null, "Permission1, Permission2"),
-            new("SuperRole", null, "AccessAll"),
+            new("SuperAdmin", "Super admin - only use for setup", "AccessAll"),
         };
 
-        public static readonly List<BulkLoadUserWithRolesTenant> UsersRolesDefinition = new List<BulkLoadUserWithRolesTenant>
+        public static readonly List<BulkLoadUserWithRolesTenant> UsersWithRolesDefinition = new()
         {
             new ("Staff@g1.com", null, "Role1"),
             new ("Mananger@g1.com", null, "Role2"),
-            new ( "Super@g1.com", null, "SuperRole"),
+            new ( "Super@g1.com", null, "SuperAdmin"),
         };
     }
 }

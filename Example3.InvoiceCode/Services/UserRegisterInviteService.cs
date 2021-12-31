@@ -56,7 +56,7 @@ public class UserRegisterInviteService : IUserRegisterInviteService
     /// </summary>
     /// <param name="dto">The information from the user</param>
     /// <returns>Status with the individual accounts user</returns>
-    public async Task<IStatusGeneric<IdentityUser>> CreateNewTenantAsync(CreateTenantDto dto)
+    public async Task<IStatusGeneric<IdentityUser>> AddUserAndNewTenantAsync(CreateTenantDto dto)
     {
         var status = new StatusGenericHandler<IdentityUser>
         {

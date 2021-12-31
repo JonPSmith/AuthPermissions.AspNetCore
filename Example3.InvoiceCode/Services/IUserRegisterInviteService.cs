@@ -19,7 +19,7 @@ public interface IUserRegisterInviteService
     /// </summary>
     /// <param name="dto">The information from the user</param>
     /// <returns>Status with the individual accounts user</returns>
-   Task<IStatusGeneric<IdentityUser>> CreateNewTenantAsync(CreateTenantDto dto);
+   Task<IStatusGeneric<IdentityUser>> AddUserAndNewTenantAsync(CreateTenantDto dto);
 
     /// <summary>
     /// This creates a an encrypted string containing the tenantId and the user's email

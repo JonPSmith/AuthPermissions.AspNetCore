@@ -46,7 +46,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             [FromServices] IUserRegisterInviteService userRegisterInvite,
             [FromServices] SignInManager<IdentityUser> signInManager)
         {
-            var status = await userRegisterInvite.CreateNewTenantAsync(data);
+            var status = await userRegisterInvite.AddUserAndNewTenantAsync(data);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

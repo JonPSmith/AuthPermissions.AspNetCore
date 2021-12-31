@@ -88,7 +88,7 @@ namespace Test.UnitTests.TestExamples
             };
 
             //ATTEMPT
-            var status = await service.CreateNewTenantAsync(createTenantDto);
+            var status = await service.AddUserAndNewTenantAsync(createTenantDto);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -120,7 +120,7 @@ namespace Test.UnitTests.TestExamples
             };
 
             //ATTEMPT
-            var status = await service.CreateNewTenantAsync(createTenantDto);
+            var status = await service.AddUserAndNewTenantAsync(createTenantDto);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -147,13 +147,13 @@ namespace Test.UnitTests.TestExamples
                 Password = "User1@gmail.com",
                 Version = "Free"
             };
-            var setupStatus = await service.CreateNewTenantAsync(createTenantDto);
+            var setupStatus = await service.AddUserAndNewTenantAsync(createTenantDto);
             setupStatus.IsValid.ShouldBeTrue(setupStatus.GetAllErrors());
 
             authContext.ChangeTracker.Clear();
 
             //ATTEMPT
-            var status = await service.CreateNewTenantAsync(createTenantDto);
+            var status = await service.AddUserAndNewTenantAsync(createTenantDto);
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -175,14 +175,14 @@ namespace Test.UnitTests.TestExamples
                 Password = "User1@gmail.com",
                 Version = "Free"
             };
-            var setupStatus = await service.CreateNewTenantAsync(createTenantDto);
+            var setupStatus = await service.AddUserAndNewTenantAsync(createTenantDto);
             setupStatus.IsValid.ShouldBeTrue(setupStatus.GetAllErrors());
 
             authContext.ChangeTracker.Clear();
 
             //ATTEMPT
             createTenantDto.TenantName = "DifferentName";
-            var status = await service.CreateNewTenantAsync(createTenantDto);
+            var status = await service.AddUserAndNewTenantAsync(createTenantDto);
 
             //VERIFY
             status.IsValid.ShouldBeFalse();

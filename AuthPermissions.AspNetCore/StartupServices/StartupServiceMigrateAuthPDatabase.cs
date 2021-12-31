@@ -18,7 +18,7 @@ namespace AuthPermissions.AspNetCore.StartupServices
         /// <summary>
         /// Sets the order. Default is zero. If multiple classes have same OrderNum, then run in the order they were registered
         /// </summary>
-        public int OrderNum { get; } //The order of this startup services is defined by the order it registered
+        public int OrderNum { get; } = -5; //This runs after any other migration, but before any bulk load startup services
 
         /// <summary>
         /// This will migrate the AuthP database

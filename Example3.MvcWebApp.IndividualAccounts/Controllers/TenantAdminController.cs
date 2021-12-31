@@ -74,8 +74,10 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         public async Task<ActionResult> InviteUser()
         {
             ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+            var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
+                .Result;
 
-            return View();
+            return View((object) currentUser?.UserTenant?.TenantFullName);
         }
 
         [HasPermission(Example3Permissions.InviteUsers)]

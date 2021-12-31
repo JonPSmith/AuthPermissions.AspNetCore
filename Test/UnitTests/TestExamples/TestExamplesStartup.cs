@@ -44,7 +44,7 @@ namespace Test.UnitTests.TestExamples
                 .UsingInMemoryDatabase()
                 .IndividualAccountsAuthentication()
                 .AddRolesPermissionsIfEmpty(AppAuthSetupData.RolesDefinition)
-                .AddAuthUsersIfEmpty(AppAuthSetupData.UsersRolesDefinition)
+                .AddAuthUsersIfEmpty(AppAuthSetupData.UsersWithRolesDefinition)
                 .RegisterFindUserInfoService<StubIFindUserInfoFactory.StubIFindUserInfo>()
                 .AddSuperUserToIndividualAccounts()
                 .SetupAspNetCoreAndDatabase();

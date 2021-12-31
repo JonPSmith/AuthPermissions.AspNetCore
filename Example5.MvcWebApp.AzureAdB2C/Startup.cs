@@ -43,7 +43,6 @@ namespace Example5.MvcWebApp.AzureAdB2C
 
             services.RegisterAuthPermissions<Example5Permissions>(options =>
                 {
-                    options.AppConnectionString = connectionString;
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))

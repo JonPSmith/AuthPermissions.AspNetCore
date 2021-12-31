@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace AuthPermissions.SetupCode
 {
     /// <summary>
-    /// This service can be used to find the UserId and optionally the user's name (Azure Active Directory has a user name)
+    /// This service can be used to find the UserId and optionally the user's name
     /// </summary>
     public interface IFindUserInfoService
     {
