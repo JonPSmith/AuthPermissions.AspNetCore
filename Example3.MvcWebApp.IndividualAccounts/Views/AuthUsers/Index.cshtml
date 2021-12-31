@@ -74,7 +74,7 @@
                         @Html.Raw(" |");
                     }
 
-                    @if (User.HasPermission(Example3Permissions.UserChange))
+                    @if (User.HasPermission(Example3Permissions.UserRemove))
                     {
                         @Html.ActionLink("Delete", "Delete", new { UserId = item.UserId })
                     }

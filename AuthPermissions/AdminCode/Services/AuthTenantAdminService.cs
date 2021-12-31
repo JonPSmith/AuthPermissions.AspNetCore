@@ -608,6 +608,7 @@ namespace AuthPermissions.AdminCode.Services
         /// This finds the roles with the given names from the AuthP database. Returns errors if not found
         /// NOTE: The Tenant checks that the role's <see cref="RoleToPermissions.RoleType"/> are valid for a tenant
         /// </summary>
+        /// <param name="tempAuthContext">Provides the correct context to use</param>
         /// <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
         /// <returns>Status</returns>
         private static async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(

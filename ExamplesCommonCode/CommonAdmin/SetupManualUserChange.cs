@@ -123,7 +123,7 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public async Task SetupDropDownListsAsync(IAuthUsersAdminService authUsersAdmin)
         {
-            AllRoleNames = await authUsersAdmin.GetAllRoleNamesAsync();
+            AllRoleNames = await authUsersAdmin.GetRoleNamesForUsersAsync(UserId);
             AllTenantNames = await authUsersAdmin.GetAllTenantNamesAsync();
             AllTenantNames.Insert(0, CommonConstants.EmptyTenantName);
         }

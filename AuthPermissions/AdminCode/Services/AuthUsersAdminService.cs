@@ -23,7 +23,7 @@ namespace AuthPermissions.AdminCode.Services
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly IAuthPServiceFactory<ISyncAuthenticationUsers> _syncAuthenticationUsersFactory;
-        private readonly TenantTypes _tenantType;
+        private readonly bool _isMultiTenant;
 
         /// <summary>
         /// ctor
@@ -37,7 +37,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
-            _tenantType = options.TenantType;
+            _isMultiTenant = options.TenantType != TenantTypes.NotUsingTenants;
         }
 
         /// <summary>
@@ -96,12 +96,43 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This returns a list of all the RoleNames in the database
+        /// This returns a list of all the RoleNames that can be applied to an AuthUser
         /// </summary>
+        /// <param name="currentUserId">UserId of the current user. Only needed in multi-tenant applications </param>
         /// <returns></returns>
-        public async Task<List<string>> GetAllRoleNamesAsync()
+        public async Task<List<string>> GetRoleNamesForUsersAsync(string currentUserId = null)
         {
-            return await _context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
+            if (!_isMultiTenant)
+                return await _context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
+
+            if (currentUserId == null)
+                throw new ArgumentNullException(nameof(currentUserId), "You must be logged in to use this feature.");
+
+            //multi-tenant version has to filter out the roles from users that have a tenant
+            var userWithTenantRoles = await _context.AuthUsers
+                .Include(x => x.UserTenant)
+                .ThenInclude(x => x.TenantRoles)
+                .SingleAsync(x => x.UserId == currentUserId);
+
+            if (userWithTenantRoles.UserTenant == null)
+                //Its an app-level user so return all non-tenant roles
+                return await _context.RoleToPermissions
+                    .Where(x => x.RoleType == RoleTypes.Normal || x.RoleType == RoleTypes.HiddenFromTenant)
+                    .Select(x => x.RoleName)
+                    .ToListAsync();
+
+            //its a tenant-level user, so return Normal and TenantAdminAdd
+            //First find the Normal Roles
+            var roleNames = await _context.RoleToPermissions
+                .Where(x => x.RoleType == RoleTypes.Normal)
+                .Select(x => x.RoleName)
+                .ToListAsync();
+
+            //Then add any TenantAdminAdd roles in the tenant's TenantRoles
+            roleNames.AddRange(userWithTenantRoles.UserTenant.TenantRoles
+                .Where(x => x.RoleType == RoleTypes.TenantAdminAdd).Select(x => x.RoleName));
+
+            return roleNames;
         }
 
         /// <summary>

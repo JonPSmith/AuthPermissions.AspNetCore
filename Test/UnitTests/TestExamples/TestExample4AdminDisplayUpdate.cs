@@ -86,7 +86,7 @@ namespace Test.UnitTests.TestExamples
         }
 
         [Fact]
-        public async Task TestExample4AuthUserUpdateBuildAuthUserUpdateAsync()
+        public async Task TestExample4AuthUserUpdatePrepareForUpdateAsync()
         {
             //SETUP
             var cAnds = await SetupExample4DataAsync();
@@ -101,10 +101,32 @@ namespace Test.UnitTests.TestExamples
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             status.Result.Email.ShouldEqual(userId);
             status.Result.UserName.ShouldEqual(userId);
-            status.Result.RoleNames.OrderBy(x => x).ToList().ShouldEqual(new List<string>{ "Store Manager", "Tenant Admin" });
+            status.Result.RoleNames.OrderBy(x => x).ToList().ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });
             status.Result.TenantName.ShouldEqual("4U Inc.");
 
-            status.Result.AllRoleNames.Count.ShouldEqual(7);
+            status.Result.AllRoleNames.Count.ShouldEqual(5);
+        }
+
+        [Theory]
+        [InlineData("Super@g1.com", 7)]
+        [InlineData("admin@4uInc.com", 5)]
+        public async Task TestExample4AuthUserUpdatePrepareForUpdateAsyncAllRoleNames(string userId, int numRoles)
+        {
+            //SETUP
+            var cAnds = await SetupExample4DataAsync();
+
+            var adminUserService = cAnds.serviceProvider.GetRequiredService<IAuthUsersAdminService>();
+
+            //ATTEMPT
+            var status = await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService);
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            foreach (var roleName in status.Result.AllRoleNames)
+            {
+                _output.WriteLine(roleName);
+            }
+            status.Result.AllRoleNames.Count.ShouldEqual(numRoles);
         }
 
         [Fact]

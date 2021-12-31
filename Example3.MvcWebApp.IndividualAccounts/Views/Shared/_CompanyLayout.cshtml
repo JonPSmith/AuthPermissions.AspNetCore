@@ -29,7 +29,7 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="TenantAdmin" asp-action="InviteUser">Invite User</a>
                             </li>
                         }
-                        @if (User.HasPermission(Example3Permissions.EmployeeRead))
+                        @if (User.HasPermission(Example3Permissions.UserRead))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="TenantAdmin" asp-action="Index">Employees</a>

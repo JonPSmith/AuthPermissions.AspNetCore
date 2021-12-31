@@ -12,13 +12,13 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         public static readonly List<BulkLoadRolesDto> RolesDefinition = new()
         {
             new("SuperAdmin", "Super admin - only use for setup", "AccessAll"),
-            new("App Admin", "Overall app Admin", 
+            new("App Admin", "Overall app Admin",
                 "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate"),
             //tenant roles
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate",
                 RoleTypes.TenantAutoAdd),
             new("Tenant Admin", "Tenant-level admin",
-                "EmployeeRead, InviteUsers, EmployeeRevokeActivate", RoleTypes.TenantAdminAdd),
+                "UserRead, RoleRead, UserRolesChange, EmployeeRevokeActivate", RoleTypes.TenantAdminAdd),
             new("Enterprise", "Enterprise features", "InvoiceSum", RoleTypes.TenantAutoAdd)
         };
 

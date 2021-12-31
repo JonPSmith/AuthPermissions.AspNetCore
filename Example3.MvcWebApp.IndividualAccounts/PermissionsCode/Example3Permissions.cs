@@ -22,13 +22,16 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         InvoiceCreate = 11,
 
         [Display(GroupName = "Invoices", Description = "Will show sum of invoices")]
-        InvoiceSum = 20, 
+        InvoiceSum = 20,
 
         //Used by tenant-level admin user
+        [Obsolete]
         [Display(GroupName = "Employees", Description = "Can read tenant employees")]
         EmployeeRead = 30,
+        [Obsolete]
         [Display(GroupName = "Employees", Description = "Can revoke or activate a tenant employee")]
         EmployeeRevokeActivate = 31,
+        
         [Display(GroupName = "Employees", Description = "Can invite new users to join the tenant")]
         InviteUsers = 32,
 

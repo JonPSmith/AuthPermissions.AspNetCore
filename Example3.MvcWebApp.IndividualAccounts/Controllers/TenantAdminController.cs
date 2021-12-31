@@ -31,12 +31,12 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             _companyService = companyService;
         }
 
-        [HasPermission(Example3Permissions.EmployeeRead)]
+        [HasPermission(Example3Permissions.UserRead)]
         public async Task<IActionResult> Index(string message)
         {
             ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-            var dataKey = User.GetAuthDataKeyFromUser();
 
+            var dataKey = User.GetAuthDataKeyFromUser();
             var userQuery = _authUsersAdmin.QueryAuthUsers(dataKey);
             var usersToShow = await AuthUserDisplay.TurnIntoDisplayFormat(userQuery.OrderBy(x => x.Email)).ToListAsync();
 
@@ -45,30 +45,30 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             return View(usersToShow);
         }
 
-        [HasPermission(Example3Permissions.EmployeeRevokeActivate)]
+        public async Task<ActionResult> EditRoles(string userId)
+        {
+            var status = await SetupManualUserChange.PrepareForUpdateAsync(userId, _authUsersAdmin);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return View(status.Result);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> RevokeActivate(string userId, bool activate)
+        public async Task<ActionResult> EditRoles(SetupManualUserChange change)
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+            var status = await _authUsersAdmin.UpdateUserAsync(change.UserId,
+                change.Email, change.UserName, change.RoleNames, change.TenantName);
 
-            var findUserStatus = await _authUsersAdmin.FindAuthUserByUserIdAsync(userId);
-            if (findUserStatus.HasErrors)
+            if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = findUserStatus.GetAllErrors() });
+                    new { errorMessage = status.GetAllErrors() });
 
-            var newRoles = new List<string>();
-            if (activate) newRoles.Add("Tenant User");
-
-            var updateStatus = await _authUsersAdmin.UpdateUserAsync(userId, findUserStatus.Result.Email,
-                findUserStatus.Result.UserName, newRoles, findUserStatus.Result.UserTenant.TenantFullName);
-            if (updateStatus.HasErrors)
-                return RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = findUserStatus.GetAllErrors() });
-
-            return RedirectToAction(nameof(Index),
-                new { message = $"{(activate ? "Activated" : "Revoked")} the user {findUserStatus.Result.UserName ?? findUserStatus.Result.Email}" });
+            return RedirectToAction(nameof(Index), new { message = status.Message });
         }
+
 
         [HasPermission(Example3Permissions.InviteUsers)]
         public async Task<ActionResult> InviteUser()

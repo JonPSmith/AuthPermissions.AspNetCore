@@ -3,6 +3,7 @@
 ## 2.0.1
 
 - Bug fix: Fixed a bug when creating a tenant that had tenant roles
+- BREAKING CHANGE: GetAllRoleNamesAsync is now called GetRoleNamesForUsersAsync and takes the UserId
 - Minor change: The UpdateRoleToPermissionsAsync method now allows you to change the RoleType
 
 

@@ -48,7 +48,7 @@ namespace Example1.RazorPages.IndividualAccounts.Model
                 return status;
 
             var authUser = authUserStatus.Result;
-            var allRoleNames = await authUsersAdmin.GetAllRoleNamesAsync();
+            var allRoleNames = await authUsersAdmin.GetRoleNamesForUsersAsync();
 
             var result = new EditDto
             {

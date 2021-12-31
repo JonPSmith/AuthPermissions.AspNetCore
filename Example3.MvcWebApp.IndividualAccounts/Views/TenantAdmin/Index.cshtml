@@ -4,7 +4,6 @@
 
 @{
     ViewData["Title"] = "Auth Users";
-    Layout = "_CompanyLayout";
 }
 
 @if (!string.IsNullOrEmpty(ViewBag.Message))
@@ -12,8 +11,9 @@
     <h3 class="text-success">@ViewBag.Message</h3>
 }
 
-<h1>Employees</h1>
+<h1>Users in this tenant</h1>
 
+<br/>
 <table class="table">
     <thead>
         <tr>
@@ -26,12 +26,19 @@
             <th>
                 AuthRoles
             </th>
-            @if (User.HasPermission(Example3Permissions.EmployeeRevokeActivate))
-            {
-                <th>
-                    Revoke / Activate
-                </th>
-            }
+            <th>
+                Tenant?
+            </th>
+            <th>
+                @if (User.HasPermission(Example3Permissions.UserRolesChange))
+                {
+                    Html.Raw("Change Roles");
+                }
+                @if (User.HasPermission(Example3Permissions.UserRemove))
+                {
+                    Html.Raw(" | Delete");
+                }
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -47,20 +54,30 @@
                 <td>
                     @(item.RoleNames.Any() ? string.Join(", ", item.RoleNames) : "<none>")
                 </td>
-                @if (User.HasPermission(Example3Permissions.EmployeeRevokeActivate))
-                {
-                    <td>
-                        <form method="post" asp-action="RevokeActivate">
-                            @Html.Hidden("userId", item.UserId)
-                            @Html.Hidden("activate", !item.RoleNames.Any())
-                            <input type="submit" value="@(item.RoleNames.Any() ? "Revoke" : "Activate")" 
-                                   class="btn @(item.RoleNames.Any() ? "btn-danger" : "btn-success")" />
-                        </form>
-                    </td>
-                }
+                <td>
+                    <a href="#" data-toggle="tooltip" title='@item.TenantName'>
+                        @(item.HasTenant ? "YES" : "")
+                    </a>
+                </td>
+                <td>
+                    @if (User.HasPermission(Example3Permissions.UserRolesChange))
+                    {
+                        @Html.ActionLink("Edit", "EditRoles", new { userId = item.UserId });
+                    }
+                </td>
             </tr>
         }
     </tbody>
 </table>
 
-@Html.AntiForgeryToken()
+
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

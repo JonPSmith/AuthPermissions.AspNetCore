@@ -36,10 +36,11 @@ namespace AuthPermissions.AdminCode
         Task<IStatusGeneric<AuthUser>> FindAuthUserByEmailAsync(string email);
 
         /// <summary>
-        /// This returns a list of all the RoleNames
+        /// This returns a list of all the RoleNames that can be applied to an AuthUser
         /// </summary>
+        /// <param name="currentUserId">UserId of the current user. Only needed in multi-tenant applications</param>
         /// <returns></returns>
-        Task<List<string>> GetAllRoleNamesAsync();
+        Task<List<string>> GetRoleNamesForUsersAsync(string currentUserId = null);
 
         /// <summary>
         /// This returns all the tenant full names
