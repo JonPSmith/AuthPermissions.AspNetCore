@@ -21,7 +21,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.TenantList)]
         public async Task<IActionResult> Index(string message)
         {
-            var tenantNames = await TenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
+            var tenantNames = await SingleLevelTenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
                 .OrderBy(x => x.TenantName)
                 .ToListAsync();
 
@@ -31,15 +31,15 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         }
 
         [HasPermission(Example3Permissions.TenantCreate)]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            return View(new SingleLevelTenantDto { AllPossibleRoleNames = await _authTenantAdmin.GetRoleNamesForTenantsAsync() });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example3Permissions.TenantCreate)]
-        public async Task<IActionResult> Create(TenantDto input)
+        public async Task<IActionResult> Create(SingleLevelTenantDto input)
         {
             var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, input.TenantRolesName);
 
@@ -52,22 +52,13 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(int id)
         {
-            var status = await _authTenantAdmin.GetTenantViaIdAsync(id);
-            if (status.HasErrors)
-                return RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = status.GetAllErrors() });
-
-            return View(new TenantDto
-            {
-                TenantId = id,
-                TenantName = status.Result.TenantFullName
-            });
+            return View(await SingleLevelTenantDto.SetupForUpdateAsync(_authTenantAdmin, id));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example3Permissions.TenantUpdate)]
-        public async Task<IActionResult> Edit(TenantDto input)
+        public async Task<IActionResult> Edit(SingleLevelTenantDto input)
         {
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
@@ -87,7 +78,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(new TenantDto
+            return View(new SingleLevelTenantDto
             {
                 TenantId = id,
                 TenantName = status.Result.TenantFullName
@@ -97,7 +88,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example3Permissions.TenantDelete)]
-        public async Task<IActionResult> Delete(TenantDto input)
+        public async Task<IActionResult> Delete(SingleLevelTenantDto input)
         {
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
 

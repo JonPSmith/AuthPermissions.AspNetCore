@@ -27,7 +27,13 @@ namespace AuthPermissions.AdminCode
         IQueryable<Tenant> QueryEndLeafTenants();
 
         /// <summary>
-        /// This returns a tenant, with its Parent but no children, that has the given TenantId
+        /// This returns a list of all the RoleNames that can be applied to a Tenant
+        /// </summary>
+        /// <returns></returns>
+        Task<List<string>> GetRoleNamesForTenantsAsync();
+
+        /// <summary>
+        /// This returns a tenant, with TenantRoles and its Parent but no children, that has the given TenantId
         /// </summary>
         /// <param name="tenantId">primary key of the tenant you are looking for</param>
         /// <returns>Status. If successful, then contains the Tenant</returns>

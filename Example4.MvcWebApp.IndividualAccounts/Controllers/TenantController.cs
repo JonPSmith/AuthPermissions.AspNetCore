@@ -22,7 +22,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantList)]
         public async Task<IActionResult> Index(string message)
         {
-            var tenantNames = await TenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
+            var tenantNames = await HierarchicalTenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
                 .OrderBy(x => x.TenantFullName)
                 .ToListAsync();
 
@@ -34,7 +34,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantCreate)]
         public async Task<IActionResult> Create()
         {
-            var model = await TenantDto.SetupForCreateAsync(_authTenantAdmin);
+            var model = await HierarchicalTenantDto.SetupForCreateAsync(_authTenantAdmin);
 
             return View(model);
         }
@@ -42,7 +42,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example4Permissions.TenantCreate)]
-        public async Task<IActionResult> Create(TenantDto input)
+        public async Task<IActionResult> Create(HierarchicalTenantDto input)
         {
             var status = await _authTenantAdmin
                 .AddHierarchicalTenantAsync(input.TenantName, input.ParentId);
@@ -61,13 +61,13 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(TenantDto.SetupForEdit(status.Result));
+            return View(HierarchicalTenantDto.SetupForEdit(status.Result));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example4Permissions.TenantUpdate)]
-        public async Task<IActionResult> Edit(TenantDto input)
+        public async Task<IActionResult> Edit(HierarchicalTenantDto input)
         {
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
@@ -87,13 +87,13 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(await TenantDto.SetupForMoveAsync(status.Result, _authTenantAdmin));
+            return View(await HierarchicalTenantDto.SetupForMoveAsync(status.Result, _authTenantAdmin));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example4Permissions.TenantMove)]
-        public async Task<IActionResult> Move(TenantDto input)
+        public async Task<IActionResult> Move(HierarchicalTenantDto input)
         {
             var status = await _authTenantAdmin
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId);
@@ -116,13 +116,13 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(await TenantDto.SetupForDeleteAsync(status.Result, _authTenantAdmin));
+            return View(await HierarchicalTenantDto.SetupForDeleteAsync(status.Result, _authTenantAdmin));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example4Permissions.TenantDelete)]
-        public async Task<IActionResult> Delete(TenantDto input)
+        public async Task<IActionResult> Delete(HierarchicalTenantDto input)
         {
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
 

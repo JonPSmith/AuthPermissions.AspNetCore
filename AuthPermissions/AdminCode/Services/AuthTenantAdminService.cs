@@ -74,7 +74,19 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This returns a tenant, with its Parent but no children, that has the given TenantId
+        /// This returns a list of all the RoleNames that can be applied to a Tenant
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<string>> GetRoleNamesForTenantsAsync()
+        {
+            return await _context.RoleToPermissions
+                .Where(x => x.RoleType == RoleTypes.TenantAutoAdd || x.RoleType == RoleTypes.TenantAdminAdd)
+                .Select(x => x.RoleName)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// This returns a tenant, with TenantRoles and its Parent but no children, that has the given TenantId
         /// </summary>
         /// <param name="tenantId">primary key of the tenant you are looking for</param>
         /// <returns>Status. If successful, then contains the Tenant</returns>
@@ -84,6 +96,7 @@ namespace AuthPermissions.AdminCode.Services
 
             var result = await _context.Tenants
                 .Include(x => x.Parent)
+                .Include(x => x.TenantRoles)
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
             return result == null 
                 ? status.AddError("Could not find the tenant you were looking for.") 

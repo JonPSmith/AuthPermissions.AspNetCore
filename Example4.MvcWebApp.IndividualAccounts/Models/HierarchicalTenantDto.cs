@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.DataLayer.Classes;
@@ -13,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Models
 {
-    public class TenantDto
+    public class HierarchicalTenantDto
     {
         public int TenantId { get; set; }
 
@@ -34,9 +33,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
 
         public int ParentId { get; set; }
 
-        public static IQueryable<TenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
+        public static IQueryable<HierarchicalTenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
         {
-            return inQuery.Select(x => new TenantDto
+            return inQuery.Select(x => new HierarchicalTenantDto
             {
                 TenantId = x.TenantId,
                 TenantFullName = x.TenantFullName,
@@ -45,9 +44,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             });
         }
 
-        public static async Task<TenantDto> SetupForCreateAsync(IAuthTenantAdminService tenantAdminService)
+        public static async Task<HierarchicalTenantDto> SetupForCreateAsync(IAuthTenantAdminService tenantAdminService)
         {
-            var result = new TenantDto
+            var result = new HierarchicalTenantDto
             {
                 ListOfTenants = await tenantAdminService.QueryTenants()
                     .Select(x => new KeyValuePair<int, string>(x.TenantId, x.TenantFullName))
@@ -58,9 +57,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             return result;
         }
 
-        public static async Task<TenantDto> SetupForMoveAsync(Tenant tenant, IAuthTenantAdminService tenantAdminService)
+        public static async Task<HierarchicalTenantDto> SetupForMoveAsync(Tenant tenant, IAuthTenantAdminService tenantAdminService)
         {
-            var result = new TenantDto
+            var result = new HierarchicalTenantDto
             {
                 TenantId = tenant.TenantId,
                 TenantFullName = tenant.TenantFullName,
@@ -76,9 +75,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             return result;
         }
 
-        public static TenantDto SetupForEdit(Tenant tenant)
+        public static HierarchicalTenantDto SetupForEdit(Tenant tenant)
         {
-            return new TenantDto
+            return new HierarchicalTenantDto
             {
                 TenantId = tenant.TenantId,
                 TenantFullName = tenant.TenantFullName,
@@ -86,9 +85,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             };
         }
 
-        public static async Task<TenantDto> SetupForDeleteAsync(Tenant tenant, IAuthTenantAdminService tenantAdminService)
+        public static async Task<HierarchicalTenantDto> SetupForDeleteAsync(Tenant tenant, IAuthTenantAdminService tenantAdminService)
         {
-            return new TenantDto
+            return new HierarchicalTenantDto
             {
                 TenantId = tenant.TenantId,
                 TenantFullName = tenant.TenantFullName,
