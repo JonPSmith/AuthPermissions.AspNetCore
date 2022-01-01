@@ -102,6 +102,34 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             status.Result.ShouldNotBeNull();
         }
 
+        [Fact]
+        public async Task TestGetRoleNamesForUsersAsync()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            context.SetupSingleTenantsInDb();
+            await context.SetupRolesInDbAsync();
+            context.AddMultipleUsersWithRolesInDb();
+            var role1 = new RoleToPermissions("AutoAddRole", null, $"{(char)1}{(char)3}", RoleTypes.TenantAutoAdd);
+            var role2 = new RoleToPermissions("AdminAddRole", null, $"{(char)2}{(char)3}", RoleTypes.TenantAdminAdd);
+            var role3 = new RoleToPermissions("NormalRole", null, $"{(char)2}{(char)3}");
+            context.AddRange(role1, role2, role3);
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+
+            //ATTEMPT
+            var roleNames = await service.GetRoleNamesForUsersAsync("User2");
+
+            //VERIFY
+            roleNames.ShouldEqual(new List<string> { "Role1", "Role2", "Role3", "NormalRole" });
+        }
+
         [Theory]
         [InlineData(RoleTypes.Normal, true)]
         [InlineData(RoleTypes.TenantAdminAdd, true)]

@@ -37,7 +37,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
             //Company admins.
             new ("admin@4uInc.com", null,
                 "Tenant Admin", tenantNameForDataKey: "4U Inc."),
-            //Company users: NOTE The Tenant User role is automatically added to all roles in the tenants
+            //Company users.
             new ("user1@4uInc.com", null,
                 "", tenantNameForDataKey: "4U Inc."),
             new ("user2@4uInc.com", null,

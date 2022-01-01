@@ -111,6 +111,35 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
+        public async Task TestGetRoleNamesForTenantsAsyncOk()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using (var context = new AuthPermissionsDbContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var role1 = new RoleToPermissions("AutoAddRole", null, $"{(char)1}{(char)3}", RoleTypes.TenantAutoAdd);
+                var role2 = new RoleToPermissions("AdminAddRole", null, $"{(char)2}{(char)3}", RoleTypes.TenantAdminAdd);
+                var role3 = new RoleToPermissions("NormalRole", null, $"{(char)2}{(char)3}");
+                context.AddRange(role1, role2, role3);
+                context.SaveChanges();
+                context.ChangeTracker.Clear();
+
+                var service = new AuthTenantAdminService(context,
+                    new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                    null, null);
+
+                //ATTEMPT
+                var roleNames = await service.GetRoleNamesForTenantsAsync();
+
+                //VERIFY
+                roleNames.ShouldEqual(new List<string> { "AutoAddRole", "AdminAddRole" });
+            }
+        }
+
+
+        [Fact]
         public async Task TestAddSingleTenantAsyncWithRolesOk()
         {
             //SETUP
