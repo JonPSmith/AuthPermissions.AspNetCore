@@ -28,16 +28,16 @@ public class UserRegisterInviteService : IUserRegisterInviteService
 
     private readonly Dictionary<TenantVersionTypes, List<string>> _rolesToAddUserForVersions = new()
     {
-        { TenantVersionTypes.Free, null },
-        { TenantVersionTypes.Pro, new List<string> { "Tenant Admin" } },
-        { TenantVersionTypes.Enterprise, new List<string> { "Tenant Admin" } }
+        { TenantVersionTypes.Free, new List<string> { "Tenant User" } },
+        { TenantVersionTypes.Pro, new List<string> { "Tenant User", "Tenant Admin" } },
+        { TenantVersionTypes.Enterprise, new List<string> { "Tenant User", "Tenant Admin" } }
     };
 
     private readonly Dictionary<TenantVersionTypes, List<string>> _rolesToAddTenantForVersion = new()
     {
-        { TenantVersionTypes.Free, new List<string> { "Tenant User" } },
-        { TenantVersionTypes.Pro, new List<string> { "Tenant User", "Tenant Admin" } },
-        { TenantVersionTypes.Enterprise, new List<string> { "Tenant User", "Tenant Admin", "Enterprise" } },
+        { TenantVersionTypes.Free, null },
+        { TenantVersionTypes.Pro, new List<string> { "Tenant Admin" } },
+        { TenantVersionTypes.Enterprise, new List<string> { "Tenant Admin", "Enterprise" } },
     };
 
     public UserRegisterInviteService(IAuthTenantAdminService tenantAdminService, IAuthUsersAdminService authUsersAdmin, UserManager<IdentityUser> userManager)
@@ -154,9 +154,9 @@ public class UserRegisterInviteService : IUserRegisterInviteService
         if (status.CombineStatuses(userStatus).HasErrors)
             return status;
 
-        //There is no need to add roles as the "Tenant User" role is automatically added via the tenant's roles
+        //We add the "Tenant User" role to the invited user so that they can access the features
         status.CombineStatuses(await _authUsersAdmin.AddNewUserAsync(userStatus.Result.Id, email, null,
-            new List<string>(), tenant.TenantFullName));
+            new List<string> { "Tenant User" }, tenant.TenantFullName));
 
         if (status.HasErrors)
             return status;

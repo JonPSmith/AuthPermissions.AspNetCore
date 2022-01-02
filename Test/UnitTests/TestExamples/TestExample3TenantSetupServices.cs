@@ -99,9 +99,9 @@ namespace Test.UnitTests.TestExamples
         }
 
         [Theory]
-        [InlineData("Free", null, "Tenant User")]
-        [InlineData("Pro", "Tenant Admin", "Tenant Admin,Tenant User")]
-        [InlineData("Enterprise", "Tenant Admin", "Enterprise,Tenant Admin,Tenant User")]
+        [InlineData("Free", "Tenant User", null)]
+        [InlineData("Pro", "Tenant Admin,Tenant User", "Tenant Admin")]
+        [InlineData("Enterprise", "Tenant Admin,Tenant User", "Enterprise,Tenant Admin")]
         public async Task TestCreateNewTenantAsyncCheckRolesAdded(string version, string expectedUserRole, string expectedTenantRoles)
         {
             //SETUP
@@ -125,7 +125,7 @@ namespace Test.UnitTests.TestExamples
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             authContext.Tenants.Include(x => x.TenantRoles).Single()
-                .TenantRoles.Select(x => x.RoleName).ShouldEqual(expectedTenantRoles.Split(',').ToList());
+                .TenantRoles.Select(x => x.RoleName).ShouldEqual(expectedTenantRoles?.Split(',').ToList() ?? new());
             authContext.AuthUsers.Include(x => x.UserRoles).Single()
                 .UserRoles.Select(x => x.RoleName).ShouldEqual(expectedUserRole?.Split(',').ToList() ?? new ());
         }
