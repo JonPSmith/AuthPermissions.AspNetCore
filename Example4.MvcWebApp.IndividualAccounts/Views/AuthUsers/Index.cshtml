@@ -70,11 +70,14 @@
                     @if (User.HasPermission(Example4Permissions.UserChange))
                     {
                         @Html.ActionLink("Edit", "Edit", new { userId = item.UserId });
-                        @Html.Raw(" |");
                     }
-
+                    else if (User.HasPermission(Example4Permissions.UserRolesChange))
+                    {
+                        @Html.ActionLink("Edit", "EditRoles", new { userId = item.UserId });
+                    }
                     @if (User.HasPermission(Example4Permissions.UserChange))
                     {
+                        @Html.Raw(" | ");
                         @Html.ActionLink("Delete", "Delete", new { UserId = item.UserId })
                     }
                 </td>

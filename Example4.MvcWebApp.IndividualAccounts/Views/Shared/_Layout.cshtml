@@ -52,8 +52,14 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" asp-area="" asp-controller="AuthUsers" asp-action="Index">List all AuthUsers</a>
                                 <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="Index">List Roles</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="Index">List Tenants</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
+                                @if (User.HasPermission(Example4Permissions.TenantList))
+                                {
+                                    <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="Index">List Tenants</a>
+                                }
+                                @if (User.HasPermission(Example4Permissions.PermissionRead))
+                                {
+                                    <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
+                                }
                             </div>
                         </li>
                         <li class="dropdown nav-link text-dark">
