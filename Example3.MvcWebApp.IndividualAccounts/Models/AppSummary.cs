@@ -6,7 +6,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Models
     public class AppSummary
     {
         public string Application { get; } = "ASP.NET Core MVC";
-        public string AuthorizationProvider { get; } = "ASP.NET Core's individual accounts";
+        public string AuthorizationProvider { get; } = "ASP.NET Core's individual users account";
         public string CookieOrToken { get; } = "Cookie";
         public string MultiTenant { get; } = "single level multi-tenant";
         public string[] Databases { get; } = new []
@@ -16,6 +16,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Models
             "- AuthPermissions' database - tables have a schema of 'authp'",
             "- multi-tenant invoice database - tables have a schema of 'invoice'"
         };
-        public string Note { get; }
+
+        public string Note { get; } = "Example of versioning your application";
     }
 }

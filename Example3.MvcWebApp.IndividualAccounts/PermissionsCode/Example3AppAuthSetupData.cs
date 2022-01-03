@@ -17,7 +17,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),
             //tenant roles
             new("Tenant Admin", "Tenant-level admin",
-                "UserRead, RoleRead, UserRolesChange, EmployeeRevokeActivate", RoleTypes.TenantAdminAdd),
+                "UserRead, UserRolesChange, RoleRead, InviteUsers", RoleTypes.TenantAdminAdd),
             new("Enterprise", "Enterprise features", "InvoiceSum", RoleTypes.TenantAutoAdd)
         };
 

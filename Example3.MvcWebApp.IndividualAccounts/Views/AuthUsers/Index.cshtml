@@ -68,14 +68,14 @@
                     </a>
                 </td>
                 <td>
-                    @if (User.HasPermission(Example3Permissions.UserChange))
+                    @if (User.HasPermission(Example3Permissions.UserChange) || User.HasPermission(Example3Permissions.UserRolesChange))
                     {
                         @Html.ActionLink("Edit", "Edit", new { userId = item.UserId });
-                        @Html.Raw(" |");
                     }
 
                     @if (User.HasPermission(Example3Permissions.UserRemove))
                     {
+                        @Html.Raw(" | ");
                         @Html.ActionLink("Delete", "Delete", new { UserId = item.UserId })
                     }
                 </td>

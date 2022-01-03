@@ -73,7 +73,7 @@ public class UserRegisterInviteService : IUserRegisterInviteService
         if (_tenantAdminService.QueryTenants().Any(x => x.TenantFullName == dto.TenantName))
             return status.AddError($"The tenant name '{dto.TenantName}' is already taken", new []{nameof(CreateTenantDto.TenantName) });
 
-        //Add the new individual user, or return existing user
+        //Add a new individual users account user, or return existing user
         //Will sent back error if already an AuthUser, because a user can't be linked to multiple tenants
         var userStatus = await GetIndividualAccountUserAndCheckNotAuthUser(dto.Email, dto.Password);
         if (status.CombineStatuses(userStatus).HasErrors)
@@ -148,7 +148,7 @@ public class UserRegisterInviteService : IUserRegisterInviteService
         if (tenant == null)
             return status.AddError("Sorry, your invite is rejected. Please talk to your admin person.");
 
-        //Add the new individual user, or return existing user
+        //Add a new individual users account user, or return existing user
         //Will sent back error if already an AuthUser, because a user can't be linked to multiple tenants
         var userStatus = await GetIndividualAccountUserAndCheckNotAuthUser(email, password);
         if (status.CombineStatuses(userStatus).HasErrors)

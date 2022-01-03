@@ -4,7 +4,9 @@
 }
 
 <div class="text-center">
-    <h1>Example3 - single level multi-tenant</h1>
+    <h1>Example3 - single level multi-tenant with 
+
+    </h1>
 </div>
 <h4>Application summary</h4>
 <ul>
@@ -29,17 +31,34 @@
 
 <h2>How to use use this application</h2>
 <p>
-    <ol>
+    There are two ways to log in to this application:
+    <ul>
         <li>
-            Log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
-                                   <i>NOTE: The email is also the password.</i>
+            You can click the "Sign up now!" tab in the navbar which allows you to create a new tenant from one of the three versions and sign you in.
+            If you pick the Pro or Enterprise versions you will be the admin user for your tenant.
+        </li>
+        <li>
+            You can log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
+            <i>NOTE: The email is also the password.</i>
             <ol>
                 <li>Pick a user that with a company name to see the invoice version.</li>
                 <li>Pick the 'Super@@g1.com' or 'AppAdmin@g1.com' to access the AuthP features.</li>
             </ol>
         </li>
+    </ul>
+</p>
+<p>
+    When you are logged in as a tenant user you can:
+    <ol>
         <li>
-            Once you have logged in then a menu should have a "Invoice" dropdown to get a list of invoices.
+            The home page will contain company (tenant) name and you can see / create invoices.
+        </li>
+        <li>
+            If you are an tenant admin user (ie. has the "Tenant Admin" Role) you extra admin options
+            <ul>
+                <li>The "Invite User" tab allows you to invite other users to your tenant</li>
+                <li>The "Employees" tab allows you to alter the Roles in the user in your tenant</li>
+            </ul>
         </li>
         <li>When log in you can see your claims, permissions and other user/role info via the "User Admin" menu button.</li>
         <li>
@@ -48,5 +67,8 @@
             <i>NOTE: if you log in as an 'admin' user, or Super@g1.com to have full admin rights.</i>
         </li>
     </ol>
+</p>
+<p>
+    If you log in as an <i>App admin</i> you full admin rights of every part of the AuthP features.
 </p>
 
