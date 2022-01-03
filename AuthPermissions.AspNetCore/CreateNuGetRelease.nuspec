@@ -2,20 +2,16 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization features to a ASP.NET Core application.</description>
     <releaseNotes>
-- BREAKING CHANGE: The SetupAspNetCoreAndDatabase configuration method uses a different approach that supports multiple instances of your app
-- BREAKING CHANGE: Changes the bulk loading of role and tenants to support the new multi-tenant Roles feature
-- BREAKING CHANGE: Updated to net6.0 only
-- MULTI-TENANT BREAKING CHANGE: The DataKey format has changed, You need to migrate your application - see issue
-- MULTI-TENANT BREAKING CHANGE: The RoleAdmin method QueryRoleToPermissions now needs the logged-in userId in multi-tenant applications
-- New features: Each multi-tenant can have a different version, e.g. Free, Pro, Enterprise -  see issue #9
-- New features: A Tenant Admin user can't see "Advanced Roles", i.e. Role that only an App Admin user should use - see issue #9
-- New features: Uses Net.RunMethodsSequentially library to handle startup migrate / seed of databases for applications have multiple instances running
+- BREAKING CHANGE: GetAllRoleNamesAsync is now called GetRoleNamesForUsersAsync and takes the UserId
+- Bug fix: Fixed a bug when creating a tenant that had tenant roles
+- New Feature: Added GetRoleNamesForTenantsAsync to AuthTenantAdminService
+- Minor change: The UpdateRoleToPermissionsAsync method now allows you to change the RoleType
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
