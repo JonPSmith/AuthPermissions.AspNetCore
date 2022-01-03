@@ -21,45 +21,55 @@
 }
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                Tenant name
-            </th>
-            <th>
-                DataKey
-            </th>
-            <th>
-                Tenant Roles?
-            </th>
-            <th>
-                @(User.HasPermission(Example3Permissions.TenantUpdate) ? "Change" : "")
-            </th>
-        </tr>
+    <tr>
+        <th>
+            Tenant name
+        </th>
+        <th>
+            DataKey
+        </th>
+        <th>
+            Tenant Roles?
+        </th>
+        <th>
+            @(User.HasPermission(Example3Permissions.TenantUpdate) ? "Change" : "")
+        </th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @item.TenantName
-                </td>
-                <td>
-                    @item.DataKey
-                </td>
-                <td>
-                    <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.TenantRolesName)'>
-                        @(item.TenantRolesName.Any() ? $"{item.TenantRolesName.Count} tenant roles" : "No tenant roles")
-                    </a>
-                </td>
-                <td>
-                    @if (User.HasPermission(Example3Permissions.TenantUpdate))
-                    {
-                        @Html.ActionLink("Edit", "Edit", new { id = item.TenantId })
-                        @Html.Raw(" | ")
-                        @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
-                    }
-                </td>
-            </tr>
-        }
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.TenantName
+            </td>
+            <td>
+                @item.DataKey
+            </td>
+            <td>
+                <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.TenantRolesName)'>
+                    @(item.TenantRolesName.Any() ? $"{item.TenantRolesName.Count} tenant roles" : "No tenant roles")
+                </a>
+            </td>
+            <td>
+                @if (User.HasPermission(Example3Permissions.TenantUpdate))
+                {
+                    @Html.ActionLink("Edit", "Edit", new { id = item.TenantId })
+                    @Html.Raw(" | ")
+                    @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
+                }
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

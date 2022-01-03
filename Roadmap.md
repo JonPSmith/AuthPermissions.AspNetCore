@@ -1,5 +1,7 @@
 # Roadmap
 
+THIS IS OUT OF DATE - see [Roadmap discussions](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2)
+
 ## Preview - 1.0.0-preview
 
 First release of the AuthPermissions.AspNetCore library. looking for feedback.
