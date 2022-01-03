@@ -8,7 +8,7 @@
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
-    <description>Provides extra authorization features to a ASP.NET Core application.</description>
+    <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
 - BREAKING CHANGE: GetAllRoleNamesAsync is now called GetRoleNamesForUsersAsync and takes the UserId
 - Bug fix: Fixed a bug when creating a tenant that had tenant roles
