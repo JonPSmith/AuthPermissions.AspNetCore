@@ -4,19 +4,20 @@
 using AuthPermissions.CommonCode;
 using Microsoft.AspNetCore.Http;
 
-namespace AuthPermissions.AspNetCore.Services
+namespace AuthPermissions.AspNetCore.GetDataKeyCode
 {
 
     /// <summary>
     /// This service is registered if a multi-tenant setup is defined <see cref="AuthPermissionsOptions.TenantType"/>
+    /// NOTE: There is a <see cref="GetDataKeyFromUserAccessTenantData"/> version if the "Access the data of another tenant user" is turned on
     /// </summary>
-    public class GetDataKeyFromUser : IGetDataKeyFromUser
+    public class GetDataKeyFromUserNormal : IGetDataKeyFromUser
     {
         /// <summary>
         /// This will return the AuthP' DataKey claim. If no user, or no claim then returns null
         /// </summary>
         /// <param name="accessor"></param>
-        public GetDataKeyFromUser(IHttpContextAccessor accessor)
+        public GetDataKeyFromUserNormal(IHttpContextAccessor accessor)
         {
             DataKey = accessor.HttpContext?.User.GetAuthDataKeyFromUser();
         }

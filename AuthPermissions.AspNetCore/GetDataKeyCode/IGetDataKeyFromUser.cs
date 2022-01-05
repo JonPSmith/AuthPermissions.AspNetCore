@@ -3,7 +3,7 @@
 
 using AuthPermissions.DataLayer.EfCode;
 
-namespace AuthPermissions.AspNetCore.Services
+namespace AuthPermissions.AspNetCore.GetDataKeyCode
 {
     /// <summary>
     /// This is the interface used by the GetDataKeyFilterFromUser and <see cref="DataKeyQueryExtension"/>

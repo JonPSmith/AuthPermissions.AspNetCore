@@ -1,0 +1,78 @@
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
+using System;
+using Microsoft.AspNetCore.Http;
+
+namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
+
+/// <summary>
+/// This is the Cookie used for setting / overriding the DataKey with a different tenant's DataKey
+/// </summary>
+public class AccessTenantDataCookie : IAccessTenantDataCookie
+{
+    private readonly IRequestCookieCollection _cookiesIn;
+    private readonly IResponseCookies _cookiesOut;
+
+    private const string CookieName = nameof(AccessTenantDataCookie);
+
+    /// <summary>
+    /// Takes in the <see cref="IHttpContextAccessor"/> to get the cookie in / out parts
+    /// </summary>
+    /// <param name="httpContextAccessor"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public AccessTenantDataCookie(IHttpContextAccessor httpContextAccessor)
+    {
+        _cookiesIn = httpContextAccessor.HttpContext?.Request.Cookies ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _cookiesOut = httpContextAccessor.HttpContext?.Response.Cookies;
+
+    }
+
+
+    /// <summary>
+    /// Add/Update a cookie with the provided string 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="numMinuteBeforeCookieTimesOut">This provides the timeout for the cookie.
+    /// This makes sure the change to the DataKey isn't left on too long</param>
+    /// <exception cref="NullReferenceException"></exception>
+    public void AddOrUpdateCookie(string value, int numMinuteBeforeCookieTimesOut)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Expires = DateTime.Now.AddMinutes(numMinuteBeforeCookieTimesOut)
+        };
+        _cookiesOut.Append(CookieName, value, cookieOptions);
+    }
+
+    /// <summary>
+    /// Returns true if a Cookie exists with the cookieName provided in the ctor 
+    /// </summary>
+    /// <returns></returns>
+    public bool Exists()
+    {
+        return _cookiesIn[CookieName] != null;
+    }
+
+    /// <summary>
+    /// Returns the value of the string. Can be null if not found or empty
+    /// </summary>
+    /// <returns></returns>
+    public string GetValue()
+    {
+        var cookie = _cookiesIn[CookieName];
+        return string.IsNullOrEmpty(cookie) ? null : cookie;
+    }
+
+    /// <summary>
+    /// Delete the cookie with the cookieName provided in the ctor
+    /// </summary>
+    /// <exception cref="NullReferenceException"></exception>
+    public void DeleteCookie()
+    {
+        if (!Exists()) return;
+        var options = new CookieOptions { Expires = DateTime.Now.AddYears(-1) };
+        _cookiesOut.Append(CookieName, "", options);
+    }
+}

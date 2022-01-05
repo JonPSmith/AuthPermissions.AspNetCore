@@ -20,6 +20,11 @@ namespace AuthPermissions
         public TenantTypes TenantType { get; set; }
 
         /// <summary>
+        /// This turns on the LinkToTenantData feature, e.g. an admin person can access the data in a specific tenant
+        /// </summary>
+        public LinkToTenantTypes LinkToTenantType { get; set; }
+
+        /// <summary>
         /// You should set this property to your application's ConnectionString if you are using Tenants
         /// It's used with the <see cref="ITenantChangeService"/> to update, move, or delete the tenant data in your application
         /// </summary>

@@ -22,4 +22,8 @@
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UsefulCode\" />
+  </ItemGroup>
+
 </Project>

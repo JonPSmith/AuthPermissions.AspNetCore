@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.AspNetCore.AccessTenantData;
+using AuthPermissions.AspNetCore.AccessTenantData.Services;
+using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.AspNetCore.PolicyCode;
@@ -181,6 +184,9 @@ namespace AuthPermissions.AspNetCore
             return serviceProvider;
         }
 
+        //------------------------------------------------
+        // private methods
+
         private static void RegisterCommonServices(this AuthSetupData setupData)
         {
             //common tests
@@ -193,7 +199,7 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
             if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)
-                setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUser>();
+                SetupMultiTenantServices(setupData);
 
             //The factories for the optional services
             setupData.Services.AddTransient<IAuthPServiceFactory<ISyncAuthenticationUsers>, SyncAuthenticationUsersFactory>();
@@ -218,8 +224,29 @@ namespace AuthPermissions.AspNetCore
                     .IfErrorsTurnToException();
                 setupData.Services.AddTransient<ITokenBuilder, TokenBuilder>();
             }
+        }
 
+        private static void SetupMultiTenantServices(AuthSetupData setupData)
+        {
+            //This sets up the code to get the DataKey to the application's DbContext
 
+            if (setupData.Options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
+                //This uses the efficient GetDataKey from user
+                setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserNormal>();
+            else
+            {
+                //Check the TenantType and LinkToTenantType for incorrect versions
+                if (setupData.Options.TenantType != TenantTypes.SingleLevel
+                    && setupData.Options.LinkToTenantType == LinkToTenantTypes.AppAndHierarchicalUsers)
+                    throw new AuthPermissionsException(
+                        $"You can't set the {nameof(AuthPermissionsOptions.LinkToTenantType)} to " +
+                        $"{nameof(LinkToTenantTypes.AppAndHierarchicalUsers)} unless you are using AuthP's hierarchical multi-tenant setup.");
+
+                //The "Access the data of another tenant user" feature is turned on so use this version
+                setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserAccessTenantData>();
+                //And register the service that manages the cookie to override the DataKey
+                setupData.Services.AddScoped<IAccessTenantDataCookie, AccessTenantDataCookie>();
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;

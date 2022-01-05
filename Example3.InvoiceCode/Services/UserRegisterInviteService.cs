@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using Example3.InvoiceCode.Dtos;
-using ExamplesCommonCode.UsefulCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
