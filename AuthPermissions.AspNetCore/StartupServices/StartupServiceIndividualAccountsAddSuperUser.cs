@@ -18,13 +18,13 @@ namespace AuthPermissions.AspNetCore.StartupServices
         where TIdentityUser : IdentityUser, new()
     {
         /// <summary>
-        /// This must be after migrations, but after adding demo users.
+        /// This must be after migrations, and after the adding demo users startup service.
         /// </summary>
         public int OrderNum { get; } = -1;
 
         /// <summary>
-        /// This will ensure that a user whos email/password is held in the "SuperAdmin" section of 
-        /// the appsettings.json file is in the individual account athentication database
+        /// This will ensure that a user who's email/password is held in the "SuperAdmin" section of 
+        /// the appsettings.json file is in the individual users account authentication database
         /// </summary>
         /// <param name="scopedServices">This should be a scoped service</param>
         /// <returns></returns>
