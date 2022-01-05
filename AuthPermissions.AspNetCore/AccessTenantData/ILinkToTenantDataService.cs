@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.AccessTenantData.Services;
 using AuthPermissions.CommonCode;
+using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.AccessTenantData;
 
@@ -17,7 +18,7 @@ public interface ILinkToTenantDataService
     /// <param name="tenantId">The primary key of the Tenant the user wants to access</param>
     /// <returns></returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    Task StartLinkingToTenantDataAsync(string currentUserId, int tenantId);
+    Task<IStatusGeneric> StartLinkingToTenantDataAsync(string currentUserId, int tenantId);
 
     /// <summary>
     /// This stops the current user's DataKey being set by the <see cref="LinkToTenantDataService.StartLinkingToTenantDataAsync"/> method.

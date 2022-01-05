@@ -13,7 +13,9 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         {
             new("SuperAdmin", "Super admin - only use for setup", "AccessAll"),
             new("App Admin", "Overall app Admin",
-                "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate"),
+                "UserRead, UserSync, UserChange, UserRemove, " +
+                "UserRolesChange, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
+                "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData"),
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),
             //tenant roles
             new("Tenant Admin", "Tenant-level admin",
@@ -31,7 +33,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         public static readonly List<BulkLoadUserWithRolesTenant> UsersRolesDefinition = new()
         {
             new ("Super@g1.com", null, "SuperAdmin"),
-            new ("AppAdmin@g1.com", null, "App Admin"),
+            new ("AppAdmin@g1.com", null, "App Admin, Tenant User"),
             new ("extraUser@g1.com", null, "Tenant User"),
             //Company admins.
             new ("admin@4uInc.com", null,

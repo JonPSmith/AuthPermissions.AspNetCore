@@ -58,6 +58,11 @@
                     @Html.Raw(" | ")
                     @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
                 }
+                @if (User.HasPermission(Example3Permissions.TenantAccessData))
+                {
+                    @Html.Raw(" | ")
+                    @Html.ActionLink("Access Data", "StartAccess", new { id = item.TenantId })
+                }
             </td>
         </tr>
     }

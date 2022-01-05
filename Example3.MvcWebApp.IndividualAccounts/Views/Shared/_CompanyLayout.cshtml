@@ -1,5 +1,7 @@
 ﻿@using Example3.MvcWebApp.IndividualAccounts.PermissionsCode
 @using AuthPermissions.PermissionsCode
+@using AuthPermissions.AspNetCore.AccessTenantData
+@inject ILinkToTenantDataService LinkToTenantDataService
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,6 +56,22 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            <div class="text-danger">
+                @{
+                    var tenantName = LinkToTenantDataService.GetNameOfLinkedTenant();
+                    if (tenantName != null)
+                    {
+                        if (!User.Identity.IsAuthenticated)
+                        {
+                            <script>window.location.replace("@Url.Action("StopAccess", "Tenant", new { gotoHome = true }) ");</script>
+                        }
+                        <div>
+                            You are currently linked to the <strong>@tenantName</strong> tenant's data
+                            <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="Tenant" asp-action="StopAccess">Stop Linking</a>
+                        </div>
+                    }
+                }
+            </div>
             @RenderBody()
         </main>
     </div>

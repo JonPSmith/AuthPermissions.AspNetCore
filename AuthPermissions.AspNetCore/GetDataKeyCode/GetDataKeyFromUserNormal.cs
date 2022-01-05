@@ -9,7 +9,7 @@ namespace AuthPermissions.AspNetCore.GetDataKeyCode
 
     /// <summary>
     /// This service is registered if a multi-tenant setup is defined <see cref="AuthPermissionsOptions.TenantType"/>
-    /// NOTE: There is a <see cref="GetDataKeyFromUserAccessTenantData"/> version if the "Access the data of another tenant user" is turned on
+    /// NOTE: There is a <see cref="GetDataKeyFromUserAccessTenantData"/> version if the "Access the data of other tenant" is turned on
     /// </summary>
     public class GetDataKeyFromUserNormal : IGetDataKeyFromUser
     {

@@ -89,6 +89,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         TenantMove = 42_003,
         [Display(GroupName = "TenantAdmin", Name = "Delete tenant", Description = "Can delete tenant (WARNING)", AutoGenerateFilter = true)]
         TenantDelete = 42_004,
+        [Display(GroupName = "TenantAdmin", Name = "Access other tenant data", Description = "Sets DataKey of user to another tenant", AutoGenerateFilter = true)]
+        TenantAccessData = 42_005,
 
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions

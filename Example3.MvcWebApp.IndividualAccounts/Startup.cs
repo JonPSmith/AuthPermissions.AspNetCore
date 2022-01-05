@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.AccessTenantData;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.AppStart;
@@ -45,9 +46,13 @@ namespace Example3.MvcWebApp.IndividualAccounts
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
 
+            //Needed by the "Access the data of other tenant" feature
+            services.Configure<AccessTenantDataOptions>(_configuration.GetSection(AccessTenantDataOptions.AppSettingsSection));
+
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.SingleLevel;
+                    options.LinkToTenantType = LinkToTenantTypes.OnlyAppUsers;
                     options.AppConnectionString = connectionString;
                     options.PathToFolderToLock = _env.WebRootPath;
                 })

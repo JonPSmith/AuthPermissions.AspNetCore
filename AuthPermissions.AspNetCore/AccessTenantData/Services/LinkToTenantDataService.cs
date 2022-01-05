@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
@@ -9,11 +8,12 @@ using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
 
 /// <summary>
-/// This service defines the admin command to implement the "Access the data of another tenant user" feature - see issue #10
+/// This service defines the admin command to implement the "Access the data of other tenant" feature - see issue #10
 /// It handles the creating, accessing and removing a cookie that carries the DataKey and Name of the tenant to want to access
 /// </summary>
 public class LinkToTenantDataService : ILinkToTenantDataService
@@ -42,7 +42,11 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         _cookieAccessor = cookieAccessor;
         _cookieOptions = dataFromAppSettings.Value;
 
-        _encryptor = new EncryptDecrypt(_cookieOptions.EncryptionKey);
+        _encryptor = new EncryptDecrypt(_cookieOptions.EncryptionKey ??
+                                        throw new AuthPermissionsException(
+                 $"You must add a section in your appsettings called \"{AccessTenantDataOptions.AppSettingsSection}\" " +
+                        $"and register the {nameof(AccessTenantDataOptions)} to read that section. Here is code you need: " +
+                        "services.Configure<AccessTenantDataOptions>(_configuration.GetSection(AccessTenantDataOptions.AppSettingsSection));"));
     }
 
     /// <summary>
@@ -53,15 +57,34 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     /// <param name="tenantId">The primary key of the Tenant the user wants to access</param>
     /// <returns></returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    public async Task StartLinkingToTenantDataAsync(string currentUserId, int tenantId)
+    public async Task<IStatusGeneric> StartLinkingToTenantDataAsync(string currentUserId, int tenantId)
     {
-        await CheckUserAgainstLinkToTenantType(currentUserId);
+        var status = new StatusGenericHandler();
+
+        if (_linkToTenantType == LinkToTenantTypes.NotTurnedOn)
+            throw new AuthPermissionsException(
+                $"You must set up the {nameof(AuthPermissionsOptions.LinkToTenantType)} to use the Access Tenant Data feature.");
+
+        var user = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == currentUserId);
+        if (user == null)
+            return status.AddError("Could not find the user you were looking for.");
+
+        if (user.TenantId != null && _linkToTenantType != LinkToTenantTypes.AppAndHierarchicalUsers)
+            throw new AuthPermissionsException(
+                $"The option's {nameof(AuthPermissionsOptions.LinkToTenantType)} parameter is set to {LinkToTenantTypes.OnlyAppUsers}, " +
+                "which means a user linked to a tenant can't use the Access Tenant Data feature.");
 
         var tenantToLinkTo = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == tenantId);
         if (tenantToLinkTo == null)
-            throw new AuthPermissionsException("Could not find the tenant you were looking for.");
+            return status.AddError("Could not find the tenant you were looking for.");
+
+        if (status.HasErrors)
+            return status;
 
         _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _cookieOptions.NumMinuteBeforeCookieTimesOut);
+
+        status.Message = $"You are now linked the the data of the tenant called '{tenantToLinkTo.TenantFullName}'";
+        return status;
     }
 
     /// <summary>
@@ -127,21 +150,5 @@ public class LinkToTenantDataService : ILinkToTenantDataService
             throw new AuthPermissionsException("Could not find the user you were looking for.");
 
         return (twoValues.Substring(0, firstComma), twoValues.Substring(firstComma + 1));
-    }
-
-    private async Task CheckUserAgainstLinkToTenantType(string currentUserId)
-    {
-        if (_linkToTenantType == LinkToTenantTypes.NotTurnedOn)
-            throw new AuthPermissionsException(
-                $"You must set up the {nameof(AuthPermissionsOptions.LinkToTenantType)} to use the Access Tenant Data feature.");
-
-        var user = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == currentUserId);
-        if (user == null)
-            throw new AuthPermissionsException("Could not find the user you were looking for.");
-
-        if (user.TenantId != null && _linkToTenantType != LinkToTenantTypes.AppAndHierarchicalUsers)
-            throw new AuthPermissionsException(
-                $"The option's {nameof(AuthPermissionsOptions.LinkToTenantType)} parameter is set to {LinkToTenantTypes.OnlyAppUsers}, " +
-                $"which means a user linked to a tenant can't use the Access Tenant Data feature.");
     }
 }

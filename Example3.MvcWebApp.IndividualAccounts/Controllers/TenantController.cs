@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.AccessTenantData;
+using AuthPermissions.CommonCode;
 using Example3.MvcWebApp.IndividualAccounts.Models;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;
@@ -96,6 +98,25 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
                 ? RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() })
                 : RedirectToAction(nameof(Index), new { message = status.Message });
+        }
+
+        [HasPermission(Example3Permissions.TenantAccessData)]
+        public async Task<IActionResult> StartAccess([FromServices] ILinkToTenantDataService service, int id)
+        {
+            var currentUser = User.GetUserIdFromUser();
+            var status = await service.StartLinkingToTenantDataAsync(currentUser, id);
+
+            return RedirectToAction(nameof(Index), new { message = status.Message });
+        }
+
+        public IActionResult StopAccess([FromServices] ILinkToTenantDataService service, bool gotoHome)
+        {
+            var currentUser = User.GetUserIdFromUser();
+            service.StopLinkingToTenant();
+
+            return gotoHome 
+                ? RedirectToAction(nameof(Index), "Home") 
+                : RedirectToAction(nameof(Index), new { message = "Finished linking to tenant's data" });
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

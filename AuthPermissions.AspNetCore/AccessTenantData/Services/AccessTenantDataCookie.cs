@@ -23,9 +23,8 @@ public class AccessTenantDataCookie : IAccessTenantDataCookie
     /// <exception cref="ArgumentNullException"></exception>
     public AccessTenantDataCookie(IHttpContextAccessor httpContextAccessor)
     {
-        _cookiesIn = httpContextAccessor.HttpContext?.Request.Cookies ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _cookiesIn = httpContextAccessor.HttpContext?.Request.Cookies;
         _cookiesOut = httpContextAccessor.HttpContext?.Response.Cookies;
-
     }
 
 
@@ -38,6 +37,8 @@ public class AccessTenantDataCookie : IAccessTenantDataCookie
     /// <exception cref="NullReferenceException"></exception>
     public void AddOrUpdateCookie(string value, int numMinuteBeforeCookieTimesOut)
     {
+        if (_cookiesIn == null) throw new ArgumentNullException(nameof(_cookiesIn));
+
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
@@ -52,6 +53,8 @@ public class AccessTenantDataCookie : IAccessTenantDataCookie
     /// <returns></returns>
     public bool Exists()
     {
+        if (_cookiesIn == null) throw new ArgumentNullException(nameof(_cookiesIn));
+
         return _cookiesIn[CookieName] != null;
     }
 
@@ -61,6 +64,8 @@ public class AccessTenantDataCookie : IAccessTenantDataCookie
     /// <returns></returns>
     public string GetValue()
     {
+        if (_cookiesIn == null) throw new ArgumentNullException(nameof(_cookiesIn));
+
         var cookie = _cookiesIn[CookieName];
         return string.IsNullOrEmpty(cookie) ? null : cookie;
     }
@@ -71,6 +76,8 @@ public class AccessTenantDataCookie : IAccessTenantDataCookie
     /// <exception cref="NullReferenceException"></exception>
     public void DeleteCookie()
     {
+        if (_cookiesOut == null) throw new ArgumentNullException(nameof(_cookiesOut));
+
         if (!Exists()) return;
         var options = new CookieOptions { Expires = DateTime.Now.AddYears(-1) };
         _cookiesOut.Append(CookieName, "", options);
