@@ -66,7 +66,7 @@
                             <script>window.location.replace("@Url.Action("StopAccess", "Tenant", new { gotoHome = true }) ");</script>
                         }
                         <div>
-                            You are currently linked to the <strong>@tenantName</strong> tenant's data
+                            Be careful! You are currently linked to the <strong>@tenantName</strong> tenant's data.
                             <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="Tenant" asp-action="StopAccess">Stop Linking</a>
                         </div>
                     }
