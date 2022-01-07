@@ -8,6 +8,9 @@ using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.AccessTenantData;
 
+/// <summary>
+/// This define the link to tenant data services
+/// </summary>
 public interface ILinkToTenantDataService
 {
     /// <summary>
