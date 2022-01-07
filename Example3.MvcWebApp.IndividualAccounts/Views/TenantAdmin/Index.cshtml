@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = "Auth Users";
+    Layout = "_CompanyLayout";
 }
 
 @if (!string.IsNullOrEmpty(ViewBag.Message))
@@ -11,7 +12,7 @@
     <h3 class="text-success">@ViewBag.Message</h3>
 }
 
-<h1>Users in this tenant</h1>
+<h1>Users in your tenant</h1>
 
 <br/>
 <table class="table">
@@ -27,17 +28,7 @@
                 AuthRoles
             </th>
             <th>
-                Tenant?
-            </th>
-            <th>
-                @if (User.HasPermission(Example3Permissions.UserRolesChange))
-                {
-                    Html.Raw("Change Roles");
-                }
-                @if (User.HasPermission(Example3Permissions.UserRemove))
-                {
-                    Html.Raw(" | Delete");
-                }
+                Edit
             </th>
         </tr>
     </thead>
@@ -55,14 +46,9 @@
                     @(item.RoleNames.Any() ? string.Join(", ", item.RoleNames) : "<none>")
                 </td>
                 <td>
-                    <a href="#" data-toggle="tooltip" title='@item.TenantName'>
-                        @(item.HasTenant ? "YES" : "")
-                    </a>
-                </td>
-                <td>
                     @if (User.HasPermission(Example3Permissions.UserRolesChange))
                     {
-                        @Html.ActionLink("Edit", "EditRoles", new { userId = item.UserId });
+                        @Html.ActionLink("Edit Roles", "EditRoles", new { userId = item.UserId });
                     }
                 </td>
             </tr>

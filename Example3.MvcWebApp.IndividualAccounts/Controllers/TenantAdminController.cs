@@ -39,6 +39,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> EditRoles(string userId)
         {
+            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+
             var status = await SetupManualUserChange.PrepareForUpdateAsync(userId, _authUsersAdmin);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -66,6 +68,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         public async Task<ActionResult> InviteUser()
         {
             ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+
+            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
             var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
                 .Result;
 
@@ -90,8 +94,10 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             return View("InviteUserUrl", new InviteUserDto(email, currentUser.UserTenant.TenantFullName, inviteUrl));
         }
 
-        public ActionResult ErrorDisplay(string errorMessage)
+        public async Task<ActionResult> ErrorDisplay(string errorMessage)
         {
+            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
+
             return View((object)errorMessage);
         }
 

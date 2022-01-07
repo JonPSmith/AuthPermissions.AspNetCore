@@ -230,6 +230,8 @@ namespace AuthPermissions.AspNetCore
         {
             //This sets up the code to get the DataKey to the application's DbContext
 
+
+
             if (setupData.Options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
                 //This uses the efficient GetDataKey from user
                 setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserNormal>();
@@ -241,12 +243,25 @@ namespace AuthPermissions.AspNetCore
                     throw new AuthPermissionsException(
                         $"You can't set the {nameof(AuthPermissionsOptions.LinkToTenantType)} to " +
                         $"{nameof(LinkToTenantTypes.AppAndHierarchicalUsers)} unless you are using AuthP's hierarchical multi-tenant setup.");
+                
+                //The "Access the data of other tenant" feature is turned on so register the services
 
                 //And register the service that manages the cookie and the service to start/stop linking
                 setupData.Services.AddScoped<IAccessTenantDataCookie, AccessTenantDataCookie>();
                 setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
-                //The "Access the data of other tenant" feature is turned on so use this version
-                setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserAccessTenantData>();
+                switch (setupData.Options.LinkToTenantType)
+                {
+
+                    case LinkToTenantTypes.OnlyAppUsers:
+                        setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppUserAccessTenantData>();
+                        break;
+                    case LinkToTenantTypes.AppAndHierarchicalUsers:
+                        setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppAndHierarchicalUsersAccessTenantData>();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
             }
         }
     }
