@@ -81,7 +81,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         if (status.HasErrors)
             return status;
 
-        _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _cookieOptions.NumMinuteBeforeCookieTimesOut);
+        _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _cookieOptions.NumHoursBeforeCookieTimesOut);
 
         status.Message = $"You are now linked the the data of the tenant called '{tenantToLinkTo.TenantFullName}'";
         return status;

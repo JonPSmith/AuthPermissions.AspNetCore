@@ -21,8 +21,9 @@ public class AccessTenantDataOptions
     public string EncryptionKey { get; set; }
 
     /// <summary>
-    /// This provides the number of minutes that the <see cref="AccessTenantDataCookie"/> will stay around
-    /// Defaults to 60 minutes. If set to 0, then it will become a session cookie and stay there all the time
+    /// This provides the number of hours that the <see cref="AccessTenantDataCookie"/> will stay around
+    /// Defaults to 10 hours.
+    /// NOTE: You should call the <see cref="ILinkToTenantDataService.StopLinkingToTenant"/> method when a linked user logs out
     /// </summary>
-    public int NumMinuteBeforeCookieTimesOut { get; set; } = 60;
+    public int NumHoursBeforeCookieTimesOut { get; set; } = 10;
 }

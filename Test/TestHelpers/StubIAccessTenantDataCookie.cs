@@ -9,7 +9,7 @@ public class StubIAccessTenantDataCookie : IAccessTenantDataCookie
 {
     public string CookieValue { get; set; }
 
-    public void AddOrUpdateCookie(string value, int numMinuteBeforeCookieTimesOut)
+    public void AddOrUpdateCookie(string value, int numHoursBeforeCookieTimesOut)
     {
         CookieValue = value;
     }

@@ -8,7 +8,7 @@
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-	    - New Feature: Added "Access the data of other tenant" feature - see issue #10
+- New Feature: Added "Access the data of other tenant" feature - see issue #10
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
