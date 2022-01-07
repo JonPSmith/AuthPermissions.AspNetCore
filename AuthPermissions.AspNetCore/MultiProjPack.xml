@@ -4,16 +4,13 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-- BREAKING CHANGE: GetAllRoleNamesAsync is now called GetRoleNamesForUsersAsync and takes the UserId
-- Bug fix: Fixed a bug when creating a tenant that had tenant roles
-- New Feature: Added GetRoleNamesForTenantsAsync to AuthTenantAdminService
-- Minor change: The UpdateRoleToPermissionsAsync method now allows you to change the RoleType
+- New Feature: Added "Access the data of other tenant" feature - see issue #10
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
