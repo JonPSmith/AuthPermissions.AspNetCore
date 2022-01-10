@@ -114,10 +114,10 @@ public class UserRegisterInviteService : IUserRegisterInviteService
     /// </summary>
     /// <param name="email">email given to log in</param>
     /// <param name="password">password given to log in</param>
-    /// <param name="verify">The encrypted part of the url encoded to work with urls
+    /// <param name="inviteParam">The encrypted part of the url encoded to work with urls
     /// that was created by <see cref="InviteUserToJoinTenantAsync"/></param>
     /// <returns>Status with the individual accounts user</returns>
-    public async Task<IStatusGeneric<IdentityUser>> AcceptUserJoiningATenantAsync(string email, string password, string verify)
+    public async Task<IStatusGeneric<IdentityUser>> AcceptUserJoiningATenantAsync(string email, string password, string inviteParam)
     {
         var status = new StatusGenericHandler<IdentityUser>();
 
@@ -125,7 +125,7 @@ public class UserRegisterInviteService : IUserRegisterInviteService
         string emailOfJoiner;
         try
         {
-            var decrypted = _encryptorService.Decrypt(Base64UrlEncoder.Decode(verify));
+            var decrypted = _encryptorService.Decrypt(Base64UrlEncoder.Decode(inviteParam));
 
             var parts = decrypted.Split(',');
             tenantId = int.Parse(parts[0]);

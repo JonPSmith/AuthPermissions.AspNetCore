@@ -39,7 +39,7 @@ public interface IUserRegisterInviteService
     /// </summary>
     /// <param name="email">email given to log in</param>
     /// <param name="password">password given to log in</param>
-    /// <param name="verify">The encrypted part of the url that was created by <see cref="InviteUserToJoinTenantAsync"/></param>
+    /// <param name="inviteParam">The encrypted part of the url that was created by <see cref="InviteUserToJoinTenantAsync"/></param>
     /// <returns>Status with the individual accounts user</returns>
-    Task<IStatusGeneric<IdentityUser>> AcceptUserJoiningATenantAsync(string email, string password, string verify);
+    Task<IStatusGeneric<IdentityUser>> AcceptUserJoiningATenantAsync(string email, string password, string inviteParam);
 }
