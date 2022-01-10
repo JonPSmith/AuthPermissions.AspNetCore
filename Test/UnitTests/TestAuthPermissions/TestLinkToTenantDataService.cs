@@ -47,12 +47,13 @@ public class TestLinkToTenantDataService
         var authOptions = new AuthPermissionsOptions
         {
             TenantType = TenantTypes.SingleLevel,
-            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers
+            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers,
+            EncryptionKey = "asfafffggdgerxbd"
         };
-        var linkOptions = new AccessTenantDataOptions { EncryptionKey = "sadffqf3t3dc2q3x4" };
 
         var cookieStub = new StubIAccessTenantDataCookie();
-        var service = new LinkToTenantDataService(cookieStub, context, authOptions, Options.Create(linkOptions));
+        var encyptor = new EncryptDecryptService(authOptions);
+        var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor);
 
         //ATTEMPT
         await service.StartLinkingToTenantDataAsync(authUser.UserId, tenantIds[1]);
@@ -85,12 +86,13 @@ public class TestLinkToTenantDataService
         var authOptions = new AuthPermissionsOptions
         {
             TenantType = TenantTypes.SingleLevel,
-            LinkToTenantType = toTenantTypes
+            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers,
+            EncryptionKey = "asfafffggdgerxbd"
         };
-        var linkOptions = new AccessTenantDataOptions { EncryptionKey = "sadffqf3t3dc2q3x4" };
 
         var cookieStub = new StubIAccessTenantDataCookie();
-        var service = new LinkToTenantDataService(cookieStub, context, authOptions, Options.Create(linkOptions));
+        var encyptor = new EncryptDecryptService(authOptions);
+        var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor);
 
         //ATTEMPT
         try
@@ -129,12 +131,13 @@ public class TestLinkToTenantDataService
         var authOptions = new AuthPermissionsOptions
         {
             TenantType = TenantTypes.SingleLevel,
-            LinkToTenantType = toTenantTypes
+            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers,
+            EncryptionKey = "asfafffggdgerxbd"
         };
-        var linkOptions = new AccessTenantDataOptions { EncryptionKey = "sadffqf3t3dc2q3x4" };
 
         var cookieStub = new StubIAccessTenantDataCookie();
-        var service = new LinkToTenantDataService(cookieStub, context, authOptions, Options.Create(linkOptions));
+        var encyptor = new EncryptDecryptService(authOptions);
+        var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor);
 
         //ATTEMPT
         try
@@ -163,12 +166,13 @@ public class TestLinkToTenantDataService
         var authOptions = new AuthPermissionsOptions
         {
             TenantType = TenantTypes.SingleLevel,
-            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers
+            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers,
+            EncryptionKey = "asfafffggdgerxbd"
         };
-        var linkOptions = new AccessTenantDataOptions { EncryptionKey = "sadffqf3t3dc2q3x4" };
 
         var cookieStub = new StubIAccessTenantDataCookie();
-        var service = new LinkToTenantDataService(cookieStub, context, authOptions, Options.Create(linkOptions));
+        var encyptor = new EncryptDecryptService(authOptions);
+        var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor);
 
         //ATTEMPT
         cookieStub.CookieValue = null;

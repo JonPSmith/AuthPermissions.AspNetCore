@@ -7,7 +7,6 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
@@ -19,34 +18,28 @@ namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
 public class LinkToTenantDataService : ILinkToTenantDataService
 {
     private readonly AuthPermissionsDbContext _context;
-    private readonly LinkToTenantTypes _linkToTenantType;
+    private readonly AuthPermissionsOptions _options;
     private readonly IAccessTenantDataCookie _cookieAccessor;
-    private readonly AccessTenantDataOptions _cookieOptions;
 
-    private readonly EncryptDecrypt _encryptor;
+    private readonly IEncryptDecryptService _encryptorService;
 
     /// <summary>
     /// Ctor
     /// </summary>
-    /// <param name="cookieAccessor"></param>
     /// <param name="context"></param>
     /// <param name="options"></param>
-    /// <param name="dataFromAppSettings"></param>
-    public LinkToTenantDataService(IAccessTenantDataCookie cookieAccessor, 
+    /// <param name="cookieAccessor"></param>
+    /// <param name="encryptorService"></param>
+    public LinkToTenantDataService( 
         AuthPermissionsDbContext context,
         AuthPermissionsOptions options,
-        IOptions<AccessTenantDataOptions> dataFromAppSettings)
+        IAccessTenantDataCookie cookieAccessor,
+        IEncryptDecryptService encryptorService)
     {
         _context = context;
-        _linkToTenantType = options.LinkToTenantType;
+        _options = options;
         _cookieAccessor = cookieAccessor;
-        _cookieOptions = dataFromAppSettings.Value;
-
-        _encryptor = new EncryptDecrypt(_cookieOptions.EncryptionKey ??
-                                        throw new AuthPermissionsException(
-                 $"You must add a section in your appsettings called \"{AccessTenantDataOptions.AppSettingsSection}\" " +
-                        $"and register the {nameof(AccessTenantDataOptions)} to read that section. Here is code you need: " +
-                        "services.Configure<AccessTenantDataOptions>(_configuration.GetSection(AccessTenantDataOptions.AppSettingsSection));"));
+        _encryptorService = encryptorService;
     }
 
     /// <summary>
@@ -61,7 +54,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     {
         var status = new StatusGenericHandler();
 
-        if (_linkToTenantType == LinkToTenantTypes.NotTurnedOn)
+        if (_options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
             throw new AuthPermissionsException(
                 $"You must set up the {nameof(AuthPermissionsOptions.LinkToTenantType)} to use the Access Tenant Data feature.");
 
@@ -69,7 +62,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         if (user == null)
             return status.AddError("Could not find the user you were looking for.");
 
-        if (user.TenantId != null && _linkToTenantType != LinkToTenantTypes.AppAndHierarchicalUsers)
+        if (user.TenantId != null && _options.LinkToTenantType != LinkToTenantTypes.AppAndHierarchicalUsers)
             throw new AuthPermissionsException(
                 $"The option's {nameof(AuthPermissionsOptions.LinkToTenantType)} parameter is set to {LinkToTenantTypes.OnlyAppUsers}, " +
                 "which means a user linked to a tenant can't use the Access Tenant Data feature.");
@@ -81,7 +74,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         if (status.HasErrors)
             return status;
 
-        _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _cookieOptions.NumHoursBeforeCookieTimesOut);
+        _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _options.NumMinutesBeforeCookieTimesOut);
 
         status.Message = $"You are now linked the the data of the tenant called '{tenantToLinkTo.TenantFullName}'";
         return status;
@@ -130,7 +123,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         //var threeValues = $"{tenantToLinkToTenant.GetTenantDataKey()},{DateTime.UtcNow.ToShortTimeString()},{tenantToLinkToTenant.TenantFullName}";
         var twoValues = $"{tenantToLinkToTenant.GetTenantDataKey()},{tenantToLinkToTenant.TenantFullName}";
 
-        return _encryptor.Encrypt(twoValues);
+        return _encryptorService.Encrypt(twoValues);
     }
 
     private  (string dataKey, string tenantName) DecodeCookieContent(string cookieValue)
@@ -138,7 +131,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         string twoValues;
         try
         {
-            twoValues = _encryptor.Decrypt(cookieValue);
+            twoValues = _encryptorService.Decrypt(cookieValue);
         }
         catch
         {

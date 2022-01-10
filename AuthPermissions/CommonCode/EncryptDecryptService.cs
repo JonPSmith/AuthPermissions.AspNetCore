@@ -8,26 +8,31 @@ using System.Text;
 namespace AuthPermissions.CommonCode;
 
 //thanks to https://csharpcode.org/blog/simple-encryption-and-decryption-in-c/
-//Updated to take in an encryption key
+//Updated to take in an encryption key via AuhP's options
 /// <summary>
 /// Class to Encrypt / Decrypt a string
 /// </summary>
-public class EncryptDecrypt
+public class EncryptDecryptService : IEncryptDecryptService
 {
     private readonly byte[] _keyBytes;
 
     /// <summary>
-    /// This encrypts a string using 
+    /// This provides an AES Encrypt / Decrypt of a string
     /// </summary>
-    /// <param name="keyText"></param>
+    /// <param name="options"></param>
     /// <exception cref="ArgumentException"></exception>
-    public EncryptDecrypt(string keyText)
+    public EncryptDecryptService(AuthPermissionsOptions options)
     {
-        if (keyText.Length < 16)
-            throw new ArgumentException("You must provide at least 16 characters for a key", nameof(keyText));
+        if (string.IsNullOrEmpty(options.EncryptionKey))
+            throw new AuthPermissionsBadDataException(
+                $"You must provide an EncryptionKey via the options's {nameof(AuthPermissionsOptions.EncryptionKey)} parameter.");
+
+        if (options.EncryptionKey.Length < 16)
+            throw new AuthPermissionsBadDataException(
+                $"The options's {nameof(AuthPermissionsOptions.EncryptionKey)} string must be 16 or more in length.");
 
         _keyBytes = new byte[16];
-        var skeyBytes = Encoding.UTF8.GetBytes(keyText);
+        var skeyBytes = Encoding.UTF8.GetBytes(options.EncryptionKey);
         Array.Copy(skeyBytes, _keyBytes, Math.Min(_keyBytes.Length, skeyBytes.Length));
     }
 

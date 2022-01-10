@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
+using AuthPermissions.CommonCode;
 using AuthPermissions.SetupCode;
 
 namespace AuthPermissions
@@ -23,6 +24,18 @@ namespace AuthPermissions
         /// This turns on the LinkToTenantData feature, e.g. an admin person can access the data in a specific tenant
         /// </summary>
         public LinkToTenantTypes LinkToTenantType { get; set; }
+
+        /// <summary>
+        /// This string is used by the <see cref="EncryptDecryptService"/> for services that need to encrypt / decrypt data 
+        /// This should be at least 16 characters long
+        /// </summary>
+        public string EncryptionKey { get; set; }
+
+        /// <summary>
+        /// When using the "Access the data of other tenant" feature this defines when the link cookie times out.
+        /// Defaults to 10 hours.
+        /// </summary>
+        public int NumMinutesBeforeCookieTimesOut { get; set; } = 600;
 
         /// <summary>
         /// You should set this property to your application's ConnectionString if you are using Tenants

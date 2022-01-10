@@ -192,12 +192,13 @@ namespace AuthPermissions.AspNetCore
             //common tests
             setupData.CheckThatAuthorizationTypeIsSetIfNotInUnitTestMode();
 
-            //Internal services
+            //AuthP services
             setupData.Services.AddSingleton(setupData.Options);
             setupData.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
             setupData.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
+            setupData.Services.AddTransient<IEncryptDecryptService, EncryptDecryptService>();
             if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)
                 SetupMultiTenantServices(setupData);
 

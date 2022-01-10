@@ -1,7 +1,11 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions;
+using AuthPermissions.AspNetCore.AccessTenantData.Services;
 using AuthPermissions.CommonCode;
+using AuthPermissions.SetupCode;
+using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -21,12 +25,17 @@ public class TestEncryption
     public void TestEncryptDecrypt()
     {
         //SETUP
-        var encryption = new EncryptDecrypt("asaadjn33TbAw441azn");
+        var authOptions = new AuthPermissionsOptions
+        {
+            EncryptionKey = "asfafffggdgerxbd"
+        };
+
+        var encyptor = new EncryptDecryptService(authOptions);
         var testString = "The cat on the ö and had a great Ō.";
 
         //ATTEMPT
-        var encrypted = encryption.Encrypt(testString);
-        var decrypted = encryption.Decrypt(encrypted);
+        var encrypted = encyptor.Encrypt(testString);
+        var decrypted = encyptor.Decrypt(encrypted);
 
         //VERIFY
         decrypted.ShouldEqual(testString);

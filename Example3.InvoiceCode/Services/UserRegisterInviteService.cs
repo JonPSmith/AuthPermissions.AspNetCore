@@ -19,6 +19,7 @@ public class UserRegisterInviteService : IUserRegisterInviteService
 {
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAuthUsersAdminService _authUsersAdmin;
+    private readonly IEncryptDecryptService _encryptorService;
     private readonly UserManager<IdentityUser> _userManager;
 
     //NOTE: This is NOT the way to do this in a real app.
@@ -39,10 +40,13 @@ public class UserRegisterInviteService : IUserRegisterInviteService
         { TenantVersionTypes.Enterprise, new List<string> { "Tenant Admin", "Enterprise" } },
     };
 
-    public UserRegisterInviteService(IAuthTenantAdminService tenantAdminService, IAuthUsersAdminService authUsersAdmin, UserManager<IdentityUser> userManager)
+    public UserRegisterInviteService(IAuthTenantAdminService tenantAdminService, 
+        IAuthUsersAdminService authUsersAdmin, IEncryptDecryptService encryptorService, 
+        UserManager<IdentityUser> userManager)
     {
         _tenantAdminService = tenantAdminService;
         _authUsersAdmin = authUsersAdmin;
+        _encryptorService = encryptorService;
         _userManager = userManager;
     }
 
@@ -101,8 +105,7 @@ public class UserRegisterInviteService : IUserRegisterInviteService
     /// <returns>encrypted string to send the user encoded to work with urls</returns>
     public string InviteUserToJoinTenantAsync(int tenantId, string emailOfJoiner)
     {
-        var encryptor = new EncryptDecrypt(EncryptionTextKey);
-        var verify = encryptor.Encrypt($"{tenantId},{emailOfJoiner.Trim()}");
+        var verify = _encryptorService.Encrypt($"{tenantId},{emailOfJoiner.Trim()}");
         return Base64UrlEncoder.Encode(verify);
     }
 
@@ -122,12 +125,11 @@ public class UserRegisterInviteService : IUserRegisterInviteService
     {
         var status = new StatusGenericHandler<IdentityUser>();
 
-        var encryptor = new EncryptDecrypt(EncryptionTextKey);
         int tenantId;
         string emailOfJoiner;
         try
         {
-            var decrypted = encryptor.Decrypt(Base64UrlEncoder.Decode(verify));
+            var decrypted = _encryptorService.Decrypt(Base64UrlEncoder.Decode(verify));
 
             var parts = decrypted.Split(',');
             tenantId = int.Parse(parts[0]);

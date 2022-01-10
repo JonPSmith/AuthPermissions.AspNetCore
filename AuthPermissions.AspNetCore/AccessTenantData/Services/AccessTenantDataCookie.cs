@@ -32,17 +32,17 @@ public class AccessTenantDataCookie : IAccessTenantDataCookie
     /// Add/Update a cookie with the provided string 
     /// </summary>
     /// <param name="value"></param>
-    /// <param name="numHoursBeforeCookieTimesOut">This provides the timeout for the cookie.
+    /// <param name="numMinutesBeforeCookieTimesOut">This provides the timeout for the cookie.
     /// This makes sure the change to the DataKey isn't left on too long</param>
     /// <exception cref="NullReferenceException"></exception>
-    public void AddOrUpdateCookie(string value, int numHoursBeforeCookieTimesOut)
+    public void AddOrUpdateCookie(string value, int numMinutesBeforeCookieTimesOut)
     {
         if (_cookiesIn == null) throw new ArgumentNullException(nameof(_cookiesIn));
 
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Expires = DateTime.Now.AddHours(numHoursBeforeCookieTimesOut)
+            Expires = DateTime.Now.AddMinutes(numMinutesBeforeCookieTimesOut)
         };
         _cookiesOut.Append(CookieName, value, cookieOptions);
     }
