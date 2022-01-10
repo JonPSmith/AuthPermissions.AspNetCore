@@ -22,10 +22,6 @@ public class UserRegisterInviteService : IUserRegisterInviteService
     private readonly IEncryptDecryptService _encryptorService;
     private readonly UserManager<IdentityUser> _userManager;
 
-    //NOTE: This is NOT the way to do this in a real app.
-    //In real apps you should load the key from appsettings.json file, and have a different (and private) key in production
-    private const string EncryptionTextKey = "Asaadjn33TbAw441azn";
-
     private readonly Dictionary<TenantVersionTypes, List<string>> _rolesToAddUserForVersions = new()
     {
         { TenantVersionTypes.Free, new List<string> { "Tenant User" } },

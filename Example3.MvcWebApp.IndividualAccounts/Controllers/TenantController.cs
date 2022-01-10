@@ -106,7 +106,10 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             var currentUser = User.GetUserIdFromUser();
             var status = await service.StartLinkingToTenantDataAsync(currentUser, id);
 
-            return RedirectToAction(nameof(Index), new { message = status.Message });
+            return status.HasErrors
+                ? RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() })
+                : RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
         public IActionResult StopAccess([FromServices] ILinkToTenantDataService service, bool gotoHome)
