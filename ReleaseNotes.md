@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.2.0
+
+- New Feature: Added "Access the data of other tenant" feature - see issue #10
+
 ## 2.1.0
 
 - Bug fix: Fixed a bug when creating a tenant that had tenant roles
