@@ -1,15 +1,11 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
-using AuthPermissions.AdminCode;
-using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
-using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
@@ -49,6 +45,7 @@ namespace Test.UnitTests.TestExamples
                 {
                     options.TenantType = TenantTypes.SingleLevel;
                     options.AppConnectionString = context.Database.GetConnectionString();
+                    options.EncryptionKey = "asffrwedsffsgxcvwc";
                     options.UseLocksToUpdateGlobalResources = false;
                 })
                 .UsingEfCoreSqlServer(context.Database.GetConnectionString())

@@ -86,7 +86,7 @@ public class TestLinkToTenantDataService
         var authOptions = new AuthPermissionsOptions
         {
             TenantType = TenantTypes.SingleLevel,
-            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers,
+            LinkToTenantType = toTenantTypes,
             EncryptionKey = "asfafffggdgerxbd"
         };
 
@@ -131,7 +131,7 @@ public class TestLinkToTenantDataService
         var authOptions = new AuthPermissionsOptions
         {
             TenantType = TenantTypes.SingleLevel,
-            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers,
+            LinkToTenantType = toTenantTypes,
             EncryptionKey = "asfafffggdgerxbd"
         };
 
