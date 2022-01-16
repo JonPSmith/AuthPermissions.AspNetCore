@@ -96,23 +96,24 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This returns a list of all the RoleNames that can be applied to an AuthUser
+        /// This returns a list of all the RoleNames that can be applied to the AuthUser
+        /// Doesn't work properly when used in a create, as the user's tenant hasn't be set
         /// </summary>
-        /// <param name="currentUserId">UserId of the current user. Only needed in multi-tenant applications </param>
+        /// <param name="userId">UserId of the user you are updating. Only needed in multi-tenant applications </param>
         /// <returns></returns>
-        public async Task<List<string>> GetRoleNamesForUsersAsync(string currentUserId = null)
+        public async Task<List<string>> GetRoleNamesForUsersAsync(string userId = null)
         {
             if (!_isMultiTenant)
                 return await _context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
 
-            if (currentUserId == null)
-                throw new ArgumentNullException(nameof(currentUserId), "You must be logged in to use this feature.");
+            if (userId == null)
+                throw new ArgumentNullException(nameof(userId), "You must be logged in to use this feature.");
 
             //multi-tenant version has to filter out the roles from users that have a tenant
             var userWithTenantRoles = await _context.AuthUsers
                 .Include(x => x.UserTenant)
                 .ThenInclude(x => x.TenantRoles)
-                .SingleAsync(x => x.UserId == currentUserId);
+                .SingleAsync(x => x.UserId == userId);
 
             if (userWithTenantRoles.UserTenant == null)
                 //Its an app-level user so return all non-tenant roles
