@@ -58,8 +58,8 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
             new ("Super@g1.com", null, "SuperAdmin"),
             new ("AppAdmin@g1.com", null, "App Admin"),
             //4U Inc.
-            new ("admin@4uInc.com", null, 
-                "Tenant Admin, Store Manager", tenantNameForDataKey: "4U Inc."),
+            new ("admin@4uInc.com", null,
+                "Tenant Admin, Area Manager", tenantNameForDataKey: "4U Inc."),
             new ("director@4uInc.com", null,
                 "Tenant Director, Area Manager", tenantNameForDataKey: "4U Inc."),
             new ("westCoastManager@4uInc.com", null,
@@ -84,7 +84,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
 
             //Pets2 Ltd.
             new ("admin@Pets2.com", null,
-                "Tenant Admin, Store Manager", tenantNameForDataKey: "Pets2 Ltd."),
+                "Tenant Admin, Area Manager", tenantNameForDataKey: "Pets2 Ltd."),
             new ("director@Pets2.com", null,
                 "Tenant Director, Area Manager", tenantNameForDataKey: "Pets2 Ltd."),
             //Dress4U
