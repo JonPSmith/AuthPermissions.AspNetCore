@@ -24,13 +24,13 @@
     <thead>
         <tr>
             <th>
-                Short name
-            </th>
-            <th>
                 Full tenant name
             </th>
             <th>
                 DataKey
+            </th>
+            <th>
+                Short name
             </th>
             <th>
                 @(User.HasPermission(Example4Permissions.TenantUpdate) ? "Change" : "")
@@ -42,13 +42,13 @@
         {
             <tr>
                 <td>
-                    @item.TenantName
-                </td>
-                <td>
                     @item.TenantFullName
                 </td>
                 <td>
                     @item.DataKey
+                </td>
+                <td>
+                    @item.TenantName
                 </td>
                 <td>
                     @if (User.HasPermission(Example4Permissions.TenantUpdate))

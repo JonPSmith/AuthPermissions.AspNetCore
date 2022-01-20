@@ -1,8 +1,8 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
-using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
 using Example4.ShopCode.EfCoreClasses;
@@ -35,6 +35,11 @@ namespace Example4.ShopCode.EfCoreCode
                 if (typeof(IDataKeyFilterReadOnly).IsAssignableFrom(entityType.ClrType))
                 {
                     entityType.AddHierarchicalTenantReadOnlyQueryFilter(this);
+                }
+                else
+                {
+                    throw new Exception(
+                        $"You haven't added the {nameof(IDataKeyFilterReadOnly)} to the entity {entityType.ClrType.Name}");
                 }
 
                 foreach (var mutableProperty in entityType.GetProperties())
