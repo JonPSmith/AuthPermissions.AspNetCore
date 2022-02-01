@@ -56,8 +56,10 @@ Kitten Place: Scratch pole|60, Play mouse|5, Cat food (small)|12";
 
         public void AddStockToShops(Dictionary<string, RetailOutlet> retailLookup, string seedStockText)
         {
-            var lines = seedStockText.Split(Environment.NewLine);
-            foreach (var line in lines)
+            //find the correct line delimiter char to cover different counties 
+            var splitChar = seedStockText.Contains('\n') ? '\n' : Environment.NewLine.First();
+
+            foreach (var line in seedStockText.Split(splitChar))
             {
                 var colonIndex = line.IndexOf(':');
                 var shopName = line.Substring(0, colonIndex);

@@ -101,7 +101,7 @@ namespace Test.UnitTests.TestExamples
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             status.Result.Email.ShouldEqual(userId);
             status.Result.UserName.ShouldEqual(userId);
-            status.Result.RoleNames.OrderBy(x => x).ToList().ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });
+            status.Result.RoleNames.OrderBy(x => x).ToList().ShouldEqual(new List<string> { "Area Manager", "Tenant Admin" });
             status.Result.TenantName.ShouldEqual("4U Inc.");
 
             status.Result.AllRoleNames.Count.ShouldEqual(5);
@@ -170,7 +170,7 @@ namespace Test.UnitTests.TestExamples
             var rereadUser = (await adminUserService.FindAuthUserByUserIdAsync(userId)).Result;
             rereadUser.Email.ShouldEqual(userId);
             rereadUser.UserName.ShouldEqual(userId);
-            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });
+            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Area Manager", "Tenant Admin" });
             rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");
         }
 
@@ -221,7 +221,7 @@ namespace Test.UnitTests.TestExamples
             var rereadUser = (await adminUserService.FindAuthUserByUserIdAsync("newuser@gmail.com")).Result;
             rereadUser.Email.ShouldEqual("newuser@gmail.com");
             rereadUser.UserName.ShouldEqual("newuser@gmail.com");
-            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Store Manager", "Tenant Admin" });
+            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Area Manager", "Tenant Admin" });
             rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");
         }
 

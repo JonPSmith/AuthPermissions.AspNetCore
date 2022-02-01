@@ -49,7 +49,7 @@ namespace Test.UnitTests.TestExamples
             var rereadUser = status.Result;
             rereadUser.Email.ShouldEqual(userId);
             rereadUser.UserName.ShouldEqual(userId);
-            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Tenant Admin", "Store Manager" });
+            rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Tenant Admin", "Area Manager" });
             rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");
         }
 
