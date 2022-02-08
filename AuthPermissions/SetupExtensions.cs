@@ -123,6 +123,21 @@ namespace AuthPermissions
         }
 
         /// <summary>
+        /// This registers your service that adds one claim to the user on login
+        /// and on refresh of the user's claims (e.g. when JWT Token refresh happens).
+        /// NOTE: If you want to add multiple claims then call this method with a class that implements the <see cref="IClaimsAdder"/> 
+        /// </summary>
+        /// <typeparam name="TClaimsAdder">Your class that returns a single claim to be added to a user</typeparam>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData RegisterAddClaimToUser<TClaimsAdder>(this AuthSetupData setupData)
+            where TClaimsAdder : class, IClaimsAdder
+        {
+            setupData.Services.AddTransient<IClaimsAdder, TClaimsAdder>();
+            return setupData;
+        }
+
+        /// <summary>
         /// This allows you to define the name of each tenant using the <see cref="BulkLoadTenantDto"/> class
         /// For hierarchical tenant design you add child tenants using the <see cref="BulkLoadTenantDto.ChildrenTenants"/> property
         /// </summary>

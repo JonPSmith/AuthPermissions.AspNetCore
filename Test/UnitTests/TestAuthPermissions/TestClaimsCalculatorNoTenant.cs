@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
 using AuthPermissions.SetupCode;
+using ExamplesCommonCode.IdentityCookieCode;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -34,7 +36,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");
@@ -43,6 +45,33 @@ namespace Test.UnitTests.TestAuthPermissions
             claims.Count.ShouldEqual(1);
             claims.Single().Type.ShouldEqual(PermissionConstants.PackedPermissionClaimType);
             claims.Single().Value.ShouldEqual($"{(char)1}{(char)3}");
+        }
+
+        [Fact]
+        public async Task TestCalcAddedClaims()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var user = AuthUser.CreateAuthUser("User1", "User1@g.com", null, new List<RoleToPermissions>()).Result;
+            context.Add(user);
+            context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants }, 
+                new List<IClaimsAdder> { new AddRefreshEveryMinuteClaim() });
+
+            //ATTEMPT
+            var claims = await service.GetClaimsForAuthUserAsync("User1");
+
+            //VERIFY
+            claims.Count.ShouldEqual(1);
+            claims.Single().Type.ShouldEqual(RefreshClaimsExtensions.TimeToRefreshUserClaimType);
+            claims.GetTimeToRefreshUserValue().ShouldBeInRange(DateTime.UtcNow.AddSeconds(59), DateTime.UtcNow.AddSeconds(61));
         }
 
         [Fact]
@@ -62,7 +91,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");
@@ -81,7 +110,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");

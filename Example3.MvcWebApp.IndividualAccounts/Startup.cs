@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
-using AuthPermissions.AspNetCore.AccessTenantData;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.AppStart;
@@ -16,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RunMethodsSequentially;
 using AuthPermissions.AspNetCore.StartupServices;
+using Example3.InvoiceCode.Services;
 
 namespace Example3.MvcWebApp.IndividualAccounts
 {
@@ -58,6 +58,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 //NOTE: This uses the same database as the individual accounts DB
                 .UsingEfCoreSqlServer(connectionString)
                 .IndividualAccountsAuthentication()
+                .RegisterAddClaimToUser<AddTenantNameClaim>()
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.RolesDefinition)
                 .AddTenantsIfEmpty(Example3AppAuthSetupData.TenantDefinition)

@@ -15,25 +15,31 @@ namespace AuthPermissions
 {
     /// <summary>
     /// This service returns the authPermission claims for an AuthUser
+    /// and any extra claims registered using AuthP's AddClaimToUser method when registering AuthP
     /// </summary>
     public class ClaimsCalculator : IClaimsCalculator
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly AuthPermissionsOptions _options;
+        private readonly IEnumerable<IClaimsAdder> _claimsAdders;
 
         /// <summary>
         /// Ctor
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        public ClaimsCalculator(AuthPermissionsDbContext context, AuthPermissionsOptions options)
+        /// <param name="claimAdders"></param>
+        public ClaimsCalculator(AuthPermissionsDbContext context, 
+            AuthPermissionsOptions options,
+                IEnumerable<IClaimsAdder> claimAdders)
         {
             _context = context;
             _options = options;
+            _claimsAdders = claimAdders;
         }
 
         /// <summary>
-        /// This will return the 
+        /// This will return the required AuthP claims, plus any extra claims from registered <see cref="IClaimsAdder"/> methods  
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
@@ -48,7 +54,13 @@ namespace AuthPermissions
             var dataKey = await GetDataKeyAsync(userId);
             if (dataKey != null)
                 result.Add(new Claim(PermissionConstants.DataKeyClaimType, dataKey));
-            
+
+            foreach (var claimsAdder in _claimsAdders)
+            {
+                var extraClaim = await claimsAdder.AddClaimToUserAsync(userId);
+                if (extraClaim != null)
+                    result.Add(extraClaim);
+            }
 
             return result;
         }

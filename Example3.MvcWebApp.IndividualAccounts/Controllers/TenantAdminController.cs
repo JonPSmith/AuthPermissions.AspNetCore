@@ -15,19 +15,15 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
     public class TenantAdminController : Controller
     {
         private readonly IAuthUsersAdminService _authUsersAdmin;
-        private readonly ICompanyNameService _companyService;
 
-        public TenantAdminController(IAuthUsersAdminService authUsersAdmin, ICompanyNameService companyService)
+        public TenantAdminController(IAuthUsersAdminService authUsersAdmin)
         {
             _authUsersAdmin = authUsersAdmin;
-            _companyService = companyService;
         }
 
         [HasPermission(Example3Permissions.UserRead)]
         public async Task<IActionResult> Index(string message)
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-
             var dataKey = User.GetAuthDataKeyFromUser();
             var userQuery = _authUsersAdmin.QueryAuthUsers(dataKey);
             var usersToShow = await AuthUserDisplay.TurnIntoDisplayFormat(userQuery.OrderBy(x => x.Email)).ToListAsync();
@@ -39,8 +35,6 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> EditRoles(string userId)
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-
             var status = await SetupManualUserChange.PrepareForUpdateAsync(userId, _authUsersAdmin);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -67,9 +61,6 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.InviteUsers)]
         public async Task<ActionResult> InviteUser()
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
             var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
                 .Result;
 
@@ -81,7 +72,6 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> InviteUser([FromServices] IUserRegisterInviteService userRegisterInvite, string email)
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
             var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
                 .Result;
 
@@ -96,8 +86,6 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 
         public async Task<ActionResult> ErrorDisplay(string errorMessage)
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-
             return View((object)errorMessage);
         }
 

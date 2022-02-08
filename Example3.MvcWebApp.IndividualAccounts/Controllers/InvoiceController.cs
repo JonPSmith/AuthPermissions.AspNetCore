@@ -16,20 +16,16 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
     public class InvoiceController : Controller
     {
         private readonly InvoicesDbContext _context;
-        private readonly ICompanyNameService _companyService;
 
-        public InvoiceController(InvoicesDbContext context, ICompanyNameService companyService)
+        public InvoiceController(InvoicesDbContext context)
         {
             _context = context;
-            _companyService = companyService;
         }
 
         [HasPermission(Example3Permissions.InvoiceRead)]
         public async Task<IActionResult> Index(string message)
         {
             ViewBag.Message = message;
-
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
 
             var listInvoices = await InvoiceSummaryDto.SelectInvoices(_context.Invoices)
                 .OrderByDescending(x => x.DateCreated)
@@ -38,10 +34,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         }
 
         [HasPermission(Example3Permissions.InvoiceCreate)]
-        public async Task<IActionResult> CreateInvoice()
+        public IActionResult CreateInvoice()
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-
             return View();
         }
 
@@ -50,10 +44,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.InvoiceCreate)]
         public async Task<IActionResult> CreateInvoice(Invoice invoice)
         {
-            ViewBag.CompanyName = await _companyService.GetCurrentCompanyNameAsync();
-
             var builder = new ExampleInvoiceBuilder(null);
-            var newInvoice = builder.CreateRandomInvoice(ViewBag.CompanyName, invoice.InvoiceName);
+            var newInvoice = builder.CreateRandomInvoice(AddTenantNameClaim.GetTenantNameFromUser(User), invoice.InvoiceName);
             _context.Add(newInvoice);
             await _context.SaveChangesAsync();
 

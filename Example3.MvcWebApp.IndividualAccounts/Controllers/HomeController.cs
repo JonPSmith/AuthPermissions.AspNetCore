@@ -19,13 +19,12 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             _logger = logger;
         }
 
-        public async Task< IActionResult> Index([FromServices] ICompanyNameService service, string message)
+        public async Task< IActionResult> Index(string message)
         {
             ViewBag.Message = message;
 
-            var companyName = await service.GetCurrentCompanyNameAsync();
 
-            if (companyName == null)
+            if (AddTenantNameClaim.GetTenantNameFromUser(User) == null)
                 return View(new AppSummary());
 
             return RedirectToAction("Index", "Invoice");

@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="UsefulCode\**" />
+    <EmbeddedResource Remove="UsefulCode\**" />
+    <None Remove="UsefulCode\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GenericServices.StatusGeneric" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
@@ -20,10 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AuthPermissions.AspNetCore\AuthPermissions.AspNetCore.csproj" />
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UsefulCode\" />
   </ItemGroup>
 
 </Project>

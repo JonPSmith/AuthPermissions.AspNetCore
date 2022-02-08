@@ -30,7 +30,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             var setupUser = new SetupUserWithRoles(context, RoleTypes.Normal, true);
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.SingleLevel });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.SingleLevel }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");
@@ -51,7 +51,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             var setupUser = new SetupUserWithRoles(context, RoleTypes.TenantAutoAdd, true);
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.SingleLevel }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");
@@ -74,15 +74,15 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");
 
             //VERIFY
-            claims.Count.ShouldEqual(1);
-            claims.Single().Type.ShouldEqual(PermissionConstants.PackedPermissionClaimType);
-            new string(claims.Single().Value.OrderBy(x => x).ToArray()).ShouldEqual($"{(char)1}{(char)3}");
+            claims.Count.ShouldEqual(2);
+            claims.First().Type.ShouldEqual(PermissionConstants.PackedPermissionClaimType);
+            new string(claims.First().Value.OrderBy(x => x).ToArray()).ShouldEqual($"{(char)1}{(char)3}");
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.SingleLevel }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");
@@ -120,7 +120,7 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-            var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.SingleLevel }, new List<IClaimsAdder>());
 
             //ATTEMPT
             var claims = await service.GetClaimsForAuthUserAsync("User1");
