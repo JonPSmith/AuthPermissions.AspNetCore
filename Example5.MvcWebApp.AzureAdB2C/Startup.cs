@@ -42,7 +42,7 @@ namespace Example5.MvcWebApp.AzureAdB2C
                     identityOptions.CallbackPath = section["CallbackPath"];
                     identityOptions.ClientSecret = section["ClientSecret"];
                 }, cookieOptions =>
-                    cookieOptions.Events.OnValidatePrincipal = CookieEventMethods.PeriodicRefreshUsersClaims);
+                    cookieOptions.Events.OnValidatePrincipal = PeriodicCookieEvent.PeriodicRefreshUsersClaims);
 
             services.AddControllersWithViews();
             services.AddRazorPages()

@@ -1,9 +1,11 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AuthPermissions.DataLayer.EfCode
@@ -17,9 +19,14 @@ namespace AuthPermissions.DataLayer.EfCode
         /// ctor
         /// </summary>
         /// <param name="options"></param>
-        public AuthPermissionsDbContext(DbContextOptions<AuthPermissionsDbContext> options)
+        /// <param name="eventSetup">OPTIONAL: If provided, then a method will be run within the ctor</param>
+        public AuthPermissionsDbContext(DbContextOptions<AuthPermissionsDbContext> options,
+            IRegisterStateChangeEvent eventSetup = null)
             : base(options)
-        { }
+        {
+            if (eventSetup != null)
+                ChangeTracker.StateChanged += eventSetup.RegisterDataKeyChange;
+        }
 
         /// <summary>
         /// The list of AuthUsers defining what roles and tenant that user has

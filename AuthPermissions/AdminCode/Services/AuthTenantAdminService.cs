@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
+using AuthPermissions.DataLayer;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
@@ -30,6 +31,7 @@ namespace AuthPermissions.AdminCode.Services
         private readonly AuthPermissionsOptions _options;
         private readonly IAuthPServiceFactory<ITenantChangeService> _tenantChangeServiceFactory;
         private readonly ILogger _logger;
+        private readonly IRegisterStateChangeEvent _eventSetup;
 
         private readonly TenantTypes _tenantType;
 
@@ -40,15 +42,18 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="options"></param>
         /// <param name="tenantChangeServiceFactory"></param>
         /// <param name="logger"></param>
+        /// <param name="eventSetup">Optional: </param>
         public AuthTenantAdminService(AuthPermissionsDbContext context, 
             AuthPermissionsOptions options, 
             IAuthPServiceFactory<ITenantChangeService> tenantChangeServiceFactory,
-            ILogger<AuthTenantAdminService> logger)
+            ILogger<AuthTenantAdminService> logger,
+            IRegisterStateChangeEvent eventSetup = null)
         {
             _context = context;
             _options = options;
             _tenantChangeServiceFactory = tenantChangeServiceFactory;
             _logger = logger;
+            _eventSetup = eventSetup;
 
             _tenantType = options.TenantType;
         }
@@ -614,7 +619,7 @@ namespace AuthPermissions.AdminCode.Services
                 dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
             EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
 
-            return new AuthPermissionsDbContext(options.Options);
+            return new AuthPermissionsDbContext(options.Options, _eventSetup);
         }
 
         /// <summary>

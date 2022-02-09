@@ -14,18 +14,18 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestExamples;
 
-public class TestExample3DetectTenantDataKeyChangeService
+public class TestExample3RegisterTenantDataKeyChangeService
 {
     [Fact]
     public void TestDetectTenantDataKeyChangeService_NoChange()
     {
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-        var context = new AuthPermissionsDbContext(options);
-        context.Database.EnsureCreated();
-
         var globalAccessor = new StubGlobalChangeTimeService();
-        var service = new DetectTenantDataKeyChangeService(context, globalAccessor);
+        var service = new RegisterTenantDataKeyChangeService(globalAccessor);
+        var context = new AuthPermissionsDbContext(options, service);
+        
+        context.Database.EnsureCreated();
 
         //ATTEMPT
         context.Add(new RoleToPermissions("name", null, "ab"));
@@ -39,12 +39,12 @@ public class TestExample3DetectTenantDataKeyChangeService
     public async Task TestDetectTenantDataKeyChangeService_DataKeyChanges()
     {
         //SETUP
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-        var context = new AuthPermissionsDbContext(options);
-        context.Database.EnsureCreated();
 
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
-        var service = new DetectTenantDataKeyChangeService(context, globalAccessor);
+        var service = new RegisterTenantDataKeyChangeService(globalAccessor);
+        var context = new AuthPermissionsDbContext(options, service);
+        context.Database.EnsureCreated();
 
         await context.SetupHierarchicalTenantInDbAsync();
         globalAccessor.NumTimesCalled.ShouldEqual(0);

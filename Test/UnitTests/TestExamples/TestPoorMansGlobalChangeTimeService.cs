@@ -68,7 +68,7 @@ public class TestPoorMansGlobalChangeTimeService
         var dateTime = service.GetGlobalChangeTimeUtc();
 
         //VERIFY
-        dateTime.ShouldEqual(DateTime.MaxValue);
+        dateTime.ShouldEqual(DateTime.MinValue);
     }
 
     [Fact]

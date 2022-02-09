@@ -30,9 +30,6 @@ public static class TenantChangeCookieEvent
     public static async Task UpdateIfGlobalTimeChangedAsync(CookieValidatePrincipalContext context)
     {
         var originalClaims = context.Principal.Claims.ToList();
-
-        //NOTE: You need to create this service so that the events are set up at the start of a HTTP request
-        var detector = context.HttpContext.RequestServices.GetRequiredService<IDetectTenantDataKeyChangeService>(); 
         var globalAccessor = context.HttpContext.RequestServices.GetRequiredService<IGlobalChangeTimeService>();
         var lastUpdateUtc = globalAccessor.GetGlobalChangeTimeUtc();
 

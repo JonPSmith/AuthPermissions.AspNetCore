@@ -1,26 +1,25 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
+using AuthPermissions.DataLayer;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using NetCore.AutoRegisterDi;
 
 namespace Example4.ShopCode.RefreshUsersClaims;
 
-[RegisterAsScoped]
-public class DetectTenantDataKeyChangeService : IDetectTenantDataKeyChangeService
+public class RegisterTenantDataKeyChangeService : IRegisterStateChangeEvent
 {
     private readonly IGlobalChangeTimeService _globalAccessor;
-    public DetectTenantDataKeyChangeService(AuthPermissionsDbContext context, IGlobalChangeTimeService globalAccessor)
+    public RegisterTenantDataKeyChangeService(IGlobalChangeTimeService globalAccessor)
     {
         _globalAccessor = globalAccessor;
-        context.ChangeTracker.StateChanged += RegisterDataKeyChange;
     }
 
-    private void RegisterDataKeyChange(object sender, EntityStateChangedEventArgs e)
+    public void RegisterDataKeyChange(object sender, EntityStateChangedEventArgs e)
     {
         if (e.Entry.Entity is Tenant
             && e.NewState == EntityState.Modified
@@ -31,4 +30,5 @@ public class DetectTenantDataKeyChangeService : IDetectTenantDataKeyChangeServic
             _globalAccessor.SetGlobalChangeTimeToNowUtc();
         }
     }
+
 }
