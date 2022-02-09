@@ -1,8 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-
-<ul class="navbar-nav">
+﻿<ul class="navbar-nav">
+@* The SignInManager.IsSignedIn(User) didn't work when the identity cookie was refreshed, so replaced with IsAuthenticated *@
 @if (User.Identity?.IsAuthenticated == true)
 {
     <li class="nav-item">
