@@ -14,9 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ExamplesCommonCode.IdentityCookieCode;
 
 /// <summary>
-/// Contains the <see cref="ValidateAsync"/> method to implement the "periodically update user's claims" feature
+/// This contains a method that will periodically refresh the claims of each logged-in user 
 /// </summary>
-public static class CookieEventMethod
+public static class PeriodicCookieEvent
 {
     /// <summary>
     /// This method will be called on every HTTP request where a user is logged in (therefore you should keep the No change code quick)
@@ -24,7 +24,7 @@ public static class CookieEventMethod
     /// <see cref="RefreshClaimsExtensions.TimeToRefreshUserClaimType"/>, which contains the time by which the refresh should occur.
     /// </summary>
     /// <param name="context"></param>
-    public static async Task ValidateAsync(CookieValidatePrincipalContext context)
+    public static async Task PeriodicRefreshUsersClaims(CookieValidatePrincipalContext context)
     {
         var originalClaims = context.Principal.Claims.ToList();
 

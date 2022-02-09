@@ -3,6 +3,7 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.OpenIdCode;
 using Example5.MvcWebApp.AzureAdB2C.AzureAdCode;
 using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
+using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,7 +33,16 @@ namespace Example5.MvcWebApp.AzureAdB2C
         {
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(_configuration.GetSection("AzureAd"));
+                .AddMicrosoftIdentityWebApp(identityOptions =>
+                {
+                    var section = _configuration.GetSection("AzureAd");
+                    identityOptions.Instance = section["Instance"];
+                    identityOptions.TenantId = section["TenantId"];
+                    identityOptions.ClientId = section["ClientId"];
+                    identityOptions.CallbackPath = section["CallbackPath"];
+                    identityOptions.ClientSecret = section["ClientSecret"];
+                }, cookieOptions =>
+                    cookieOptions.Events.OnValidatePrincipal = CookieEventMethods.PeriodicRefreshUsersClaims);
 
             services.AddControllersWithViews();
             services.AddRazorPages()
@@ -47,6 +57,7 @@ namespace Example5.MvcWebApp.AzureAdB2C
                 })
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
                 .UsingEfCoreSqlServer(connectionString)
+                .RegisterAddClaimToUser<AddRefreshEveryMinuteClaim>()
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.RolesDefinition)
                 .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)
                 .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()

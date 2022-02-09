@@ -2,15 +2,12 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions;
-using AuthPermissions.AspNetCore.AccessTenantData.Services;
 using AuthPermissions.CommonCode;
-using AuthPermissions.SetupCode;
-using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestExamples;
+namespace Test.UnitTests.TestAuthPermissions;
 
 public class TestEncryption
 {
