@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Example4.MvcWebApp.IndividualAccounts/wwwroot/GlobalChangedTimeUtc.txt
