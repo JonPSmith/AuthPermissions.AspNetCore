@@ -19,16 +19,20 @@ public class RegisterTenantDataKeyChangeService : IRegisterStateChangeEvent
         _globalAccessor = globalAccessor;
     }
 
-    public void RegisterDataKeyChange(object sender, EntityStateChangedEventArgs e)
+    public void RegisterEventHandlers(AuthPermissionsDbContext context)
+    {
+        context.ChangeTracker.StateChanged += RegisterDataKeyChange;
+    }
+
+    private void RegisterDataKeyChange(object sender, EntityStateChangedEventArgs e)
     {
         if (e.Entry.Entity is Tenant
             && e.NewState == EntityState.Modified
             && e.Entry.OriginalValues[nameof(Tenant.ParentDataKey)] !=
-               e.Entry.CurrentValues[nameof(Tenant.ParentDataKey)])
+            e.Entry.CurrentValues[nameof(Tenant.ParentDataKey)])
         {
             //A tenant DataKey has changed due to a Move, so we need to update the 
             _globalAccessor.SetGlobalChangeTimeToNowUtc();
         }
     }
-
 }

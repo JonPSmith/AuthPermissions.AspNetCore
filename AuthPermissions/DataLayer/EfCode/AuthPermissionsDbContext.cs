@@ -24,8 +24,7 @@ namespace AuthPermissions.DataLayer.EfCode
             IRegisterStateChangeEvent eventSetup = null)
             : base(options)
         {
-            if (eventSetup != null)
-                ChangeTracker.StateChanged += eventSetup.RegisterDataKeyChange;
+            eventSetup?.RegisterEventHandlers(this);
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.DataLayer.EfCode;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 
@@ -14,8 +15,8 @@ namespace AuthPermissions.DataLayer;
 public interface IRegisterStateChangeEvent
 {
     /// <summary>
-    /// This returns a action to apply to the <see cref="AuthPermissionsDbContext"/>
-    /// It is done this way because the DbContext mustn't be a copy
+    /// This is called within the <see cref="AuthPermissionsDbContext"/> constructor.
+    /// It allows you to register the events you need.
     /// </summary>
-    void RegisterDataKeyChange(object sender, EntityStateChangedEventArgs e);
+    void RegisterEventHandlers(AuthPermissionsDbContext context);
 }
