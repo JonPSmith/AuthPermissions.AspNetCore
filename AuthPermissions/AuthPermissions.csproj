@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="AdminCode\Services\Internal\" />
     <Folder Include="DataLayer\Migrations\" />
   </ItemGroup>
 

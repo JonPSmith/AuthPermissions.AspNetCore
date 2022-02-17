@@ -56,4 +56,8 @@
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UnitTests\TestIssues\" />
+  </ItemGroup>
+
 </Project>

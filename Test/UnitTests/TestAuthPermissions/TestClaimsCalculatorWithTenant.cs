@@ -28,7 +28,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var setupUser = new SetupUserWithRoles(context, RoleTypes.Normal, true);
+            var setupUser = context.SetupUserWithDifferentRoleTypes(RoleTypes.Normal, true);
 
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.SingleLevel }, new List<IClaimsAdder>());
 
@@ -49,7 +49,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var setupUser = new SetupUserWithRoles(context, RoleTypes.TenantAutoAdd, true);
+            var setupUser = context.SetupUserWithDifferentRoleTypes(RoleTypes.TenantAutoAdd, true);
 
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.SingleLevel }, new List<IClaimsAdder>());
 
@@ -70,7 +70,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var setupUser = new SetupUserWithRoles(context, RoleTypes.TenantAdminAdd, true);
+            var setupUser = context.SetupUserWithDifferentRoleTypes(RoleTypes.TenantAdminAdd, true);
 
             context.ChangeTracker.Clear();
 

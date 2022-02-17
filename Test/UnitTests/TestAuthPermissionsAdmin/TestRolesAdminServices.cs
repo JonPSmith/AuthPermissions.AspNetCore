@@ -62,7 +62,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var setupUser = new SetupUserWithRoles(context, role2Type, hasTenant);
+            var setupUser = context.SetupUserWithDifferentRoleTypes(role2Type, hasTenant);
 
             var service = new AuthRolesAdminService(context, new AuthPermissionsOptions
             {
@@ -71,7 +71,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             });
 
             //ATTEMPT
-            var roles = service.QueryRoleToPermissions(setupUser.CurrentUser.UserId).ToList();
+            var roles = service.QueryRoleToPermissions(setupUser.UserId).ToList();
 
             //VERIFY
             foreach (var role in roles)

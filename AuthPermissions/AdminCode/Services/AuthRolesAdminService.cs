@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
@@ -88,6 +89,17 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
+        /// This returns a query containing all the Tenants that have given role name
+        /// </summary>
+        /// <param name="roleName"></param>
+        /// <returns></returns>
+        public IQueryable<Tenant> QueryTenantsUsingThisRole(string roleName)
+        {
+            return _context.Tenants.Where(x => x.TenantRoles.Any(y => y.RoleName == roleName));
+        }
+
+
+        /// <summary>
         /// This adds a new RoleToPermissions with the given description and permissions defined by the names 
         /// </summary>
         /// <param name="roleName">Name of the new role (must be unique)</param>
@@ -147,6 +159,8 @@ namespace AuthPermissions.AdminCode.Services
             if (existingRolePermission == null)
                 return status.AddError($"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
 
+            var originalRoleType = existingRolePermission.RoleType;
+
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
                 x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
                     nameof(permissionNames).CamelToPascal()), 
@@ -157,6 +171,15 @@ namespace AuthPermissions.AdminCode.Services
 
             if (!packedPermissions.Any())
                 return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
+
+            if (originalRoleType != roleType)
+            {
+                //We need to check that the new RoleType matches where they are used
+                var roleChecker = new ChangeRoleTypeChecks(_context);
+                if (status.CombineStatuses(
+                        await roleChecker.CheckRoleTypeChangeAsync(originalRoleType, roleType,roleName)).HasErrors)
+                    return status;
+            }
 
             existingRolePermission.Update(packedPermissions, description, roleType);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -204,6 +227,61 @@ namespace AuthPermissions.AdminCode.Services
 
         //---------------------------------------------------------
         // private methods
+
+        /// <summary>
+        /// This will return errors of the new RoleType of a Role doesn't work for the current users and Tenants
+        /// </summary>
+        /// <returns></returns>
+        private async Task<IStatusGeneric> CheckRoleIsStillValidInUsersAndTenantsAsync(string roleName, RoleTypes originalRoleType, RoleTypes newRoleType)
+        {
+            var status = new StatusGenericHandler();
+
+            if (newRoleType == RoleTypes.HiddenFromTenant)
+            {
+                var tenantsUsingThisRole = await _context.RoleToPermissions.Where(x => x.RoleName == roleName)
+                    .Select(x => x.Tenants.Select(y => y.TenantFullName))
+                    .SingleOrDefaultAsync() ?? Array.Empty<string>();
+
+                foreach (var tenantName in tenantsUsingThisRole)
+                {
+                    status.AddError($"The Role {roleName} has been set to {newRoleType}, " +
+                                    $"which means it can't be used in tenant {tenantName}");
+                }
+
+                //This checks the AuthUsers linked to a tenant haven't got this Role
+                foreach (var user in await QueryUsersUsingThisRole(roleName).Where(x => x.TenantId != null).ToArrayAsync())
+                {
+                    status.AddError($"The Role {roleName} has been set to {newRoleType}, " +
+                                    $"which means it can't be used in the user {user.NameToUseForError}");
+                }
+            }
+            else if (newRoleType == RoleTypes.TenantAutoAdd)
+            {
+                //No user should have an RoleTypes.TenantAutoAdd in the user's Roles
+                foreach (var user in await QueryUsersUsingThisRole(roleName).ToArrayAsync())
+                {
+                    status.AddError($"The Role {roleName} has been set to {newRoleType}, " +
+                                    $"which means it can't be directly to the user {user.NameToUseForError}");
+                }
+            }
+            
+            
+            if (originalRoleType == RoleTypes.TenantAdminAdd || originalRoleType == RoleTypes.TenantAutoAdd)
+            {
+                //If you are changing a Tenant Role, then that Role shouldn't any in the tenant's Roles
+                var tenantsWithThisRole = await QueryTenantsUsingThisRole(roleName)
+                    .Select(x => x.TenantFullName)
+                    .ToListAsync();
+                foreach (var tenantName in tenantsWithThisRole)
+                {
+                    if (newRoleType != RoleTypes.TenantAutoAdd && newRoleType != RoleTypes.TenantAdminAdd)
+                        status.AddError($"To change the Role {roleName} from {originalRoleType} to {newRoleType} " +
+                                    $"you must remove that Role from the {tenantName} tenant");
+                }
+            }
+
+            return status;
+        }
 
         private IQueryable<RoleWithPermissionNamesDto> MapToRoleWithPermissionNamesDto(
             IQueryable<RoleToPermissions> roleToPermissions)

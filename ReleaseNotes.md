@@ -1,5 +1,11 @@
 # Release Notes
 
+## 2.3.0
+
+- New Feature: You can add extra claims to the user via the RegisterAddClaimToUser method
+- New Feature: Tap into AuthPermissionsDbContext events by registering a service implmenting the IRegisterStateChangeEvent interface
+- Bug Fix: UpdateRoleToPermissionsAsync now return errors if a Role change is invalid for a user or tenants that is that Role - see issue #13
+
 ## 2.2.0
 
 - New Feature: Added "Access the data of other tenant" feature - see issue #10

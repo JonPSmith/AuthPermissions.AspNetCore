@@ -10,18 +10,16 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers;
 
-public class SetupUserWithRoles
+public static class SetupUserWithRoleExtensions
 {
-    public AuthUser CurrentUser { get; }
 
     /// <summary>
-    /// This sets up roles and and a AuthUser. If the role2Type isn't <see cref="RoleTypes.Normal"/>,
-    /// then a tenant added
+    /// This creates a new user with two roles
     /// </summary>
     /// <param name="context"></param>
-    /// <param name="role2Type"></param>
-    /// <param name="userHasTenant"></param>
-    public SetupUserWithRoles(AuthPermissionsDbContext context, RoleTypes role2Type, bool userHasTenant)
+    /// <param name="role2Type">Role2's type and added to user</param>
+    /// <param name="userHasTenant">If true then tenant created and user linked to it</param>
+    public static AuthUser SetupUserWithDifferentRoleTypes(this AuthPermissionsDbContext context, RoleTypes role2Type, bool userHasTenant)
     {
         var rolePer1 = new RoleToPermissions("Role1", null, $"{(char)1}{(char)3}");
         var rolePer2 = new RoleToPermissions("Role2", null, $"{(char)2}{(char)3}", role2Type);
@@ -43,10 +41,9 @@ public class SetupUserWithRoles
         var status = AuthUser.CreateAuthUser("User1", "User1@g.com", null, rolesForUsers, tenant);
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
 
-        CurrentUser = status.Result;
-        context.Add(CurrentUser);
+        context.Add(status.Result);
         context.SaveChanges();
 
-        context.ChangeTracker.Clear();
+        return status.Result;
     }
 }
