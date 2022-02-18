@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExamplesCommonCode.CommonAdmin
 {
+    /// <summary>
+    /// This is the standard delete confirm where you need to display what uses are using a Role
+    /// </summary>
     public class RoleDeleteConfirmDto
     {
         public string RoleName { get; set; }
@@ -17,11 +20,13 @@ namespace ExamplesCommonCode.CommonAdmin
 
         public static async Task<RoleDeleteConfirmDto> FormRoleDeleteConfirmDtoAsync(string roleName, IAuthRolesAdminService rolesAdminService)
         {
-            var result = new RoleDeleteConfirmDto();
-            result.RoleName = roleName;
-            result.AuthUsers = await rolesAdminService.QueryUsersUsingThisRole(roleName)
-                .Select(x => new EmailAndUserNameDto(x.Email, x.UserName))
-                .ToListAsync();
+            var result = new RoleDeleteConfirmDto
+            {
+                RoleName = roleName,
+                AuthUsers = await rolesAdminService.QueryUsersUsingThisRole(roleName)
+                    .Select(x => new EmailAndUserNameDto(x.Email, x.UserName))
+                    .ToListAsync()
+            };
 
             return result;
         }
