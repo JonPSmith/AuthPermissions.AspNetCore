@@ -197,7 +197,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteRoleAsync(string roleName, bool removeFromUsers)
         {
-            var status = new StatusGenericHandler {Message = $"Successfully deleted the role {roleName}."};
+            var status = new StatusGenericHandler {Message = $"Successfully deleted the role {roleName}"};
 
             var existingRolePermission =
                 await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
@@ -205,15 +205,27 @@ namespace AuthPermissions.AdminCode.Services
             if (existingRolePermission == null)
                 return status.AddError($"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
 
-            var usersWithRoles = _context.UserToRoles.Where(x => x.RoleName == roleName).ToList();
+            var usersWithRoles = await _context.UserToRoles.Where(x => x.RoleName == roleName).ToListAsync();
+            int tenantCount = existingRolePermission.RoleType == RoleTypes.TenantAdminAdd || existingRolePermission.RoleType == RoleTypes.TenantAutoAdd
+                ? await QueryTenantsUsingThisRole(roleName).CountAsync() : 0;
+            if (!removeFromUsers)
+            {
+                if (usersWithRoles.Any())
+                    status.AddError($"That role is used in {usersWithRoles.Count} AuthUsers and you didn't confirm the delete.", 
+                    nameof(roleName).CamelToPascal());
+
+                if (tenantCount > 0)
+                    status.AddError(
+                        $"That role is used in {usersWithRoles.Count} tenants and you didn't confirm the delete.",
+                        nameof(roleName).CamelToPascal());
+
+                if (status.HasErrors)
+                    return status;
+            }
+
             if (usersWithRoles.Any())
             {
-                if (!removeFromUsers)
-                    return status.AddError(
-                        $"That role is used in {usersWithRoles.Count} AuthUsers and you didn't confirm the delete.", nameof(roleName).CamelToPascal());
-
                 _context.RemoveRange(usersWithRoles);
-                status.Message = $"Successfully deleted the role {roleName} and removed that role from {usersWithRoles.Count} users.";
             }
 
             if (status.HasErrors)
@@ -222,66 +234,16 @@ namespace AuthPermissions.AdminCode.Services
             _context.Remove(existingRolePermission);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
+            if (usersWithRoles.Any())
+                status.Message += $" and removed that role from {usersWithRoles.Count} users";
+            if (tenantCount > 0)
+                status.Message += $" and removed that role from {tenantCount} tenants";
+            status.Message += ".";
             return status;
         }
 
         //---------------------------------------------------------
         // private methods
-
-        /// <summary>
-        /// This will return errors of the new RoleType of a Role doesn't work for the current users and Tenants
-        /// </summary>
-        /// <returns></returns>
-        private async Task<IStatusGeneric> CheckRoleIsStillValidInUsersAndTenantsAsync(string roleName, RoleTypes originalRoleType, RoleTypes newRoleType)
-        {
-            var status = new StatusGenericHandler();
-
-            if (newRoleType == RoleTypes.HiddenFromTenant)
-            {
-                var tenantsUsingThisRole = await _context.RoleToPermissions.Where(x => x.RoleName == roleName)
-                    .Select(x => x.Tenants.Select(y => y.TenantFullName))
-                    .SingleOrDefaultAsync() ?? Array.Empty<string>();
-
-                foreach (var tenantName in tenantsUsingThisRole)
-                {
-                    status.AddError($"The Role {roleName} has been set to {newRoleType}, " +
-                                    $"which means it can't be used in tenant {tenantName}");
-                }
-
-                //This checks the AuthUsers linked to a tenant haven't got this Role
-                foreach (var user in await QueryUsersUsingThisRole(roleName).Where(x => x.TenantId != null).ToArrayAsync())
-                {
-                    status.AddError($"The Role {roleName} has been set to {newRoleType}, " +
-                                    $"which means it can't be used in the user {user.NameToUseForError}");
-                }
-            }
-            else if (newRoleType == RoleTypes.TenantAutoAdd)
-            {
-                //No user should have an RoleTypes.TenantAutoAdd in the user's Roles
-                foreach (var user in await QueryUsersUsingThisRole(roleName).ToArrayAsync())
-                {
-                    status.AddError($"The Role {roleName} has been set to {newRoleType}, " +
-                                    $"which means it can't be directly to the user {user.NameToUseForError}");
-                }
-            }
-            
-            
-            if (originalRoleType == RoleTypes.TenantAdminAdd || originalRoleType == RoleTypes.TenantAutoAdd)
-            {
-                //If you are changing a Tenant Role, then that Role shouldn't any in the tenant's Roles
-                var tenantsWithThisRole = await QueryTenantsUsingThisRole(roleName)
-                    .Select(x => x.TenantFullName)
-                    .ToListAsync();
-                foreach (var tenantName in tenantsWithThisRole)
-                {
-                    if (newRoleType != RoleTypes.TenantAutoAdd && newRoleType != RoleTypes.TenantAdminAdd)
-                        status.AddError($"To change the Role {roleName} from {originalRoleType} to {newRoleType} " +
-                                    $"you must remove that Role from the {tenantName} tenant");
-                }
-            }
-
-            return status;
-        }
 
         private IQueryable<RoleWithPermissionNamesDto> MapToRoleWithPermissionNamesDto(
             IQueryable<RoleToPermissions> roleToPermissions)

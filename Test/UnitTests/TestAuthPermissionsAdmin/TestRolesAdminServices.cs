@@ -240,7 +240,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             if (status.IsValid)
             {
                 service.QueryUsersUsingThisRole("Role2").Count().ShouldEqual(0);
-                status.Message.ShouldEqual("Successfully deleted the role Role2 and removed that role from 2 users.");
+                status.Message.ShouldEqual("Successfully deleted the role Role2 and removed that role from 2 users .");
             }
         }
     }

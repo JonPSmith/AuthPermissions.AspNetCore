@@ -13,6 +13,7 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using EntityFramework.Exceptions.SqlServer;
+using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -31,6 +32,88 @@ public class TestIssue0013
     public TestIssue0013(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Theory]
+    [ClassData(typeof(AllPossibleRoleTypeChanges))]
+    public async Task TestUpdateRoleToPermissionsAsync_(RoleTypes originalType, RoleTypes updatedType, bool hasErrors)
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        await SetupRoleUserAndPossibleTenant(originalType, context);
+        context.ChangeTracker.Clear();
+
+        var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } });
+
+        //ATTEMPT
+        var status = await service.UpdateRoleToPermissionsAsync("Role1", new[] { "One" }, null, updatedType);
+
+        //VERIFY
+        if (status.HasErrors)
+            _output.WriteLine(status.GetAllErrors());
+        status.HasErrors.ShouldEqual(hasErrors);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task DeleteRoleAsyncWithUsers(bool removeFromUser)
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        await SetupRoleUserAndPossibleTenant(RoleTypes.TenantAdminAdd, context);
+        context.ChangeTracker.Clear();
+
+        var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } });
+
+        //ATTEMPT
+        var status = await service.DeleteRoleAsync("Role1", removeFromUser);
+
+        //VERIFY
+        status.IsValid.ShouldEqual(removeFromUser);
+        if (status.IsValid)
+        {
+            context.ChangeTracker.Clear();
+            service.QueryUsersUsingThisRole("Role1").Count().ShouldEqual(0);
+            status.Message.ShouldEqual("Successfully deleted the role Role1 and removed that role from 1 users and removed that role from 1 tenants.");
+        }
+    }
+
+
+    //-------------------------------------------------------------
+    //setup code
+
+    private static async Task SetupRoleUserAndPossibleTenant(RoleTypes originalType, AuthPermissionsDbContext context)
+    {
+        var role = new RoleToPermissions("Role1", null, $"{(char)1}{(char)3}", originalType);
+        context.Add(role);
+        await context.SaveChangesAsync();
+        Tenant tenant = null;
+        if (originalType != RoleTypes.HiddenFromTenant)
+        {
+            var tenantRoles = originalType == RoleTypes.TenantAutoAdd || originalType == RoleTypes.TenantAdminAdd
+                ? new List<RoleToPermissions> { role }
+                : new List<RoleToPermissions>();
+            tenant = Tenant.CreateSingleTenant("Tenant1", tenantRoles).Result;
+        }
+
+        if (originalType == RoleTypes.Normal
+            || originalType == RoleTypes.TenantAdminAdd
+            || originalType == RoleTypes.HiddenFromTenant)
+        {
+            var userStatus = AuthUser.CreateAuthUser("User1", "User1@g.com", null,
+                new List<RoleToPermissions> { role }, tenant);
+            userStatus.IsValid.ShouldBeTrue(userStatus.GetAllErrors());
+            context.Add(userStatus.Result);
+        }
+
+        context.SaveChanges();
     }
 
     private class AllPossibleRoleTypeChanges : IEnumerable<object[]>
@@ -69,48 +152,4 @@ HiddenFromTenant 	TenantAutoAdd 	ERROR 	impossible
 HiddenFromTenant 	TenantAdminAdd 	ERROR 	impossible";
     }
 
-    [Theory]
-    [ClassData(typeof(AllPossibleRoleTypeChanges))]
-    public async Task TestUpdateRoleToPermissionsAsync_(RoleTypes originalType, RoleTypes updatedType, bool hasErrors)
-    {
-        //SETUP
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-        using var context = new AuthPermissionsDbContext(options);
-        context.Database.EnsureCreated();
-
-        var role = new RoleToPermissions("Role1", null, $"{(char)1}{(char)3}", originalType);
-        context.Add(role);
-        await context.SaveChangesAsync();
-        Tenant tenant = null;
-        if (originalType != RoleTypes.HiddenFromTenant)
-        {
-            var tenantRoles = originalType == RoleTypes.TenantAutoAdd || originalType == RoleTypes.TenantAdminAdd
-            ? new List<RoleToPermissions> { role }
-            : new List<RoleToPermissions>( );
-            tenant = Tenant.CreateSingleTenant("Tenant1", tenantRoles).Result;
-        }
-
-        if (originalType == RoleTypes.Normal 
-            || originalType == RoleTypes.TenantAdminAdd 
-            || originalType == RoleTypes.HiddenFromTenant)
-        {
-            var userStatus = AuthUser.CreateAuthUser("User1", "User1@g.com", null, 
-                new List<RoleToPermissions> { role }, tenant);
-            userStatus.IsValid.ShouldBeTrue(userStatus.GetAllErrors());
-            context.Add(userStatus.Result);
-        }
-        context.SaveChanges();
-
-        context.ChangeTracker.Clear();
-
-        var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } });
-
-        //ATTEMPT
-        var status = await service.UpdateRoleToPermissionsAsync("Role1", new[] { "One" }, null, updatedType);
-
-        //VERIFY
-        if (status.HasErrors)
-            _output.WriteLine(status.GetAllErrors());
-        status.HasErrors.ShouldEqual(hasErrors);
-    }
 }

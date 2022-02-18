@@ -39,6 +39,13 @@ namespace AuthPermissions.AdminCode
         IQueryable<AuthUser> QueryUsersUsingThisRole(string roleName);
 
         /// <summary>
+        /// This returns a query containing all the Tenants that have given role name
+        /// </summary>
+        /// <param name="roleName"></param>
+        /// <returns></returns>
+        public IQueryable<Tenant> QueryTenantsUsingThisRole(string roleName);
+
+        /// <summary>
         /// This creates a new RoleToPermissions with the given description and permissions defined by the names
         /// NOTE: This should not be called by a user that has a tenant, but this isn't checked
         /// </summary>
