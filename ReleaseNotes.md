@@ -5,6 +5,7 @@
 - New Feature: You can add extra claims to the user via the RegisterAddClaimToUser method
 - New Feature: Tap into AuthPermissionsDbContext events by registering a service implmenting the IRegisterStateChangeEvent interface
 - Bug Fix: UpdateRoleToPermissionsAsync now return errors if a Role change is invalid for a user or tenants that is that Role - see issue #13
+- Bug Fix: DeleteRoleAsync now handles tenant Roles - see issue #13
 
 ## 2.2.0
 

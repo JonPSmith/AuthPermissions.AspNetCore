@@ -166,26 +166,18 @@ namespace AuthPermissions.AdminCode.Services
             //Find the tenant
             var foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyTenantName
                 ? null
-                : await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
+                : await _context.Tenants.Include(x => x.TenantRoles)
+                    .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
             if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyTenantName && foundTenant == null)
                 status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
 
-            //Find the roles
-            var foundRoles = roleNames?.Any() == true
-                ? await _context.RoleToPermissions
-                    .Where(x => roleNames.Contains(x.RoleName))
-                    .ToListAsync()
-                : new List<RoleToPermissions>();
-            if (foundRoles.Count != (roleNames?.Count ?? 0))
-                throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
+            //Find/check the roles
+            var rolesStatus = await FindCheckRolesAreValidForUserAsync(roleNames, foundTenant, userName ?? email);
 
-            if (foundRoles.Any())
-                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, foundTenant != null, userName ?? email));
-
-            if (status.HasErrors)
+            if (status.CombineStatuses(rolesStatus).HasErrors)
                 return status;
 
-            var authUserStatus = AuthUser.CreateAuthUser(userId, email, userName, foundRoles, foundTenant);
+            var authUserStatus = AuthUser.CreateAuthUser(userId, email, userName, rolesStatus.Result, foundTenant);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
 
@@ -225,22 +217,15 @@ namespace AuthPermissions.AdminCode.Services
             //Find the tenant
             var foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyTenantName
                 ? null
-                : await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
+                : await _context.Tenants.Include(x => x.TenantRoles)
+                    .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
             if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyTenantName && foundTenant == null)
                 status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
 
-            var foundRoles = roleNames?.Any() == true
-                ? await _context.RoleToPermissions
-                    .Where(x => roleNames.Contains(x.RoleName))
-                    .ToListAsync()
-                : new List<RoleToPermissions>();
-            if (foundRoles.Count != (roleNames?.Count ?? 0))
-                throw new AuthPermissionsBadDataException("One or more role names weren't found in the database.");
+            //Find/check Roles
+            var rolesStatus = await FindCheckRolesAreValidForUserAsync(roleNames, foundTenant, userName ?? email);
 
-            if (foundRoles.Any())
-                status.CombineStatuses(CheckRolesAreValidForUser(foundRoles, foundTenant != null, userName ?? email));
-
-            if (status.HasErrors)
+            if (status.CombineStatuses(rolesStatus).HasErrors)
                 return status;
 
             //Now we update the existing AuthUser
@@ -251,9 +236,9 @@ namespace AuthPermissions.AdminCode.Services
                 .ToList();
                
             authUserToUpdate.UpdateUserTenant(foundTenant);
-            if (foundRoles.Count != existingRoleNames.Count || existingRoleNames != roleNames.OrderBy(x => x))
+            if (rolesStatus.Result.Count != existingRoleNames.Count || existingRoleNames != roleNames.OrderBy(x => x))
                 //Different roles, so change
-                authUserToUpdate.ReplaceAllRoles(foundRoles);
+                authUserToUpdate.ReplaceAllRoles(rolesStatus.Result);
 
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
@@ -442,30 +427,43 @@ namespace AuthPermissions.AdminCode.Services
         // private methods
 
         /// <summary>
-        /// This checks that the roles are valid for this type of user
+        /// This finds and checks that the roles are valid for this type of user and tenant
         /// </summary>
-        /// <param name="foundRoles"></param>
-        /// <param name="tenantUser"></param>
+        /// <param name="roleNames"></param>
+        /// <param name="usersTenant">NOTE: must include the tenant's roles</param>
         /// <param name="userName">name/email of the user</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private IStatusGeneric CheckRolesAreValidForUser(List<RoleToPermissions> foundRoles, bool tenantUser, string userName)
+        private async Task<IStatusGeneric<List<RoleToPermissions>>> FindCheckRolesAreValidForUserAsync(List<string> roleNames, Tenant usersTenant, string userName)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericHandler<List<RoleToPermissions>>();
 
-            foreach (var foundRole in foundRoles)
+            var foundRoles = roleNames?.Any() == true
+                ? await _context.RoleToPermissions
+                    .Where(x => roleNames.Contains(x.RoleName))
+                    .ToListAsync()
+                : new List<RoleToPermissions>();
+            if (foundRoles.Count != (roleNames?.Count ?? 0))
             {
-                switch (tenantUser)
-                {
-                    case true when foundRole.RoleType == RoleTypes.HiddenFromTenant:
-                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to the user '{userName}' because this role isn't allowed to tenant users.");
-                        break;
-                    case true when foundRole.RoleType == RoleTypes.TenantAutoAdd:
-                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to the user '{userName}' because it is automatically to tenant users.");
-                        break;
-                }
+                foreach (var badRoleName in roleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
+                    status.AddError($"The Role '{badRoleName}' was not found in the lists of Roles.");
             }
 
+            //Check that the Roles are allowed for this user
+            foreach (var foundRole in foundRoles)
+            {
+                if (usersTenant == null && foundRole.RoleType == RoleTypes.TenantAdminAdd)
+                    status.AddError($"The role '{foundRole.RoleName}' isn't allowed to a non-tenant user.");
+
+                if (usersTenant != null && foundRole.RoleType == RoleTypes.HiddenFromTenant)
+                    status.AddError($"The role '{foundRole.RoleName}' isn't allowed to tenant user.");
+                
+                if (usersTenant != null && foundRole.RoleType == RoleTypes.TenantAdminAdd
+                    && !usersTenant.TenantRoles.Contains(foundRole))
+                    status.AddError($"The role '{foundRole.RoleName}' wasn't found in the tenant '{usersTenant.TenantFullName}' tenant roles.");
+            }
+
+            status.SetResult(foundRoles);
             return status;
         }
 

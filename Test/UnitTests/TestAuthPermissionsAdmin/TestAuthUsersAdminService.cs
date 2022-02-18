@@ -132,7 +132,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
         [Theory]
         [InlineData(RoleTypes.Normal, true)]
-        [InlineData(RoleTypes.TenantAdminAdd, true)]
+        [InlineData(RoleTypes.TenantAdminAdd, false)]
         [InlineData(RoleTypes.TenantAutoAdd, false)]
         [InlineData(RoleTypes.HiddenFromTenant, false)]
         public async Task TestAddNewUserAsyncTenant(RoleTypes roleType, bool success)
@@ -157,9 +157,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 new List<string> { "Role1", "Role2" }, "Tenant1");
 
             //VERIFY
-            status.IsValid.ShouldEqual(success);
             if (status.HasErrors)
                 _output.WriteLine(status.GetAllErrors());
+            status.IsValid.ShouldEqual(success);
         }
 
         [Theory]
