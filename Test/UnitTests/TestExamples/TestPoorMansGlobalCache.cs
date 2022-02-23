@@ -3,7 +3,7 @@
 
 
 using System;
-using Example4.ShopCode.RefreshUsersClaims;
+using ExamplesCommonCode.CommonServices;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;
@@ -13,11 +13,11 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestExamples;
 
-public class TestPoorMansGlobalChangeTimeService
+public class TestPoorMansGlobalCache
 {
     private readonly ITestOutputHelper _output;
 
-    public TestPoorMansGlobalChangeTimeService(ITestOutputHelper output)
+    public TestPoorMansGlobalCache(ITestOutputHelper output)
     {
         _output = output;
     }
@@ -27,16 +27,14 @@ public class TestPoorMansGlobalChangeTimeService
     {
         //SETUP
         var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalChangeTimeService(stubEnv);
-        service.DeleteGlobalFile();
+        var service = new PoorMansGlobalCache(stubEnv);
+        service.Remove("Test");
 
         //ATTEMPT
-        using(new TimeThings(_output, "write"))
-            service.SetGlobalChangeTimeToNowUtc();
+        var content = service.Get("Test");
 
         //VERIFY
-        using (new TimeThings(_output, "read"))
-            service.GetGlobalChangeTimeUtc().ShouldBeInRange(DateTime.UtcNow.AddMilliseconds(-200), DateTime.UtcNow);
+        content.ShouldBeNull();
     }
 
     [Fact]
@@ -44,46 +42,47 @@ public class TestPoorMansGlobalChangeTimeService
     {
         //SETUP
         var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalChangeTimeService(stubEnv);
-        service.SetGlobalChangeTimeToNowUtc();
+        var service = new PoorMansGlobalCache(stubEnv);
+        var guid = Guid.NewGuid().ToString();
 
         //ATTEMPT
-        using (new TimeThings(_output, "write"))
-            service.SetGlobalChangeTimeToNowUtc();
+        service.Set("Test", guid);
 
         //VERIFY
-        using (new TimeThings(_output, "read"))
-            service.GetGlobalChangeTimeUtc().ShouldBeInRange(DateTime.UtcNow.AddMilliseconds(-200), DateTime.UtcNow);
+        service.Get("Test").ShouldEqual(guid);
     }
 
     [Fact]
-    public void TestGetGlobalChangeTimeUtc_NoFile()
+    public void TestGetGlobalChangeTimeUtc_Performance_Exists()
     {
         //SETUP
         var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalChangeTimeService(stubEnv);
-        service.DeleteGlobalFile();
-
-        //ATTEMPT
-        var dateTime = service.GetGlobalChangeTimeUtc();
-
-        //VERIFY
-        dateTime.ShouldEqual(DateTime.MinValue);
-    }
-
-    [Fact]
-    public void TestGetGlobalChangeTimeUtc_Performance()
-    {
-        //SETUP
-        var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalChangeTimeService(stubEnv);
-        service.SetGlobalChangeTimeToNowUtc();
+        var service = new PoorMansGlobalCache(stubEnv);
+        service.Set("Test", "hello");
 
         //ATTEMPT
         for (int i = 0; i < 10; i++)
         {
             using (new TimeThings(_output, "write"))
-                service.GetGlobalChangeTimeUtc();
+                service.Get("PerformanceTest");
+        }
+
+        //VERIFY
+    }
+
+    [Fact]
+    public void TestGetGlobalChangeTimeUtc_Performance_NoExists()
+    {
+        //SETUP
+        var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
+        var service = new PoorMansGlobalCache(stubEnv);
+        service.Remove("Test");
+
+        //ATTEMPT
+        for (int i = 0; i < 10; i++)
+        {
+            using (new TimeThings(_output, "write"))
+                service.Get("PerformanceTest");
         }
 
         //VERIFY
