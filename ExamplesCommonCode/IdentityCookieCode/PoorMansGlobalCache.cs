@@ -4,13 +4,13 @@
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
-namespace ExamplesCommonCode.CommonServices;
+namespace ExamplesCommonCode.IdentityCookieCode;
 
 /// <summary>
 /// This service handles the reading and writing of a a text file into a global directory shared by all instances of the application
 /// I call this a "Poor Mans" version as it uses a text file.That works, but its slow compared to a Distributed Memory Cache or Redis
 /// </summary>
-public class PoorMansGlobalCache : IPoorMansGlobalCache
+public class PoorMansGlobalCache 
 {
     private readonly string _webRootPath;
 

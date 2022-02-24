@@ -22,7 +22,7 @@ public static class TenantChangeCookieEvent
 {
     /// <summary>
     /// This updates the users claims when an the global change time is newer than the time in the user's
-    /// <see cref="RefreshClaimsExtensions.TimeToRefreshUserClaimType"/> claim.
+    /// <see cref="TimeClaimExtensions.TimeToRefreshUserClaimType"/> claim.
     /// Useful for updating the claims if something is changed
     /// </summary>
     /// <param name="context"></param>
@@ -30,8 +30,8 @@ public static class TenantChangeCookieEvent
     public static async Task UpdateIfGlobalTimeChangedAsync(CookieValidatePrincipalContext context)
     {
         var originalClaims = context.Principal.Claims.ToList();
-        var globalAccessor = context.HttpContext.RequestServices.GetRequiredService<IGlobalChangeTimeService>();
-        var lastUpdateUtc = globalAccessor.GetGlobalChangeTimeUtc();
+        var globalTimeService = context.HttpContext.RequestServices.GetRequiredService<IGlobalChangeTimeService>();
+        var lastUpdateUtc = globalTimeService.GetGlobalChangeTimeUtc();
 
         if (originalClaims.GetTimeToRefreshUserValue() < lastUpdateUtc)
         {

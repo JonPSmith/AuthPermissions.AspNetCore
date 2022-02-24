@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using RunMethodsSequentially;
 using AuthPermissions.AspNetCore.StartupServices;
 using Example3.InvoiceCode.Services;
+using ExamplesCommonCode.IdentityCookieCode;
 
 namespace Example3.MvcWebApp.IndividualAccounts
 {
@@ -45,6 +46,11 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
+            services.ConfigureApplicationCookie(options =>
+            {
+                //this will cause all the logged-in users to have their claims periodically updated
+                options.Events.OnValidatePrincipal = PeriodicCookieEvent.PeriodicRefreshUsersClaims;
+            });
 
 
             services.RegisterAuthPermissions<Example3Permissions>(options =>
@@ -59,6 +65,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 .UsingEfCoreSqlServer(connectionString)
                 .IndividualAccountsAuthentication()
                 .RegisterAddClaimToUser<AddTenantNameClaim>()
+                .RegisterAddClaimToUser<AddRefreshEveryMinuteClaim>()
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.RolesDefinition)
                 .AddTenantsIfEmpty(Example3AppAuthSetupData.TenantDefinition)

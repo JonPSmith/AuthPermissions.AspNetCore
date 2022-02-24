@@ -8,8 +8,9 @@ using System.Security.Claims;
 
 namespace ExamplesCommonCode.IdentityCookieCode;
 
-public static class RefreshClaimsExtensions
+public static class TimeClaimExtensions
 {
+
     /// <summary>
     /// Used in the "periodically update user's claims" feature
     /// </summary>
@@ -23,7 +24,7 @@ public static class RefreshClaimsExtensions
     /// <returns></returns>
     public static Claim CreateTimeToRefreshUserClaim(this TimeSpan timeTillNextRefresh)
     {
-        return new Claim(TimeToRefreshUserClaimType, DateTime.UtcNow.Add(timeTillNextRefresh).ToString("O"));
+        return new Claim(TimeToRefreshUserClaimType, DateTime.UtcNow.Add(timeTillNextRefresh).DateTimeToStringUtc());
     }
 
     /// <summary>
@@ -34,12 +35,27 @@ public static class RefreshClaimsExtensions
     /// <returns></returns>
     public static DateTime GetTimeToRefreshUserValue(this List<Claim> usersClaims)
     {
-        var refreshTimeString = usersClaims.FirstOrDefault(x => x.Type == RefreshClaimsExtensions.TimeToRefreshUserClaimType)?.Value;
-
-        return refreshTimeString == null
-            ? DateTime.MinValue
-            : DateTime.SpecifyKind(DateTime.Parse(refreshTimeString), DateTimeKind.Utc);
+        var refreshTimeString = usersClaims.FirstOrDefault(x => x.Type == TimeToRefreshUserClaimType)?.Value;
+        return refreshTimeString?.StringToDateTimeUtc() ?? DateTime.MinValue;
     }
 
+    /// <summary>
+    /// This sets the dateTime to UTC and then turns into a parseable string
+    /// </summary>
+    /// <param name="dateTime"></param>
+    /// <returns></returns>
+    public static string DateTimeToStringUtc(this DateTime dateTime)
+    {
+        return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).ToString("O");
+    }
 
+    /// <summary>
+    /// This parses the string into a DateTime and the DateTime is set to UTC
+    /// </summary>
+    /// <param name="dateTimeString"></param>
+    /// <returns></returns>
+    public static DateTime StringToDateTimeUtc(this string dateTimeString)
+    {
+        return DateTime.SpecifyKind(DateTime.Parse(dateTimeString), DateTimeKind.Utc);
+    }
 }
