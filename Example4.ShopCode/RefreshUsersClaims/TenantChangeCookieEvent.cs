@@ -20,9 +20,11 @@ namespace Example4.ShopCode.RefreshUsersClaims;
 /// </summary>
 public static class TenantChangeCookieEvent
 {
+    public const string EntityChangeClaimType = "EntityChangeClaim";
+
     /// <summary>
     /// This updates the users claims when an the global change time is newer than the time in the user's
-    /// <see cref="TimeClaimExtensions.TimeToRefreshUserClaimType"/> claim.
+    /// <see cref="PeriodicCookieEvent.TimeToRefreshUserClaimType"/> claim.
     /// Useful for updating the claims if something is changed
     /// </summary>
     /// <param name="context"></param>
@@ -33,7 +35,7 @@ public static class TenantChangeCookieEvent
         var globalTimeService = context.HttpContext.RequestServices.GetRequiredService<IGlobalChangeTimeService>();
         var lastUpdateUtc = globalTimeService.GetGlobalChangeTimeUtc();
 
-        if (originalClaims.GetTimeToRefreshUserValue() < lastUpdateUtc)
+        if (originalClaims.GetClaimDateTimeUtcValue(EntityChangeClaimType) < lastUpdateUtc)
         {
             //Need to refresh the user's claims 
             var userId = originalClaims.GetUserIdFromClaims();

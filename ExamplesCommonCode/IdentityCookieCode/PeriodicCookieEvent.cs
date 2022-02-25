@@ -19,6 +19,11 @@ namespace ExamplesCommonCode.IdentityCookieCode;
 public static class PeriodicCookieEvent
 {
     /// <summary>
+    /// Used in the "periodically update user's claims" feature
+    /// </summary>
+    public const string TimeToRefreshUserClaimType = "TimeToRefreshUserClaim";
+
+    /// <summary>
     /// This method will be called on every HTTP request where a user is logged in (therefore you should keep the No change code quick)
     /// This method implements a way to update user's claims defined by a claim with the Type 
     /// <see cref="RefreshClaimsExtensions.TimeToRefreshUserClaimType"/>, which contains the time by which the refresh should occur.
@@ -28,7 +33,7 @@ public static class PeriodicCookieEvent
     {
         var originalClaims = context.Principal.Claims.ToList();
 
-        if (originalClaims.GetTimeToRefreshUserValue() < DateTime.UtcNow)
+        if (originalClaims.GetClaimDateTimeUtcValue(TimeToRefreshUserClaimType) < DateTime.UtcNow)
         {
             //Need to refresh the user's claims 
             var userId = originalClaims.GetUserIdFromClaims();

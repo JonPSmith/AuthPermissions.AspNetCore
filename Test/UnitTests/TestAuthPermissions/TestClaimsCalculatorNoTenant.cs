@@ -70,8 +70,9 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
             claims.Count.ShouldEqual(1);
-            claims.Single().Type.ShouldEqual(TimeClaimExtensions.TimeToRefreshUserClaimType);
-            claims.GetTimeToRefreshUserValue().ShouldBeInRange(DateTime.UtcNow.AddSeconds(59), DateTime.UtcNow.AddSeconds(61));
+            claims.Single().Type.ShouldEqual(PeriodicCookieEvent.TimeToRefreshUserClaimType);
+            claims.GetClaimDateTimeUtcValue(PeriodicCookieEvent.TimeToRefreshUserClaimType)
+                .ShouldBeInRange(DateTime.UtcNow.AddSeconds(59), DateTime.UtcNow.AddSeconds(61));
         }
 
         [Fact]

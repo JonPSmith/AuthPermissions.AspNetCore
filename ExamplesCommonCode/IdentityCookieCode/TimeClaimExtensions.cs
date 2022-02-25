@@ -10,21 +10,16 @@ namespace ExamplesCommonCode.IdentityCookieCode;
 
 public static class TimeClaimExtensions
 {
-
     /// <summary>
-    /// Used in the "periodically update user's claims" feature
+    /// This creates a claim containing the UTC time, with a possible offset
     /// </summary>
-    public const string TimeToRefreshUserClaimType = "TimeToRefreshUserClaim";
-
-    /// <summary>
-    /// This creates the TimeToRefreshUserClaims claim containing the UTC time when the user's claims should be recalculated
-    /// </summary>
-    /// <param name="timeTillNextRefresh">This is the timespan to add on to the current UtcNow to define the time when
-    /// the user's claims should be refreshed</param>
+    /// <param name="claimName"></param>
+    /// <param name="offset">This is the timespan to add on to the current UtcNow to define the time when
+    ///     the user's claims should be refreshed</param>
     /// <returns></returns>
-    public static Claim CreateTimeToRefreshUserClaim(this TimeSpan timeTillNextRefresh)
+    public static Claim CreateClaimDateTimeUtcValue(this string claimName, TimeSpan offset = default)
     {
-        return new Claim(TimeToRefreshUserClaimType, DateTime.UtcNow.Add(timeTillNextRefresh).DateTimeToStringUtc());
+        return new Claim(claimName, DateTime.UtcNow.Add(offset).DateTimeToStringUtc());
     }
 
     /// <summary>
@@ -32,10 +27,11 @@ public static class TimeClaimExtensions
     /// then it returns <see cref="DateTime.MinValue"/>
     /// </summary>
     /// <param name="usersClaims">A list of the claims found in the current principal user</param>
+    /// <param name="claimName"></param>
     /// <returns></returns>
-    public static DateTime GetTimeToRefreshUserValue(this List<Claim> usersClaims)
+    public static DateTime GetClaimDateTimeUtcValue(this List<Claim> usersClaims, string claimName)
     {
-        var refreshTimeString = usersClaims.FirstOrDefault(x => x.Type == TimeToRefreshUserClaimType)?.Value;
+        var refreshTimeString = usersClaims.FirstOrDefault(x => x.Type == claimName)?.Value;
         return refreshTimeString?.StringToDateTimeUtc() ?? DateTime.MinValue;
     }
 

@@ -5,8 +5,9 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions;
+using ExamplesCommonCode.IdentityCookieCode;
 
-namespace ExamplesCommonCode.IdentityCookieCode;
+namespace Example4.ShopCode.RefreshUsersClaims;
 
 public class AddGlobalChangeTimeClaim : IClaimsAdder
 {
@@ -17,7 +18,7 @@ public class AddGlobalChangeTimeClaim : IClaimsAdder
     /// <returns></returns>
     public Task<Claim> AddClaimToUserAsync(string userId)
     {
-        var claim = new TimeSpan(0, 0, 0, 0).CreateTimeToRefreshUserClaim();
+        var claim = TenantChangeCookieEvent.EntityChangeClaimType.CreateClaimDateTimeUtcValue();
         return Task.FromResult(claim);
     }
 }
