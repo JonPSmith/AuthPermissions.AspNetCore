@@ -14,7 +14,7 @@ public static class TimeClaimExtensions
     /// <summary>
     /// Used in the "periodically update user's claims" feature
     /// </summary>
-    public const string TimeToRefreshUserClaimType = "TimeToRefreshUserClaims";
+    public const string TimeToRefreshUserClaimType = "TimeToRefreshUserClaim";
 
     /// <summary>
     /// This creates the TimeToRefreshUserClaims claim containing the UTC time when the user's claims should be recalculated

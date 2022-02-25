@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.EfCode;
 
 namespace Example3.InvoiceCode.Services;
 
