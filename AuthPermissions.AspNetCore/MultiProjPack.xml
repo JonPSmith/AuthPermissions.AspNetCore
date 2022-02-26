@@ -4,13 +4,17 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-- New Feature: Added "Access the data of other tenant" feature - see issue #10
+- New Feature: You can add extra claims to the user via the RegisterAddClaimToUser method
+- New Feature: Tap into AuthPermissionsDbContext events by registering a service implmenting the IRegisterStateChangeEvent interface
+- Bug Fix: UpdateRoleToPermissionsAsync now return errors if a Role change is invalid for a user or tenants that is that Role - see issue #13
+- Bug Fix: DeleteRoleAsync now handles tenant Roles - see issue #13
+- Bug Fix: Add or update of an AuthUser now checks the tenant has the correct Roles - see issue #15
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
