@@ -26,7 +26,7 @@ public static class PeriodicCookieEvent
     /// <summary>
     /// This method will be called on every HTTP request where a user is logged in (therefore you should keep the No change code quick)
     /// This method implements a way to update user's claims defined by a claim with the Type 
-    /// <see cref="RefreshClaimsExtensions.TimeToRefreshUserClaimType"/>, which contains the time by which the refresh should occur.
+    /// <see cref="TimeToRefreshUserClaimType"/>, which contains the time by which the refresh should occur.
     /// </summary>
     /// <param name="context"></param>
     public static async Task PeriodicRefreshUsersClaims(CookieValidatePrincipalContext context)

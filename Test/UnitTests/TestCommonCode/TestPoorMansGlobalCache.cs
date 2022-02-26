@@ -27,7 +27,7 @@ public class TestPoorMansGlobalCache
     {
         //SETUP
         var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalCache(stubEnv);
+        var service = new GlobalFileStoreManager(stubEnv);
         service.Remove("Test");
 
         //ATTEMPT
@@ -42,7 +42,7 @@ public class TestPoorMansGlobalCache
     {
         //SETUP
         var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalCache(stubEnv);
+        var service = new GlobalFileStoreManager(stubEnv);
         var guid = Guid.NewGuid().ToString();
 
         //ATTEMPT
@@ -57,7 +57,7 @@ public class TestPoorMansGlobalCache
     {
         //SETUP
         var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalCache(stubEnv);
+        var service = new GlobalFileStoreManager(stubEnv);
         service.Set("Test", "hello");
 
         //ATTEMPT
@@ -75,7 +75,7 @@ public class TestPoorMansGlobalCache
     {
         //SETUP
         var stubEnv = new StubWebHostEnvironment { WebRootPath = TestData.GetTestDataDir() };
-        var service = new PoorMansGlobalCache(stubEnv);
+        var service = new GlobalFileStoreManager(stubEnv);
         service.Remove("Test");
 
         //ATTEMPT

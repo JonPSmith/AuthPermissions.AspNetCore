@@ -9,17 +9,17 @@ namespace Example4.ShopCode.RefreshUsersClaims;
 
 /// <summary>
 /// This service handles the reading and writing of a DateTime to a place that all instances of the application
-/// Its uses <see cref="PoorMansGlobalCache"/> which uses a File - that works but a common cache like Redis would be perform better
+/// Its uses <see cref="GlobalFileStoreManager"/> which uses a File - that works but a common cache like Redis would be perform better
 /// </summary>
 public class GlobalChangeTimeService : IGlobalChangeTimeService
 {
     private const string ChangedTimeFileName = "GlobalChangedTimeUtc";
 
-    private readonly PoorMansGlobalCache _globalCache;
+    private readonly GlobalFileStoreManager _globalCache;
 
     public GlobalChangeTimeService(IWebHostEnvironment environment)
     {
-        _globalCache = new PoorMansGlobalCache(environment);
+        _globalCache = new GlobalFileStoreManager(environment);
     }
 
     /// <summary>
