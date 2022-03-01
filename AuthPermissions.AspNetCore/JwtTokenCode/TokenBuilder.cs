@@ -17,7 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace AuthPermissions.AspNetCore.JwtTokenCode
 {
     /// <summary>
-    /// This contains the code to create/refresh JST tokens
+    /// This contains the code to create/refresh JWT tokens
     /// </summary>
     public class TokenBuilder : ITokenBuilder
     {
