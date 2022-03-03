@@ -5,6 +5,7 @@ using System.Linq;
 using AuthPermissions.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using TestSupport.Attributes;
 using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,17 +15,18 @@ namespace Test.UnitTests.TestAuthPermissions;
 
 public class TestVersion2MigrateDataKey
 {
-    private ITestOutputHelper _output;
+    private readonly ITestOutputHelper _output;
 
     public TestVersion2MigrateDataKey(ITestOutputHelper output)
     {
         _output = output;
     }
 
-    [Fact]
+    [RunnableInDebugOnly]
     public void TestMigrateVersion1AuthPermissionsDbContext()
     {
         //SETUP
+        //Needs special database only on Jon P Smith's PC
         var connectionString = AppSettings.GetConfiguration().GetConnectionString("Version1Example4");
         var builder = new DbContextOptionsBuilder<AuthPermissionsDbContext>();
         builder.UseSqlServer(connectionString);
