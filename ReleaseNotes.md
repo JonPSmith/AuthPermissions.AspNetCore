@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.3.1
+
+- Bug Fix: Problem in ClaimCalculator when used with multi-tenant applications - see issue #23 
+
 ## 2.3.0
 
 - New Feature: You can add extra claims to the user via the RegisterAddClaimToUser method

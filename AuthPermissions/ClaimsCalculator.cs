@@ -77,21 +77,24 @@ namespace AuthPermissions
         private async Task<string> CalcPermissionsForUserAsync(string userId)
         {
             //This gets all the permissions, with a distinct to remove duplicates
-            var permissionsForAllRoles = (await _context.UserToRoles.Where(x => x.UserId == userId)
+            var permissionsForAllRoles = await _context.UserToRoles
+                .Where(x => x.UserId == userId)
                 .Select(x => x.Role.PackedPermissionsInRole)
-                .ToListAsync());
+                .ToListAsync();
 
             if (_options.TenantType != TenantTypes.NotUsingTenants)
             {
                 //We need to add any RoleTypes.TenantAdminAdd for a tenant user
 
-                var autoAddRoles = await _context.AuthUsers
+                var autoAddPermissions = await _context.AuthUsers
                     .Where(x => x.UserId == userId && x.TenantId != null)
-                    .Select(x => x.UserTenant.TenantRoles.Where(y => y.RoleType == RoleTypes.TenantAutoAdd))
-                    .SingleOrDefaultAsync();
+                    .SelectMany(x => x.UserTenant.TenantRoles
+                        .Where(y => y.RoleType == RoleTypes.TenantAutoAdd)
+                        .Select(z => z.PackedPermissionsInRole))
+                    .ToListAsync();
 
-                if (autoAddRoles != null)
-                    permissionsForAllRoles.AddRange(autoAddRoles.Select(x => x.PackedPermissionsInRole));
+                if (autoAddPermissions.Any())
+                    permissionsForAllRoles.AddRange(autoAddPermissions);
             }
 
             if (!permissionsForAllRoles.Any())
