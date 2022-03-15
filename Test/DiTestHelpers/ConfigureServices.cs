@@ -72,16 +72,14 @@ namespace Test.DiTestHelpers
             if (useSqlDbs)
             {
                 var aspNetConnectionString = callingClass.GetUniqueDatabaseConnectionString("AspNet");
-                services.AddDbContext<CustomApplicationDbContext>(options => options.UseSqlServer(aspNetConnectionString));
-
-                var appConnectionString = callingClass.GetUniqueDatabaseConnectionString("AppData");
+                services.AddDbContext<CustomApplicationDbContext>(options =>
+                    options.UseSqlServer(aspNetConnectionString));
             }
             else
             {
 
                 var aspNetAuthConnection = SetupSqliteInMemoryConnection();
                 services.AddDbContext<CustomApplicationDbContext>(options => options.UseSqlite(aspNetAuthConnection));
-                var appExtraConnection = SetupSqliteInMemoryConnection();
             }
         }
 

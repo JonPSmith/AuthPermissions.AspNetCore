@@ -1,5 +1,11 @@
 # Release Notes
 
+## 3.0.0
+
+- BREAKING CHANGE: The ITenantChangeService has changed to allow multi-tenant sharding to be added - see #14
+- BREAKING CHANGE: The option called AppConnectionString has been removed. Its longer needed because of ITenantChangeService change
+
+
 ## 2.3.1
 
 - Bug Fix: Problem in ClaimCalculator when used with multi-tenant applications - see issue #23 

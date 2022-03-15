@@ -266,8 +266,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
             {
                 TenantType = TenantTypes.HierarchicalTenant,
-                AppConnectionString = contexts.ConnectionString
-            }, new StubRetailTenantChangeServiceFactory(), null);
+            }, subTenantChangeService, null);
 
             //ATTEMPT
             var status = await service.AddHierarchicalTenantAsync("West Coast", tenantIds[0]);
@@ -329,9 +328,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.HierarchicalTenant,
-                AppConnectionString = contexts.ConnectionString
-            }, new StubRetailTenantChangeServiceFactory(), null);
+                TenantType = TenantTypes.HierarchicalTenant
+            }, new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
 
             //ATTEMPT
             var status = await service.UpdateTenantNameAsync(tenantIds[1], "West Area");
@@ -463,9 +461,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.HierarchicalTenant,
-                AppConnectionString = contexts.ConnectionString
-            }, new StubRetailTenantChangeServiceFactory(), null);
+                TenantType = TenantTypes.HierarchicalTenant
+            }, new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(2, 3);

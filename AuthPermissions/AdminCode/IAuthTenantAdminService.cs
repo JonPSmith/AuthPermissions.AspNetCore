@@ -75,7 +75,7 @@ namespace AuthPermissions.AdminCode
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.
         /// This also means all the children underneath need to have their full name updated too
         /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
-        /// to update the application's tenant data. You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
+        /// to update the application's tenant data.
         /// </summary>
         /// <param name="tenantId">Primary key of the tenant to change</param>
         /// <param name="newTenantName">This is the new name for this tenant name</param>
@@ -86,7 +86,7 @@ namespace AuthPermissions.AdminCode
         /// This moves a hierarchical tenant to a new parent (which might be null). This changes the TenantFullName and the
         /// TenantDataKey of the selected tenant and all of its children
         /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
-        /// to move the application's tenant data. You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
+        /// to move the application's tenant data.
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
         /// <param name="newParentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
@@ -97,7 +97,7 @@ namespace AuthPermissions.AdminCode
         /// This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="ITenantChangeService"/>,
         /// but only if no AuthP user are linked to this tenant (it will return errors listing all the AuthP user that are linked to this tenant
         /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
-        /// to delete the application's tenant data.  You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
+        /// to delete the application's tenant data.
         /// </summary>
         /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
         Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId);

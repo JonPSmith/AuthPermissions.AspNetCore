@@ -63,7 +63,6 @@ namespace Test.UnitTests.TestExamples
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
-                    options.AppConnectionString = connectionString;
                     options.PathToFolderToLock = TestData.GetTestDataDir();
                 })
                 //NOTE: This uses the same database as the individual accounts DB
@@ -115,7 +114,6 @@ namespace Test.UnitTests.TestExamples
             builder.Services.RegisterAuthPermissions<Example3Permissions>(options =>
             {
                 options.TenantType = TenantTypes.HierarchicalTenant;
-                options.AppConnectionString = connectionString;
                 options.PathToFolderToLock = builder.LockFolderPath;
             })
                 //NOTE: This uses the same database as the individual accounts DB

@@ -38,12 +38,6 @@ namespace AuthPermissions
         public int NumMinutesBeforeCookieTimesOut { get; set; } = 600;
 
         /// <summary>
-        /// You should set this property to your application's ConnectionString if you are using Tenants
-        /// It's used with the <see cref="ITenantChangeService"/> to update, move, or delete the tenant data in your application
-        /// </summary>
-        public string AppConnectionString { get; set; }
-
-        /// <summary>
         /// This will use the Net.RunMethodsSequentially library to safely update / seed a database 
         /// on applications that have mutiple instances using a global lock
         /// </summary>

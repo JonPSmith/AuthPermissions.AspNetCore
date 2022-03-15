@@ -59,7 +59,6 @@ namespace Example4.MvcWebApp.IndividualAccounts
             services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
-                    options.AppConnectionString = connectionString;
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
                 //NOTE: This uses the same database as the individual accounts DB

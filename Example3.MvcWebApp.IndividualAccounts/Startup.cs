@@ -58,7 +58,6 @@ namespace Example3.MvcWebApp.IndividualAccounts
                     options.TenantType = TenantTypes.SingleLevel;
                     options.LinkToTenantType = LinkToTenantTypes.OnlyAppUsers;
                     options.EncryptionKey = _configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
-                    options.AppConnectionString = connectionString;
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
                 //NOTE: This uses the same database as the individual accounts DB

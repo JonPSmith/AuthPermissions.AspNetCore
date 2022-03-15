@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer;
@@ -14,9 +13,8 @@ using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+
 using Microsoft.Extensions.Logging;
 using StatusGeneric;
 
@@ -146,31 +144,23 @@ namespace AuthPermissions.AdminCode.Services
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            var sqlConnection = GetSqlConnectionWithChecks();
-
-            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
-            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
-
-            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
-
-                var tenantRolesStatus = await GetRolesWithChecksAsync(tempAuthContext, tenantRoleNames);
+                var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
                 var newTenantStatus = Tenant.CreateSingleTenant(tenantName, tenantRolesStatus.Result);
 
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
                     return status;
 
-                tempAuthContext.Add(newTenantStatus.Result);
-                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+                _context.Add(newTenantStatus.Result);
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                 if (status.HasErrors)
                     return status;
 
-                var errorString = await tenantChangeService.CreateNewTenantAsync(appContext,
-                    newTenantStatus.Result.GetTenantDataKey(),
+                var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result.GetTenantDataKey(),
                     newTenantStatus.Result.TenantId, newTenantStatus.Result.TenantFullName);
                 if (errorString != null)
                     return status.AddError(errorString);
@@ -212,21 +202,14 @@ namespace AuthPermissions.AdminCode.Services
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            var sqlConnection = GetSqlConnectionWithChecks();
-
-            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
-            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
-
-            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
-
                 Tenant parentTenant = null;
                 if (parentTenantId != 0)
                 {
                     //We need to find the parent
-                    parentTenant = await tempAuthContext.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
+                    parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
                     if (parentTenant == null)
                         return status.AddError("Could not find the parent tenant you asked for.");
                 }
@@ -234,21 +217,20 @@ namespace AuthPermissions.AdminCode.Services
                 var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
                 status.Message = $"Successfully added the new hierarchical tenant {fullTenantName}.";
 
-                var tenantRolesStatus = await GetRolesWithChecksAsync(tempAuthContext, tenantRoleNames);
+                var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
                 var newTenantStatus = Tenant.CreateHierarchicalTenant(fullTenantName, parentTenant, tenantRolesStatus.Result);
                 
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
                     return status;
 
-                tempAuthContext.Add(newTenantStatus.Result);
-                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+                _context.Add(newTenantStatus.Result);
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                 if (status.HasErrors)
                     return status;
 
-                var errorString = await tenantChangeService.CreateNewTenantAsync(appContext,
-                    newTenantStatus.Result.GetTenantDataKey(),
+                var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result.GetTenantDataKey(),
                     newTenantStatus.Result.TenantId, newTenantStatus.Result.TenantFullName);
                 if (errorString != null)
                     return status.AddError(errorString);
@@ -288,7 +270,7 @@ namespace AuthPermissions.AdminCode.Services
             if (tenant == null)
                 return status.AddError("Could not find the tenant you were looking for.");
 
-            var tenantRolesStatus = await GetRolesWithChecksAsync(_context, newTenantRoleNames);
+            var tenantRolesStatus = await GetRolesWithChecksAsync(newTenantRoleNames);
             if (status.CombineStatuses(tenantRolesStatus).HasErrors)
                 return status;
 
@@ -303,7 +285,7 @@ namespace AuthPermissions.AdminCode.Services
         /// This updates the name of this tenant to the <see param="newTenantLevelName"/>.
         /// This also means all the children underneath need to have their full name updated too
         /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService"/>
-        /// to update the application's tenant data. You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
+        /// to update the application's tenant data.
         /// </summary>
         /// <param name="tenantId">Primary key of the tenant to change</param>
         /// <param name="newTenantName">This is the new name for this tenant name</param>
@@ -321,17 +303,11 @@ namespace AuthPermissions.AdminCode.Services
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            var sqlConnection = GetSqlConnectionWithChecks();
-
-            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
-            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
-
-            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
-                
-                var tenant = await tempAuthContext.Tenants
+
+                var tenant = await _context.Tenants
                     .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
                 if (tenant == null)
@@ -340,7 +316,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (tenant.IsHierarchical)
                 {
                     //We need to load the main tenant and any children and this is the simplest way to do that
-                    var tenantsWithChildren = await tempAuthContext.Tenants
+                    var tenantsWithChildren = await _context.Tenants
                         .Include(x => x.Parent)
                         .Include(x => x.Children)
                         .Where(x => x.TenantFullName.StartsWith(tenant.TenantFullName))
@@ -353,7 +329,7 @@ namespace AuthPermissions.AdminCode.Services
 
                     foreach (var tenantToUpdate in tenantsWithChildren)
                     {
-                        var errorString = await tenantChangeService.HandleUpdateNameAsync(appContext, tenantToUpdate.GetTenantDataKey(),
+                        var errorString = await tenantChangeService.HandleUpdateNameAsync(tenantToUpdate.GetTenantDataKey(),
                             tenantToUpdate.TenantId, tenantToUpdate.TenantFullName);
                         if (errorString != null)
                             return status.AddError(errorString);
@@ -363,14 +339,14 @@ namespace AuthPermissions.AdminCode.Services
                 {
                     tenant.UpdateTenantName(newTenantName);
 
-                    var errorString = await tenantChangeService.HandleUpdateNameAsync(appContext, tenant.GetTenantDataKey(),
+                    var errorString = await tenantChangeService.HandleUpdateNameAsync(tenant.GetTenantDataKey(),
                         tenant.TenantId,
                         tenant.TenantFullName);
                     if (errorString != null)
                         return status.AddError(errorString);
                 }
 
-                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                 if (status.IsValid)
                     await transaction.CommitAsync();
@@ -393,7 +369,6 @@ namespace AuthPermissions.AdminCode.Services
         /// This moves a hierarchical tenant to a new parent (which might be null). This changes the TenantFullName and the
         /// TenantDataKey of the selected tenant and all of its children
         /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService"/>
-        /// to move the application's tenant data. You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
         /// <param name="newParentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
@@ -411,21 +386,15 @@ namespace AuthPermissions.AdminCode.Services
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            var sqlConnection = GetSqlConnectionWithChecks();
-
-            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
-            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
-
-            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
 
-                var tenantToMove = await tempAuthContext.Tenants
+                var tenantToMove = await _context.Tenants
                     .SingleOrDefaultAsync(x => x.TenantId == tenantToMoveId);
                 var originalName = tenantToMove.TenantFullName;
 
-                var tenantsWithChildren = await tempAuthContext.Tenants
+                var tenantsWithChildren = await _context.Tenants
                     .Include(x => x.Parent)
                     .Include(x => x.Children)
                     .Where(x => x.TenantFullName.StartsWith(tenantToMove.TenantFullName))
@@ -438,7 +407,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (newParentTenantId != 0)
                 {
                     //We need to find the parent
-                    parentTenant = await tempAuthContext.Tenants.SingleOrDefaultAsync(x => x.TenantId == newParentTenantId);
+                    parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == newParentTenantId);
                     if (parentTenant == null)
                         return status.AddError("Could not find the parent tenant you asked for.");
 
@@ -451,17 +420,11 @@ namespace AuthPermissions.AdminCode.Services
                 var listOfChanges =
                     new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>();
                 existingTenantWithChildren.MoveTenantToNewParent(parentTenant, tuple => listOfChanges.Add(tuple));
-                
-                //Then we send them to the tenantChangeService to apply those changes to the application's data
-                foreach (var tuple in listOfChanges)
-                {
-                    var errorString = await tenantChangeService.MoveHierarchicalTenantDataAsync(appContext,
-                        tuple.oldDataKey, tuple.newDataKey, tuple.tenantId, tuple.newFullTenantName);
-                    if (errorString != null)
-                        return status.AddError(errorString);
-                }
+                var errorString = await tenantChangeService.MoveHierarchicalTenantDataAsync(listOfChanges);
+                if (errorString != null)
+                    return status.AddError(errorString);
 
-                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
                 status.Message = $"Successfully moved the tenant originally named '{originalName}' to " +
                                  (parentTenant == null ? "top level." : $"the new named '{existingTenantWithChildren.TenantFullName}'.");
 
@@ -485,7 +448,7 @@ namespace AuthPermissions.AdminCode.Services
         /// This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="ITenantChangeService"/>,
         /// but only if no AuthP user are linked to this tenant (it will return errors listing all the AuthP user that are linked to this tenant
         /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
-        /// to delete the application's tenant data.  You also need to set the <see cref="AuthPermissionsOptions.AppConnectionString"/> in the options.
+        /// to delete the application's tenant data.
         /// </summary>
         /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
         public async Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId)
@@ -496,30 +459,24 @@ namespace AuthPermissions.AdminCode.Services
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
             status.SetResult(tenantChangeService);
 
-            var sqlConnection = GetSqlConnectionWithChecks();
-
-            using var tempAuthContext = CreateAuthPermissionsDbContext(sqlConnection);
-            using var appContext = tenantChangeService.GetNewInstanceOfAppContext(sqlConnection);
-
-            using var transaction = await appContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-                tempAuthContext.Database.UseTransaction(transaction.GetDbTransaction());
 
-                var tenantToDelete = await tempAuthContext.Tenants
+                var tenantToDelete = await _context.Tenants
                     .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
                 if (tenantToDelete == null)
                     return status.AddError("Could not find the tenant you were looking for.");
 
-                var allTenantIdsAffectedByThisDelete = await tempAuthContext.Tenants
+                var allTenantIdsAffectedByThisDelete = await _context.Tenants
                     .Include(x => x.Parent)
                     .Include(x => x.Children)
                     .Where(x => x.TenantFullName.StartsWith(tenantToDelete.TenantFullName))
                     .Select(x => x.TenantId)
                     .ToListAsync();
 
-                var usersOfThisTenant = await tempAuthContext.AuthUsers
+                var usersOfThisTenant = await _context.AuthUsers
                     .Where(x => allTenantIdsAffectedByThisDelete.Contains(x.TenantId ?? 0))
                     .Select(x => x.UserName ?? x.Email)
                     .ToListAsync();
@@ -540,37 +497,37 @@ namespace AuthPermissions.AdminCode.Services
                 if (tenantToDelete.IsHierarchical)
                 {
                     //need to delete all the tenants that starts with the main tenant DataKey
-                    //We order the tenants with the children first in case a higher level links to a higher level
-                    var children = await tempAuthContext.Tenants
+                    //We order the tenants with the children first in case a higher level links to a lower level
+                    var tenantsInOrder = (await _context.Tenants
                         .Where(x => x.ParentDataKey.StartsWith(tenantToDelete.GetTenantDataKey()))
-                        .OrderByDescending(x => x.TenantFullName.Length)
-                        .ToListAsync();
+                        .ToListAsync())
+                        .OrderByDescending(x => x.GetTenantDataKey().Count(y => y == '.'))
+                        .ToList();
+                    //Now we add the parent as the last
+                    tenantsInOrder.Add(tenantToDelete);
 
-                    foreach (var tenant in children)
-                    {
-                        var childError = await tenantChangeService.HandleTenantDeleteAsync(appContext, tenant.GetTenantDataKey(),
-                            tenant.TenantId,
-                            tenant.TenantFullName);
-                        if (childError != null)
-                            return status.AddError(childError);
-                    }
+                    var childError = await tenantChangeService.HierarchicalTenantDeleteAsync(tenantsInOrder);
+                    if (childError != null)
+                        return status.AddError(childError);
 
-                    if (children.Count > 0)
+                    if (tenantsInOrder.Count > 0)
                     {
-                        tempAuthContext.RemoveRange(children);
-                        message += $" and its {children.Count} linked tenants";
+                        _context.RemoveRange(tenantsInOrder);
+                        message += $" and its {tenantsInOrder.Count} linked tenants";
                     }
                 }
+                else
+                {
+                    //delete the tenant that the user defines
+                    var mainError = await tenantChangeService.SingleTenantDeleteAsync(tenantToDelete.GetTenantDataKey(),
+                        tenantToDelete.TenantId,
+                        tenantToDelete.TenantFullName);
+                    if (mainError != null)
+                        return status.AddError(mainError);
+                    _context.Remove(tenantToDelete);
+                }
 
-                //Finally we delete the tenant that the user defines
-                var mainError = await tenantChangeService.HandleTenantDeleteAsync(appContext, tenantToDelete.GetTenantDataKey(),
-                    tenantToDelete.TenantId,
-                    tenantToDelete.TenantFullName);
-                if (mainError != null)
-                    return status.AddError(mainError);
-                tempAuthContext.Remove(tenantToDelete);
-
-                status.CombineStatuses(await tempAuthContext.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                 if (status.IsValid)
                     await transaction.CommitAsync();
@@ -592,50 +549,19 @@ namespace AuthPermissions.AdminCode.Services
         //----------------------------------------------------------
         // private methods
 
-        private SqlConnection GetSqlConnectionWithChecks([CallerMemberName] string callingMethod = "")
-        {
-            //when unit testing with Sqlite in-memory we use the given context, so no checks
-            if (_context.Database.IsSqlite())
-                return null;
-
-            var sqlConnection = new SqlConnection(_options.AppConnectionString ?? throw new AuthPermissionsException(
-                $"You must set the {nameof(AuthPermissionsOptions.AppConnectionString)} to your application's connection string to use {callingMethod}."));
-            if (sqlConnection.ConnectionString != _context.Database.GetConnectionString())
-                throw new AuthPermissionsException(
-                    $"For the tenant method {callingMethod} to work your application data has to be in the same database as the AuthP data.");
-
-            return sqlConnection;
-        }
-
-        //NOTE: when we have multiple database types, then need to pull all creation of a AuthPermissionsDbContext into one place
-        private AuthPermissionsDbContext CreateAuthPermissionsDbContext(SqlConnection sqlConnection)
-        {
-            //when unit testing with Sqlite in-memory we use the given context
-            if (_context.Database.IsSqlite())
-                return _context;
-
-            var options = new DbContextOptionsBuilder<AuthPermissionsDbContext>()
-                .UseSqlServer(sqlConnection, dbOptions =>
-                dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
-            EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
-
-            return new AuthPermissionsDbContext(options.Options, _eventSetup);
-        }
-
         /// <summary>
         /// This finds the roles with the given names from the AuthP database. Returns errors if not found
         /// NOTE: The Tenant checks that the role's <see cref="RoleToPermissions.RoleType"/> are valid for a tenant
         /// </summary>
-        /// <param name="tempAuthContext">Provides the correct context to use</param>
         /// <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
         /// <returns>Status</returns>
-        private static async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(
-            AuthPermissionsDbContext tempAuthContext, List<string> tenantRoleNames)
+        private async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(
+            List<string> tenantRoleNames)
         {
             var status = new StatusGenericHandler<List<RoleToPermissions>>();
 
             var foundRoles = tenantRoleNames?.Any() == true
-                ? await tempAuthContext.RoleToPermissions
+                ? await _context.RoleToPermissions
                     .Where(x => tenantRoleNames.Contains(x.RoleName))
                     .Distinct()
                     .ToListAsync()

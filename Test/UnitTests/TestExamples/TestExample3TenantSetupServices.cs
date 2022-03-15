@@ -10,15 +10,19 @@ using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.Dtos;
 using Example3.InvoiceCode.EfCoreCode;
 using Example3.InvoiceCode.Services;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Test.DiTestHelpers;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
+using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -32,31 +36,44 @@ namespace Test.UnitTests.TestExamples
 
         public TestExample3TenantSetupServices(ITestOutputHelper output)
         {
-            _output = output;
+            _output = output; 
+            this.GetUniqueDatabaseConnectionString();
 
-            var options = this.CreateUniqueClassOptions<InvoicesDbContext>();
-            using var context = new InvoicesDbContext(options, new StubGetDataKeyFilter(""));
-            context.Database.EnsureClean();
+            var services = new ServiceCollection();
+            //Wanted to use the line below but just couldn't get the right package for it
+            //services.AddDefaultIdentity<IdentityUser>()
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+            var startupConfig = AppSettings.GetConfiguration();
+            services.AddLogging();
+            services.AddSingleton<IConfiguration>(startupConfig);
 
-            var services = this.SetupServicesForTest(true);
+            services.AddDbContext<ApplicationDbContext>(options => 
+                options.UseSqlServer(this.GetUniqueDatabaseConnectionString("Individual")));
+            services.AddDbContext<InvoicesDbContext>(options =>
+                options.UseSqlServer(this.GetUniqueDatabaseConnectionString("Invoice"), dbOptions =>
+                        dbOptions.MigrationsHistoryTable(StartupExtensions.InvoicesDbContextHistoryName)));
+
             services.AddTransient<IUserRegisterInviteService, UserRegisterInviteService>();
-            services.AddTransient<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
+            services.AddScoped<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.SingleLevel;
-                    options.AppConnectionString = context.Database.GetConnectionString();
                     options.EncryptionKey = "asffrwedsffsgxcvwc";
                     options.UseLocksToUpdateGlobalResources = false;
                 })
-                .UsingEfCoreSqlServer(context.Database.GetConnectionString())
+                .UsingEfCoreSqlServer(this.GetUniqueDatabaseConnectionString("AuthP"))
                 .IndividualAccountsAuthentication()
                 .RegisterTenantChangeService<InvoiceTenantChangeService>()
                 .SetupAspNetCorePart();
             _serviceProvider = services.BuildServiceProvider();
             var accountContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
-            accountContext.Database.EnsureClean();
+            var xx = accountContext.Database.GetConnectionString();
+            accountContext.Database.EnsureCreated();
             var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-            authContext.Database.Migrate();
+            authContext.Database.EnsureClean();
+            var invoiceContext = _serviceProvider.GetRequiredService<InvoicesDbContext>();
+            invoiceContext.Database.EnsureClean();
         }
 
         private static async Task SetupExample3Roles(AuthPermissionsDbContext authContext)

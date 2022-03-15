@@ -11,6 +11,7 @@ using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using Example3.InvoiceCode.EfCoreCode;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
@@ -83,12 +84,12 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 context.Database.EnsureCreated();
 
-                var appOptions = SqliteInMemory.CreateOptions<RetailDbContext>(builder =>
+                var appOptions = SqliteInMemory.CreateOptions<InvoicesDbContext>(builder =>
                     builder.UseSqlite(context.Database.GetDbConnection()));
                 appOptions.TurnOffDispose();
-                var retailContext = new RetailDbContext(appOptions, null);
+                var retailContext = new InvoicesDbContext(appOptions, null);
 
-                var tenantIds = context.SetupSingleTenantsInDb();
+                context.SetupSingleTenantsInDb();
                 context.ChangeTracker.Clear();
 
                 var tenantChange = new StubITenantChangeServiceFactory(retailContext);
@@ -257,9 +258,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.SingleLevel,
-                AppConnectionString = contexts.ConnectionString
-            }, new StubRetailTenantChangeServiceFactory(), null);
+                TenantType = TenantTypes.SingleLevel
+            }, new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
 
             //ATTEMPT
             var status = await service.AddSingleTenantAsync("Tenant2");
@@ -315,9 +315,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.SingleLevel,
-                AppConnectionString = contexts.ConnectionString
-            }, new StubRetailTenantChangeServiceFactory(), null);
+                TenantType = TenantTypes.SingleLevel
+            }, new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
 
             //ATTEMPT
             var status = await service.UpdateTenantNameAsync(tenantIds[1], "New Tenant");
@@ -357,9 +356,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 //VERIFY
                 status.IsValid.ShouldBeTrue(status.GetAllErrors());
                 var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples; 
-                deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
+                deleteLogs.ShouldEqual(new List<(string dataKey, string fullTenantName)>
                 {
-                    ("Tenant2", "2.")
+                    ("2.", "Tenant2")
                 });
             }
             using (var context = new AuthPermissionsDbContext(options))
@@ -370,7 +369,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
-        public async Task TestDeleteSingleTenantAsyncSqlServerOk()
+        public async Task TestDeleteSingleTenantAsyncCheckReturn()
         {
             //SETUP
             using var contexts = new TenantChangeSqlServerSetup(this);
@@ -378,21 +377,19 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             contexts.RetailDbContext.SetupSingleRetailAndStock();
             contexts.AuthPContext.ChangeTracker.Clear();
 
+            var tenantChange = new StubITenantChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
             {
-                TenantType = TenantTypes.SingleLevel,
-                AppConnectionString = contexts.ConnectionString
-            }, new StubRetailTenantChangeServiceFactory(), null);
+                TenantType = TenantTypes.SingleLevel
+            }, tenantChange, null);
 
             //ATTEMPT
             var status = await service.DeleteTenantAsync(tenantIds[1]);
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            var tenants = contexts.AuthPContext.Tenants.ToList();
-            tenants.Select(x => x.TenantFullName).ShouldEqual(new[] { "Tenant1", "Tenant3" });
-            contexts.RetailDbContext.RetailOutlets.IgnoreQueryFilters().Select(x => x.FullName)
-                .ToArray().ShouldEqual(new[] { "Tenant1", "Tenant3" });
+            var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
+            deleteLogs.Single().dataKey.ShouldEqual($"{tenantIds[1]}.");
         }
 
         [Fact]

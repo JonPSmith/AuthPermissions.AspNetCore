@@ -32,7 +32,7 @@ namespace Test.UnitTests.TestAuthPermissions
                     {ConfigureAuthPJwtToken = AuthPSetupHelpers.CreateTestJwtSetupData(expiresIn)};
                 AuthPJwtConfiguration = options.ConfigureAuthPJwtToken;
                 var claimsCalc = new StubClaimsCalculator("This:That");
-                var logger = new Logger<TokenBuilder>(new LoggerFactory(new[] { new MyLoggerProviderActionOut(Logs.Add) }));
+                var logger = new LoggerFactory(new[] { new MyLoggerProviderActionOut(Logs.Add) }).CreateLogger<TokenBuilder>();
                 TokenBuilder = new TokenBuilder(options, claimsCalc, context, logger);
             }
 
