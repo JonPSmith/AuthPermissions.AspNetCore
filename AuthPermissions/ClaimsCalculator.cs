@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
@@ -82,7 +84,7 @@ namespace AuthPermissions
                 .Select(x => x.Role.PackedPermissionsInRole)
                 .ToListAsync();
 
-            if (_options.TenantType != TenantTypes.NotUsingTenants)
+            if (_options.TenantType.IsMultiTenant())
             {
                 //We need to add any RoleTypes.TenantAdminAdd for a tenant user
 
@@ -113,7 +115,7 @@ namespace AuthPermissions
         /// <returns>Returns the dataKey, or null if a) tenant isn't turned on, or b) the user doesn't have a tenant</returns>
         private async Task<string> GetDataKeyAsync(string userid)
         {
-            if (_options.TenantType == TenantTypes.NotUsingTenants)
+            if (!_options.TenantType.IsMultiTenant())
                 return null;
 
             var userWithTenant = await _context.AuthUsers.Include(x => x.UserTenant)

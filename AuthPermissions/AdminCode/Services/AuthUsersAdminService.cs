@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
@@ -37,7 +38,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
-            _isMultiTenant = options.TenantType != TenantTypes.NotUsingTenants;
+            _isMultiTenant = options.TenantType.IsMultiTenant();
         }
 
         /// <summary>

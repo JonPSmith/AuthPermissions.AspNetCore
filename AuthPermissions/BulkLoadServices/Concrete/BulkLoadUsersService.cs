@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.BulkLoadServices.Concrete.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
@@ -108,7 +110,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                     (findUserInfoService == null ? " wasn't available." : " couldn't find it either.")));
 
             Tenant userTenant = null;
-            if (_options.TenantType != TenantTypes.NotUsingTenants && !string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
+            if (_options.TenantType.IsMultiTenant() && !string.IsNullOrEmpty(userDefine.TenantNameForDataKey))
             {
                 userTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantFullName == userDefine.TenantNameForDataKey);
                 if (userTenant == null)

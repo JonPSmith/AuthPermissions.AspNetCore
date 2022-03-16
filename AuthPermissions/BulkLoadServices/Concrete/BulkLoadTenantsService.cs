@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
@@ -52,14 +54,14 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 return status;
 
             //Check the options are set
-            if (options.TenantType == TenantTypes.NotUsingTenants)
+            if (!options.TenantType.IsMultiTenant())
                 return status.AddError(
                     $"You must set the options {nameof(AuthPermissionsOptions.TenantType)} to allow tenants to be processed");
 
             //This takes a COPY of the data because the code stores a tracked tenant in the database
             var tenantsSetupCopy = tenantSetupData.ToList();
 
-            if (options.TenantType == TenantTypes.SingleLevel)
+            if (options.TenantType.IsSingleLevel())
             {
                 var duplicateNames = tenantsSetupCopy.Select(x => x.TenantName)
                     .GroupBy(x => x).Where(x => x.Count() > 1).Select(x => x.Key).ToList();

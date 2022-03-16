@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode.Factories;
@@ -37,7 +39,7 @@ namespace AuthPermissions.SetupCode
                 status = await roleLoader.AddRolesToDatabaseAsync(options.InternalData.RolesPermissionsSetupData);
             }
 
-            if (status is { IsValid: true } && options.TenantType != TenantTypes.NotUsingTenants && !context.Tenants.Any())
+            if (status is { IsValid: true } && options.TenantType.IsMultiTenant() && !context.Tenants.Any())
             {
                 var tenantLoader = new BulkLoadTenantsService(context);
                 status = await tenantLoader.AddTenantsToDatabaseAsync(options.InternalData.TenantSetupData, options);

@@ -199,7 +199,7 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddScoped<IClaimsCalculator, ClaimsCalculator>();
             setupData.Services.AddTransient<IUsersPermissionsService, UsersPermissionsService>();
             setupData.Services.AddTransient<IEncryptDecryptService, EncryptDecryptService>();
-            if (setupData.Options.TenantType != TenantTypes.NotUsingTenants)
+            if (setupData.Options.TenantType.IsMultiTenant())
                 SetupMultiTenantServices(setupData);
 
             //The factories for the optional services
@@ -231,15 +231,13 @@ namespace AuthPermissions.AspNetCore
         {
             //This sets up the code to get the DataKey to the application's DbContext
 
-
-
             if (setupData.Options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
                 //This uses the efficient GetDataKey from user
                 setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserNormal>();
             else
             {
                 //Check the TenantType and LinkToTenantType for incorrect versions
-                if (setupData.Options.TenantType != TenantTypes.SingleLevel
+                if (!setupData.Options.TenantType.IsHierarchical()
                     && setupData.Options.LinkToTenantType == LinkToTenantTypes.AppAndHierarchicalUsers)
                     throw new AuthPermissionsException(
                         $"You can't set the {nameof(AuthPermissionsOptions.LinkToTenantType)} to " +

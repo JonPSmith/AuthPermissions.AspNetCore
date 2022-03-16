@@ -36,7 +36,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             _context = context;
             _permissionType = options.InternalData.EnumPermissionsType;
-            _isMultiTenant = options.TenantType != TenantTypes.NotUsingTenants;
+            _isMultiTenant = options.TenantType.IsMultiTenant();
         }
 
         /// <summary>

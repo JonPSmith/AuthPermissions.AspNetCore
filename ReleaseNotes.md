@@ -4,6 +4,8 @@
 
 - BREAKING CHANGE: The ITenantChangeService has changed to allow multi-tenant sharding to be added - see #14
 - BREAKING CHANGE: The option called AppConnectionString has been removed. Its longer needed because of ITenantChangeService change
+- New Feature: Adding optional sharding to either a single-level or hierarchical multi-tenant applications - see documentation for an article explaining how to setup sharding
+
 
 
 ## 2.3.1

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer;
 using AuthPermissions.DataLayer.Classes;
@@ -71,7 +72,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>query on the AuthP database</returns>
         public IQueryable<Tenant> QueryEndLeafTenants()
         {
-            return _tenantType == TenantTypes.SingleLevel
+            return _tenantType.IsSingleLevel()
                 ? QueryTenants()
                 : _context.Tenants.Where(x => !x.Children.Any());
         }
@@ -138,9 +139,9 @@ namespace AuthPermissions.AdminCode.Services
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
-            if (_tenantType != TenantTypes.SingleLevel)
+            if (!_tenantType.IsSingleLevel())
                 throw new AuthPermissionsException(
-                    $"You cannot add a single tenant  because the tenant configuration is {_tenantType}");
+                    $"You cannot add a single tenant because the tenant configuration is {_tenantType}");
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
@@ -192,7 +193,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             var status = new StatusGenericHandler();
 
-            if (_tenantType != TenantTypes.HierarchicalTenant)
+            if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} before you can use tenants");
             if (tenantName.Contains('|'))
@@ -258,7 +259,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns></returns>
         public async Task<IStatusGeneric> UpdateTenantRolesAsync(int tenantId, List<string> newTenantRoleNames)
         {
-            if (_tenantType == TenantTypes.NotUsingTenants)
+            if (!_tenantType.IsMultiTenant())
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} parameter in the AuthP's options");
 
@@ -377,7 +378,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             var status = new StatusGenericHandler { };
 
-            if (_tenantType != TenantTypes.HierarchicalTenant)
+            if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
                     $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}");
 

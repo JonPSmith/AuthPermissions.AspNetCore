@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
@@ -32,6 +33,7 @@ namespace AuthPermissions
         {
             var authOptions = new AuthPermissionsOptions();
             options?.Invoke(authOptions);
+            authOptions.TenantType.ThrowExceptionIfTenantTypeIsWrong();
             authOptions.InternalData.EnumPermissionsType = typeof(TEnumPermissions);
             authOptions.InternalData.EnumPermissionsType.ThrowExceptionIfEnumIsNotCorrect();
             authOptions.InternalData.EnumPermissionsType.ThrowExceptionIfEnumHasMembersHaveDuplicateValues();
