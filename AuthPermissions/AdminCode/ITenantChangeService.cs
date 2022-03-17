@@ -22,22 +22,18 @@ namespace AuthPermissions.AdminCode
         /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
         /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant being deleted</param>
-        /// <param name="tenantId">The TenantId of the tenant being deleted</param>
-        /// <param name="fullTenantName">The full name of the tenant being deleted</param>
+        /// <param name="tenant"></param>
         /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
-        Task<string> CreateNewTenantAsync(string dataKey, int tenantId, string fullTenantName);
+        Task<string> CreateNewTenantAsync(Tenant tenant);
 
         /// <summary>
-        /// This is called when the name of your Tenants is changed. This is useful if you use the tenant name in your multi-tenant data.
-        /// NOTE: The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read.
+        /// This is called when the name of your single-level tenant is changed. This is useful if you use the tenant name in your multi-tenant data.
+        /// NOTE: The application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read.
         /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant</param>
-        /// <param name="tenantId">The TenantId of the tenant</param>
-        /// <param name="fullTenantName">The full name of the tenant</param>
+        /// <param name="tenant"></param>
         /// <returns>Returns null if all OK, otherwise the name change is rolled back and the return string is shown to the user</returns>
-        Task<string> HandleUpdateNameAsync(string dataKey, int tenantId, string fullTenantName);
+        Task<string> SingleTenantUpdateNameAsync(Tenant tenant);
 
         /// <summary>
         /// This is used with single-level tenant to either
@@ -49,11 +45,21 @@ namespace AuthPermissions.AdminCode
         /// - You can provide information of what you have done by adding public parameters to this class.
         ///   The TenantAdmin <see cref="AuthTenantAdminService.DeleteTenantAsync"/> method returns your class on a successful Delete
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant being deleted</param>
-        /// <param name="tenantId">The TenantId of the tenant being deleted</param>
-        /// <param name="fullTenantName">The full name of the tenant being deleted</param>
+        /// <param name="tenant"></param>
         /// <returns>Returns null if all OK, otherwise the AuthP part of the delete is rolled back and the return string is shown to the user</returns>
-        Task<string> SingleTenantDeleteAsync(string dataKey, int tenantId, string fullTenantName);
+        Task<string> SingleTenantDeleteAsync(Tenant tenant);
+
+        //------------------------------------------------
+        // Hierarchical change methods
+
+        /// <summary>
+        /// This is called when the name of your Hierarchical tenants is changed. This is useful if you use the tenant name in your multi-tenant data.
+        /// NOTE: The application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read.
+        /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
+        /// </summary>
+        /// <param name="tenantsToUpdate">This contains the tenants to update.</param>
+        /// <returns>Returns null if all OK, otherwise the name change is rolled back and the return string is shown to the user</returns>
+        Task<string> HierarchicalTenantUpdateNameAsync(List<Tenant> tenantsToUpdate);
 
         /// <summary>
         /// This is used with hierarchical tenants to either
@@ -79,8 +85,23 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         /// <param name="tenantToUpdate">The data to update each tenant. This starts at the parent and then recursively works down the children</param>
         /// <returns>Returns null if all OK, otherwise AuthP part of the move is rolled back and the return string is shown to the user</returns>
-        Task<string> MoveHierarchicalTenantDataAsync(
-            List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> tenantToUpdate);
+        Task<string> MoveHierarchicalTenantDataAsync(List<(string oldDataKey, Tenant tenantToMove)> tenantToUpdate);
+
+        /// <summary>
+        /// This is called when a tenant is moved to a new database setting.
+        /// Its job is to move all the application's data to a new database (which isn't an easy thing to do!)
+        /// and then delete the old data
+        /// This method is called for both a single-level or hierarchical tenant, but the code for each is quite different.
+        /// NOTE: If its a hierarchical tenant, then the tenant will be the highest parent.
+        /// NOTE: If the tenant's <see cref="Tenant.HasOwnDb"/> is true, then its worth you checking the database
+        /// doesn't have any application's data in the new database. This is especially important for a single-level tenant
+        /// because the query filter will be turned off and any other data would be returned.
+        /// </summary>
+        /// <param name="oldConnectionName">The connection string to the old database</param>
+        /// <param name="oldDataKey"></param>
+        /// <param name="updatedTenant">This tenant has had its sharding information updated</param>
+        /// <returns></returns>
+        Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey, Tenant updatedTenant);
 
     }
 }

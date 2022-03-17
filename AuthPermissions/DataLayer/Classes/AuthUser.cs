@@ -74,6 +74,12 @@ namespace AuthPermissions.DataLayer.Classes
         [MaxLength(AuthDbConstants.UserNameSize)]
         public string UserName { get; private set; }
 
+        /// <summary>
+        /// If true the user is disabled, which means no AuthP claims will be added to its claims
+        /// NOTE: By default this does not stop this user from logging in
+        /// </summary>
+        public bool IsDisabled { get; private set; }
+
         //-------------------------------------------------
         //relationships
 
@@ -205,6 +211,15 @@ namespace AuthPermissions.DataLayer.Classes
             Email = email?.Trim();
             UserName = (userName?.Trim() ?? Email) ?? throw new AuthPermissionsBadDataException(
                 $"The {nameof(Email)} and {nameof(UserName)} can't both be null.");
+        }
+
+        /// <summary>
+        /// This allows you to change the user's <see cref="IsDisabled"/> setting
+        /// </summary>
+        /// <param name="isDisabled">If true, then no AuthP claims are adding the the user's claims</param>
+        public void SetIsDisabled(bool isDisabled)
+        {
+            IsDisabled = isDisabled;
         }
 
         //---------------------------------------------------------

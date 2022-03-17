@@ -4,12 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using Example4.ShopCode.EfCoreClasses;
+using Example4.ShopCode.EfCoreCode.Migrations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 
 namespace Example4.ShopCode.EfCoreCode
@@ -18,6 +22,8 @@ namespace Example4.ShopCode.EfCoreCode
     {
         private readonly RetailDbContext _context;
         private readonly ILogger _logger;
+
+        public IReadOnlyList<int> DeletedTenantIds { get; private set; }
 
         public RetailTenantChangeService(RetailDbContext context, ILogger<RetailTenantChangeService> logger)
         {
@@ -29,18 +35,22 @@ namespace Example4.ShopCode.EfCoreCode
         /// When a new AuthP Tenant is created, then this method is called. If you have a tenant-type entity in your
         /// application's database, then this allows you to create a new entity for the new tenant.
         /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
-        /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children
+        /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children so we always add a retail
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant being deleted</param>
-        /// <param name="tenantId">The TenantId of the tenant being deleted</param>
-        /// <param name="fullTenantName">The full name of the tenant being deleted</param>
+        /// <param name="tenant"></param>
         /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
-        public async Task<string> CreateNewTenantAsync(string dataKey, int tenantId, string fullTenantName)
+        public async Task<string> CreateNewTenantAsync(Tenant tenant)
         {
-            _context.Add(new RetailOutlet(tenantId, fullTenantName, dataKey));
+            _context.Add(new RetailOutlet(tenant.TenantId, tenant.TenantFullName, tenant.GetTenantDataKey()));
             await _context.SaveChangesAsync();
 
             return null;
+        }
+
+        //not used
+        public Task<string> SingleTenantUpdateNameAsync(Tenant tenant)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -48,29 +58,42 @@ namespace Example4.ShopCode.EfCoreCode
         /// NOTE: The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read.
         /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant</param>
-        /// <param name="tenantId">The TenantId of the tenant</param>
-        /// <param name="fullTenantName">The full name of the tenant</param>
+        /// <param name="tenantsToUpdate">This contains the tenants to update.</param>
         /// <returns>Returns null if all OK, otherwise the name change is rolled back and the return string is shown to the user</returns>
-        public async Task<string> HandleUpdateNameAsync(string dataKey, int tenantId,
-            string fullTenantName)
+        public async Task<string> HierarchicalTenantUpdateNameAsync(List<Tenant> tenantsToUpdate)
         {
-            //Higher hierarchical levels don't have data in this example
-            var retailOutletToUpdate =
-                await _context.RetailOutlets
-                    .IgnoreQueryFilters().SingleOrDefaultAsync(x => x.AuthPTenantId == tenantId);
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
-            if (retailOutletToUpdate != null)
+            try
             {
-                retailOutletToUpdate.UpdateNames(fullTenantName);
-                await _context.SaveChangesAsync();
+                foreach (var tenant in tenantsToUpdate)
+                {
+                    //Higher hierarchical levels don't have data in this example
+                    var retailOutletToUpdate =
+                        await _context.RetailOutlets
+                            .IgnoreQueryFilters().SingleOrDefaultAsync(x => x.AuthPTenantId == tenant.TenantId);
+
+                    if (retailOutletToUpdate != null)
+                    {
+                        retailOutletToUpdate.UpdateNames(tenant.TenantFullName);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                await transaction.CommitAsync();
             }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failure when trying to update a hierarchical tenant.");
+                return "There was a system-level problem - see logs for more detail";
+            }
+
 
             return null;
         }
 
         //Not used
-        public Task<string> SingleTenantDeleteAsync(string dataKey, int tenantId, string fullTenantName)
+        public Task<string> SingleTenantDeleteAsync(Tenant tenant)
         {
             throw new System.NotImplementedException();
         }
@@ -91,9 +114,11 @@ namespace Example4.ShopCode.EfCoreCode
         public async Task<string> HierarchicalTenantDeleteAsync(List<Tenant> tenantsInOrder)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-            foreach (var tenant in tenantsInOrder)
+
+            try
             {
-                try
+                var deletedTenantIds = new List<int>();
+                foreach (var tenant in tenantsInOrder)
                 {
                     //Higher hierarchical levels don't have data in this example, so it only tries to delete data if there is a RetailOutlet
                     var retailOutletToDelete =
@@ -102,27 +127,32 @@ namespace Example4.ShopCode.EfCoreCode
                     if (retailOutletToDelete != null)
                     {
                         //yes, its a shop so delete all the stock / sales 
-                        var deleteSalesSql = $"DELETE FROM retail.{nameof(RetailDbContext.ShopSales)} WHERE DataKey = '{tenant.GetTenantDataKey()}'";
+                        var deleteSalesSql =
+                            $"DELETE FROM retail.{nameof(RetailDbContext.ShopSales)} WHERE DataKey = '{tenant.GetTenantDataKey()}'";
                         await _context.Database.ExecuteSqlRawAsync(deleteSalesSql);
-                        var deleteStockSql = $"DELETE FROM retail.{nameof(RetailDbContext.ShopStocks)} WHERE DataKey = '{tenant.GetTenantDataKey()}'";
+                        var deleteStockSql =
+                            $"DELETE FROM retail.{nameof(RetailDbContext.ShopStocks)} WHERE DataKey = '{tenant.GetTenantDataKey()}'";
                         await _context.Database.ExecuteSqlRawAsync(deleteStockSql);
 
                         _context.Remove(retailOutletToDelete); //finally delete the RetailOutlet
                         await _context.SaveChangesAsync();
+                        deletedTenantIds.Add(tenant.TenantId);
                     }
+                }
 
-                    await transaction.CommitAsync();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
-                    return "There was a system-level problem - see logs for more detail";
-                }
+                await transaction.CommitAsync();
+                DeletedTenantIds = deletedTenantIds.AsReadOnly();
             }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failure when trying to delete a hierarchical tenant.");
+                return "There was a system-level problem - see logs for more detail";
+            }
+
+            
 
             return null; //null means OK, otherwise the delete is rolled back and the return string is shown to the user
         }
-
 
 
         /// <summary>
@@ -135,8 +165,7 @@ namespace Example4.ShopCode.EfCoreCode
         /// </summary>
         /// <param name="tenantToUpdate">The data to update each tenant. This starts at the parent and then recursively works down the children</param>
         /// <returns>Returns null if all OK, otherwise AuthP part of the move is rolled back and the return string is shown to the user</returns>
-        public async Task<string> MoveHierarchicalTenantDataAsync(
-            List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> tenantToUpdate)
+        public async Task<string> MoveHierarchicalTenantDataAsync(List<(string oldDataKey, Tenant tenantToMove)> tenantToUpdate)
         {
 
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
@@ -144,31 +173,26 @@ namespace Example4.ShopCode.EfCoreCode
             {
                 foreach (var tuple in tenantToUpdate)
                 {
-                    try
+                    //Higher hierarchical levels don't have data in this example, so it only tries to move data if there is a RetailOutlet
+                    var retailOutletMove =
+                        await _context.RetailOutlets
+                            .IgnoreQueryFilters()
+                            .SingleOrDefaultAsync(x => x.AuthPTenantId == tuple.tenantToMove.TenantId);
+                    if (retailOutletMove != null)
                     {
-                        //Higher hierarchical levels don't have data in this example, so it only tries to move data if there is a RetailOutlet
-                        var retailOutletMove =
-                            await _context.RetailOutlets
-                                .IgnoreQueryFilters().SingleOrDefaultAsync(x => x.AuthPTenantId == tuple.tenantId);
-                        if (retailOutletMove != null)
-                        {
-                            //yes, its a shop so move all the stock / sales 
-                            var moveSalesSql = $"UPDATE retail.{nameof(RetailDbContext.ShopSales)} " +
-                                               $"SET DataKey = '{tuple.newDataKey}' WHERE DataKey = '{tuple.oldDataKey}'";
-                            await _context.Database.ExecuteSqlRawAsync(moveSalesSql);
-                            var moveStockSql = $"UPDATE retail.{nameof(RetailDbContext.ShopStocks)} " +
-                                               $"SET DataKey = '{tuple.newDataKey}' WHERE DataKey = '{tuple.oldDataKey}'";
-                            await _context.Database.ExecuteSqlRawAsync(moveStockSql);
+                        //yes, its a shop so move all the stock / sales 
 
-                            retailOutletMove.UpdateNames(tuple.newFullTenantName);
-                            retailOutletMove.UpdateDataKey(tuple.newDataKey);
-                            await _context.SaveChangesAsync();
+                        //This code will update the DataKey of every entity that has the IDataKeyFilterReadOnly interface
+                        foreach (var entityType in _context.Model.GetEntityTypes()
+                                     .Where(x => typeof(IDataKeyFilterReadOnly).IsAssignableFrom(x.ClrType)))
+                        {
+                            var updateDataKey = $"UPDATE {entityType.FormSchemaTableFromModel()} " +
+                                               $"SET DataKey = '{tuple.tenantToMove.GetTenantDataKey()}' WHERE DataKey = '{tuple.oldDataKey}'";
+                            await _context.Database.ExecuteSqlRawAsync(updateDataKey);
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError(e, $"Failure when trying to move old Datakey {tuple.oldDataKey} to {tuple.newDataKey}.");
-                        return "There was a system-level problem - see logs for more detail";
+
+                        retailOutletMove.UpdateNames(tuple.tenantToMove.TenantFullName);
+                        await _context.SaveChangesAsync();
                     }
                 }
 
@@ -176,11 +200,17 @@ namespace Example4.ShopCode.EfCoreCode
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failure when calling transaction.CommitAsync in a hierarchical Move.");
+                _logger.LogError(e, "Failure when trying to Move a hierarchical tenant.");
                 return "There was a system-level problem - see logs for more detail";
             }
 
             return null;
+        }
+
+        public Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey,
+            Tenant updatedTenant)
+        {
+            throw new NotImplementedException();
         }
     }
 }

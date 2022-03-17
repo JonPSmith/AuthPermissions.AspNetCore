@@ -45,13 +45,23 @@ namespace AuthPermissions.CommonCode
         }
 
         /// <summary>
-        /// This returns the AuthP DataKey. Can be null if AuthP user has no tenant, or tenants are not configured
+        /// This returns the AuthP DataKey. Can be null if AuthP user has no user, user not a tenants, or tenants are not configured
         /// </summary>
         /// <param name="user">The current ClaimsPrincipal user</param>
         /// <returns>The AuthP DataKey from the claim, or null if no DataKey claim</returns>
         public static string GetAuthDataKeyFromUser(this ClaimsPrincipal user)
         {
             return user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.DataKeyClaimType)?.Value;
+        }
+
+        /// <summary>
+        /// Returns the ConnectionName claim. Can be null if no user, user not a tenants or sharding isn't configured
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public static string GetConnectionNameFromUser(this ClaimsPrincipal user)
+        {
+            return user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.ConnectionNameType)?.Value;
         }
     }
 }

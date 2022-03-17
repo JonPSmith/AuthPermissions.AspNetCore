@@ -46,7 +46,7 @@ public class TestExample3RegisterTenantDataKeyChangeService
         var context = new AuthPermissionsDbContext(options, service);
         context.Database.EnsureCreated();
 
-        await context.SetupHierarchicalTenantInDbAsync();
+        await context.BulkLoadHierarchicalTenantInDbAsync();
         globalAccessor.NumTimesCalled.ShouldEqual(0);
 
         //ATTEMPT

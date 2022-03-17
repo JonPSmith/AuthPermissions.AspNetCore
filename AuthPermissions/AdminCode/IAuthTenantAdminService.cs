@@ -51,8 +51,11 @@ namespace AuthPermissions.AdminCode
         /// </summary>
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
+        /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+        /// <param name="connectionName"></param>
         /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null);
+        Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
+            bool? hasOwnDb = false, string connectionName = null);
 
         /// <summary>
         /// This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
@@ -60,8 +63,12 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
+        /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+        /// <param name="connectionName"></param>
         /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId, List<string> tenantRoleNames = null);
+        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
+            List<string> tenantRoleNames = null,
+            bool? hasOwnDb = null, string connectionName = null);
 
         /// <summary>
         /// This replaces the <see cref="Tenant.TenantRoles"/> in the tenant with <see param="tenantId"/> primary key
@@ -98,8 +105,23 @@ namespace AuthPermissions.AdminCode
         /// but only if no AuthP user are linked to this tenant (it will return errors listing all the AuthP user that are linked to this tenant
         /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="RegisterExtensions.RegisterTenantChangeService{TTenantChangeService}"/>
         /// to delete the application's tenant data.
+        /// NOTE: If the tenant is hierarchical, then it will delete the tenant and all of its child tenants
         /// </summary>
+        /// <param name="tenantId">The primary key of the AuthP tenant to be deleted</param>
         /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
         Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId);
+
+        /// <summary>
+        /// This is used when sharding is enabled. It updates the tenant's <see cref="Tenant.ConnectionName"/> and
+        /// <see cref="Tenant.HasOwnDb"/> and calls the  <see cref="ITenantChangeService"/> <see cref="ITenantChangeService.MoveToDifferentDatabaseAsync"/>
+        /// which moves the tenant data to another database and then deletes the the original tenant data.
+        /// </summary>
+        /// <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
+        ///     NOTE: If its a hierarchical tenant, then the tenant will be the highest parent.</param>
+        /// <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
+        /// <param name="connectionName"></param>
+        /// <returns>status</returns>
+        Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId,
+            bool hasOwnDb, string connectionName);
     }
 }

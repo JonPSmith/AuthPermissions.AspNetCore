@@ -6,11 +6,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.AdminCode.Services.Internal;
+using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.PermissionsCode;
-using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthPermissions
@@ -49,13 +48,19 @@ namespace AuthPermissions
         {
             var result = new List<Claim>();
 
+            var userWithTenant = await _context.AuthUsers.Where(x => x.UserId == userId)
+                .Include(x => x.UserTenant)
+                .SingleOrDefaultAsync();
+
+            if (userWithTenant == null || userWithTenant.IsDisabled)
+                return result;
+
             var permissions = await CalcPermissionsForUserAsync(userId);
-            if (permissions != null)
+            if (permissions != null) 
                 result.Add(new Claim(PermissionConstants.PackedPermissionClaimType, permissions));
 
-            var dataKey = await GetDataKeyAsync(userId);
-            if (dataKey != null)
-                result.Add(new Claim(PermissionConstants.DataKeyClaimType, dataKey));
+            if (_options.TenantType.IsMultiTenant())
+                result.AddRange(GetMultiTenantClaims(userWithTenant.UserTenant));
 
             foreach (var claimsAdder in _claimsAdders)
             {
@@ -109,19 +114,27 @@ namespace AuthPermissions
         }
 
         /// <summary>
-        /// This return the multi-tenant data key if one is found
+        /// This adds the correct claims for a multi-tenant application
         /// </summary>
-        /// <param name="userid"></param>
-        /// <returns>Returns the dataKey, or null if a) tenant isn't turned on, or b) the user doesn't have a tenant</returns>
-        private async Task<string> GetDataKeyAsync(string userid)
+        /// <param name="tenant"></param>
+        /// <returns></returns>
+        private List<Claim> GetMultiTenantClaims(Tenant tenant)
         {
-            if (!_options.TenantType.IsMultiTenant())
-                return null;
+            var result = new List<Claim>();
 
-            var userWithTenant = await _context.AuthUsers.Include(x => x.UserTenant)
-                .SingleOrDefaultAsync(x => x.UserId == userid);
+            if (tenant == null)
+                return result;
 
-            return userWithTenant?.UserTenant?.GetTenantDataKey();
+            var dataKey = tenant.GetTenantDataKey();
+
+            result.Add(new Claim(PermissionConstants.DataKeyClaimType, dataKey));
+
+            if (_options.TenantType.IsSharding())
+            {
+                result.Add(new Claim(PermissionConstants.ConnectionNameType, tenant.ConnectionName));
+            }
+
+            return result;
         }
     }
 }

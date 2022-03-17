@@ -6,16 +6,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.Extensions.Logging;
 using StatusGeneric;
 
@@ -30,7 +27,6 @@ namespace AuthPermissions.AdminCode.Services
         private readonly AuthPermissionsOptions _options;
         private readonly IAuthPServiceFactory<ITenantChangeService> _tenantChangeServiceFactory;
         private readonly ILogger _logger;
-        private readonly IRegisterStateChangeEvent _eventSetup;
 
         private readonly TenantTypes _tenantType;
 
@@ -41,18 +37,15 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="options"></param>
         /// <param name="tenantChangeServiceFactory"></param>
         /// <param name="logger"></param>
-        /// <param name="eventSetup">Optional: </param>
         public AuthTenantAdminService(AuthPermissionsDbContext context, 
             AuthPermissionsOptions options, 
             IAuthPServiceFactory<ITenantChangeService> tenantChangeServiceFactory,
-            ILogger<AuthTenantAdminService> logger,
-            IRegisterStateChangeEvent eventSetup = null)
+            ILogger<AuthTenantAdminService> logger)
         {
             _context = context;
             _options = options;
             _tenantChangeServiceFactory = tenantChangeServiceFactory;
             _logger = logger;
-            _eventSetup = eventSetup;
 
             _tenantType = options.TenantType;
         }
@@ -134,8 +127,11 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
+        /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+        /// <param name="connectionName"></param>
         /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null)
+        public async Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
+            bool? hasOwnDb = null, string connectionName = null)
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
@@ -145,7 +141,7 @@ namespace AuthPermissions.AdminCode.Services
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
                 var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
@@ -155,14 +151,29 @@ namespace AuthPermissions.AdminCode.Services
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
                     return status;
 
+                if (_tenantType.IsSharding())
+                {
+                    if (hasOwnDb == null)
+                        status.AddError($"The {nameof(hasOwnDb)} parameter must be set to true or false when sharding is turned on.",
+                            nameof(hasOwnDb).CamelToPascal());
+                    else
+                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, connectionName));
+
+                    if (status.HasErrors)
+                        return status;
+
+                    newTenantStatus.Result.UpdateShardingState(
+                        connectionName ?? _options.ShardingDefaultConnectionName,
+                        (bool)hasOwnDb);
+                }
+
                 _context.Add(newTenantStatus.Result);
                 status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                 if (status.HasErrors)
                     return status;
 
-                var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result.GetTenantDataKey(),
-                    newTenantStatus.Result.TenantId, newTenantStatus.Result.TenantFullName);
+                var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result);
                 if (errorString != null)
                     return status.AddError(errorString);
 
@@ -173,7 +184,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (_logger == null)
                     throw;
 
-                _logger.LogError(e, $"Failed to {status.Message}");
+                _logger.LogError(e, $"Failed to {e.Message}");
                 return status.AddError(
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
@@ -187,11 +198,13 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
+        /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+        /// <param name="connectionName"></param>
         /// <returns>A status with any errors found</returns>
         public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
-            List<string> tenantRoleNames = null)
+            List<string> tenantRoleNames = null, bool? hasOwnDb = false, string connectionName = null)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
             if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
@@ -213,6 +226,10 @@ namespace AuthPermissions.AdminCode.Services
                     parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
                     if (parentTenant == null)
                         return status.AddError("Could not find the parent tenant you asked for.");
+
+                    if (!parentTenant.IsHierarchical)
+                        throw new AuthPermissionsException(
+                            "attempted to add a Hierarchical tenant to a single-level tenant, which isn't allowed");
                 }
 
                 var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
@@ -225,14 +242,60 @@ namespace AuthPermissions.AdminCode.Services
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
                     return status;
 
+                if (_tenantType.IsSharding())
+                {
+                    if (parentTenant != null)
+                    {
+                        //If there is a parent we use its sharding settings
+                        //But to make sure the user thinks their values are used we send back errors if they are different 
+
+                        if (hasOwnDb != null && parentTenant.HasOwnDb != hasOwnDb)
+                            status.AddError(
+                                $"The {nameof(hasOwnDb)} parameter doesn't match the parent's " +
+                                $"{nameof(Tenant.HasOwnDb)}. Set the {nameof(hasOwnDb)} " +
+                                $"parameter to null to use the parent's {nameof(Tenant.HasOwnDb)} value.",
+                                nameof(hasOwnDb).CamelToPascal());
+
+                        if (connectionName != null &&
+                            parentTenant.ConnectionName != connectionName)
+                            status.AddError(
+                                $"The {nameof(connectionName)} parameter doesn't match the parent's " +
+                                $"{nameof(Tenant.ConnectionName)}. Set the {nameof(connectionName)} " +
+                                $"parameter to null to use the parent's {nameof(Tenant.ConnectionName)} value.",
+                                nameof(connectionName).CamelToPascal());
+
+
+                        hasOwnDb = parentTenant.HasOwnDb;
+                        connectionName = parentTenant.ConnectionName;
+
+                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, connectionName));
+                    }
+                    else
+                    {
+
+                        if (hasOwnDb == null)
+                            return status.AddError(
+                                $"The {nameof(hasOwnDb)} parameter must be set to true or false if there is no parent and sharding is turned on.",
+                                nameof(hasOwnDb).CamelToPascal());
+
+                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, connectionName));
+                    }
+
+                    if (status.HasErrors)
+                        return status;
+
+                    newTenantStatus.Result.UpdateShardingState(
+                        connectionName ?? _options.ShardingDefaultConnectionName,
+                        (bool)hasOwnDb);
+                }
+
                 _context.Add(newTenantStatus.Result);
                 status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                 if (status.HasErrors)
                     return status;
 
-                var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result.GetTenantDataKey(),
-                    newTenantStatus.Result.TenantId, newTenantStatus.Result.TenantFullName);
+                var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result);
                 if (errorString != null)
                     return status.AddError(errorString);
 
@@ -243,7 +306,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (_logger == null)
                     throw;
 
-                _logger.LogError(e, $"Failed to {status.Message}");
+                _logger.LogError(e, $"Failed to {e.Message}");
                 return status.AddError(
                     "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
             }
@@ -263,7 +326,7 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} parameter in the AuthP's options");
 
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericHandler { Message = "Successfully updated the tenant's Roles." };
 
             var tenant = await _context.Tenants.Include(x => x.TenantRoles)
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
@@ -293,7 +356,8 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns></returns>
         public async Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericHandler
+                { Message = $"Successfully updated the tenant's name to {newTenantName}." };
 
             if (string.IsNullOrEmpty(newTenantName))
                 return status.AddError("The new name was empty", nameof(newTenantName).CamelToPascal());
@@ -307,7 +371,6 @@ namespace AuthPermissions.AdminCode.Services
             using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-
                 var tenant = await _context.Tenants
                     .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
@@ -327,22 +390,13 @@ namespace AuthPermissions.AdminCode.Services
                         .Single(x => x.TenantId == tenantId);
 
                     existingTenantWithChildren.UpdateTenantName(newTenantName);
-
-                    foreach (var tenantToUpdate in tenantsWithChildren)
-                    {
-                        var errorString = await tenantChangeService.HandleUpdateNameAsync(tenantToUpdate.GetTenantDataKey(),
-                            tenantToUpdate.TenantId, tenantToUpdate.TenantFullName);
-                        if (errorString != null)
-                            return status.AddError(errorString);
-                    }
+                    await tenantChangeService.HierarchicalTenantUpdateNameAsync(tenantsWithChildren);
                 }
                 else
                 {
                     tenant.UpdateTenantName(newTenantName);
 
-                    var errorString = await tenantChangeService.HandleUpdateNameAsync(tenant.GetTenantDataKey(),
-                        tenant.TenantId,
-                        tenant.TenantFullName);
+                    var errorString = await tenantChangeService.SingleTenantUpdateNameAsync(tenant);
                     if (errorString != null)
                         return status.AddError(errorString);
                 }
@@ -357,7 +411,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (_logger == null)
                     throw;
 
-                _logger.LogError(e, $"Failed to {status.Message}");
+                _logger.LogError(e, $"Failed to {e.Message}");
                 return status.AddError(
                     "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
             }
@@ -376,7 +430,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         public async Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(int tenantToMoveId, int newParentTenantId)
         {
-            var status = new StatusGenericHandler { };
+            var status = new StatusGenericHandler { Message = "Successfully moved the hierarchical tenant to a new parent." };
 
             if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
@@ -387,10 +441,9 @@ namespace AuthPermissions.AdminCode.Services
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
 
-            using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-
                 var tenantToMove = await _context.Tenants
                     .SingleOrDefaultAsync(x => x.TenantId == tenantToMoveId);
                 var originalName = tenantToMove.TenantFullName;
@@ -418,8 +471,7 @@ namespace AuthPermissions.AdminCode.Services
                 }
 
                 //Now we ask the Tenant entity to do the move on the AuthP's Tenants, and capture each change
-                var listOfChanges =
-                    new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>();
+                var listOfChanges = new List<(string oldDataKey, Tenant)>();
                 existingTenantWithChildren.MoveTenantToNewParent(parentTenant, tuple => listOfChanges.Add(tuple));
                 var errorString = await tenantChangeService.MoveHierarchicalTenantDataAsync(listOfChanges);
                 if (errorString != null)
@@ -437,7 +489,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (_logger == null)
                     throw;
 
-                _logger.LogError(e, $"Failed to {status.Message}");
+                _logger.LogError(e, $"Failed to {e.Message}");
                 return status.AddError(
                     "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
             }
@@ -463,7 +515,6 @@ namespace AuthPermissions.AdminCode.Services
             using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
-
                 var tenantToDelete = await _context.Tenants
                     .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
@@ -520,9 +571,7 @@ namespace AuthPermissions.AdminCode.Services
                 else
                 {
                     //delete the tenant that the user defines
-                    var mainError = await tenantChangeService.SingleTenantDeleteAsync(tenantToDelete.GetTenantDataKey(),
-                        tenantToDelete.TenantId,
-                        tenantToDelete.TenantFullName);
+                    var mainError = await tenantChangeService.SingleTenantDeleteAsync(tenantToDelete);
                     if (mainError != null)
                         return status.AddError(mainError);
                     _context.Remove(tenantToDelete);
@@ -538,7 +587,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (_logger == null)
                     throw;
 
-                _logger.LogError(e, $"Failed to {status.Message}");
+                _logger.LogError(e, $"Failed to {e.Message}");
                 return status.AddError(
                     "The attempt to delete a tenant failed with a system error. Please contact the admin team.");
             }
@@ -547,8 +596,95 @@ namespace AuthPermissions.AdminCode.Services
             return status;
         }
 
+        /// <summary>
+        /// This is used when sharding is enabled. It updates the tenant's <see cref="Tenant.ConnectionName"/> and
+        /// <see cref="Tenant.HasOwnDb"/> and calls the  <see cref="ITenantChangeService"/> <see cref="ITenantChangeService.MoveToDifferentDatabase"/>
+        /// which moves the tenant data to another database and then deletes the the original tenant data.
+        /// </summary>
+        /// <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
+        ///     NOTE: If its a hierarchical tenant, then the tenant will be the highest parent.</param>
+        /// <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
+        /// <param name="connectionName"></param>
+        /// <returns>status</returns>
+        public async Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId, bool hasOwnDb,
+            string connectionName)
+        {
+            var status = new StatusGenericHandler { Message = "Successfully moved the tenant to a different database." };
+
+            if (!_tenantType.IsSharding())
+                throw new AuthPermissionsException(
+                    "This method can only be called when sharding is turned on.");
+
+            var tenantChangeService = _tenantChangeServiceFactory.GetService();
+
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
+            {
+                var tenant = await _context.Tenants
+                    .SingleOrDefaultAsync(x => x.TenantId == tenantToMoveId);
+
+                if (tenant == null)
+                    return status.AddError("Could not find the tenant you were looking for.");
+
+                if (tenant.ConnectionName == connectionName)
+                {
+                    status.Message = $"The database connection string is already set to {connectionName}.";
+                    return status;
+                }
+
+                if (status.CombineStatuses(await CheckHasOwnDbIsValidAsync(hasOwnDb, connectionName)).HasErrors)
+                    return status;
+
+                var previousConnectionName = tenant.ConnectionName;
+                var previousDataKey = tenant.GetTenantDataKey();
+                tenant.UpdateShardingState(connectionName, hasOwnDb);
+
+                if (status.CombineStatuses(await _context.SaveChangesWithChecksAsync()).HasErrors)
+                    return status;
+
+                var mainError = await tenantChangeService
+                    .MoveToDifferentDatabaseAsync(previousConnectionName, previousDataKey, tenant);
+                if (mainError != null)
+                    return status.AddError(mainError);
+
+                if (status.IsValid)
+                    await transaction.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                if (_logger == null)
+                    throw;
+
+                _logger.LogError(e, $"Failed to {e.Message}");
+                return status.AddError(
+                    "The attempt to move the tenant to another database failed. Please contact the admin team.");
+            }
+
+            return status;
+        }
+
         //----------------------------------------------------------
         // private methods
+
+        /// <summary>
+        /// If the hasOwnDb is true, it returns an error if any tenants have the same <see cref="Tenant.ConnectionName"/>
+        /// </summary>
+        /// <param name="hasOwnDb"></param>
+        /// <param name="connectionName"></param>
+        /// <returns>status</returns>
+        private async Task<IStatusGeneric> CheckHasOwnDbIsValidAsync(bool hasOwnDb, string connectionName)
+        {
+            var status = new StatusGenericHandler();
+            if (!hasOwnDb)
+                return status;
+
+            if (await _context.Tenants.AnyAsync(x => x.ConnectionName == connectionName))
+                status.AddError(
+                    $"The {nameof(hasOwnDb)} parameter is true, but there is already a tenant with the " +
+                    $"same connection name '{connectionName}', so {nameof(hasOwnDb)} should be false.");
+
+            return status;
+        }
 
         /// <summary>
         /// This finds the roles with the given names from the AuthP database. Returns errors if not found

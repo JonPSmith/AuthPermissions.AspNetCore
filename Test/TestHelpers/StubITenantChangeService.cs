@@ -7,27 +7,28 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.SetupCode.Factories;
-using Microsoft.EntityFrameworkCore;
 
 namespace Test.TestHelpers
 {
 
     public class StubITenantChangeServiceFactory : IAuthPServiceFactory<ITenantChangeService>
     {
-        private readonly DbContext _appContext;
         private readonly string _errorMessage;
 
         public string NewTenantName { get; set; }
 
-        public List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> MoveReturnedTuples =
-            new List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)>();
+        public List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> MoveReturnedTuples = new ();
 
 
-
-        public StubITenantChangeServiceFactory(DbContext appContext, string errorMessage = null)
+        public StubITenantChangeServiceFactory(string errorMessage = null)
         {
-            _appContext = appContext;
             _errorMessage = errorMessage;
+        }
+
+
+        public ITenantChangeService GetService(bool throwExceptionIfNull = true)
+        {
+            return new StubITenantChangeService(this, _errorMessage);
         }
 
         public class StubITenantChangeService : ITenantChangeService
@@ -35,8 +36,7 @@ namespace Test.TestHelpers
             private readonly StubITenantChangeServiceFactory _factory;
             private readonly string _errorMessage;
 
-            public List<(string dataKey, string fullTenantName)> DeleteReturnedTuples { get; } =
-                new List<(string fullTenantName, string dataKey)>();
+            public List<(string dataKey, string fullTenantName)> DeleteReturnedTuples { get; } = new ();
 
             public StubITenantChangeService(StubITenantChangeServiceFactory factory, string errorMessage)
             {
@@ -44,10 +44,15 @@ namespace Test.TestHelpers
                 _errorMessage = errorMessage;
             }
 
-            public Task<string> CreateNewTenantAsync(string dataKey, int tenantId, string fullTenantName)
+            public Task<string> CreateNewTenantAsync(Tenant tenant)
             {
-                _factory.NewTenantName = fullTenantName;
+                _factory.NewTenantName = tenant.TenantFullName;
 
+                return Task.FromResult(_errorMessage);
+            }
+
+            public Task<string> SingleTenantUpdateNameAsync(Tenant tenant)
+            {
                 return Task.FromResult(_errorMessage);
             }
 
@@ -59,15 +64,15 @@ namespace Test.TestHelpers
                 return Task.FromResult(_errorMessage);
             }
 
-            public Task<string> HandleUpdateNameAsync(string dataKey, int tenantId, string fullTenantName)
+            public Task<string> SingleTenantDeleteAsync(Tenant tenant)
             {
+                DeleteReturnedTuples.Add((tenant.GetTenantDataKey(), tenant.TenantFullName));
+
                 return Task.FromResult(_errorMessage);
             }
 
-            public Task<string> SingleTenantDeleteAsync(string dataKey, int tenantId, string fullTenantName)
+            public Task<string> HierarchicalTenantUpdateNameAsync(List<Tenant> tenantsToUpdate)
             {
-                DeleteReturnedTuples.Add((dataKey, fullTenantName));
-
                 return Task.FromResult(_errorMessage);
             }
 
@@ -78,12 +83,20 @@ namespace Test.TestHelpers
                 return Task.FromResult(_errorMessage);
             }
 
-            public Task<string> MoveHierarchicalTenantDataAsync(List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> tenantToUpdate)
+            public Task<string> MoveHierarchicalTenantDataAsync(List<(string oldDataKey, Tenant tenantToMove)> tenantToUpdate)
             {
-                _factory.MoveReturnedTuples = tenantToUpdate;
+                _factory.MoveReturnedTuples = tenantToUpdate.Select(x =>
+                    (x.oldDataKey, x.tenantToMove.GetTenantDataKey(), x.tenantToMove.TenantId, x.tenantToMove.TenantFullName)
+                ).ToList();
                 return Task.FromResult(_errorMessage);
             }
 
+            public Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName,
+                string oldDataKey,
+                Tenant updatedTenant)
+            {
+                return Task.FromResult(_errorMessage);
+            }
         }
 
         public ITenantChangeService GetService(bool throwExceptionIfNull = true, string callingMethod = "")

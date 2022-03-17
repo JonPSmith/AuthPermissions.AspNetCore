@@ -6,8 +6,16 @@ using AuthPermissions.SetupCode;
 
 namespace AuthPermissions.AdminCode;
 
+/// <summary>
+/// Methods to decode the <see cref="AuthPermissionsOptions.TenantType"/> property
+/// </summary>
 public static class TenantTypeExtensions
 {
+    /// <summary>
+    /// This checks that the <see cref="AuthPermissionsOptions.TenantType"/> property contains a valid state
+    /// </summary>
+    /// <param name="tenantType"></param>
+    /// <exception cref="AuthPermissionsException"></exception>
     public static void ThrowExceptionIfTenantTypeIsWrong(this TenantTypes tenantType)
     {
         if (tenantType.HasFlag(TenantTypes.SingleLevel) && tenantType.HasFlag(TenantTypes.HierarchicalTenant))
@@ -19,25 +27,40 @@ public static class TenantTypeExtensions
             throw new AuthPermissionsException(
                 $"You need to set the {nameof(AuthPermissionsOptions.TenantType)} option to either {nameof(TenantTypes.SingleLevel)} or " +
                 $"{nameof(TenantTypes.HierarchicalTenant)} when setting the {nameof(TenantTypes.AddSharding)} flag.");
-
     }
 
+    /// <summary>
+    /// Returns true if the <see cref="AuthPermissionsOptions.TenantType"/> property is set to use AuthP's multi-tenant feature
+    /// </summary>
+    /// <param name="tenantType"></param>
+    /// <returns></returns>
     public static bool IsMultiTenant(this TenantTypes tenantType)
     {
         return tenantType.HasFlag(TenantTypes.SingleLevel) || tenantType.HasFlag(TenantTypes.HierarchicalTenant);
     }
-
+    /// <summary>
+    /// Returns true if the <see cref="AuthPermissionsOptions.TenantType"/> property is set to <see cref="TenantTypes.SingleLevel"/>
+    /// </summary>
+    /// <param name="tenantType"></param>
     public static bool IsSingleLevel(this TenantTypes tenantType)
     {
         return tenantType.HasFlag(TenantTypes.SingleLevel);
     }
 
+    /// <summary>
+    /// Returns true if the <see cref="AuthPermissionsOptions.TenantType"/> property is set to <see cref="TenantTypes.HierarchicalTenant"/>
+    /// </summary>
+    /// <param name="tenantType"></param>
     public static bool IsHierarchical(this TenantTypes tenantType)
     {
         return tenantType.HasFlag(TenantTypes.HierarchicalTenant);
     }
 
-    public static bool UsingSharding(this TenantTypes tenantType)
+    /// <summary>
+    /// Returns true if the <see cref="AuthPermissionsOptions.TenantType"/> property has the <see cref="TenantTypes.AddSharding"/> flag set
+    /// </summary>
+    /// <param name="tenantType"></param>
+    public static bool IsSharding(this TenantTypes tenantType)
     {
         return tenantType.HasFlag(TenantTypes.AddSharding);
     }

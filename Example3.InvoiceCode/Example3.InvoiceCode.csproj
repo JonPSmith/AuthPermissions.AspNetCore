@@ -17,11 +17,7 @@
     <PackageReference Include="NetCore.AutoRegisterDi" Version="2.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="EfCoreClasses\" />
-  </ItemGroup>
-
-  <ItemGroup>
+	<ItemGroup>
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />
   </ItemGroup>
 

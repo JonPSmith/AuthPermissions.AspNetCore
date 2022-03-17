@@ -37,6 +37,14 @@ public interface ILinkToTenantDataService
     string GetDataKeyOfLinkedTenant();
 
     /// <summary>
+    /// This gets the DataKey and ConnectionName from the <see cref="AccessTenantDataCookie"/>
+    /// If there no cookie it returns null for both properties
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="AuthPermissionsException"></exception>
+    (string dataKey, string connectionName) GetShardingDataOfLinkedTenant();
+
+    /// <summary>
     /// This gets the TenantFullName of the tenant that the <see cref="AccessTenantDataCookie"/> contains
     /// If there no cookie it returns null
     /// </summary>

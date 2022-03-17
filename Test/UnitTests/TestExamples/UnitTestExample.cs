@@ -11,7 +11,6 @@ using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Test.TestHelpers;
 using Xunit;

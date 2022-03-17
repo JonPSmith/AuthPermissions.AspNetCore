@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using StatusGeneric;
@@ -92,9 +93,22 @@ namespace AuthPermissions.DataLayer.Classes
         public string TenantFullName { get; private set; }
 
         /// <summary>
-        /// This is true if the tenant is an hierarchical 
+        /// This is true if the tenant is hierarchical 
         /// </summary>
         public bool IsHierarchical { get; private set; }
+
+        /// <summary>
+        /// This is true if the tenant has its own database.
+        /// This is used by single-level tenants to return true for the query filter
+        /// Also provides a quick way to find out what databases are used and how many tenants are in each database
+        /// </summary>
+        public bool HasOwnDb { get; private set; }
+
+        /// <summary>
+        /// If sharding is turned on then this will contain the name of the connection string
+        /// in the appsettings.json "ConnectionStrings" section. This must not be null
+        /// </summary>
+        public string ConnectionName { get; private set; } 
 
         //---------------------------------------------------------
         //relationships - only used for hierarchical multi-tenant system
@@ -126,7 +140,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{TenantFullName}: Key = {GetTenantDataKey()}";
+            return $"{TenantFullName}: Key = {this.GetTenantDataKey()}";
         }
 
         //--------------------------------------------------
@@ -141,17 +155,14 @@ namespace AuthPermissions.DataLayer.Classes
         //access methods
 
         /// <summary>
-        /// This calculates the data key for this tenant.
-        /// If it is a single layer multi-tenant it will by the TenantId as a string
-        /// If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId in the parents as well
+        /// This allows you to change the sharding information for this tenant
         /// </summary>
-        public string GetTenantDataKey()
+        /// <param name="newConnectionName"></param>
+        /// <param name="hasOwnDb">true if it is the only tenant in its database</param>
+        public void UpdateShardingState(string newConnectionName, bool hasOwnDb)
         {
-            if (TenantId == default)
-                throw new AuthPermissionsException(
-                    "The Tenant DataKey is only correct if the tenant primary key is set");
-
-            return ParentDataKey + $"{TenantId}.";
+            ConnectionName = newConnectionName ?? throw new ArgumentNullException(nameof(newConnectionName));
+            HasOwnDb = hasOwnDb;
         }
 
         /// <summary>
@@ -226,18 +237,18 @@ namespace AuthPermissions.DataLayer.Classes
         /// These starts at the parent and then recursively works down the children.
         /// This allows you to obtains the previous DataKey, the new DataKey and the fullname of every tenant that was moved</param>
         public void MoveTenantToNewParent(Tenant newParentTenant,
-            Action<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> getChangeData)
+            Action<(string oldDataKey, Tenant tenant)> getChangeData)
         {
             if (!IsHierarchical)
                 throw new AuthPermissionsException("You can only move a hierarchical tenant to a new parent");
             if (Children == null)
                 throw new AuthPermissionsException("The children must be loaded to move a hierarchical tenant");
 
-            var oldDataKey = GetTenantDataKey();
+            var oldDataKey = this.GetTenantDataKey();
             TenantFullName = CombineParentNameWithTenantName(ExtractEndLeftTenantName(this.TenantFullName), newParentTenant?.TenantFullName);
             Parent = newParentTenant;
             ParentDataKey = newParentTenant?.GetTenantDataKey();
-            getChangeData((oldDataKey, GetTenantDataKey(), TenantId, TenantFullName));
+            getChangeData((oldDataKey, this));
 
             RecursivelyChangeChildNames(this, Children, (parent, child) =>
             {
@@ -245,8 +256,7 @@ namespace AuthPermissions.DataLayer.Classes
                 child.TenantFullName = CombineParentNameWithTenantName(thisLevelTenantName, parent.TenantFullName);
                 var previousDataKey = child.GetTenantDataKey();
                 child.ParentDataKey = parent?.GetTenantDataKey();
-                var newDataKey = child.GetTenantDataKey();
-                getChangeData?.Invoke((previousDataKey, newDataKey, child.TenantId, child.TenantFullName));
+                getChangeData?.Invoke((previousDataKey, child));
             });
         }
 

@@ -4,9 +4,9 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AuthPermissions.DataLayer.EfCode
@@ -69,6 +69,45 @@ namespace AuthPermissions.DataLayer.EfCode
             where TEntity : class, IDataKeyFilterReadOnly
         {
             Expression<Func<TEntity, bool>> filter = x => x.DataKey.StartsWith(dataKey.DataKey);
+            return filter;
+        }
+
+        /// <summary>
+        /// This method will set up a single-level tenant query filter when using sharding
+        /// The difference from the non-sharding version is if the tenant is in a database all on its own,
+        /// then it sets a true, which will remove the effect of query filter to improve performance
+        /// See the Example6 for an example of using this
+        /// </summary>
+        /// <param name="entityData"></param>
+        /// <param name="dataKey"></param>
+        public static void AddSingleTenantShardingQueryFilter(this IMutableEntityType entityData,
+            IDataKeyFilterReadOnly dataKey)
+        {
+            var methodToCall = typeof(DataKeyQueryExtension)
+                .GetMethod(nameof(SetupSingleTenantShardingQueryFilter),
+                    BindingFlags.NonPublic | BindingFlags.Static)
+                .MakeGenericMethod(entityData.ClrType);
+            var filter = methodToCall.Invoke(null, new object[] { dataKey });
+            entityData.SetQueryFilter((LambdaExpression)filter);
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetIsUnicode(false); //Make unicode
+            var dataKeySize = Math.Max(12, MultiTenantExtensions.DataKeyNoQueryFilter.Length);
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(dataKeySize);    //size must contain "no query" string
+            entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadWrite.DataKey)));
+        }
+
+        /// <summary>
+        /// This version will set a true if the DataKey == <see cref="MultiTenantExtensions.DataKeyNoQueryFilter"/>
+        /// This removes the effect of the query filter in single-level tenant using sharding and is the only tenant in a database
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="dataKey"></param>
+        /// <returns></returns>
+        private static LambdaExpression SetupSingleTenantShardingQueryFilter<TEntity>(IDataKeyFilterReadOnly dataKey)
+            where TEntity : class, IDataKeyFilterReadWrite
+        {
+            Expression<Func<TEntity, bool>> filter = x =>
+                dataKey.DataKey == MultiTenantExtensions.DataKeyNoQueryFilter ||
+                x.DataKey == dataKey.DataKey;
             return filter;
         }
     }

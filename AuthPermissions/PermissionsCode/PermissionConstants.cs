@@ -16,6 +16,10 @@ namespace AuthPermissions.PermissionsCode
         /// The claim name holding the optional DataKey
         /// </summary>
         public const string DataKeyClaimType = "DataKey";
+        /// <summary>
+        /// The claim name holding the name of the connection string in the appsettings 
+        /// </summary>
+        public const string ConnectionNameType = "ConnectionName";
 
         /// <summary>
         /// This is the char for the AccessAll permission

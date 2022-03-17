@@ -6,10 +6,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
+using Example3.InvoiceCode.EfCoreClasses;
+using Example3.InvoiceCode.EfCoreCode;
+using Example4.ShopCode.EfCoreClasses;
+using Example4.ShopCode.EfCoreCode;
+using Example6.SingleLevelSharding.AppStart;
+using Example6.SingleLevelSharding.EfCoreCode;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers
@@ -66,15 +73,59 @@ namespace Test.TestHelpers
             context.SaveChanges();
         }
 
-        public static List<int> SetupSingleTenantsInDb(this AuthPermissionsDbContext context)
+        public static List<int> SetupSingleTenantsInDb(this AuthPermissionsDbContext context, InvoicesDbContext invoiceContext = null)
         {
-            var s1 = Tenant.CreateSingleTenant("Tenant1");
-            var s2 = Tenant.CreateSingleTenant("Tenant2");
-            var s3 = Tenant.CreateSingleTenant("Tenant3");
-            context.AddRange(s1.Result, s2.Result, s3.Result);
+            var tenants = new []
+            {
+                Tenant.CreateSingleTenant("Tenant1").Result,
+                Tenant.CreateSingleTenant("Tenant2").Result,
+                Tenant.CreateSingleTenant("Tenant3").Result,
+            };
+
+            context.AddRange(tenants);
             context.SaveChanges();
 
-            return new List<int> { s1.Result.TenantId, s2.Result.TenantId, s3.Result.TenantId };
+            if (invoiceContext != null)
+            {
+                foreach (var tenant in tenants)
+                {
+                    var company = new CompanyTenant
+                    {
+                        AuthPTenantId = tenant.TenantId,
+                        CompanyName = tenant.TenantFullName,
+                        DataKey = tenant.GetTenantDataKey(),
+                    };
+                    invoiceContext.Add(company);
+                }
+
+                invoiceContext.SaveChanges();
+            }
+
+            return tenants.Select(x => x.TenantId).ToList();
+        }
+
+        public async static Task<List<int>> SetupSingleShardingTenantsInDb(this AuthPermissionsDbContext context,
+            ShardingSingleDbContext appContext = null)
+        {
+            var tenants = new List<Tenant>
+            {
+                Tenant.CreateSingleTenant("Tenant1").Result,
+                Tenant.CreateSingleTenant("Tenant2").Result,
+                Tenant.CreateSingleTenant("Tenant3").Result,
+            };
+
+            tenants.ForEach(x => x.UpdateShardingState("DefaultConnection", false));
+
+            context.AddRange(tenants);
+            context.SaveChanges();
+
+            if (appContext != null)
+            {
+                var seeder = new SeedShardingDbContext(appContext);
+                await seeder.SeedInvoicesForAllTenantsAsync(tenants);
+            }
+
+            return tenants.Select(x => x.TenantId).ToList();
         }
 
         public static List<BulkLoadTenantDto> GetSingleTenant123()
@@ -113,14 +164,38 @@ namespace Test.TestHelpers
             };
         }
             
-        public static async Task<List<int>> SetupHierarchicalTenantInDbAsync(this AuthPermissionsDbContext context)
+        public static async Task<List<int>> BulkLoadHierarchicalTenantInDbAsync(this AuthPermissionsDbContext context,
+            RetailDbContext retailContext = null)
         {
             var service = new BulkLoadTenantsService(context);
             var authOptions = new AuthPermissionsOptions {TenantType = TenantTypes.HierarchicalTenant};
 
             (await service.AddTenantsToDatabaseAsync(GetHierarchicalDefinitionCompany(), authOptions)).IsValid.ShouldBeTrue();
+            if (retailContext != null)
+            {
+                //We add
+                foreach (var tenant in context.Tenants)
+                {
+                    retailContext.Add(new RetailOutlet(tenant.TenantId, tenant.TenantFullName,
+                        tenant.GetTenantDataKey()));
+                }
 
-            return context.Tenants.Select(x => x.TenantId).ToList();
+                retailContext.SaveChanges();
+            }
+
+            return context.Tenants.Select(x => x.TenantId).OrderBy(x => x).ToList();
+        }
+
+        public static async Task<List<int>> BulkLoadHierarchicalTenantShardingAsync(this AuthPermissionsDbContext context)
+        {
+            var service = new BulkLoadTenantsService(context);
+            var authOptions = new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant };
+
+            (await service.AddTenantsToDatabaseAsync(GetHierarchicalDefinitionCompany(), authOptions)).IsValid.ShouldBeTrue();
+            context.Tenants.ToList().ForEach(x => x.UpdateShardingState("DefaultConnection", false));
+            await context.SaveChangesAsync();
+
+            return context.Tenants.Select(x => x.TenantId).OrderBy(x => x).ToList();
         }
 
         public static List<BulkLoadUserWithRolesTenant> TestUserDefineWithUserId(string user2Roles = "Role1,Role2")

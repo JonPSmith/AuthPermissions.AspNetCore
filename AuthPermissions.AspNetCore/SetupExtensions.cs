@@ -248,19 +248,32 @@ namespace AuthPermissions.AspNetCore
                 //And register the service that manages the cookie and the service to start/stop linking
                 setupData.Services.AddScoped<IAccessTenantDataCookie, AccessTenantDataCookie>();
                 setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
-                switch (setupData.Options.LinkToTenantType)
-                {
-
-                    case LinkToTenantTypes.OnlyAppUsers:
-                        setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppUserAccessTenantData>();
-                        break;
-                    case LinkToTenantTypes.AppAndHierarchicalUsers:
-                        setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppAndHierarchicalUsersAccessTenantData>();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
+                if (setupData.Options.TenantType.IsSharding())
+                    switch (setupData.Options.LinkToTenantType)
+                    {
+                        case LinkToTenantTypes.OnlyAppUsers:
+                            setupData.Services.AddScoped<IGetShardingDataFromUser, GetShardingDataUserAccessTenantData>();
+                            break;
+                        case LinkToTenantTypes.AppAndHierarchicalUsers:
+                            setupData.Services
+                                .AddScoped<IGetShardingDataFromUser, GetShardingDataAppAndHierarchicalUsersAccessTenantData>();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                else
+                    switch (setupData.Options.LinkToTenantType)
+                    {
+                        case LinkToTenantTypes.OnlyAppUsers:
+                            setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppUserAccessTenantData>();
+                            break;
+                        case LinkToTenantTypes.AppAndHierarchicalUsers:
+                            setupData.Services
+                                .AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppAndHierarchicalUsersAccessTenantData>();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
             }
         }
     }

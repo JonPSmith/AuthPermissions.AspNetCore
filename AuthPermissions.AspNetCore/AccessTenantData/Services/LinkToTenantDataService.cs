@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
@@ -94,11 +95,35 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     /// If there no cookie it returns null
     /// </summary>
     /// <returns></returns>
+    /// <exception cref="AuthPermissionsException"></exception>
     public string GetDataKeyOfLinkedTenant()
     {
+        if (_options.TenantType.IsSharding())
+            throw new AuthPermissionsException("You shouldn't be using this method if sharding is turn on");
+
         var cookieValue = _cookieAccessor.GetValue();
 
         return cookieValue == null ? null : DecodeCookieContent(cookieValue).dataKey;
+    }
+
+    /// <summary>
+    /// This gets the DataKey and ConnectionName from the <see cref="AccessTenantDataCookie"/>
+    /// If there no cookie it returns null for both properties
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="AuthPermissionsException"></exception>
+    public (string dataKey, string connectionName) GetShardingDataOfLinkedTenant()
+    {
+        if (!_options.TenantType.IsSharding())
+            throw new AuthPermissionsException("You shouldn't be using this method if sharding is turned off");
+
+        var cookieValue = _cookieAccessor.GetValue();
+        if (cookieValue == null)
+            return (null, null);
+
+        var content = DecodeCookieContent(cookieValue);
+
+        return (content.dataKey, content.connectionName);
     }
 
     /// <summary>
@@ -119,29 +144,37 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
     private string EncodeCookieContent(Tenant tenantToLinkToTenant)
     {
-        //thanks to https://stackoverflow.com/questions/13254211/how-to-convert-string-to-datetime-as-utc-as-simple-as-that
-        //var threeValues = $"{tenantToLinkToTenant.GetTenantDataKey()},{DateTime.UtcNow.ToShortTimeString()},{tenantToLinkToTenant.TenantFullName}";
-        var twoValues = $"{tenantToLinkToTenant.GetTenantDataKey()},{tenantToLinkToTenant.TenantFullName}";
+        var values = _options.TenantType.IsSharding()
+            ? $"{tenantToLinkToTenant.GetTenantDataKey()},{tenantToLinkToTenant.ConnectionName},{tenantToLinkToTenant.TenantFullName}"
+            : $"{tenantToLinkToTenant.GetTenantDataKey()},{tenantToLinkToTenant.TenantFullName}";
 
-        return _encryptorService.Encrypt(twoValues);
+        return _encryptorService.Encrypt(values);
     }
 
-    private  (string dataKey, string tenantName) DecodeCookieContent(string cookieValue)
+    private  (string dataKey, string tenantName, string connectionName) DecodeCookieContent(string cookieValue)
     {
-        string twoValues;
+        string values;
         try
         {
-            twoValues = _encryptorService.Decrypt(cookieValue);
+            values = _encryptorService.Decrypt(cookieValue);
         }
         catch
         {
             throw new AuthPermissionsException("The content of the Access Tenant Data cookie was bad.");
         }
 
-        var firstComma = twoValues.IndexOf(',');
+        var firstComma = values.IndexOf(',');
         if (firstComma == -1)
             throw new AuthPermissionsException("Could not find the user you were looking for.");
 
-        return (twoValues.Substring(0, firstComma), twoValues.Substring(firstComma + 1));
+        //without sharding
+        if (!_options.TenantType.HasFlag(TenantTypes.AddSharding))
+            return (values.Substring(0, firstComma), values.Substring(firstComma + 1), null);
+
+        //with sharding (order is DataKey, ConnectionName, Tenant name - this overcomes the problem of commas in the tenant name
+        var secondComma = values.Substring(firstComma + 1).IndexOf(',')+ firstComma + 1;
+        return (values.Substring(0, firstComma),
+            values.Substring(secondComma + 1),
+            values.Substring(firstComma + 1, secondComma - firstComma - 1 ));
     }
 }

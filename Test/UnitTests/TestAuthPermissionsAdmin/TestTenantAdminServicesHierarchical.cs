@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
@@ -38,7 +39,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.Database.EnsureCreated();
 
             //ATTEMPT
-            await context.SetupHierarchicalTenantInDbAsync();
+            await context.BulkLoadHierarchicalTenantInDbAsync();
 
             //VERIFY
             context.ChangeTracker.Clear();
@@ -57,7 +58,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            await context.SetupHierarchicalTenantInDbAsync();
+            await context.BulkLoadHierarchicalTenantInDbAsync();
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant }, null, null);
@@ -79,7 +80,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+            var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant }, null, null);
@@ -108,10 +109,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -153,10 +154,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.AddRange(role1, role2);
                 context.SaveChanges();
 
-                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -196,10 +197,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.Add(new RoleToPermissions("NormalRole", null, $"{(char)1}{(char)3}"));
                 context.SaveChanges();
 
-                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -229,10 +230,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -258,11 +259,11 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         public async Task TestAddHierarchicalTenantAsyncDuplicate()
         {
             //SETUP
-            using var contexts = new TenantChangeSqlServerSetup(this);
-            var tenantIds = await contexts.AuthPContext.SetupHierarchicalTenantInDbAsync();
+            using var contexts = new HierarchicalTenantChangeSqlServerSetup(this);
+            var tenantIds = await contexts.AuthPContext.BulkLoadHierarchicalTenantInDbAsync();
             contexts.RetailDbContext.SetupHierarchicalRetailAndStock(contexts.AuthPContext);
 
-            var subTenantChangeService = new StubITenantChangeServiceFactory(contexts.RetailDbContext);
+            var subTenantChangeService = new StubITenantChangeServiceFactory();
             var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
             {
                 TenantType = TenantTypes.HierarchicalTenant,
@@ -291,10 +292,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -318,36 +319,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
-        public async Task TestUpdateHierarchicalTenantSqlServerOk()
-        {
-            //SETUP
-            using var contexts = new TenantChangeSqlServerSetup(this);
-            var tenantIds = await contexts.AuthPContext.SetupHierarchicalTenantInDbAsync();
-            contexts.RetailDbContext.SetupHierarchicalRetailAndStock(contexts.AuthPContext);
-            contexts.AuthPContext.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
-            {
-                TenantType = TenantTypes.HierarchicalTenant
-            }, new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
-
-            //ATTEMPT
-            var status = await service.UpdateTenantNameAsync(tenantIds[1], "West Area");
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            contexts.AuthPContext.ChangeTracker.Clear();
-            var tenants = contexts.AuthPContext.Tenants.ToList();
-            foreach (var tenant in tenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
-            tenants.Count(x => x.TenantFullName.StartsWith("Company | West Area")).ShouldEqual(4);
-            contexts.RetailDbContext.RetailOutlets.IgnoreQueryFilters()
-                .Count(x => x.FullName.StartsWith("Company | West Area")).ShouldEqual(2);
-        }
-
-        [Fact]
         public async Task TestMoveHierarchicalTenantToAnotherParentAsyncBaseOk()
         {
             //SETUP
@@ -362,10 +333,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                await context.SetupHierarchicalTenantInDbAsync();
+                await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -409,10 +380,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                await context.SetupHierarchicalTenantInDbAsync();
+                await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -445,48 +416,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
-        public async Task TestMoveHierarchicalTenantToAnotherParentAsyncSqlServerOk()
-        {
-            //SETUP
-            using var contexts = new TenantChangeSqlServerSetup(this);
-            await contexts.AuthPContext.SetupHierarchicalTenantInDbAsync();
-            contexts.RetailDbContext.SetupHierarchicalRetailAndStock(contexts.AuthPContext);
-            var preStocks = contexts.RetailDbContext.ShopStocks.IgnoreQueryFilters()
-                .Include(x => x.Shop).ToList();
-            foreach (var tenant in preStocks.OrderBy(x => x.DataKey))
-            {
-                _output.WriteLine($"{tenant.Shop.ShortName}: DataKey = {tenant.DataKey}");
-            }
-            contexts.AuthPContext.ChangeTracker.Clear();
-
-            var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
-            {
-                TenantType = TenantTypes.HierarchicalTenant
-            }, new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
-
-            //ATTEMPT
-            var status = await service.MoveHierarchicalTenantToAnotherParentAsync(2, 3);
-
-            //VERIFY
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            contexts.AuthPContext.ChangeTracker.Clear();
-            contexts.RetailDbContext.ChangeTracker.Clear();
-
-            var authTenants = contexts.AuthPContext.Tenants.ToList();
-            foreach (var tenant in authTenants.OrderBy(x => x.GetTenantDataKey()))
-            {
-                _output.WriteLine(tenant.ToString());
-            }
-            var shopStocks = contexts.RetailDbContext.ShopStocks.IgnoreQueryFilters()
-                .Include(x => x.Shop).ToList();
-            foreach (var tenant in shopStocks.OrderBy(x => x.DataKey))
-            {
-                _output.WriteLine($"{tenant.Shop.ShortName}: DataKey = {tenant.DataKey}");
-            }
-            authTenants.Count(x => x.TenantFullName.StartsWith("Company | East Coast | West Coast")).ShouldEqual(4);
-        }
-
-        [Fact]
         public async Task TestMoveHierarchicalTenantToAnotherParentAsyncMoveToTop()
         {
             //SETUP
@@ -501,10 +430,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                await context.SetupHierarchicalTenantInDbAsync();
+                await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+                var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context,
                     new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                     subTenantChangeService, null);
@@ -555,10 +484,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             appOptions.TurnOffDispose();
             var retailContext = new RetailDbContext(appOptions, null);
 
-            await context.SetupHierarchicalTenantInDbAsync();
+            await context.BulkLoadHierarchicalTenantInDbAsync();
             context.ChangeTracker.Clear();
 
-            var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+            var subTenantChangeService = new StubITenantChangeServiceFactory();
             var service = new AuthTenantAdminService(context,
                 new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                 subTenantChangeService, null);
@@ -587,10 +516,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             appOptions.TurnOffDispose();
             var retailContext = new RetailDbContext(appOptions, null);
 
-            await context.SetupHierarchicalTenantInDbAsync();
+            await context.BulkLoadHierarchicalTenantInDbAsync();
             context.ChangeTracker.Clear();
 
-            var subTenantChangeService = new StubITenantChangeServiceFactory(retailContext);
+            var subTenantChangeService = new StubITenantChangeServiceFactory();
             var service = new AuthTenantAdminService(context,
                 new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
                 subTenantChangeService, null);
@@ -619,11 +548,11 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                numTenants = (await context.SetupHierarchicalTenantInDbAsync()).Count;
+                numTenants = (await context.BulkLoadHierarchicalTenantInDbAsync()).Count;
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
-                    new StubITenantChangeServiceFactory(retailContext), null);
+                    new StubITenantChangeServiceFactory(), null);
 
                 //ATTEMPT
                 var status = await service.DeleteTenantAsync(6);
@@ -664,11 +593,11 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 appOptions.TurnOffDispose();
                 var retailContext = new RetailDbContext(appOptions, null);
 
-                var tenantIds = await context.SetupHierarchicalTenantInDbAsync();
+                var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant},
-                    new StubITenantChangeServiceFactory(retailContext), null);
+                    new StubITenantChangeServiceFactory(), null);
                 options.StopNextDispose();
 
                 //ATTEMPT
@@ -711,14 +640,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             appOptions.TurnOffDispose();
             var retailContext = new RetailDbContext(appOptions, null);
 
-            await context.SetupHierarchicalTenantInDbAsync();
+            await context.BulkLoadHierarchicalTenantInDbAsync();
             var tenantToDelete = context.Find<Tenant>(7);
             context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), tenantToDelete).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
-                new StubITenantChangeServiceFactory(retailContext), null);
+                new StubITenantChangeServiceFactory(), null);
             options.StopNextDispose();
 
             //ATTEMPT
@@ -743,14 +672,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             appOptions.TurnOffDispose();
             var retailContext = new RetailDbContext(appOptions, null);
 
-            await context.SetupHierarchicalTenantInDbAsync();
+            await context.BulkLoadHierarchicalTenantInDbAsync();
             var childTenant = context.Find<Tenant>(7);
             context.Add(AuthUser.CreateAuthUser("123", "me@gmail.com", "Mr Me", new List<RoleToPermissions>(), childTenant).Result);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
-                new StubITenantChangeServiceFactory(retailContext), null);
+                new StubITenantChangeServiceFactory(), null);
 
             //ATTEMPT
             var status = await service.DeleteTenantAsync(2);

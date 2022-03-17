@@ -1,18 +1,15 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
-using AuthPermissions.AspNetCore.AccessTenantData;
 using AuthPermissions.AspNetCore.AccessTenantData.Services;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
-using Microsoft.Extensions.Options;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -56,15 +53,50 @@ public class TestLinkToTenantDataService
         var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor);
 
         //ATTEMPT
-        await service.StartLinkingToTenantDataAsync(authUser.UserId, tenantIds[1]);
+        var status = await service.StartLinkingToTenantDataAsync(authUser.UserId, tenantIds[1]);
 
         //VERIFY
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
         _output.WriteLine($"encrypted string = {cookieStub.CookieValue}");
         service.GetDataKeyOfLinkedTenant().ShouldEqual("2.");
         service.GetNameOfLinkedTenant().ShouldEqual("Tenant2");
     }
 
+    [Fact]
+    public async Task TestStartLinkingToTenantDataAsyncAppUserSharding()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
 
+        var tenant = Tenant.CreateSingleTenant("Tenant1").Result;
+        tenant.UpdateShardingState("MyConnectionName", true);
+        var authUser = AuthUser.CreateAuthUser("user1", "user1@g.com", null, new List<RoleToPermissions>()).Result;
+        context.AddRange(authUser, tenant);
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        var authOptions = new AuthPermissionsOptions
+        {
+            TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding,
+            LinkToTenantType = LinkToTenantTypes.OnlyAppUsers,
+            EncryptionKey = "asfafffggdgerxbd"
+        };
+
+        var cookieStub = new StubIAccessTenantDataCookie();
+        var encyptor = new EncryptDecryptService(authOptions);
+        var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor);
+
+        //ATTEMPT
+        var status = await service.StartLinkingToTenantDataAsync(authUser.UserId, tenant.TenantId);
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        _output.WriteLine($"encrypted string = {cookieStub.CookieValue}");
+        service.GetShardingDataOfLinkedTenant().ShouldEqual(("NoQueryFilter", "MyConnectionName"));
+        service.GetNameOfLinkedTenant().ShouldEqual("Tenant1");
+    }
 
     [Theory]
     [InlineData(LinkToTenantTypes.NotTurnedOn, true)]
@@ -181,5 +213,5 @@ public class TestLinkToTenantDataService
         service.GetDataKeyOfLinkedTenant().ShouldBeNull();
         service.GetNameOfLinkedTenant().ShouldBeNull();
     }
-
+    
 }

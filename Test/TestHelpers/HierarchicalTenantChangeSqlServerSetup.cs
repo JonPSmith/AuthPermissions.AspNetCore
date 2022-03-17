@@ -12,33 +12,28 @@ using TestSupport.Helpers;
 
 namespace Test.TestHelpers
 {
-    public class TenantChangeSqlServerSetup : IDisposable
+    public class HierarchicalTenantChangeSqlServerSetup : IDisposable
     {
-        public string ConnectionString { get; }
         public AuthPermissionsDbContext AuthPContext { get; }
 
         public RetailDbContext RetailDbContext { get; }
 
 
-        public TenantChangeSqlServerSetup(object caller)
+        public HierarchicalTenantChangeSqlServerSetup(object caller)
         {
-            ConnectionString = caller.GetUniqueDatabaseConnectionString();
-
             var authOptions = new DbContextOptionsBuilder<AuthPermissionsDbContext>()
-                .UseSqlServer(ConnectionString, dbOptions =>
+                .UseSqlServer(caller.GetUniqueDatabaseConnectionString("authp"), dbOptions =>
                     dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
             EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(authOptions);
             AuthPContext = new AuthPermissionsDbContext(authOptions.Options);
 
             var retailOptions = new DbContextOptionsBuilder<RetailDbContext>()
-                .UseSqlServer(ConnectionString, dbOptions =>
+                .UseSqlServer(caller.GetUniqueDatabaseConnectionString("retail"), dbOptions =>
                     dbOptions.MigrationsHistoryTable(StartupExtensions.RetailDbContextHistoryName)).Options;
             RetailDbContext = new RetailDbContext(retailOptions, null);
 
-            AuthPContext.Database.EnsureClean(false);
-
-            AuthPContext.Database.Migrate();
-            RetailDbContext.Database.Migrate();
+            AuthPContext.Database.EnsureClean();
+            RetailDbContext.Database.EnsureClean();
         }
 
         public void Dispose()

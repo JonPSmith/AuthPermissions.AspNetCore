@@ -19,6 +19,12 @@ namespace Example3.InvoiceCode.EfCoreCode
         private readonly InvoicesDbContext _context;
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// This allows the tenantId of the deleted tenant to be returned.
+        /// This is useful if you want to soft delete the data
+        /// </summary>
+        public int DeletedTenantId { get; private set; }
+
         public InvoiceTenantChangeService(InvoicesDbContext context, ILogger<InvoiceTenantChangeService> logger)
         {
             _context = context;
@@ -31,17 +37,15 @@ namespace Example3.InvoiceCode.EfCoreCode
         /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
         /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant being deleted</param>
-        /// <param name="tenantId">The TenantId of the tenant being deleted</param>
-        /// <param name="fullTenantName">The full name of the tenant being deleted</param>
+        /// <param name="tenant"></param>
         /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
-        public async Task<string> CreateNewTenantAsync(string dataKey, int tenantId, string fullTenantName)
+        public async Task<string> CreateNewTenantAsync(Tenant tenant)
         {
             var newCompanyTenant = new CompanyTenant
             {
-                DataKey = dataKey,
-                AuthPTenantId = tenantId,
-                CompanyName = fullTenantName
+                DataKey = tenant.GetTenantDataKey(),
+                AuthPTenantId = tenant.TenantId,
+                CompanyName = tenant.TenantFullName
             };
             _context.Add(newCompanyTenant);
             await _context.SaveChangesAsync();
@@ -59,16 +63,14 @@ namespace Example3.InvoiceCode.EfCoreCode
         /// - You can provide information of what you have done by adding public parameters to this class.
         ///   The TenantAdmin <see cref="AuthTenantAdminService.DeleteTenantAsync"/> method returns your class on a successful Delete
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant being deleted</param>
-        /// <param name="tenantId">The TenantId of the tenant being deleted</param>
-        /// <param name="fullTenantName">The full name of the tenant being deleted</param>
+        /// <param name="tenant"></param>
         /// <returns>Returns null if all OK, otherwise the AuthP part of the delete is rolled back and the return string is shown to the user</returns>
-
-        public async Task<string> SingleTenantDeleteAsync(string dataKey, int tenantId, string fullTenantName)
+        public async Task<string> SingleTenantDeleteAsync(Tenant tenant)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             try
             {
+                var dataKey = tenant.GetTenantDataKey();
                 var deleteSalesSql = $"DELETE FROM invoice.{nameof(InvoicesDbContext.LineItems)} WHERE DataKey = '{dataKey}'";
                 await _context.Database.ExecuteSqlRawAsync(deleteSalesSql);
                 var deleteStockSql = $"DELETE FROM invoice.{nameof(InvoicesDbContext.Invoices)} WHERE DataKey = '{dataKey}'";
@@ -76,18 +78,19 @@ namespace Example3.InvoiceCode.EfCoreCode
 
                 var companyTenant = await _context.Set<CompanyTenant>()
                     .IgnoreQueryFilters()
-                    .SingleOrDefaultAsync(x => x.AuthPTenantId == tenantId);
+                    .SingleOrDefaultAsync(x => x.AuthPTenantId == tenant.TenantId);
                 if (companyTenant != null)
                 {
                     _context.Remove(companyTenant);
                     await _context.SaveChangesAsync();
+                    DeletedTenantId = tenant.TenantId;
                 }
 
                 await transaction.CommitAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failure when trying to delete the '{fullTenantName}' tenant.");
+                _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
                 return "There was a system-level problem - see logs for more detail";
             }
 
@@ -98,22 +101,26 @@ namespace Example3.InvoiceCode.EfCoreCode
         /// This is called when the name of your Tenants is changed. This is useful if you use the tenant name in your multi-tenant data.
         /// NOTE: The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read
         /// </summary>
-        /// <param name="dataKey">The DataKey of the tenant</param>
-        /// <param name="tenantId">The TenantId of the tenant</param>
-        /// <param name="fullTenantName">The full name of the tenant</param>
+        /// <param name="tenant"></param>
         /// <returns>Returns null if all OK, otherwise the tenant name is rolled back and the return string is shown to the user</returns>
-        public async Task<string> HandleUpdateNameAsync(string dataKey, int tenantId, string fullTenantName)
+        public async Task<string> SingleTenantUpdateNameAsync(Tenant tenant)
         {
             var companyTenant = await _context.Companies
                 .IgnoreQueryFilters()
-                .SingleOrDefaultAsync(x => x.AuthPTenantId == tenantId);
+                .SingleOrDefaultAsync(x => x.AuthPTenantId == tenant.TenantId);
             if (companyTenant != null)
             {
-                companyTenant.CompanyName = fullTenantName;
+                companyTenant.CompanyName = tenant.TenantFullName;
                 await _context.SaveChangesAsync();
             }
 
             return null;
+        }
+
+
+        public Task<string> HierarchicalTenantUpdateNameAsync(List<Tenant> tenantsToUpdate)
+        {
+            throw new NotImplementedException();
         }
 
         //Not used
@@ -125,11 +132,15 @@ namespace Example3.InvoiceCode.EfCoreCode
         }
 
         //Not used
-        public Task<string> MoveHierarchicalTenantDataAsync(List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> tenantToUpdate)
+        public Task<string> MoveHierarchicalTenantDataAsync(List<(string oldDataKey, Tenant tenantToMove)> tenantToUpdate)
         {
-            //This example is using single level multi-tenant, so this will never be called.
+            throw new NotImplementedException();
+        }
 
-            throw new System.NotImplementedException();
+        public Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey,
+            Tenant updatedTenant)
+        {
+            throw new NotImplementedException();
         }
     }
 }
