@@ -5,7 +5,7 @@ using AuthPermissions.SetupCode;
 
 namespace Example6.MvcWebApp.Sharding.PermissionsCode
 {
-    public static class Example6Example3AppAuthSetupData
+    public static class Example6AppAuthSetupData
     {
         public static readonly List<BulkLoadRolesDto> RolesDefinition = new()
         {

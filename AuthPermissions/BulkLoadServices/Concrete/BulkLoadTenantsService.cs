@@ -76,8 +76,13 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         tenantDefinition.TenantName);
                     status.CombineStatuses(rolesStatus);
                     var tenantStatus = Tenant.CreateSingleTenant(tenantDefinition.TenantName, rolesStatus.Result);
+                    
                     if (status.CombineStatuses(tenantStatus).IsValid)
+                    {
+                        if ((options.TenantType & TenantTypes.AddSharding) != 0)
+                            tenantStatus.Result.UpdateShardingState(options.ShardingDefaultConnectionName, false);
                         _context.Add(tenantStatus.Result);
+                    }
                 }
 
                 if (status.HasErrors)
@@ -123,6 +128,9 @@ namespace AuthPermissions.BulkLoadServices.Concrete
 
                         if (status.IsValid)
                         {
+                            _context.Add(newTenantStatus.Result);
+                            if ((options.TenantType & TenantTypes.AddSharding) != 0)
+                                newTenantStatus.Result.UpdateShardingState(options.ShardingDefaultConnectionName, false);
                             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                             //Now we copy the data so that a child can access to the parent data
