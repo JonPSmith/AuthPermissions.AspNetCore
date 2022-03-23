@@ -39,7 +39,7 @@ namespace Example6.SingleLevelSharding.EfCoreCode
     * a) Make sure the default project is Example3.InvoiceCode
     * b) Set the Example3 project as the startup project
     * b) Use the PMC command
-    *    Add-Migration Initial -Context InvoicesDbContext -OutputDir EfCoreCode/Migrations
+    *    Add-Migration Initial -Context ShardingSingleDbContext -OutputDir EfCoreCode/Migrations
     * c) Don't migrate the database using the Update-database, but use the AddDatabaseOnStartup extension
     *    method when registering the AuthPermissions in ASP.NET Core.
     *    

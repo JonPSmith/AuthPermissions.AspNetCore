@@ -15,7 +15,7 @@ namespace Example6.SingleLevelSharding.AppStart
 
     public class StartupServiceSeedShardingDbContext : IStartupServiceToRunSequentially
     {
-        public int OrderNum { get; } //runs after migration of the InvoicesDbContext
+        public int OrderNum { get; } //runs after migration of the ShardingSingleDbContext
 
         public async ValueTask ApplyYourChangeAsync(IServiceProvider scopedServices)
         {

@@ -13,7 +13,7 @@ namespace Example6.SingleLevelSharding.AppStart
     {
         public const string ShardingSingleDbContextHistoryName = "Example6-ShardingSingleDbContext";
 
-        public static void RegisterExample3Invoices(this IServiceCollection services, IConfiguration configuration)
+        public static void RegisterExample6Invoices(this IServiceCollection services, IConfiguration configuration)
         {
             //Register any services in this project
             services.RegisterAssemblyPublicNonGenericClasses()

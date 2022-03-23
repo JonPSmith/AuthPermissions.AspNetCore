@@ -1,0 +1,61 @@
+﻿@model ExamplesCommonCode.CommonAdmin.SetupManualUserChange
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Edit the user's information</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.HiddenFor(x => x.UserId)
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group row">
+                @Html.LabelFor(model => model.RoleNames, new { @class = "col-sm-2 col-form-label" })
+                <div class="col-sm-10">
+                    @Html.ListBoxFor(model => model.RoleNames,
+                        new MultiSelectList(Model.AllRoleNames),
+                        new { @class = "form-control", multiple = "multiple", id = "roleNames_dropdown" })
+                </div>
+            </div>
+            <div class="form-group row">
+                @Html.LabelFor(model => model.TenantName, new { @class = "col-sm-2 col-form-label" })
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(model => model.TenantName,
+                        new SelectList(Model.AllTenantNames),
+                        new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Update" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('#roleNames_dropdown').multiselect();
+        })
+    </script>
+}

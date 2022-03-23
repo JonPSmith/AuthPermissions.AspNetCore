@@ -1,0 +1,80 @@
+﻿@using AuthPermissions.PermissionsCode
+@using Example6.MvcWebApp.Sharding.PermissionsCode
+@model IEnumerable<Example6.MvcWebApp.Sharding.Models.SingleLevelTenantDto>
+
+@{
+    ViewData["Title"] = "ListTenants";
+}
+
+<h1>List Tenants</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@if (User.HasPermission(Example6Permissions.TenantCreate))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create new tenant</a>
+    </p>
+}
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Tenant name
+        </th>
+        <th>
+            DataKey
+        </th>
+        <th>
+            Tenant Roles?
+        </th>
+        <th>
+            @(User.HasPermission(Example6Permissions.TenantUpdate) ? "Change" : "")
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.TenantName
+            </td>
+            <td>
+                @item.DataKey
+            </td>
+            <td>
+                <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.TenantRolesName)'>
+                    @(item.TenantRolesName.Any() ? $"{item.TenantRolesName.Count} tenant roles" : "No tenant roles")
+                </a>
+            </td>
+            <td>
+                @if (User.HasPermission(Example6Permissions.TenantUpdate))
+                {
+                    @Html.ActionLink("Edit", "Edit", new { id = item.TenantId })
+                    @Html.Raw(" | ")
+                    @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
+                    @Html.Raw(" | ")
+                }
+                @if (User.HasPermission(Example6Permissions.TenantAccessData))
+                {
+                    @Html.ActionLink("Access Data", "StartAccess", new { id = item.TenantId })
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

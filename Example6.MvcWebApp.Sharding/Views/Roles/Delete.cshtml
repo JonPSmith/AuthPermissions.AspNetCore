@@ -1,0 +1,69 @@
+﻿@model ExamplesCommonCode.CommonAdmin.MultiTenantRoleDeleteConfirmDto
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+@if (!Model.UsedBy.Any())
+{
+    <div class="h4">
+        Are you sure you want to delete the unused role called <span class="h3">@Model.RoleName</span>?
+    </div>
+    <hr/>
+
+    <form asp-action="Delete">
+        <div class="form-group">
+            @Html.HiddenFor(x => x.RoleName)
+            <input type="submit" value="Delete" class="btn btn-danger" /> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </form>
+}
+else
+{
+    <div class="h4">
+        The <span class="h3">@Model.RoleName</span> role is used by the following users / tenants.
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    What
+                </th>
+                <th>
+                    Name
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.UsedBy)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Type)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="form-group">
+        <form asp-action="Delete">
+            <div class="form-group">
+                <label asp-for="ConfirmDelete" class="control-label">Confirm Delete by by placing the string <strong>@Model.RoleName</strong> in the input below</label>
+                <div><i><strong>NOTE:</strong> this will also remove the '@Model.RoleName' role from @Model.UsedBy.Count users / tenants.</i></div>
+                <input asp-for="ConfirmDelete" class="form-control" />
+                <span asp-validation-for="ConfirmDelete" class="text-danger"></span>
+            </div>
+            @Html.HiddenFor(x => x.RoleName)
+            <input type="submit" value="Delete" class="btn btn-danger" /> |
+            <a asp-action="Index">Back to List</a>
+            
+        </form>
+    </div>
+}
+

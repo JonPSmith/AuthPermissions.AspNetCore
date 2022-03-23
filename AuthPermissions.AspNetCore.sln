@@ -34,7 +34,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example3.InvoiceCode", "Exa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example5.MvcWebApp.AzureAdB2C", "Example5.MvcWebApp.AzureAdB2C\Example5.MvcWebApp.AzureAdB2C.csproj", "{8019DAB0-F134-4980-8B1F-0190DF5A41BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example6.SingleLevelSharding", "Example6.SingleLevelSharding\Example6.SingleLevelSharding.csproj", "{9D89C5A6-3692-40A8-A83E-722D99C3004B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example6.SingleLevelSharding", "Example6.SingleLevelSharding\Example6.SingleLevelSharding.csproj", "{9D89C5A6-3692-40A8-A83E-722D99C3004B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example6.MvcWebApp.Sharding", "Example6.MvcWebApp.Sharding\Example6.MvcWebApp.Sharding.csproj", "{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -190,6 +192,18 @@ Global
 		{9D89C5A6-3692-40A8-A83E-722D99C3004B}.Release|x64.Build.0 = Release|Any CPU
 		{9D89C5A6-3692-40A8-A83E-722D99C3004B}.Release|x86.ActiveCfg = Release|Any CPU
 		{9D89C5A6-3692-40A8-A83E-722D99C3004B}.Release|x86.Build.0 = Release|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Debug|x64.Build.0 = Debug|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Debug|x86.Build.0 = Debug|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Release|x64.ActiveCfg = Release|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Release|x64.Build.0 = Release|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Release|x86.ActiveCfg = Release|Any CPU
+		{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
