@@ -37,7 +37,7 @@ namespace Example6.SingleLevelSharding.EfCoreCode
     * 2. Using Package Manager Console commands
     * The steps are:
     * a) Make sure the default project is Example3.InvoiceCode
-    * b) Set the Example3 project as the startup project
+    * b) Set the Example6.SingleLevelSharding project as the startup project
     * b) Use the PMC command
     *    Add-Migration Initial -Context ShardingSingleDbContext -OutputDir EfCoreCode/Migrations
     * c) Don't migrate the database using the Update-database, but use the AddDatabaseOnStartup extension
