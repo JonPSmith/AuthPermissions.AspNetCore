@@ -231,49 +231,57 @@ namespace AuthPermissions.AspNetCore
         {
             //This sets up the code to get the DataKey to the application's DbContext
 
-            if (setupData.Options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
-                //This uses the efficient GetDataKey from user
-                setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserNormal>();
+            //Check the TenantType and LinkToTenantType for incorrect versions
+            if (!setupData.Options.TenantType.IsHierarchical()
+                && setupData.Options.LinkToTenantType == LinkToTenantTypes.AppAndHierarchicalUsers)
+                throw new AuthPermissionsException(
+                    $"You can't set the {nameof(AuthPermissionsOptions.LinkToTenantType)} to " +
+                    $"{nameof(LinkToTenantTypes.AppAndHierarchicalUsers)} unless you are using AuthP's hierarchical multi-tenant setup.");
+
+            //The "Access the data of other tenant" feature is turned on so register the services
+
+            //And register the service that manages the cookie and the service to start/stop linking
+            setupData.Services.AddScoped<IAccessTenantDataCookie, AccessTenantDataCookie>();
+            setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
+            if (setupData.Options.TenantType.IsSharding())
+            {
+                
+                setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
+                setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
+
+                switch (setupData.Options.LinkToTenantType)
+                {
+                    case LinkToTenantTypes.OnlyAppUsers:
+                        setupData.Services
+                            .AddScoped<IGetShardingDataFromUser, GetShardingDataUserAccessTenantData>();
+                        break;
+                    case LinkToTenantTypes.AppAndHierarchicalUsers:
+                        setupData.Services
+                            .AddScoped<IGetShardingDataFromUser,
+                                GetShardingDataAppAndHierarchicalUsersAccessTenantData>();
+                        break;
+                    default:
+                        setupData.Services.AddScoped<IGetShardingDataFromUser, GetShardingDataUserNormal>();
+                        break;
+                }
+            }
             else
             {
-                //Check the TenantType and LinkToTenantType for incorrect versions
-                if (!setupData.Options.TenantType.IsHierarchical()
-                    && setupData.Options.LinkToTenantType == LinkToTenantTypes.AppAndHierarchicalUsers)
-                    throw new AuthPermissionsException(
-                        $"You can't set the {nameof(AuthPermissionsOptions.LinkToTenantType)} to " +
-                        $"{nameof(LinkToTenantTypes.AppAndHierarchicalUsers)} unless you are using AuthP's hierarchical multi-tenant setup.");
-                
-                //The "Access the data of other tenant" feature is turned on so register the services
+                setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserNormal>();
 
-                //And register the service that manages the cookie and the service to start/stop linking
-                setupData.Services.AddScoped<IAccessTenantDataCookie, AccessTenantDataCookie>();
-                setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
-                if (setupData.Options.TenantType.IsSharding())
-                    switch (setupData.Options.LinkToTenantType)
-                    {
-                        case LinkToTenantTypes.OnlyAppUsers:
-                            setupData.Services.AddScoped<IGetShardingDataFromUser, GetShardingDataUserAccessTenantData>();
-                            break;
-                        case LinkToTenantTypes.AppAndHierarchicalUsers:
-                            setupData.Services
-                                .AddScoped<IGetShardingDataFromUser, GetShardingDataAppAndHierarchicalUsersAccessTenantData>();
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                else
-                    switch (setupData.Options.LinkToTenantType)
-                    {
-                        case LinkToTenantTypes.OnlyAppUsers:
-                            setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppUserAccessTenantData>();
-                            break;
-                        case LinkToTenantTypes.AppAndHierarchicalUsers:
-                            setupData.Services
-                                .AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppAndHierarchicalUsersAccessTenantData>();
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                switch (setupData.Options.LinkToTenantType)
+                {
+                    case LinkToTenantTypes.OnlyAppUsers:
+                        setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppUserAccessTenantData>();
+                        break;
+                    case LinkToTenantTypes.AppAndHierarchicalUsers:
+                        setupData.Services
+                            .AddScoped<IGetDataKeyFromUser, GetDataKeyFromAppAndHierarchicalUsersAccessTenantData>();
+                        break;
+                    default:
+                        setupData.Services.AddScoped<IGetDataKeyFromUser, GetDataKeyFromUserNormal>();
+                        break;
+                }
             }
         }
     }
