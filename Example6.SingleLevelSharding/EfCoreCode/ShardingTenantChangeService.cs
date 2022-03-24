@@ -46,13 +46,15 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// This creates a <see cref="CompanyTenant"/> in the given database
     /// </summary>
     /// <param name="tenant"></param>
-    /// <returns></returns>
+    /// <returns>Null if no errors, otherwise string is shown as an error to the user</returns>
     public async Task<string> CreateNewTenantAsync(Tenant tenant)
     {
         var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
 
+        //Thanks to https://stackoverflow.com/questions/33911316/entity-framework-core-how-to-check-if-database-exists
+        //There are various options, but the code below handles both database or server not being found 
         if (!((context.GetService<IDatabaseCreator>() as RelationalDatabaseCreator)!).Exists())
             return $"The database defined by the connection string '{tenant.ConnectionName}' doesn't exist.";
 

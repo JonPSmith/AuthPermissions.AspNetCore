@@ -23,7 +23,7 @@ public class StubConnectionsService : IShardingConnections
         return new[] { "DefaultConnection", "OtherConnection" };
     }
 
-    public async Task<IEnumerable<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync()
+    public async Task<List<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync()
     {
         return new List<KeyValuePair<string, int>>
         {

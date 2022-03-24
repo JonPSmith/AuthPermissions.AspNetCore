@@ -107,7 +107,7 @@ public class TestShardingConnectionString
         var keyPairs = await service.GetConnectionStringsWithNumTenantsAsync();
 
         //VERIFY
-        keyPairs.ShouldEqual(new KeyValuePair<string, int>[]
+        keyPairs.ShouldEqual(new List<KeyValuePair<string, int>>
         {
             new ("AnotherConnectionString", 2),
             new ("UnitTestConnection", 1),

@@ -20,8 +20,8 @@ public interface IShardingConnections
     /// <summary>
     /// This returns all the connection string names, with the number of tenants linked to those connection string names
     /// </summary>
-    /// <returns>List of KeyValuePair(string, int) ordered by the connection name</returns>
-    Task<IEnumerable<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync();
+    /// <returns>List of KeyValuePair(string, int) in the order they are in the appsettings file</returns>
+    Task<List<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync();
 
     /// <summary>
     /// This will provide the connection string for the entry with the given connection string name
