@@ -51,6 +51,10 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
 
+        if (tenant.HasOwnDb && context.Companies.Any())
+            return
+                $"The tenant's {nameof(Tenant.HasOwnDb)} property is true, but the database contains existing companies";
+
         var newCompanyTenant = new CompanyTenant
         {
             DataKey = tenant.GetTenantDataKey(),

@@ -76,6 +76,28 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
+        public async Task TestAddSingleTenantAsyncHasOwnDbBad()
+        {
+            //SETUP
+            using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
+            await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            contexts.AuthPContext.ChangeTracker.Clear();
+
+            var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
+            var service = new AuthTenantAdminService(contexts.AuthPContext,
+                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                changeServiceFactory, null);
+
+            //ATTEMPT
+            var status = await service.AddSingleTenantAsync("Tenant4", null, true);
+
+            //VERIFY
+            status.IsValid.ShouldBeFalse(status.GetAllErrors());
+            status.GetAllErrors().ShouldEqual(
+                "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection'.");
+        }
+
+        [Fact]
         public async Task TestUpdateNameSingleTenantAsyncOk()
         {
             //SETUP

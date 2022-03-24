@@ -678,10 +678,12 @@ namespace AuthPermissions.AdminCode.Services
             if (!hasOwnDb)
                 return status;
 
+            connectionName ??= _options.ShardingDefaultConnectionName;
+
             if (await _context.Tenants.AnyAsync(x => x.ConnectionName == connectionName))
                 status.AddError(
-                    $"The {nameof(hasOwnDb)} parameter is true, but there is already a tenant with the " +
-                    $"same connection name '{connectionName}', so {nameof(hasOwnDb)} should be false.");
+                    $"The {nameof(hasOwnDb)} parameter is true, but there is " +
+                    $"already a tenant with the same connection name '{connectionName}'.");
 
             return status;
         }
