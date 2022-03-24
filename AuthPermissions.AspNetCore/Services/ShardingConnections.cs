@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using AuthPermissions.CommonCode;
+using System.Threading.Tasks;
+using AuthPermissions.DataLayer.EfCode;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace AuthPermissions.AspNetCore.Services;
@@ -19,15 +21,18 @@ public class ConnectionStringsOption : Dictionary<string, string> { }
 public class ShardingConnections : IShardingConnections
 {
     private readonly ConnectionStringsOption _connectionDict;
+    private readonly AuthPermissionsDbContext _context;
 
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="optionsAccessor"></param>
-    public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> optionsAccessor)
+    public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> optionsAccessor, AuthPermissionsDbContext context)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = optionsAccessor.Value;
+
+        _context = context;
     }
 
     /// <summary>
@@ -37,6 +42,25 @@ public class ShardingConnections : IShardingConnections
     public IEnumerable<string> GetAllConnectionStringNames()
     {
         return _connectionDict.Keys;
+    }
+
+    /// <summary>
+    /// This returns all the connection string names, with the number of tenants linked to those connection string names
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync()
+    {
+        var grouped = await _context.Tenants.GroupBy(x => x.ConnectionName)
+            .Select(x => new KeyValuePair<string, int>(x.Key, x.Count()))
+            .ToListAsync();
+
+        foreach (var key in _connectionDict.Keys)
+        {
+            if (grouped.All(x => x.Key != key))
+                grouped.Add(new KeyValuePair<string, int>(key,0));
+        }
+
+        return grouped.OrderByDescending(x => x.Value);
     }
 
     /// <summary>

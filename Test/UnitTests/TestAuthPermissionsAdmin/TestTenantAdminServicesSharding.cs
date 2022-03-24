@@ -28,7 +28,7 @@ public class TestTenantAdminServicesSharding
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        await context.SetupSingleShardingTenantsInDb();
+        await context.SetupSingleShardingTenantsInDbAsync();
 
         //VERIFY
         context.ChangeTracker.Clear();
@@ -46,7 +46,7 @@ public class TestTenantAdminServicesSharding
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        context.SetupSingleShardingTenantsInDb();
+        await context.SetupSingleShardingTenantsInDbAsync();
         context.ChangeTracker.Clear();
 
         var tenantChange = new StubITenantChangeServiceFactory();
@@ -75,7 +75,7 @@ public class TestTenantAdminServicesSharding
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        await context.SetupSingleShardingTenantsInDb();
+        await context.SetupSingleShardingTenantsInDbAsync();
         context.ChangeTracker.Clear();
 
         var tenantChange = new StubITenantChangeServiceFactory();
@@ -99,7 +99,7 @@ public class TestTenantAdminServicesSharding
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        await context.SetupSingleShardingTenantsInDb();
+        await context.SetupSingleShardingTenantsInDbAsync();
         context.ChangeTracker.Clear();
 
         var tenantChange = new StubITenantChangeServiceFactory();
@@ -113,7 +113,7 @@ public class TestTenantAdminServicesSharding
         //VERIFY
         status.IsValid.ShouldBeFalse();
         status.GetAllErrors().ShouldEqual(
-            "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection', so hasOwnDb should be false.");
+            "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection'.");
     }
 
     [Fact]
@@ -245,6 +245,6 @@ public class TestTenantAdminServicesSharding
         //VERIFY
         status.IsValid.ShouldBeFalse();
         status.GetAllErrors().ShouldEqual(
-            "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection', so hasOwnDb should be false.");
+            "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection'.");
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
 using TestSupport.Helpers;
 
@@ -20,6 +21,15 @@ public class StubConnectionsService : IShardingConnections
     public IEnumerable<string> GetAllConnectionStringNames()
     {
         return new[] { "DefaultConnection", "OtherConnection" };
+    }
+
+    public async Task<IEnumerable<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync()
+    {
+        return new List<KeyValuePair<string, int>>
+        {
+            new KeyValuePair<string, int>("DefaultConnection", 3),
+            new KeyValuePair<string, int>("OtherConnection", 1)
+        };
     }
 
     public string GetNamedConnectionString(string connectionName)

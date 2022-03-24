@@ -30,7 +30,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
-            await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
@@ -54,7 +54,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
-            await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
@@ -80,7 +80,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
-            await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
@@ -102,7 +102,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
-            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
@@ -125,7 +125,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
-            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
@@ -147,7 +147,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
-            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
@@ -169,7 +169,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
-            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDb(contexts.MainContext);
+            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);

@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AuthPermissions.AspNetCore.Services;
 
@@ -15,6 +16,12 @@ public interface IShardingConnections
     /// </summary>
     /// <returns>The name of each connection string</returns>
     IEnumerable<string> GetAllConnectionStringNames();
+
+    /// <summary>
+    /// This returns all the connection string names, with the number of tenants linked to those connection string names
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync();
 
     /// <summary>
     /// This will provide the connection string for the entry with the given connection string name
