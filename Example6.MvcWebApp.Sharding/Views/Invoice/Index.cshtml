@@ -64,19 +64,13 @@
     </tbody>
 </table>
 
-@if (User.HasPermission(Example6Permissions.InvoiceSum))
+
+@if (Model.Any())
 {
-    <h2>Enterprise Feature!</h2>
-    @if (Model.Any())
-    {
-        <div>The sum of the @Model.Count invoices is <span class="h3">@Model.Sum(x => x.TotalCost)?.ToString("C2")</span></div>
-    }
-    else
-    {
-        <div>No invoices found</div>
-    }
+    <div>The sum of the @Model.Count invoices is <span class="h3">@Model.Sum(x => x.TotalCost)?.ToString("C2")</span></div>
 }
 else
 {
-    <div class="h4">If you upgrade to the Enterprise version you will see total cost of your invoices.</div>
+    <div>No invoices found</div>
 }
+
