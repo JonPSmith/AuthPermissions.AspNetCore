@@ -1,0 +1,38 @@
+﻿@model IEnumerable<KeyValuePair<string, int>>
+
+@{
+    ViewData["Title"] = "ListTenants";
+}
+
+<h1>List database connections names</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            ConnectionName
+        </th>
+        <th>
+            tenants#
+        </th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.Key
+            </td>
+            <td>
+                @item.Value
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div>
+    <a asp-action="Index">Back to list of tenants</a>
+</div>

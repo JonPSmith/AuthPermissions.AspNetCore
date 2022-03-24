@@ -4,6 +4,7 @@
 using AuthPermissions.AdminCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.SetupCode;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthPermissions
 {
@@ -25,6 +26,11 @@ namespace AuthPermissions
         /// This defaults to "DefaultConnection"
         /// </summary>
         public string ShardingDefaultConnectionName { get; set; } = "DefaultConnection";
+
+        /// <summary>
+        /// This is needed if you are using sharding. Its used to get the ConnectionString
+        /// </summary>
+        public IConfiguration Configuration { get; set; }
 
         /// <summary>
         /// This turns on the LinkToTenantData feature, e.g. an admin person can access the data in a specific tenant

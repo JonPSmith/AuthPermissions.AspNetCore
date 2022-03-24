@@ -47,7 +47,7 @@ public class ShardingConnections : IShardingConnections
     /// <summary>
     /// This returns all the connection string names, with the number of tenants linked to those connection string names
     /// </summary>
-    /// <returns></returns>
+    /// <returns>List of KeyValuePair(string, int) ordered by the connection name</returns>
     public async Task<IEnumerable<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync()
     {
         var grouped = await _context.Tenants.GroupBy(x => x.ConnectionName)
@@ -60,7 +60,7 @@ public class ShardingConnections : IShardingConnections
                 grouped.Add(new KeyValuePair<string, int>(key,0));
         }
 
-        return grouped.OrderByDescending(x => x.Value);
+        return grouped.OrderBy(x => x.Key);
     }
 
     /// <summary>

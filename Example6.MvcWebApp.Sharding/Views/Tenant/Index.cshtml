@@ -1,6 +1,6 @@
 ﻿@using AuthPermissions.PermissionsCode
 @using Example6.MvcWebApp.Sharding.PermissionsCode
-@model IEnumerable<Example6.MvcWebApp.Sharding.Models.SingleLevelTenantDto>
+@model IEnumerable<Example6.MvcWebApp.Sharding.Models.ShardingSingleLevelTenantDto>
 
 @{
     ViewData["Title"] = "ListTenants";
@@ -29,7 +29,10 @@
             DataKey
         </th>
         <th>
-            Tenant Roles?
+            ConnectionName
+        </th>
+        <th>
+            HasOwnDb
         </th>
         <th>
             @(User.HasPermission(Example6Permissions.TenantUpdate) ? "Change" : "")
@@ -47,9 +50,10 @@
                 @item.DataKey
             </td>
             <td>
-                <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.TenantRolesName)'>
-                    @(item.TenantRolesName.Any() ? $"{item.TenantRolesName.Count} tenant roles" : "No tenant roles")
-                </a>
+                @item.ConnectionName
+            </td>
+            <td>
+                @item.HasOwnDb
             </td>
             <td>
                 @if (User.HasPermission(Example6Permissions.TenantUpdate))
@@ -57,24 +61,9 @@
                     @Html.ActionLink("Edit", "Edit", new { id = item.TenantId })
                     @Html.Raw(" | ")
                     @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
-                    @Html.Raw(" | ")
-                }
-                @if (User.HasPermission(Example6Permissions.TenantAccessData))
-                {
-                    @Html.ActionLink("Access Data", "StartAccess", new { id = item.TenantId })
                 }
             </td>
         </tr>
     }
     </tbody>
 </table>
-
-@section Scripts{
-
-
-    <script type='text/javascript'>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        })
-    </script>
-}

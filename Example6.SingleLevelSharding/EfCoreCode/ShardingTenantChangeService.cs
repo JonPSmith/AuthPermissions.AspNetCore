@@ -8,6 +8,8 @@ using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.Classes;
 using Example6.SingleLevelSharding.EfCoreClasses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using TestSupport.SeedDatabase;
 
@@ -50,6 +52,9 @@ public class ShardingTenantChangeService : ITenantChangeService
         var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
+
+        if (!((context.GetService<IDatabaseCreator>() as RelationalDatabaseCreator)!).Exists())
+            return $"The database defined by the connection string '{tenant.ConnectionName}' doesn't exist.";
 
         if (tenant.HasOwnDb && context.Companies.Any())
             return

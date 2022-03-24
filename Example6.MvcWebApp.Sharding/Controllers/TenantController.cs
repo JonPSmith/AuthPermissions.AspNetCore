@@ -1,7 +1,7 @@
-﻿using AuthPermissions.AdminCode;
+﻿using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
-using AuthPermissions.AspNetCore.AccessTenantData;
-using AuthPermissions.CommonCode;
+using AuthPermissions.AspNetCore.Services;
 using Example6.MvcWebApp.Sharding.Models;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +21,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantList)]
         public async Task<IActionResult> Index(string message)
         {
-            var tenantNames = await SingleLevelTenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
+            var tenantNames = await ShardingSingleLevelTenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
                 .OrderBy(x => x.TenantName)
                 .ToListAsync();
 
@@ -30,18 +30,30 @@ namespace Example6.MvcWebApp.Sharding.Controllers
             return View(tenantNames);
         }
 
-        [HasPermission(Example6Permissions.TenantCreate)]
-        public async Task<IActionResult> Create()
+        [HasPermission(Example6Permissions.ListConnections)]
+        public async Task<IActionResult> ListConnections([FromServices] IShardingConnections connect)
         {
-            return View(new SingleLevelTenantDto { AllPossibleRoleNames = await _authTenantAdmin.GetRoleNamesForTenantsAsync() });
+            var connections = await connect.GetConnectionStringsWithNumTenantsAsync();
+
+            return View(connections);
+        }
+
+        [HasPermission(Example6Permissions.TenantCreate)]
+        public async Task<IActionResult> Create([FromServices]AuthPermissionsOptions authOptions, 
+        [FromServices]IShardingConnections connect)
+        {
+            return View(ShardingSingleLevelTenantDto.SetupForCreate(authOptions,
+                connect.GetAllConnectionStringNames().ToList()
+                ));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example6Permissions.TenantCreate)]
-        public async Task<IActionResult> Create(SingleLevelTenantDto input)
+        public async Task<IActionResult> Create(ShardingSingleLevelTenantDto input)
         {
-            var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, input.TenantRolesName);
+            var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, null,
+                input.HasOwnDb, input.ConnectionName);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -52,13 +64,13 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(int id)
         {
-            return View(await SingleLevelTenantDto.SetupForUpdateAsync(_authTenantAdmin, id));
+            return View(await ShardingSingleLevelTenantDto.SetupForUpdateAsync(_authTenantAdmin, id));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example6Permissions.TenantUpdate)]
-        public async Task<IActionResult> Edit(SingleLevelTenantDto input)
+        public async Task<IActionResult> Edit(ShardingSingleLevelTenantDto input)
         {
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
@@ -78,7 +90,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(new SingleLevelTenantDto
+            return View(new ShardingSingleLevelTenantDto
             {
                 TenantId = id,
                 TenantName = status.Result.TenantFullName
@@ -88,7 +100,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example6Permissions.TenantDelete)]
-        public async Task<IActionResult> Delete(SingleLevelTenantDto input)
+        public async Task<IActionResult> Delete(ShardingSingleLevelTenantDto input)
         {
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
 
@@ -96,28 +108,6 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                 ? RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() })
                 : RedirectToAction(nameof(Index), new { message = status.Message });
-        }
-
-        [HasPermission(Example6Permissions.TenantAccessData)]
-        public async Task<IActionResult> StartAccess([FromServices] ILinkToTenantDataService service, int id)
-        {
-            var currentUser = User.GetUserIdFromUser();
-            var status = await service.StartLinkingToTenantDataAsync(currentUser, id);
-
-            return status.HasErrors
-                ? RedirectToAction(nameof(ErrorDisplay),
-                    new { errorMessage = status.GetAllErrors() })
-                : RedirectToAction(nameof(Index), new { message = status.Message });
-        }
-
-        public IActionResult StopAccess([FromServices] ILinkToTenantDataService service, bool gotoHome)
-        {
-            var currentUser = User.GetUserIdFromUser();
-            service.StopLinkingToTenant();
-
-            return gotoHome 
-                ? RedirectToAction(nameof(Index), "Home") 
-                : RedirectToAction(nameof(Index), new { message = "Finished linking to tenant's data" });
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

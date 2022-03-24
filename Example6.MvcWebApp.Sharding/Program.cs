@@ -31,6 +31,7 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
     options.TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding;
     options.EncryptionKey = builder.Configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
     options.PathToFolderToLock = builder.Environment.WebRootPath;
+    options.Configuration = builder.Configuration;
 })
     //NOTE: This uses the same database as the individual accounts DB
     .UsingEfCoreSqlServer(connectionString)

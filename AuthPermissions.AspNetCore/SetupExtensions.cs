@@ -245,7 +245,11 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
             if (setupData.Options.TenantType.IsSharding())
             {
-                
+                if (setupData.Options.Configuration == null)
+                    throw new AuthPermissionsException(
+                        $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
+
+                setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
                 setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
                 setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
 

@@ -91,6 +91,11 @@ namespace Example6.MvcWebApp.Sharding.PermissionsCode
         [Display(GroupName = "TenantAdmin", Name = "Access other tenant data", Description = "Sets DataKey of user to another tenant", AutoGenerateFilter = true)]
         TenantAccessData = 42_005,
 
+        //42_100 - sharding admin
+        [Display(GroupName = "ShardingAdmin", Name = "List connection name", Description = "List of connections in the appsetting file", AutoGenerateFilter = true)]
+        ListConnections = 42_100,
+
+
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions
         //Useful for multi-tenant applications where you can set up company-level admin users where you can hide some higher-level permissions
