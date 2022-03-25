@@ -13,7 +13,7 @@ namespace Example6.MvcWebApp.Sharding.PermissionsCode
             new("App Admin", "Overall app Admin",
                 "UserRead, UserSync, UserChange, UserRemove, " +
                 "UserRolesChange, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
-                "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData, ListConnections"),
+                "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData, ListConnections, MoveTenantDatabase"),
             new("App Support", "overall support - limited admin items",
                 "UserRead, UserRolesChange, RoleRead, TenantList, TenantAccessData"),
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),

@@ -7,6 +7,7 @@ using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.DataLayer.Classes;
 using Example6.SingleLevelSharding.EfCoreClasses;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -53,10 +54,9 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
 
-        //Thanks to https://stackoverflow.com/questions/33911316/entity-framework-core-how-to-check-if-database-exists
-        //There are various options, but the code below handles both database or server not being found 
-        if (!((context.GetService<IDatabaseCreator>() as RelationalDatabaseCreator)!).Exists())
-            return $"The database defined by the connection string '{tenant.ConnectionName}' doesn't exist.";
+        var databaseError = await CheckDatabaseExistsAndCreatesIfLocaldbAsync(tenant, context);
+        if (databaseError != null) 
+            return databaseError;
 
         if (tenant.HasOwnDb && context.Companies.Any())
             return
@@ -149,6 +149,10 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (newContext == null)
             return $"There is no connection string with the name {updatedTenant.ConnectionName}.";
 
+        var databaseError = await CheckDatabaseExistsAndCreatesIfLocaldbAsync(updatedTenant, newContext);
+        if (databaseError != null)
+            return databaseError;
+
         await using var transactionNew = await newContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
         try
         {
@@ -193,13 +197,36 @@ public class ShardingTenantChangeService : ITenantChangeService
         }
 
         return null;
-
-
-        return null;
     }
 
     //--------------------------------------------------
     //private methods / classes
+
+    /// <summary>
+    /// This check is a database is there and if there isn't a database and the server is localdb, then
+    /// it creates the database by using EF Core Migrate feature
+    /// </summary>
+    /// <param name="tenant"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    private static async Task<string> CheckDatabaseExistsAndCreatesIfLocaldbAsync(Tenant tenant, ShardingSingleDbContext context)
+    {
+        //Thanks to https://stackoverflow.com/questions/33911316/entity-framework-core-how-to-check-if-database-exists
+        //There are various options to detect if a database is there - this seems the clearest
+        if (!context.Database.CanConnect())
+        {
+            var builder = new SqlConnectionStringBuilder(context.Database.GetConnectionString());
+            if (builder.DataSource == "(localdb)\\mssqllocaldb")
+                //The database will be created when EF Core's Migration is called
+                await context.Database.MigrateAsync();
+            else
+            {
+                return $"The database defined by the connection string '{tenant.ConnectionName}' doesn't exist.";
+            }
+        }
+
+        return null;
+    }
 
     private async Task DeleteTenantData(string dataKey, ShardingSingleDbContext context)
     {

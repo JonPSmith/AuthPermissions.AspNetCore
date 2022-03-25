@@ -54,10 +54,11 @@ public class ShardingConnections : IShardingConnections
             .Select(x => new KeyValuePair<string, int>(x.Key, x.Count()))
             .ToListAsync();
 
-        foreach (var key in _connectionDict.Keys)
+        //Add connection string names that have no tenants in them so that you can see all the connection string  names
+        foreach (var key in _connectionDict.Keys
+                     .Where(key => grouped.All(x => x.Key != key)))
         {
-            if (grouped.All(x => x.Key != key))
-                grouped.Add(new KeyValuePair<string, int>(key,0));
+            grouped.Add(new KeyValuePair<string, int>(key,0));
         }
 
         return grouped;

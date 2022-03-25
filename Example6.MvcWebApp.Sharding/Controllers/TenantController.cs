@@ -110,6 +110,39 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                 : RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
+
+        [HasPermission(Example6Permissions.MoveTenantDatabase)]
+        public async Task<IActionResult> MoveDatabase([FromServices] IShardingConnections connect, int id)
+        {
+            var status = await _authTenantAdmin.GetTenantViaIdAsync(id);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return View(new ShardingSingleLevelTenantDto
+            {
+                TenantId = id,
+                TenantName = status.Result.TenantFullName,
+                ConnectionName = status.Result.ConnectionName,
+                AllPossibleConnectionNames = connect.GetAllConnectionStringNames().ToList()
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [HasPermission(Example6Permissions.MoveTenantDatabase)]
+        public async Task<IActionResult> MoveDatabase(ShardingSingleLevelTenantDto input)
+        {
+            var status = await _authTenantAdmin.MoveToDifferentDatabaseAsync(
+                input.TenantId, input.HasOwnDb, input.ConnectionName);
+
+            return status.HasErrors
+                ? RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() })
+                : RedirectToAction(nameof(Index), new { message = status.Message });
+        }
+
+
         public ActionResult ErrorDisplay(string errorMessage)
         {
             return View((object)errorMessage);

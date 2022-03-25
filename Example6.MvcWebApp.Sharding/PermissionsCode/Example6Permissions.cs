@@ -94,7 +94,8 @@ namespace Example6.MvcWebApp.Sharding.PermissionsCode
         //42_100 - sharding admin
         [Display(GroupName = "ShardingAdmin", Name = "List connection name", Description = "List of connections in the appsetting file", AutoGenerateFilter = true)]
         ListConnections = 42_100,
-
+        [Display(GroupName = "ShardingAdmin", Name = "Move tenant to another database", Description = "Move tenant to another database", AutoGenerateFilter = true)]
+        MoveTenantDatabase = 42_101,
 
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions
