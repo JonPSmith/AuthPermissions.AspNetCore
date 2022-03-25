@@ -12,6 +12,7 @@ using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.CommonCode;
 using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RunMethodsSequentially;
@@ -67,7 +68,12 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             //ATTEMPT
             try
             {
-                await services.RegisterAuthPermissions<TestEnum>(options => options.TenantType = tenantType)
+                await services.RegisterAuthPermissions<TestEnum>(
+                        options =>
+                        {
+                            options.TenantType = tenantType;
+                            options.Configuration = new ConfigurationManager();
+                        })
                     .UsingInMemoryDatabase()
                     .SetupForUnitTestingAsync();
             }

@@ -117,9 +117,9 @@ namespace AuthPermissions.AdminCode
         /// which moves the tenant data to another database and then deletes the the original tenant data.
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
-        ///     NOTE: If its a hierarchical tenant, then the tenant will be the highest parent.</param>
+        ///     NOTE: If its a hierarchical tenant, then the tenant must be the highest parent.</param>
         /// <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
-        /// <param name="connectionName"></param>
+        /// <param name="connectionName">The name of the connection string in the ConnectionStrings part of the appsettings file</param>
         /// <returns>status</returns>
         Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId,
             bool hasOwnDb, string connectionName);

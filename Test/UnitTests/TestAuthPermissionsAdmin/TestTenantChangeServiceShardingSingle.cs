@@ -182,7 +182,6 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
-            status.IsValid.ShouldBeTrue(status.GetAllErrors());
             contexts.MainContext.ChangeTracker.Clear();
             var mainCompanies = contexts.MainContext.Companies.IgnoreQueryFilters().ToList();
             mainCompanies.Count.ShouldEqual(2);
@@ -191,6 +190,35 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             _output.WriteLine(query.ToQueryString());
             var otherCompanies = query.ToList();
             otherCompanies.Single().CompanyName.ShouldEqual("Tenant2");
+        }
+
+        [Fact]
+        public async Task TestMoveToDifferentDatabaseAsyncJustChangeHasOwnDb()
+        {
+            //SETUP
+            using var contexts = new ShardingSingleLevelTenantChangeSqlServerSetup(this);
+            var tenantIds = await contexts.AuthPContext.SetupSingleShardingTenantsInDbAsync(contexts.MainContext);
+            contexts.AuthPContext.ChangeTracker.Clear();
+
+            var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
+            var service = new AuthTenantAdminService(contexts.AuthPContext,
+                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                changeServiceFactory, null);
+
+            var preStatus = await service.AddSingleTenantAsync("Tenant4", null, true, "OtherConnection");
+            preStatus.IsValid.ShouldBeTrue(preStatus.GetAllErrors());
+            var tenant4Id = contexts.AuthPContext.Tenants.Single(x => x.TenantFullName == "Tenant4").TenantId;
+            contexts.AuthPContext.ChangeTracker.Clear();
+
+            //ATTEMPT
+            var status = await service.MoveToDifferentDatabaseAsync(tenant4Id, false, "OtherConnection");
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            contexts.AuthPContext.ChangeTracker.Clear();
+            var tenant4 = contexts.AuthPContext.Tenants.Single(x => x.TenantFullName == "Tenant4");
+            tenant4.HasOwnDb.ShouldBeFalse();
+            status.Message.ShouldEqual("The tenant wasn't moved but its HasOwnDb was changed to False.");
         }
 
     }

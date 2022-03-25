@@ -203,8 +203,7 @@ public class ShardingTenantChangeService : ITenantChangeService
     //private methods / classes
 
     /// <summary>
-    /// This check is a database is there and if there isn't a database and the server is localdb, then
-    /// it creates the database by using EF Core Migrate feature
+    /// This check is a database is there and it doesn't contain and tables it will Migrate the database
     /// </summary>
     /// <param name="tenant"></param>
     /// <param name="context"></param>
@@ -213,11 +212,10 @@ public class ShardingTenantChangeService : ITenantChangeService
     {
         //Thanks to https://stackoverflow.com/questions/33911316/entity-framework-core-how-to-check-if-database-exists
         //There are various options to detect if a database is there - this seems the clearest
-        if (!context.Database.CanConnect())
+        if (!await context.Database.CanConnectAsync())
         {
-            var builder = new SqlConnectionStringBuilder(context.Database.GetConnectionString());
-            if (builder.DataSource == "(localdb)\\mssqllocaldb")
-                //The database will be created when EF Core's Migration is called
+            if (!await context.Database.GetService<IRelationalDatabaseCreator>().HasTablesAsync())
+                //The database need migrating
                 await context.Database.MigrateAsync();
             else
             {

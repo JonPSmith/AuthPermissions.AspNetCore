@@ -598,18 +598,20 @@ namespace AuthPermissions.AdminCode.Services
 
         /// <summary>
         /// This is used when sharding is enabled. It updates the tenant's <see cref="Tenant.ConnectionName"/> and
-        /// <see cref="Tenant.HasOwnDb"/> and calls the  <see cref="ITenantChangeService"/> <see cref="ITenantChangeService.MoveToDifferentDatabase"/>
+        /// <see cref="Tenant.HasOwnDb"/> and calls the  <see cref="ITenantChangeService"/> <see cref="ITenantChangeService.MoveToDifferentDatabaseAsync"/>
         /// which moves the tenant data to another database and then deletes the the original tenant data.
+        /// NOTE: You can change the <see cref="Tenant.HasOwnDb"/> by calling this method with no change to the <see cref="Tenant.ConnectionName"/>.
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
-        ///     NOTE: If its a hierarchical tenant, then the tenant will be the highest parent.</param>
+        ///     NOTE: If its a hierarchical tenant, then the tenant must be the highest parent.</param>
         /// <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
-        /// <param name="connectionName"></param>
+        /// <param name="connectionName">The name of the connection string in the ConnectionStrings part of the appsettings file</param>
         /// <returns>status</returns>
         public async Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId, bool hasOwnDb,
             string connectionName)
         {
-            var status = new StatusGenericHandler { Message = "Successfully moved the tenant to a different database." };
+            var status = new StatusGenericHandler 
+                { Message = $"Successfully moved the tenant to the database defined by the '{connectionName}' connection string name." };
 
             if (!_tenantType.IsSharding())
                 throw new AuthPermissionsException(
@@ -626,10 +628,15 @@ namespace AuthPermissions.AdminCode.Services
                 if (tenant == null)
                     return status.AddError("Could not find the tenant you were looking for.");
 
+                if (tenant.IsHierarchical && tenant.ParentDataKey != null)
+                    return status.AddError("For hierarchical tenants you must provide the top tenant's TenantId, not a child tenant.");
+
                 if (tenant.ConnectionName == connectionName)
                 {
-                    status.Message = $"The database connection string is already set to {connectionName}.";
-                    return status;
+                    if (tenant.HasOwnDb == hasOwnDb)
+                        return status.AddError("You didn't change any of the sharding parts, so nothing was changed.");
+
+                    status.Message = $"The tenant wasn't moved but its {nameof(Tenant.HasOwnDb)} was changed to {hasOwnDb}.";
                 }
 
                 if (status.CombineStatuses(await CheckHasOwnDbIsValidAsync(hasOwnDb, connectionName)).HasErrors)
@@ -642,10 +649,14 @@ namespace AuthPermissions.AdminCode.Services
                 if (status.CombineStatuses(await _context.SaveChangesWithChecksAsync()).HasErrors)
                     return status;
 
-                var mainError = await tenantChangeService
-                    .MoveToDifferentDatabaseAsync(previousConnectionName, previousDataKey, tenant);
-                if (mainError != null)
-                    return status.AddError(mainError);
+                if (previousConnectionName != connectionName)
+                {
+                    //Just changes the HasNoDb part
+                    var mainError = await tenantChangeService
+                        .MoveToDifferentDatabaseAsync(previousConnectionName, previousDataKey, tenant);
+                    if (mainError != null)
+                        return status.AddError(mainError);
+                }
 
                 if (status.IsValid)
                     await transaction.CommitAsync();
