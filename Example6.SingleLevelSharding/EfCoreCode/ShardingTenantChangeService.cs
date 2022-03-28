@@ -5,9 +5,9 @@ using System.Data;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using Example6.SingleLevelSharding.EfCoreClasses;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -54,7 +54,7 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
 
-        var databaseError = await CheckDatabaseExistsAndCreatesIfLocaldbAsync(tenant, context);
+        var databaseError = await CheckDatabaseAndPossibleMigrate(context, tenant, true);
         if (databaseError != null) 
             return databaseError;
 
@@ -141,6 +141,7 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// <returns></returns>
     public async Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey, Tenant updatedTenant)
     {
+        //NOTE: The oldContext and newContext have the correct DataKey so you don't have to use IgnoreQueryFilters.
         var oldContext = GetShardingSingleDbContext(oldConnectionName, oldDataKey);
         if (oldContext == null)
             return $"There is no connection string with the name {oldConnectionName}.";
@@ -149,7 +150,7 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (newContext == null)
             return $"There is no connection string with the name {updatedTenant.ConnectionName}.";
 
-        var databaseError = await CheckDatabaseExistsAndCreatesIfLocaldbAsync(updatedTenant, newContext);
+        var databaseError = await CheckDatabaseAndPossibleMigrate(newContext, updatedTenant, true);
         if (databaseError != null)
             return databaseError;
 
@@ -160,6 +161,8 @@ public class ShardingTenantChangeService : ITenantChangeService
                 .ToListAsync();
 
             //This looks through the entities and resets the primary key to their default value
+            //NOTE: writing the entities to the database will set the DataKey on a non-sharding tenant,
+            //but if its a sharding tenant then the DataKey won't be changed, BUT if you want the DataKey cleared out see the RetailTenantChangeService.MoveHierarchicalTenantDataAsync to manually set the DataKey
             var resetter = new DataResetter(newContext);
             resetter.ResetKeysEntityAndRelationships(invoicesWithLineItems);
 
@@ -203,25 +206,31 @@ public class ShardingTenantChangeService : ITenantChangeService
     //private methods / classes
 
     /// <summary>
-    /// This check is a database is there and it doesn't contain and tables it will Migrate the database
+    /// This check is a database is there 
     /// </summary>
+    /// <param name="context">The context for the new database</param>
     /// <param name="tenant"></param>
-    /// <param name="context"></param>
+    /// <param name="migrateEvenIfNoDb">If using local SQL server, Migrate will create the database.
+    /// That doesn't work on Azure databases</param>
     /// <returns></returns>
-    private static async Task<string> CheckDatabaseExistsAndCreatesIfLocaldbAsync(Tenant tenant, ShardingSingleDbContext context)
+    private static async Task<string> CheckDatabaseAndPossibleMigrate(ShardingSingleDbContext context, Tenant tenant,
+        bool migrateEvenIfNoDb)
     {
         //Thanks to https://stackoverflow.com/questions/33911316/entity-framework-core-how-to-check-if-database-exists
         //There are various options to detect if a database is there - this seems the clearest
         if (!await context.Database.CanConnectAsync())
         {
-            if (!await context.Database.GetService<IRelationalDatabaseCreator>().HasTablesAsync())
-                //The database need migrating
+            //The database doesn't exist
+            if (migrateEvenIfNoDb)
                 await context.Database.MigrateAsync();
             else
             {
                 return $"The database defined by the connection string '{tenant.ConnectionName}' doesn't exist.";
             }
         }
+        else if (!await context.Database.GetService<IRelationalDatabaseCreator>().HasTablesAsync())
+            //The database exists but needs migrating
+            await context.Database.MigrateAsync();
 
         return null;
     }

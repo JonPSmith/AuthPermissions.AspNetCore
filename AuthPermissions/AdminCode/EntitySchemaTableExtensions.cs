@@ -5,11 +5,11 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Example4.ShopCode.EfCoreCode.Migrations;
+namespace AuthPermissions.AdminCode;
 /// <summary>
 /// These methods come from the library https://github.com/JonPSmith/EfCore.SchemaCompare
 /// </summary>
-public static class TenantChangeExtensions
+public static class EntitySchemaTableExtensions
 {
     /// <summary>
     /// This returns a string in the format "table" or "{schema}.{table}" that this entity is mapped to

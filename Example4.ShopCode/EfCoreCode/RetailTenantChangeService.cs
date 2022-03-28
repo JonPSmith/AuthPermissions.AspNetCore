@@ -11,9 +11,7 @@ using AuthPermissions.AdminCode.Services;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using Example4.ShopCode.EfCoreClasses;
-using Example4.ShopCode.EfCoreCode.Migrations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 
 namespace Example4.ShopCode.EfCoreCode
