@@ -27,7 +27,7 @@ public class GlobalChangeTimeService : IGlobalChangeTimeService
     /// </summary>
     public void SetGlobalChangeTimeToNowUtc()
     {
-        _globalCache.Set(ChangedTimeFileName, DateTime.UtcNow.DateTimeToStringUtc());
+        _globalCache.Set(ChangedTimeFileName, DateTime.UtcNow.DateTimeToTicks());
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public class GlobalChangeTimeService : IGlobalChangeTimeService
     {
         var cachedTime = _globalCache.Get(ChangedTimeFileName);
         //If no time, then hasn't had a change yet, so provide DateTime.MinValue
-        return cachedTime?.StringToDateTimeUtc() ?? DateTime.MinValue;
+        return cachedTime?.TicksToDateTimeUtc() ?? DateTime.MinValue;
     }
 
     public void DeleteGlobalFile()

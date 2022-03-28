@@ -103,6 +103,30 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         }
 
         [Fact]
+        public async Task TestUpdateDisabledAsyncOk()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            await context.SetupRolesInDbAsync();
+            context.AddMultipleUsersWithRolesInDb();
+            context.ChangeTracker.Clear();
+
+            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+
+            //ATTEMPT
+            var status = await service.UpdateDisabledAsync("User2", true);
+
+            //VERIFY
+            status.IsValid.ShouldBeTrue(status.GetAllErrors());
+            context.ChangeTracker.Clear();
+            var user2 = context.AuthUsers.Single(x => x.UserId == "User2");
+            user2.IsDisabled.ShouldBeTrue();
+        }
+
+        [Fact]
         public async Task TestGetRoleNamesForUsersAsync()
         {
             //SETUP

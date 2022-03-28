@@ -13,7 +13,7 @@ public class AddRefreshEveryMinuteClaim : IClaimsAdder
     public Task<Claim> AddClaimToUserAsync(string userId)
     {
         var claim = PeriodicCookieEvent.TimeToRefreshUserClaimType
-            .CreateClaimDateTimeUtcValue(new TimeSpan(0, 0, 1, 0));
+            .CreateClaimDateTimeTicks(new TimeSpan(0, 0, 1, 0));
         return Task.FromResult(claim);
     }
 }

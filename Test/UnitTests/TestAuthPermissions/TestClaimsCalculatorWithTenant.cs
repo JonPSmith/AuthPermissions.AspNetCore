@@ -221,7 +221,7 @@ namespace Test.UnitTests.TestAuthPermissions
                          ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
             var role = new RoleToPermissions("Role1", null, $"{((char)1)}");
             var user = AuthUser.CreateAuthUser("User1", "User1@g.com", null, new List<RoleToPermissions>() { role }, tenant).Result;
-            user.SetIsDisabled(true);
+            user.UpdateIsDisabled(true);
 
             context.AddRange(tenant, role, user);
             context.SaveChanges();

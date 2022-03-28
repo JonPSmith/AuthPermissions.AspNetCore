@@ -61,7 +61,6 @@ namespace Test.UnitTests.TestAuthPermissions
 
             context.ChangeTracker.Clear();
 
-
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions { TenantType = TenantTypes.NotUsingTenants }, 
                 new List<IClaimsAdder> { new AddRefreshEveryMinuteClaim() });
 
@@ -71,7 +70,8 @@ namespace Test.UnitTests.TestAuthPermissions
             //VERIFY
             claims.Count.ShouldEqual(1);
             claims.Single().Type.ShouldEqual(PeriodicCookieEvent.TimeToRefreshUserClaimType);
-            claims.GetClaimDateTimeUtcValue(PeriodicCookieEvent.TimeToRefreshUserClaimType)
+            var rawString = claims.Single().Value;
+            claims.GetClaimDateTimeTicksValue(PeriodicCookieEvent.TimeToRefreshUserClaimType)
                 .ShouldBeInRange(DateTime.UtcNow.AddSeconds(59), DateTime.UtcNow.AddSeconds(61));
         }
 
@@ -132,7 +132,7 @@ namespace Test.UnitTests.TestAuthPermissions
             var rolePer2 = new RoleToPermissions("Role2", null, $"{(char)2}{(char)3}");
             context.AddRange(rolePer1, rolePer2);
             var user = AuthUser.CreateAuthUser("User1", "User1@g.com", null, new List<RoleToPermissions>() { rolePer1 }).Result;
-            user.SetIsDisabled(true);
+            user.UpdateIsDisabled(true);
             context.Add(user);
             context.SaveChanges();
 

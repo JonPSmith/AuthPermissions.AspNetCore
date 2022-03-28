@@ -79,7 +79,7 @@ public class AccessTenantDataCookie : IAccessTenantDataCookie
         if (_cookiesOut == null) throw new ArgumentNullException(nameof(_cookiesOut));
 
         if (!Exists()) return;
-        var options = new CookieOptions { Expires = DateTime.Now.AddYears(-1) };
+        var options = new CookieOptions { Expires = DateTime.UtcNow.AddYears(-1) };
         _cookiesOut.Append(CookieName, "", options);
     }
 }

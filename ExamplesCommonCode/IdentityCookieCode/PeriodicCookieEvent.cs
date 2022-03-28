@@ -33,7 +33,7 @@ public static class PeriodicCookieEvent
     {
         var originalClaims = context.Principal.Claims.ToList();
 
-        if (originalClaims.GetClaimDateTimeUtcValue(TimeToRefreshUserClaimType) < DateTime.UtcNow)
+        if (originalClaims.GetClaimDateTimeTicksValue(TimeToRefreshUserClaimType) < DateTime.UtcNow)
         {
             //Need to refresh the user's claims 
             var userId = originalClaims.GetUserIdFromClaims();

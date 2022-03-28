@@ -35,7 +35,7 @@ public static class TenantChangeCookieEvent
         var globalTimeService = context.HttpContext.RequestServices.GetRequiredService<IGlobalChangeTimeService>();
         var lastUpdateUtc = globalTimeService.GetGlobalChangeTimeUtc();
 
-        if (originalClaims.GetClaimDateTimeUtcValue(EntityChangeClaimType) < lastUpdateUtc)
+        if (originalClaims.GetClaimDateTimeTicksValue(EntityChangeClaimType) < lastUpdateUtc)
         {
             //Need to refresh the user's claims 
             var userId = originalClaims.GetUserIdFromClaims();

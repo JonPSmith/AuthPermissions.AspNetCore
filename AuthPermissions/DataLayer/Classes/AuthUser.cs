@@ -217,7 +217,7 @@ namespace AuthPermissions.DataLayer.Classes
         /// This allows you to change the user's <see cref="IsDisabled"/> setting
         /// </summary>
         /// <param name="isDisabled">If true, then no AuthP claims are adding the the user's claims</param>
-        public void SetIsDisabled(bool isDisabled)
+        public void UpdateIsDisabled(bool isDisabled)
         {
             IsDisabled = isDisabled;
         }

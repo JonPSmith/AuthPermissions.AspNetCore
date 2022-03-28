@@ -11,15 +11,15 @@ namespace ExamplesCommonCode.IdentityCookieCode;
 public static class TimeClaimExtensions
 {
     /// <summary>
-    /// This creates a claim containing the UTC time, with a possible offset
+    /// This creates a claim containing the UTC time, with a possible offset, as ticks 
     /// </summary>
     /// <param name="claimName"></param>
     /// <param name="offset">This is the timespan to add on to the current UtcNow to define the time when
     ///     the user's claims should be refreshed</param>
     /// <returns></returns>
-    public static Claim CreateClaimDateTimeUtcValue(this string claimName, TimeSpan offset = default)
+    public static Claim CreateClaimDateTimeTicks(this string claimName, TimeSpan offset = default)
     {
-        return new Claim(claimName, DateTime.UtcNow.Add(offset).DateTimeToStringUtc());
+        return new Claim(claimName, DateTime.UtcNow.Add(offset).Ticks.ToString());
     }
 
     /// <summary>
@@ -29,10 +29,10 @@ public static class TimeClaimExtensions
     /// <param name="usersClaims">A list of the claims found in the current principal user</param>
     /// <param name="claimName"></param>
     /// <returns></returns>
-    public static DateTime GetClaimDateTimeUtcValue(this List<Claim> usersClaims, string claimName)
+    public static DateTime GetClaimDateTimeTicksValue(this List<Claim> usersClaims, string claimName)
     {
-        var refreshTimeString = usersClaims.FirstOrDefault(x => x.Type == claimName)?.Value;
-        return refreshTimeString?.StringToDateTimeUtc() ?? DateTime.MinValue;
+        var timeTicksString = usersClaims.FirstOrDefault(x => x.Type == claimName)?.Value;
+        return timeTicksString?.TicksToDateTimeUtc() ?? DateTime.MinValue;
     }
 
     /// <summary>
@@ -40,18 +40,19 @@ public static class TimeClaimExtensions
     /// </summary>
     /// <param name="dateTime"></param>
     /// <returns></returns>
-    public static string DateTimeToStringUtc(this DateTime dateTime)
+    public static string DateTimeToTicks(this DateTime dateTime)
     {
-        return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).ToString("O");
+        return dateTime.Ticks.ToString();
     }
 
     /// <summary>
-    /// This parses the string into a DateTime and the DateTime is set to UTC
+    /// This parses the string containing ticks into a DateTime and the DateTime is set to UTC
     /// </summary>
-    /// <param name="dateTimeString"></param>
+    /// <param name="dateTimeTicksString"></param>
     /// <returns></returns>
-    public static DateTime StringToDateTimeUtc(this string dateTimeString)
+    public static DateTime TicksToDateTimeUtc(this string dateTimeTicksString)
     {
-        return DateTime.SpecifyKind(DateTime.Parse(dateTimeString), DateTimeKind.Utc);
+        var ticks = long.Parse(dateTimeTicksString);
+        return DateTime.SpecifyKind(new DateTime(ticks), DateTimeKind.Utc);
     }
 }

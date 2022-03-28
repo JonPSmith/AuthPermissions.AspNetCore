@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
@@ -94,6 +92,31 @@ namespace AuthPermissions.AdminCode.Services
                     nameof(email).CamelToPascal());
 
             return status.SetResult(authUser);
+        }
+
+        /// <summary>
+        /// This will changes the <see cref="AuthUser.IsDisabled"/> for the user with the given userId
+        /// A disabled user causes the <see cref="ClaimsCalculator"/> to not add any AuthP claims to the user on login 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="isDisabled">New setting for the <see cref="AuthUser.IsDisabled"/></param>
+        /// <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        public async Task<IStatusGeneric> UpdateDisabledAsync(string userId, bool isDisabled)
+        {
+            if (userId == null) throw new ArgumentNullException(nameof(userId));
+            var status = new StatusGenericHandler
+                { Message = $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}" };
+
+            var authUser = await _context.AuthUsers
+                .SingleOrDefaultAsync(x => x.UserId == userId);
+
+            if (authUser == null)
+                return status.AddError("Could not find the AuthP User you asked for.", nameof(userId).CamelToPascal());
+
+            authUser.UpdateIsDisabled(isDisabled);
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+
+            return status;
         }
 
         /// <summary>
