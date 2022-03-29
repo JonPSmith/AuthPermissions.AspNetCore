@@ -2,10 +2,11 @@
 
 ## 3.0.0
 
-- BREAKING CHANGE: The ITenantChangeService has changed to allow multi-tenant sharding to be added - see #14
+- BREAKING CHANGE: The ITenantChangeService has changed to allow multi-tenant sharding to be added - see the UpdateToVersion2.md file for more
 - BREAKING CHANGE: The option called AppConnectionString has been removed. Its longer needed because of ITenantChangeService change
+- Changes to the AuthP database which contains a non-breaking migration. This will be automatically added on startup. 
 - New Feature: Adding optional sharding to either a single-level or hierarchical multi-tenant applications - see documentation for an article explaining how to setup sharding
-
+- New Feature: You can mark an AuthUser as disabled, which means no AuthP claims will be added to the user's claims.
 
 
 ## 2.3.1

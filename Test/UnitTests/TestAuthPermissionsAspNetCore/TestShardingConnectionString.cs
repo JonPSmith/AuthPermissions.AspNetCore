@@ -86,9 +86,9 @@ public class TestShardingConnectionString
 
         var tenant1 = Tenant.CreateSingleTenant("Tenant1").Result;
         tenant1.UpdateShardingState("AnotherConnectionString", false);
-        var tenant2 = Tenant.CreateSingleTenant("Tenant2").Result;
+        var tenant2 = Tenant.CreateSingleTenant("Tenant3").Result;
         tenant2.UpdateShardingState("AnotherConnectionString", false);
-        var tenant3 = Tenant.CreateSingleTenant("Tenant3").Result;
+        var tenant3 = Tenant.CreateSingleTenant("Tenant2").Result;
         tenant3.UpdateShardingState("UnitTestConnection", false);
         context.AddRange(tenant1, tenant2, tenant3);
         context.SaveChanges();
@@ -104,14 +104,14 @@ public class TestShardingConnectionString
         var service = new ShardingConnections(snapShot, context);
 
         //ATTEMPT
-        var keyPairs = await service.GetConnectionStringsWithNumTenantsAsync();
+        var keyPairs = await service.GetConnectionStringsWithTenantNamesAsync();
 
         //VERIFY
-        keyPairs.ShouldEqual(new List<KeyValuePair<string, int>>
+        keyPairs.ShouldEqual(new List<(string connectionName, List<string> tenantNames)>
         {
-            new ("AnotherConnectionString", 2),
-            new ("UnitTestConnection", 1),
-            new ("Version1Example4", 0)
+            ("AnotherConnectionString", new List<string>{"Tenant1", "Tenant3"}),
+            ("UnitTestConnection", new List<string>{ "Tenant2"}),
+            ("Version1Example4", new List<string>())
         });
     }
 }

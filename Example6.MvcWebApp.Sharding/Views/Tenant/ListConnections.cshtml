@@ -1,4 +1,4 @@
-﻿@model IEnumerable<KeyValuePair<string, int>>
+﻿@model List<(string key, List<string> tenantNames)>
 
 @{
     ViewData["Title"] = "ListTenants";
@@ -23,10 +23,12 @@
     {
         <tr>
             <td>
-                @item.Key
+                @item.key
             </td>
             <td>
-                @item.Value
+                <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.tenantNames)'>
+                    @item.tenantNames.Count
+                </a>
             </td>
         </tr>
     }
@@ -36,3 +38,12 @@
 <div>
     <a asp-action="Index">Back to list of tenants</a>
 </div>
+
+@section Scripts{
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

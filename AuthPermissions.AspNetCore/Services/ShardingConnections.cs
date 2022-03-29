@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.DataLayer.EfCode;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -46,23 +47,29 @@ public class ShardingConnections : IShardingConnections
     }
 
     /// <summary>
-    /// This returns all the connection string names, with the number of tenants linked to those connection string names
+    /// This returns all the connection string names, with a list of tenant name  linked to each connection name
     /// </summary>
-    /// <returns>List of KeyValuePair(string, int) in the order they are in the appsettings file</returns>
-    public async Task<List<KeyValuePair<string, int>>> GetConnectionStringsWithNumTenantsAsync()
+    /// <returns>List of connectionName+tenants using that connectionName</returns>
+    public async Task<List<(string connectionName, List<string> tenantNames)>> GetConnectionStringsWithTenantNamesAsync()
     {
-        var grouped = await _context.Tenants.GroupBy(x => x.ConnectionName)
-            .Select(x => new KeyValuePair<string, int>(x.Key, x.Count()))
+        var nameAndConnectionName  = await _context.Tenants
+            .Select(x => new { x.ConnectionName, x.TenantFullName})
             .ToListAsync();
+            
+        var grouped = nameAndConnectionName.GroupBy(x => x.ConnectionName)
+            .ToDictionary(x => x.Key,
+                y => y.Select(z => z.TenantFullName));
 
+        var result = new List<(string connectionName, List<string>)>();
         //Add connection string names that have no tenants in them so that you can see all the connection string  names
-        foreach (var key in _connectionDict.Keys
-                     .Where(key => grouped.All(x => x.Key != key)))
+        foreach (var key in _connectionDict.Keys)
         {
-            grouped.Add(new KeyValuePair<string, int>(key,0));
+            result.Add(grouped.ContainsKey(key)
+                ? (key, grouped[key].ToList())
+                : (key, new List<string>()));
         }
 
-        return grouped;
+        return result;
     }
 
     /// <summary>
