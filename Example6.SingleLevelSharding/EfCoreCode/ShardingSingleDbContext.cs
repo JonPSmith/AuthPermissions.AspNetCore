@@ -63,9 +63,9 @@ public class ShardingSingleDbContext : DbContext, IDataKeyFilterReadOnly
         //    x.DataKey == DataKey);
         //modelBuilder.Entity<Invoice>().HasIndex(x => x.DataKey);
         //modelBuilder.Entity<Invoice>().Property(x => DataKey).IsUnicode(false);
-        //modelBuilder.Entity<Invoice>().Property(x => DataKey).HasMaxLength("NoQueryFilter".Length);
+        //modelBuilder.Entity<Invoice>().Property(x => DataKey).HasMaxLength(MultiTenantExtensions.DataKeyNoQueryFilter.Length);
         //... and do it again for all the entities in your DbContext
-;
+        ;
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
