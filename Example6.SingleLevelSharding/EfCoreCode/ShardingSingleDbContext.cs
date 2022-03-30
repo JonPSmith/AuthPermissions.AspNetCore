@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.EfCode;
@@ -56,10 +57,15 @@ public class ShardingSingleDbContext : DbContext, IDataKeyFilterReadOnly
     {
         modelBuilder.HasDefaultSchema("invoice");
 
-        // You could manually set up the Query Filter, but there is a easier approach
-        //modelBuilder.Entity<Invoice>().HasQueryFilter(x => x.DataKey == DataKey);
-        //modelBuilder.Entity<LineItem>().HasQueryFilter(x => x.DataKey == DataKey);
-        //modelBuilder.Entity<CompanyTenant>().HasQueryFilter(x => x.DataKey == DataKey);
+        //This is want you would manually set up the Query Filter, but there is a easier approach shown after this comment 
+        //modelBuilder.Entity<Invoice>().HasQueryFilter(
+        //    x => DataKey == MultiTenantExtensions.DataKeyNoQueryFilter || 
+        //    x.DataKey == DataKey);
+        //modelBuilder.Entity<Invoice>().HasIndex(x => x.DataKey);
+        //modelBuilder.Entity<Invoice>().Property(x => DataKey).IsUnicode(false);
+        //modelBuilder.Entity<Invoice>().Property(x => DataKey).HasMaxLength("NoQueryFilter".Length);
+        //... and do it again for all the entities in your DbContext
+;
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
