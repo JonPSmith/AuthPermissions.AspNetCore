@@ -20,11 +20,11 @@ public static class EntitySchemaTableExtensions
     /// <returns></returns>
     public static string FormSchemaTableFromModel(this IEntityType entityType)
     {
-        var tableOrViewName = !string.IsNullOrEmpty((string?)entityType.GetAnnotation(RelationalAnnotationNames.TableName).Value)
+        var tableOrViewName = !string.IsNullOrEmpty((string)entityType.GetAnnotation(RelationalAnnotationNames.TableName).Value)
             ? RelationalAnnotationNames.TableName
             : RelationalAnnotationNames.ViewName;
 
-        var tableOrViewSchema = !string.IsNullOrEmpty((string?)entityType.GetAnnotation(RelationalAnnotationNames.TableName).Value)
+        var tableOrViewSchema = !string.IsNullOrEmpty((string)entityType.GetAnnotation(RelationalAnnotationNames.TableName).Value)
             ? RelationalAnnotationNames.Schema
             : RelationalAnnotationNames.ViewSchema;
 

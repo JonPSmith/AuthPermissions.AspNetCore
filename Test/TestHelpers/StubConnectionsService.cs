@@ -23,13 +23,13 @@ public class StubConnectionsService : IShardingConnections
         return new[] { "DefaultConnection", "OtherConnection" };
     }
 
-    public async Task<List<(string connectionName, List<string> tenantNames)>> GetConnectionStringsWithTenantNamesAsync()
+    public Task<List<(string connectionName, List<string> tenantNames)>> GetConnectionStringsWithTenantNamesAsync()
     {
-        return new List<(string key, List<string> tenantNames)>
+        return Task.FromResult( new List<(string key, List<string> tenantNames)>
         {
             ("DefaultConnection", new List<string>{ "Tenant1, Tenant3"}),
             ("OtherConnection", new List<string>{ "Tenant2"})
-        };
+        });
     }
 
     public string GetNamedConnectionString(string connectionName)

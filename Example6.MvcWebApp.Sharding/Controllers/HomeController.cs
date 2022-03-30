@@ -17,10 +17,9 @@ namespace Example6.MvcWebApp.Sharding.Controllers
             _logger = logger;
         }
 
-        public async Task< IActionResult> Index(string message)
+        public IActionResult Index(string message)
         {
             ViewBag.Message = message;
-
 
             if (AddTenantNameClaim.GetTenantNameFromUser(User) == null)
                 return View(new AppSummary());

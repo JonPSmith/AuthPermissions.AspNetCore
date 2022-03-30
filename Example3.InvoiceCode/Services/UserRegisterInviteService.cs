@@ -131,7 +131,7 @@ public class UserRegisterInviteService : IUserRegisterInviteService
             tenantId = int.Parse(parts[0]);
             emailOfJoiner = parts[1].Trim();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             //Could add a log here
             return status.AddError("Sorry, the verification failed.");

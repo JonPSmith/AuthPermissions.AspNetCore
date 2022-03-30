@@ -28,7 +28,7 @@ public class ShardingConnections : IShardingConnections
     /// ctor
     /// </summary>
     /// <param name="optionsAccessor">Dynamically assesses the ConnectionSting part of the appsetting file</param>
-    /// <param name="context">AuthP context - used in <see cref="GetConnectionStringsWithNumTenantsAsync"/> method</param>
+    /// <param name="context">AuthP context - used in <see cref="GetConnectionStringsWithTenantNamesAsync"/> method</param>
     public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> optionsAccessor, AuthPermissionsDbContext context)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef

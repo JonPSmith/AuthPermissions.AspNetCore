@@ -27,6 +27,11 @@ public class ShardingConnectionStringsJson
         _env = env;
     }
 
+    /// <summary>
+    /// Not sorted out yet
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="AuthPermissionsException"></exception>
     public IEnumerable<(string name, string connectionString)> GetAllConnectionStrings()
     {
         var fileDirectory = _env.ContentRootPath;
@@ -46,7 +51,7 @@ public class ShardingConnectionStringsJson
         {
             connectionStringsElement = jsonDocument.RootElement.GetProperty("ConnectionStrings");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw new AuthPermissionsException(
                 $"Could not find a ConnectionStrings section in the {appsettingsName} file.");

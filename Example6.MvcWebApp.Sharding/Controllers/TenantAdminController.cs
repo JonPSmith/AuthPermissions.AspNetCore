@@ -53,7 +53,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
             return RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
-        public async Task<ActionResult> ErrorDisplay(string errorMessage)
+        public ActionResult ErrorDisplay(string errorMessage)
         {
             return View((object)errorMessage);
         }

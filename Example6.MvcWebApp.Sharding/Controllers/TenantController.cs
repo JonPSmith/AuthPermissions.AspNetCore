@@ -39,7 +39,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         }
 
         [HasPermission(Example6Permissions.TenantCreate)]
-        public async Task<IActionResult> Create([FromServices]AuthPermissionsOptions authOptions, 
+        public IActionResult Create([FromServices]AuthPermissionsOptions authOptions, 
         [FromServices]IShardingConnections connect)
         {
             return View(ShardingSingleLevelTenantDto.SetupForCreate(authOptions,

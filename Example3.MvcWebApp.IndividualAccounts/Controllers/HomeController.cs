@@ -19,10 +19,9 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             _logger = logger;
         }
 
-        public async Task< IActionResult> Index(string message)
+        public IActionResult Index(string message)
         {
             ViewBag.Message = message;
-
 
             if (AddTenantNameClaim.GetTenantNameFromUser(User) == null)
                 return View(new AppSummary());

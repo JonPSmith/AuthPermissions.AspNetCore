@@ -84,7 +84,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             return View("InviteUserUrl", new InviteUserDto(email, currentUser.UserTenant.TenantFullName, inviteUrl));
         }
 
-        public async Task<ActionResult> ErrorDisplay(string errorMessage)
+        public ActionResult ErrorDisplay(string errorMessage)
         {
             return View((object)errorMessage);
         }
