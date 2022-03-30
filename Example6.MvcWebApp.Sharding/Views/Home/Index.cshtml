@@ -35,27 +35,27 @@
     You can log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
     <br/>
     <i>NOTE: The email is also the password.</i>
-    <ol>
-
-        <li>Pick a user that with a company name to see the invoice version.</li>
-        <li>Pick the 'Super@@g1.com' or 'AppAdmin@g1.com' to access the AuthP features.</li>
-    </ol>
 </p>
 <p>
-    When you are logged in as a tenant user you can:
+    If you want to try sharding, then follow these steps:
     <ol>
+        <li>Log in as 'Super@@g1.com' or 'AppAdmin@@g1.com' so that you can create or move a sharding tenant.</li>
         <li>
-            The home page will contain company (tenant) name and you can see / create invoices.
+            Go to <a asp-area="" asp-controller="Tenant" asp-action="ListConnections">Auth Admin > List Connections</a>
+            to see the possible database connection names and now many tenants are in each datatbase.
         </li>
-        <li>When log in you can see your claims, permissions and other user/role info via the "User Admin" menu button.</li>
         <li>
-            Go to the <a asp-area="" asp-controller="AuthUsers" asp-action="Index">User Admin -> List all users</a> to see the users.
-            This would normally be only available to admin users, but for this demo anyone can see it.
-            <i>NOTE: if you log in as an 'admin' user, or Super@g1.com to have full admin rights.</i>
+            Go to <a asp-area="" asp-controller="Tenant" asp-action="Index">Auth Admin > List Tenants</a>
+            to see where the tenants are. On first startup there will be three tenants in the "DefaultConnection" connection name
+        </li>
+        <li>
+            If you choose the "Move DB" link on one of the tenants you can move this tenant's data to another database.
+            If you tick the HasOwnDb box, then the tenant will be converted to using sharding for the tenant data.
+        </li>
+        <li>
+            After the move with HasOwnDb ticked you will see that the tenant's DataKey has changed to "NoQueryFilter". 
+            This removes the effect of the global query filter as a sharding tenant doesn't need it and the queries will be a bit quicker.
         </li>
     </ol>
-</p>
-<p>
-    If you log in as an <i>App admin</i> you full admin rights of every part of the AuthP features.
 </p>
 

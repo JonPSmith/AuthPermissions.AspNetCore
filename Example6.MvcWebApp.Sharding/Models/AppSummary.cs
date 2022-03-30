@@ -15,10 +15,9 @@ namespace Example6.MvcWebApp.Sharding.Models
             "- ASP.NET Core Individual accounts database",
             "- AuthPermissions' database - tables have a schema of 'authp'",
             "- multi-tenant invoice database - tables have a schema of 'invoice'",
-            "",
-            "Another database to show how sharding works"
+            "Other databases are available to show how sharding works"
         };
 
-        public string Note { get; } = "Sharding with two databases";
+        public string Note { get; } = "Sharding with multiple databases";
     }
 }
