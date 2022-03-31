@@ -26,6 +26,9 @@ namespace AuthPermissions.AdminCode
         /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
         Task<string> CreateNewTenantAsync(Tenant tenant);
 
+        //----------------------------------------------------
+        // Single-level only methods
+
         /// <summary>
         /// This is called when the name of your single-level tenant is changed. This is useful if you use the tenant name in your multi-tenant data.
         /// NOTE: The application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read.
@@ -50,7 +53,7 @@ namespace AuthPermissions.AdminCode
         Task<string> SingleTenantDeleteAsync(Tenant tenant);
 
         //------------------------------------------------
-        // Hierarchical change methods
+        // Hierarchical only methods
 
         /// <summary>
         /// This is called when the name of your Hierarchical tenants is changed. This is useful if you use the tenant name in your multi-tenant data.
@@ -86,6 +89,9 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantToUpdate">The data to update each tenant. This starts at the parent and then recursively works down the children</param>
         /// <returns>Returns null if all OK, otherwise AuthP part of the move is rolled back and the return string is shown to the user</returns>
         Task<string> MoveHierarchicalTenantDataAsync(List<(string oldDataKey, Tenant tenantToMove)> tenantToUpdate);
+
+        //-------------------------------------------------
+        // Sharding only method
 
         /// <summary>
         /// This is called when a tenant is moved to a new database setting.
