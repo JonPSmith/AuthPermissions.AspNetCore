@@ -5,7 +5,6 @@ using System.Data;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.CommonCode;
 using AuthPermissions.DataLayer.Classes;
 using Example6.SingleLevelSharding.EfCoreClasses;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +49,7 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// <returns>Null if no errors, otherwise string is shown as an error to the user</returns>
     public async Task<string> CreateNewTenantAsync(Tenant tenant)
     {
-        var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
+        using var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
 
@@ -58,7 +57,7 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (databaseError != null) 
             return databaseError;
 
-        if (tenant.HasOwnDb && context.Companies.Any())
+        if (tenant.HasOwnDb && context.Companies.IgnoreQueryFilters().Any())
             return
                 $"The tenant's {nameof(Tenant.HasOwnDb)} property is true, but the database contains existing companies";
 
@@ -76,7 +75,7 @@ public class ShardingTenantChangeService : ITenantChangeService
 
     public async Task<string> SingleTenantUpdateNameAsync(Tenant tenant)
     {
-        var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
+        using var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
 
@@ -93,7 +92,7 @@ public class ShardingTenantChangeService : ITenantChangeService
 
     public async Task<string> SingleTenantDeleteAsync(Tenant tenant)
     {
-        var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
+        using var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
         if (context == null)
             return $"There is no connection string with the name {tenant.ConnectionName}.";
 
@@ -213,7 +212,7 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// <param name="migrateEvenIfNoDb">If using local SQL server, Migrate will create the database.
     /// That doesn't work on Azure databases</param>
     /// <returns></returns>
-    private static async Task<string> CheckDatabaseAndPossibleMigrate(ShardingSingleDbContext context, Tenant tenant,
+    private static async Task<string?> CheckDatabaseAndPossibleMigrate(ShardingSingleDbContext context, Tenant tenant,
         bool migrateEvenIfNoDb)
     {
         //Thanks to https://stackoverflow.com/questions/33911316/entity-framework-core-how-to-check-if-database-exists
