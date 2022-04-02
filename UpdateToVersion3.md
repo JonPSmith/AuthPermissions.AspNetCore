@@ -1,6 +1,6 @@
 # Migrating AuthPermissions.AspNetCore 2.* to 3.0
 
-Version 3 of the AuthPermissions.AspNetCore library (shortened to **AuthP** from now on) contains a new sharding feature for multi-tenant applications. Please read the article called [Part6: Using sharding to build multi-tenant apps using EF Core and ASP.NET Core] LINK NEEDED for a detailed explanation of sharding and how AuthP library provides a sharding implementation.
+Version 3 of the AuthPermissions.AspNetCore library (shortened to **AuthP** from now on) contains a new sharding feature for multi-tenant applications. Please read the article called [Part6: Using sharding to build multi-tenant apps using EF Core and ASP.NET Core] LINK ??? for a detailed explanation of sharding and how AuthP library provides a sharding implementation.
 
 This article explains how to update an existing AuthPermissions.AspNetCore 2.* project to AuthPermissions.AspNetCore 3.0. I assume that you are using Visual Studio.
 
@@ -8,8 +8,8 @@ This article explains how to update an existing AuthPermissions.AspNetCore 2.* p
 
 These are things you need to do to update aan application using AuthP version 2.0 to
 
-- **BRAKING CHANGE**: [Update your ITenantChangeService code]
-- **Automatically applied**: 
+- **BRAKING CHANGE**: [Update your ITenantChangeService code](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion3.md#braking-change-update-your-itenantchangeservice-code)
+- **Automatically applied**:
   The AuthP DbContext requires a migration to add some new properties in the `AuthUser` and `Tenant` classes. This is a non-breaking migration and will be automatically applied to the AuthP database on startup.
 
 ## BRAKING CHANGE: Update your `ITenantChangeService` code
@@ -21,6 +21,8 @@ Here are the main changes:
 ### 1. Remove `GetNewInstanceOfAppContext` method and use dependency injection (DI)
 
 The new approach to obtaining a instance of your application's DbContext is to use DI injection via the class's constructor. This removes the need for the  `GetNewInstanceOfAppContext` method. See the code below from Example3 shows how to inject the application's DbContext using DI - NOTE: The logger is optional - I use it to log any problems in my code.
+
+**NOTE:** The documentation contains a page called [Building a tenant change service](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Building-a-tenant-change-service) that you might like to look at.
 
 ```c#
 public class InvoiceTenantChangeService : ITenantChangeService

@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		ReleaseNotes.md = ReleaseNotes.md
 		Roadmap.md = Roadmap.md
 		UpdateToVersion2.md = UpdateToVersion2.md
+		UpdateToVersion3.md = UpdateToVersion3.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example2.WebApiWithToken.IndividualAccounts", "Example2.WebApiWithToken.IndividualAccounts\Example2.WebApiWithToken.IndividualAccounts.csproj", "{E2667176-A75B-4182-94AF-43D8F0CF989A}"
@@ -36,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example5.MvcWebApp.AzureAdB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example6.SingleLevelSharding", "Example6.SingleLevelSharding\Example6.SingleLevelSharding.csproj", "{9D89C5A6-3692-40A8-A83E-722D99C3004B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example6.MvcWebApp.Sharding", "Example6.MvcWebApp.Sharding\Example6.MvcWebApp.Sharding.csproj", "{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example6.MvcWebApp.Sharding", "Example6.MvcWebApp.Sharding\Example6.MvcWebApp.Sharding.csproj", "{FCEA1BF4-C654-4AD1-A2BA-241DB153D3B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
