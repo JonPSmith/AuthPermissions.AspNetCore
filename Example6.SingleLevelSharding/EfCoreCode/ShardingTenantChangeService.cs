@@ -159,10 +159,13 @@ public class ShardingTenantChangeService : ITenantChangeService
             var invoicesWithLineItems = await oldContext.Invoices.AsNoTracking().Include(x => x.LineItems)
                 .ToListAsync();
 
-            //This looks through the entities and resets the primary key to their default value
+            
             //NOTE: writing the entities to the database will set the DataKey on a non-sharding tenant,
             //but if its a sharding tenant then the DataKey won't be changed, BUT if you want the DataKey cleared out see the RetailTenantChangeService.MoveHierarchicalTenantDataAsync to manually set the DataKey
             var resetter = new DataResetter(newContext);
+            //This resets the primary / foreign keys to their default value ready to write into the new database
+            //This method comes from my EfCore.TestSupport library as was used to store data and add it back.
+            //see the extract part documentation vai https://github.com/JonPSmith/EfCore.TestSupport/wiki/Seed-from-Production-feature
             resetter.ResetKeysEntityAndRelationships(invoicesWithLineItems);
 
             newContext.AddRange(invoicesWithLineItems);
