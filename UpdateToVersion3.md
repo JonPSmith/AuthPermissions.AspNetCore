@@ -49,11 +49,13 @@ With the change in version 3 to injecting the tenant DbContext you don't have to
 
 ### 3. Changes to the names and parameters of the methods
 
-Every method in the [`ITenantChangeService`](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/AuthPermissions/AdminCode/ITenantChangeService.cs) has changed and some new methods have been added. If you want to update one of your tenant change service I recommend you look at updated tenant change in the main branch, which have been updated to the version 3 design
+Every method in the [`ITenantChangeService`](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/AuthPermissions/AdminCode/ITenantChangeService.cs) has changed and some new methods have been added. Have a look at the document called [Building a tenant change service](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Building-a-tenant-change-service) for details on each method.
+
+If you want to update one of your tenant change service I recommend you look at updated tenant change in the main branch, which have been updated to the version 3 design.
 
 - For a single-level multi-tenant have look at Example3s [InvoiceTenantChangeService](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example3.InvoiceCode/EfCoreCode/InvoiceTenantChangeService.cs).
 - For a hierarchical multi-tenant have look at Example4, [RetailTenantChangeService](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example4.ShopCode/EfCoreCode/RetailTenantChangeService.cs).
-- For the single-level + sharding multi-tenant version look at ???
+- For the single-level + sharding multi-tenant version look at [ShardingTenantChangeService](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/Example6.SingleLevelSharding/EfCoreCode/ShardingTenantChangeService.cs)
 
 ### 4. Use a transaction in methods that has multiple updates
 
