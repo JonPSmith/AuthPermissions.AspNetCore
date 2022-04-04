@@ -1,4 +1,4 @@
-# Migrating from AuthPermissions.AspNetCore 2.* to 3.0
+# Updating your code from AuthPermissions.AspNetCore 2.* to 3.0
 
 Version 3 of the AuthPermissions.AspNetCore library (shortened to **AuthP** from now on) contains a new sharding feature for multi-tenant applications. Please read the article called [Part6: Using sharding to build multi-tenant apps using EF Core and ASP.NET Core] LINK ??? for a detailed explanation of sharding and how AuthP library provides a sharding implementation.
 

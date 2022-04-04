@@ -1,4 +1,4 @@
-# Migrate from AuthPermissions.AspNetCore 1.* to 2.0
+# Updating your code from AuthPermissions.AspNetCore 1.* to 2.0
 
 This article explains how to update an existing AuthPermissions.AspNetCore 1.* project to AuthPermissions.AspNetCore 2.0. I am assuming that you are using Visual Studio.
 
