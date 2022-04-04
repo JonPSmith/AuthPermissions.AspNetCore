@@ -10,6 +10,11 @@ The AuthP is an open-source library under the MIT licence (and remain as a open-
 
 The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki) and see [ReleaseNotes](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/ReleaseNotes.md) for details of changes. There is also a [roadmap discussion](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2) containing the plans for this library.
 
+The AuthP library is being built in versions (see [roadmap](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2)). If you have already built your application using an older version, then you need to look at the following "how up update" documents
+
+- From Migrating from AuthPermissions.AspNetCore 1.* to 1.0 see [UpdateToVersion2.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md)
+- From Migrating from AuthPermissions.AspNetCore 2.* to 3.0 see [UpdateToVersion3.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion3.md)
+
 The AuthP library also:
 
 - Works with any ASP.NET Core authentication provider. Currently has built-in individual accounts and Azure Active Directory versions, but you can create your own.

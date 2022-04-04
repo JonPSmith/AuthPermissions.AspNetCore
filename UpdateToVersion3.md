@@ -1,4 +1,4 @@
-# Migrating AuthPermissions.AspNetCore 2.* to 3.0
+# Migrating from AuthPermissions.AspNetCore 2.* to 3.0
 
 Version 3 of the AuthPermissions.AspNetCore library (shortened to **AuthP** from now on) contains a new sharding feature for multi-tenant applications. Please read the article called [Part6: Using sharding to build multi-tenant apps using EF Core and ASP.NET Core] LINK ??? for a detailed explanation of sharding and how AuthP library provides a sharding implementation.
 
@@ -6,9 +6,9 @@ This article explains how to update an existing AuthPermissions.AspNetCore 2.* p
 
 ## TABLE OF CONTENT
 
-These are things you need to do to update aan application using AuthP version 2.0 to
+These are things you need to do to update an application using AuthP version 2.0 to
 
-- **BRAKING CHANGE**: [Update your ITenantChangeService code](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion3.md#braking-change-update-your-itenantchangeservice-code)
+- **BREAKING CHANGE**: [Update your ITenantChangeService code](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion3.md#braking-change-update-your-itenantchangeservice-code)
 - **Automatically applied**:
   The AuthP DbContext requires a migration to add some new properties in the `AuthUser` and `Tenant` classes. This is a non-breaking migration and will be automatically applied to the AuthP database on startup.
 

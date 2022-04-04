@@ -2,13 +2,17 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>2.3.1</version>
+    <version>3.0.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-Bug Fix: Problem in ClaimCalculator when used with multi-tenant applications - see issue #23
+- BREAKING CHANGE: The ITenantChangeService has changed to allow multi-tenant sharding to be added - see the UpdateToVersion2.md file for more info
+- BREAKING CHANGE: The option called AppConnectionString has been removed. Its longer needed because of ITenantChangeService change
+- Changes to the AuthP database which contains a non-breaking migration. This will be automatically added on startup.
+- New Feature: Adding optional sharding to either a single-level or hierarchical multi-tenant applications - see documentation for an article explaining how to setup sharding
+- New Feature: You can mark an AuthUser as disabled, which means no AuthP claims will be added to the user's claims.
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
