@@ -5,13 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.EfCode;
-using EntityFramework.Exceptions.SqlServer;
+using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Test.Helpers;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestEfCoreCode
+namespace Test.UnitTests.TestEfCoreCodePostgres
 {
     public class TestSaveChangesExtensions
     {
@@ -19,8 +22,11 @@ namespace Test.UnitTests.TestEfCoreCode
         public void TestSaveChangesWithUniqueCheckNoError()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder => 
-                builder.UseExceptionProcessor());
+            var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
+            {
+                builder.UseExceptionProcessor();
+                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
+            });
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
@@ -36,8 +42,11 @@ namespace Test.UnitTests.TestEfCoreCode
         public void TestSaveChangesWithUniqueCheckSingleDupError()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
+            var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
+            {
+                builder.UseExceptionProcessor();
+                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
+            });
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
@@ -60,8 +69,11 @@ namespace Test.UnitTests.TestEfCoreCode
         public void TestSaveChangesWithUniqueAuthUserWhereEmailAndUserNameAreDifferent()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
+            var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
+            {
+                builder.UseExceptionProcessor();
+                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
+            });
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
@@ -84,8 +96,11 @@ namespace Test.UnitTests.TestEfCoreCode
         public void TestSaveChangesWithUniqueCheckTwoDupErrors()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
+            var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
+            {
+                builder.UseExceptionProcessor();
+                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
+            });
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
@@ -113,8 +128,11 @@ namespace Test.UnitTests.TestEfCoreCode
         public void TestSaveChangesWithConcurrencyCheck()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
+            var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
+            {
+                builder.UseExceptionProcessor();
+                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
+            });
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
@@ -127,7 +145,7 @@ namespace Test.UnitTests.TestEfCoreCode
             var role = context.RoleToPermissions.Single();
             role.Update("y", "new desc");
             context.Database.ExecuteSqlRaw(
-                "UPDATE authp.RoleToPermissions SET Description = N'concurrent desc' WHERE RoleName = N'Test'");
+                "UPDATE authp.\"RoleToPermissions\" SET \"Description\" = 'concurrent desc' WHERE \"RoleName\" = 'Test'");
             var status = context.SaveChangesWithChecks();
 
             //VERIFY

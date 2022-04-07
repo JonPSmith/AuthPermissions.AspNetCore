@@ -5,7 +5,7 @@ using System;
 using AuthPermissions.DataLayer.Classes;
 using AuthPermissions.DataLayer.Classes.SupportTypes;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AuthPermissions.DataLayer.EfCode
@@ -16,6 +16,12 @@ namespace AuthPermissions.DataLayer.EfCode
     public class AuthPermissionsDbContext : DbContext
     {
         /// <summary>
+        /// This overcomes the exception if the class used in the tests which uses the <see cref="IModelCacheKeyFactory"/>
+        /// to allow testing of an DbContext that works with SqlServer and PostgreSQL 
+        /// </summary>
+        public string ProviderName { get; }
+
+        /// <summary>
         /// ctor
         /// </summary>
         /// <param name="options"></param>
@@ -25,6 +31,7 @@ namespace AuthPermissions.DataLayer.EfCode
             : base(options)
         {
             eventSetup?.RegisterEventHandlers(this);
+            ProviderName = this.Database.ProviderName;
         }
 
         /// <summary>
@@ -58,7 +65,7 @@ namespace AuthPermissions.DataLayer.EfCode
             modelBuilder.HasDefaultSchema("authp");
             
             //Add concurrency token to every entity 
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (Database.IsSqlServer())
                 {
@@ -67,6 +74,17 @@ namespace AuthPermissions.DataLayer.EfCode
                     entityType.FindProperty("ConcurrencyToken")
                         .ValueGenerated = ValueGenerated.OnAddOrUpdate;
                     entityType.FindProperty("ConcurrencyToken")
+                        .IsConcurrencyToken = true;
+                }
+                else if (Database.IsNpgsql())
+                {
+                    //see https://www.npgsql.org/efcore/modeling/concurrency.html
+                    //and https://github.com/npgsql/efcore.pg/issues/19#issuecomment-253346255
+                    entityType.AddProperty("xmin", typeof(uint))
+                        .SetColumnType("xid");
+                    entityType.FindProperty("xmin")
+                        .ValueGenerated = ValueGenerated.OnAddOrUpdate;
+                    entityType.FindProperty("xmin")
                         .IsConcurrencyToken = true;
                 }
                 //NOTE: Sqlite doesn't support concurrency support, but if needed it can be added

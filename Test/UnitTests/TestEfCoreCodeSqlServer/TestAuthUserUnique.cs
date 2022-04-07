@@ -10,7 +10,7 @@ using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestEfCoreCode
+namespace Test.UnitTests.TestEfCoreCodeSqlServer
 {
     public class TestAuthUserUnique
     {

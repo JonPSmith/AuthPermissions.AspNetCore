@@ -10,6 +10,7 @@ using AuthPermissions.DataLayer.Classes.SupportTypes;
 using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using EntityFramework.Exceptions.SqlServer;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -139,7 +140,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
         {
             //SETUP
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-                builder.UseExceptionProcessor());
+            {
+                builder.UseExceptionProcessor();
+                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
+            });
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
