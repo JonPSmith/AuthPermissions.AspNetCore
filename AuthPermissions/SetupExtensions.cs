@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

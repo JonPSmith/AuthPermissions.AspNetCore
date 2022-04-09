@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using StatusGeneric;
 

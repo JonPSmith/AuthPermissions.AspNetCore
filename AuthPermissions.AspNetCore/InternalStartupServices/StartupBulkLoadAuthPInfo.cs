@@ -3,8 +3,10 @@
 
 using System;
 using System.Threading.Tasks;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 using Microsoft.Extensions.DependencyInjection;

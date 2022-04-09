@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AuthPermissions.AspNetCore

@@ -4,7 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AuthPermissions.AspNetCore.PolicyCode

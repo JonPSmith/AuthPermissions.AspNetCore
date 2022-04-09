@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.SetupCode;
 
 namespace ExamplesCommonCode.CommonAdmin

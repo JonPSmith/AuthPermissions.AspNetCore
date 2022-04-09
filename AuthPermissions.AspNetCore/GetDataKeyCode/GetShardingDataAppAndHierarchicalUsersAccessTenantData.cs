@@ -3,7 +3,7 @@
 
 using AuthPermissions.AspNetCore.AccessTenantData;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.AspNetCore.Http;
 
 namespace AuthPermissions.AspNetCore.GetDataKeyCode

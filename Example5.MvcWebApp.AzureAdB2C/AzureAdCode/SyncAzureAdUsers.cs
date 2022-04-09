@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;

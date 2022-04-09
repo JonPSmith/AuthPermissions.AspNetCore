@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example4.ShopCode.RefreshUsersClaims;
 using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;

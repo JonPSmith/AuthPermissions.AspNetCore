@@ -2,8 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.ShopCode.EfCoreClasses

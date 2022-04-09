@@ -5,8 +5,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AuthPermissions;
-using AuthPermissions.AspNetCore.JwtTokenCode;
+using AuthPermissions.BaseCode;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Test.TestHelpers

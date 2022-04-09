@@ -9,10 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EntityFrameworkCore.Exceptions.PostgreSQL" Version="3.1.4" />
-    <PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" Version="3.1.4" />
-    <PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="3.1.4" />
-    <PackageReference Include="GenericServices.StatusGeneric" Version="1.1.0" />
+	  <PackageReference Include="GenericServices.StatusGeneric" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
@@ -33,7 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AuthPermissions.DataLayer\AuthPermissions.DataLayer.csproj" />
+    <ProjectReference Include="..\AuthPermissions.BaseCode\AuthPermissions.BaseCode.csproj" />
+    <ProjectReference Include="..\AuthPermissions.PostgreSql\AuthPermissions.PostgreSql.csproj" />
+    <ProjectReference Include="..\AuthPermissions.SqlServer\AuthPermissions.SqlServer.csproj" />
   </ItemGroup>
 
 </Project>

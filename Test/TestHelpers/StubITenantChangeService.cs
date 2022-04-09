@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.SetupCode.Factories;
 
 namespace Test.TestHelpers

@@ -4,7 +4,7 @@
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 

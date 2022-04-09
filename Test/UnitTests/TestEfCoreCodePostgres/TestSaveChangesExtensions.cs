@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;

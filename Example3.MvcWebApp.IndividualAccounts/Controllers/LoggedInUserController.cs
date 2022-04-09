@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.PermissionsCode;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.AspNetCore.Mvc;
 

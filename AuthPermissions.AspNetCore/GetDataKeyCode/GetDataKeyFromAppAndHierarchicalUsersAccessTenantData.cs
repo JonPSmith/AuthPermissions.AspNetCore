@@ -3,7 +3,9 @@
 
 using AuthPermissions.AspNetCore.AccessTenantData;
 using AuthPermissions.AspNetCore.AccessTenantData.Services;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Http;
 

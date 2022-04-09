@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Linq;
-using AuthPermissions.CommonCode;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
 
 namespace Example5.MvcWebApp.AzureAdB2C.Controllers

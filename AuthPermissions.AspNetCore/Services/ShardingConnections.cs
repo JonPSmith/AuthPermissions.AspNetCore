@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

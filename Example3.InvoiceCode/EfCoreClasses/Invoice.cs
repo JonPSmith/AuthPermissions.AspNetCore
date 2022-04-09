@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 
 namespace Example3.InvoiceCode.EfCoreClasses
 {

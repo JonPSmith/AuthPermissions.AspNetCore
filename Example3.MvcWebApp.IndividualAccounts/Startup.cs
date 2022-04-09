@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RunMethodsSequentially;
 using AuthPermissions.AspNetCore.StartupServices;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.SetupCode;
 using Example3.InvoiceCode.Services;
 using ExamplesCommonCode.IdentityCookieCode;
 

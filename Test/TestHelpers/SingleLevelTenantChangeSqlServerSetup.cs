@@ -2,8 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;

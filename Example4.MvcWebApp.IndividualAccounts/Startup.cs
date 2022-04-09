@@ -18,6 +18,7 @@ using Example4.ShopCode.EfCoreCode;
 using GenericServices.Setup;
 using RunMethodsSequentially;
 using AuthPermissions.AspNetCore.StartupServices;
+using AuthPermissions.BaseCode.SetupCode;
 using Example4.ShopCode.RefreshUsersClaims;
 using ExamplesCommonCode.IdentityCookieCode;
 

@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example3.InvoiceCode.EfCoreCode

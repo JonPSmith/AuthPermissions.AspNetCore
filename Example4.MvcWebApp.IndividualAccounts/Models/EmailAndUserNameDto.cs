@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Models
 {

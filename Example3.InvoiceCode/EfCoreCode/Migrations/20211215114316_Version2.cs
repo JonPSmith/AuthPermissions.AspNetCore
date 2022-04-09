@@ -1,4 +1,4 @@
-﻿using AuthPermissions.DataLayer.EfCode;
+﻿using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

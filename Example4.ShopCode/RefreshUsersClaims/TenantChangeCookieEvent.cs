@@ -7,7 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;

@@ -3,8 +3,9 @@
 
 using System.Security.Claims;
 using AuthPermissions;
-using AuthPermissions.PermissionsCode;
-using AuthPermissions.PermissionsCode.Services;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.PermissionsCode;
+using AuthPermissions.BaseCode.PermissionsCode.Services;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;

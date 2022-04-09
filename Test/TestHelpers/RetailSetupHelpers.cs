@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example4.ShopCode.EfCoreClasses;
 using Example4.ShopCode.EfCoreCode;
 

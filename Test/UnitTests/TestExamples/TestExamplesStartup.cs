@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
 using System.Threading.Tasks;
+using AuthPermissions.BaseCode.SetupCode;
 using Test.TestHelpers;
 using TestSupport.Helpers;
 using Xunit;

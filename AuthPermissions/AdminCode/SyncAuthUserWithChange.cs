@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 
 namespace AuthPermissions.AdminCode
 {

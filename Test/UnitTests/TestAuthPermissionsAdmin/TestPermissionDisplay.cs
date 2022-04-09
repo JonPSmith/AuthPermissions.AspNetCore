@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Xunit;
 using Xunit.Abstractions;

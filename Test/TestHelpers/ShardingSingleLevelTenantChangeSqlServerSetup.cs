@@ -4,8 +4,9 @@
 using System;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example6.SingleLevelSharding.AppStart;
 using Example6.SingleLevelSharding.EfCoreCode;
 using Microsoft.EntityFrameworkCore;

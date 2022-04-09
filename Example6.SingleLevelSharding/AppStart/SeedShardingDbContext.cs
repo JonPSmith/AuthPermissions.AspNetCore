@@ -2,7 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using Example6.SingleLevelSharding.EfCoreClasses;
 using Example6.SingleLevelSharding.EfCoreCode;
 

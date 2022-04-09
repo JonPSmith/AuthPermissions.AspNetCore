@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreClasses;
 using Example3.InvoiceCode.EfCoreCode;

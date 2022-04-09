@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Example3.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.AspNetCore.Mvc;

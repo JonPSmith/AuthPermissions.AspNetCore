@@ -2,9 +2,10 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using AuthPermissions.BaseCode.DataLayer;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.DataLayer;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.EfCode;
 using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

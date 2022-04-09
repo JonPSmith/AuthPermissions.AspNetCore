@@ -2,6 +2,7 @@
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.BaseCode;
 using Example6.MvcWebApp.Sharding.Models;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;

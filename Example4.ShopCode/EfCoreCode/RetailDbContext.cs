@@ -3,8 +3,8 @@
 
 using System;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example4.ShopCode.EfCoreClasses;
 using Microsoft.EntityFrameworkCore;
 

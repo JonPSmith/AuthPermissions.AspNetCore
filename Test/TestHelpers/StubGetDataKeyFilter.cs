@@ -3,7 +3,6 @@
 
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.CommonCode;
 
 namespace Test.TestHelpers
 {

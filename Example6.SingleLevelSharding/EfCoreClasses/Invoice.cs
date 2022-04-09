@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 
 namespace Example6.SingleLevelSharding.EfCoreClasses
 {

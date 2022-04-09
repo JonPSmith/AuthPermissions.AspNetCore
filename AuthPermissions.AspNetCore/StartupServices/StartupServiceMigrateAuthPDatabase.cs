@@ -1,12 +1,14 @@
-﻿using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupCode;
+﻿using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RunMethodsSequentially;
 using System;
 using System.Threading.Tasks;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 
 namespace AuthPermissions.AspNetCore.StartupServices
 {

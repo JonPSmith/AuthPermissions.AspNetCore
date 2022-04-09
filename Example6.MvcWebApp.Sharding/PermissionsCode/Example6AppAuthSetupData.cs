@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 
 namespace Example6.MvcWebApp.Sharding.PermissionsCode

@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 
 namespace AuthPermissions.AdminCode;

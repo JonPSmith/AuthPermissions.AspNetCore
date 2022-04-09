@@ -1,5 +1,5 @@
 ﻿using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Example6.MvcWebApp.Sharding.Models;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.AspNetCore.Mvc;

@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AuthPermissions.DataLayer\AuthPermissions.DataLayer.csproj" />
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
   </ItemGroup>
 

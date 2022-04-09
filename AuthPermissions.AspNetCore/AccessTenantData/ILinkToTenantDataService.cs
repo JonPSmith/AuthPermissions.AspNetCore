@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.AccessTenantData.Services;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.AccessTenantData;

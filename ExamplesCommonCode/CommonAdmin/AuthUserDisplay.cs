@@ -3,8 +3,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 
 namespace ExamplesCommonCode.CommonAdmin
 {

@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.PermissionsCode.Internal;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;

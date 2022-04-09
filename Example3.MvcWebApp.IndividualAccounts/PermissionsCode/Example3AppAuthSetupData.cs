@@ -2,7 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 
 namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode

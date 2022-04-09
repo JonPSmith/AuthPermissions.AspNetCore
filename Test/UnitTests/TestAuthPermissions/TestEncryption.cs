@@ -2,7 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;

@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RunMethodsSequentially;
 using AuthPermissions.AspNetCore.StartupServices;
+using AuthPermissions.BaseCode;
 
 namespace Example2.WebApiWithToken.IndividualAccounts
 {

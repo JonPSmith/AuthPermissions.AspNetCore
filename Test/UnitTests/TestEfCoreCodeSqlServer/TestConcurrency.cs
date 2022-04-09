@@ -2,8 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using TestSupport.EfHelpers;

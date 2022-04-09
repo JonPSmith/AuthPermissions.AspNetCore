@@ -3,6 +3,7 @@
 
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 

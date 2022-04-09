@@ -5,8 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
 

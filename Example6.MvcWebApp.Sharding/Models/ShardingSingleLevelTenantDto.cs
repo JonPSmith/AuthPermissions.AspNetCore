@@ -4,9 +4,10 @@
 using System.ComponentModel.DataAnnotations;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 
 namespace Example6.MvcWebApp.Sharding.Models
 {

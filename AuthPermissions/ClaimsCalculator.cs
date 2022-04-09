@@ -6,10 +6,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthPermissions

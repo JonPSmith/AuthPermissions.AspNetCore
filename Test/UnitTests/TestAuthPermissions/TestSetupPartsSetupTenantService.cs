@@ -4,8 +4,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
-using AuthPermissions.DataLayer.EfCode;
 using AuthPermissions.SetupCode;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;

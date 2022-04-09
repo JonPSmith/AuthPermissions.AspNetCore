@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Linq;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using TestSupport.Attributes;

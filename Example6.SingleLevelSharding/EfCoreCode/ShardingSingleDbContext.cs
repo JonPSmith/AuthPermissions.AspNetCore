@@ -3,8 +3,8 @@
 
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example6.SingleLevelSharding.EfCoreClasses;
 using Microsoft.EntityFrameworkCore;
 

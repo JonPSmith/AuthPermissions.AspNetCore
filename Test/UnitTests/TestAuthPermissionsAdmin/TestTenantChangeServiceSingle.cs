@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;

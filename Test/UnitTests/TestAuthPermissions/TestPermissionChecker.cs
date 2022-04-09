@@ -2,8 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Security.Claims;
-using AuthPermissions.CommonCode;
-using AuthPermissions.PermissionsCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Test.TestHelpers;
 using Xunit;

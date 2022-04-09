@@ -2,7 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.AspNetCore.Http;
 
 namespace AuthPermissions.AspNetCore.GetDataKeyCode

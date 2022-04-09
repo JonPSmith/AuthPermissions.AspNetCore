@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode.Services;
-using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 
 namespace AuthPermissions.AdminCode
 {

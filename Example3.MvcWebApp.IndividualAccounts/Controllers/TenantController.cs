@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.AccessTenantData;
-using AuthPermissions.CommonCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Example3.MvcWebApp.IndividualAccounts.Models;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 
 namespace AuthPermissions.AdminCode
 {

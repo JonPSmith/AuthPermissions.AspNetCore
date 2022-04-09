@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.AdminCode.Services.Internal;
-using AuthPermissions.DataLayer.Classes;
-using AuthPermissions.DataLayer.Classes.SupportTypes;
-using AuthPermissions.DataLayer.EfCode;
-using AuthPermissions.SetupCode;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 

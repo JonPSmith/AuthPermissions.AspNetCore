@@ -1,4 +1,4 @@
-﻿using AuthPermissions.DataLayer.EfCode;
+﻿using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

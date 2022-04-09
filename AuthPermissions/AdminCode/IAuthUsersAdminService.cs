@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using StatusGeneric;
 
 namespace AuthPermissions.AdminCode

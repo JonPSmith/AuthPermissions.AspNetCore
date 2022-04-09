@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions.CommonCode;
-using AuthPermissions.DataLayer.EfCode;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthPermissions.AspNetCore.Services
