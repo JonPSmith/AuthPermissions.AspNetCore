@@ -52,11 +52,15 @@ namespace AuthPermissions
         {
             connectionString.CheckConnectString();
 
+            if (setupData.Options.InternalData.AuthPDatabaseType != AuthPDatabaseTypes.NotSet)
+                throw new AuthPermissionsException("You have already set up a database type for AuthP.");
+
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(
                 options =>
                 {
                     options.UseSqlServer(connectionString, dbOptions =>
-                        dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName));
+                        dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName)
+                        .MigrationsAssembly("AuthPermissions.SqlServer"));
                     EntityFramework.Exceptions.SqlServer.ExceptionProcessorExtensions.UseExceptionProcessor(options);
                 });
             setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.SqlServer;
@@ -83,12 +87,60 @@ namespace AuthPermissions
         }
 
         /// <summary>
+        /// This will register a Postgres database to hold the AuthPermissions database.
+        /// NOTE I have configured the AuthPermissionDbContext such that it can be part of another database (it has its own Migrations history table)
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
+        public static AuthSetupData UsingEfCorePostgres(this AuthSetupData setupData, string connectionString)
+        {
+            connectionString.CheckConnectString();
+
+            if (setupData.Options.InternalData.AuthPDatabaseType != AuthPDatabaseTypes.NotSet)
+                throw new AuthPermissionsException("You have already set up a database type for AuthP.");
+
+            setupData.Services.AddDbContext<AuthPermissionsDbContext>(
+                options =>
+                {
+                    options.UseNpgsql(connectionString, dbOptions =>
+                        dbOptions.MigrationsHistoryTable(AuthDbConstants.MigrationsHistoryTableName)
+                        .MigrationsAssembly("AuthPermissions.PostgreSql"));
+                    EntityFramework.Exceptions.PostgreSQL.ExceptionProcessorExtensions.UseExceptionProcessor(options);
+                });
+            setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.Postgres;
+
+            setupData.Options.InternalData.RunSequentiallyOptions =
+                setupData.Services.RegisterRunMethodsSequentially(options =>
+                {
+                    if (setupData.Options.UseLocksToUpdateGlobalResources)
+                    {
+                        if (string.IsNullOrEmpty(setupData.Options.PathToFolderToLock))
+                            throw new AuthPermissionsBadDataException(
+                                $"The {nameof(AuthPermissionsOptions.PathToFolderToLock)} property in the {nameof(AuthPermissionsOptions)} must be set to a " +
+                                "directory that all the instances of your application can access. " +
+                                "This is a backup to the Postgres lock in cases where the database doesn't exist yet.");
+
+                        options.AddPostgreSqlLockAndRunMethods(connectionString);
+                        options.AddFileSystemLockAndRunMethods(setupData.Options.PathToFolderToLock);
+                    }
+                    else
+                        options.AddRunMethodsWithoutLock();
+                });
+
+            return setupData;
+        }
+
+        /// <summary>
         /// This registers an in-memory database. The data added to this database will be lost when the app/unit test stops
         /// </summary>
         /// <param name="setupData"></param>
         /// <returns></returns>
         public static AuthSetupData UsingInMemoryDatabase(this AuthSetupData setupData)
         {
+            if (setupData.Options.InternalData.AuthPDatabaseType != AuthPDatabaseTypes.NotSet)
+                throw new AuthPermissionsException("You have already set up a database type for AuthP.");
+
             var inMemoryConnection = SetupSqliteInMemoryConnection();
             setupData.Services.AddDbContext<AuthPermissionsDbContext>(dbOptions =>
             {

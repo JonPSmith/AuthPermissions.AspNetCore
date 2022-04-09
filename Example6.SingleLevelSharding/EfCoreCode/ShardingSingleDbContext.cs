@@ -47,7 +47,7 @@ public class ShardingSingleDbContext : DbContext, IDataKeyFilterReadOnly
     }
 
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
-        CancellationToken cancellationToken = default(CancellationToken))
+        CancellationToken cancellationToken = default)
     {
         this.MarkWithDataKeyIfNeeded(DataKey);
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);

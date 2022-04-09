@@ -19,6 +19,10 @@ namespace AuthPermissions.SetupCode
         /// <summary>
         /// SQL Server database is used
         /// </summary>
-        SqlServer
+        SqlServer,
+        /// <summary>
+        /// Postgres database is used
+        /// </summary>
+        Postgres
     }
 }

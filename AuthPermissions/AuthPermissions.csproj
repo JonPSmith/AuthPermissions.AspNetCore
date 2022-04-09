@@ -30,7 +30,10 @@
 
   <ItemGroup>
     <Folder Include="AdminCode\Services\Internal\" />
-    <Folder Include="DataLayer\Migrations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AuthPermissions.DataLayer\AuthPermissions.DataLayer.csproj" />
   </ItemGroup>
 
 </Project>
