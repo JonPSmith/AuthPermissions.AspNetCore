@@ -6,14 +6,18 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
 	<ItemGroup>
-		<PackageReference Include="EntityFrameworkCore.Exceptions.PostgreSQL" Version="3.1.4" />
-		<PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" Version="3.1.4" />
-		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="3.1.4" />
+		<PackageReference Include="EntityFrameworkCore.Exceptions.PostgreSQL" Version="6.0.3" />
+		<PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" Version="6.0.3" />
+		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="6.0.3" />
 		<PackageReference Include="GenericServices.StatusGeneric" Version="1.1.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
 		<PackageReference Include="Net.RunMethodsSequentially" Version="1.3.0" />
 	</ItemGroup>
 

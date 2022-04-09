@@ -1,5 +1,9 @@
 # Release Notes
 
+## 3.1.0
+
+- New feature: Now supports PostgreSQL database
+
 ## 3.0.0
 
 - BREAKING CHANGE: The ITenantChangeService has changed to allow multi-tenant sharding to be added - see the UpdateToVersion2.md file for more info
