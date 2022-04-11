@@ -31,7 +31,6 @@ namespace Example5.MvcWebApp.AzureAdB2C
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(identityOptions =>
                 {
@@ -55,8 +54,15 @@ namespace Example5.MvcWebApp.AzureAdB2C
                 {
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
+                //************************************************
+                //To try using Postgres then:
+                //1. Edit the PostgreSqlConnection string in the appsettings file to your Postgres server
+                //2. Comment out the UsingEfCoreSqlServer method
+                //3. Uncomment the UsingEfCorePostgres
+                .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
+                //.UsingEfCorePostgres(_configuration.GetConnectionString("PostgreSqlConnection"))
+                //************************************************
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
-                .UsingEfCoreSqlServer(connectionString)
                 .RegisterAddClaimToUser<AddRefreshEveryMinuteClaim>()
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.RolesDefinition)
                 .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)
