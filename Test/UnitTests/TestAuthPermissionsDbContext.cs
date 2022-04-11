@@ -1,20 +1,19 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
-using EntityFramework.Exceptions.SqlServer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Test.Helpers;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
-using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestEfCoreCodePostgres
+namespace Test.UnitTests
 {
+    /// <summary>
+    /// This is a basic test that the <see cref="AuthPermissionsDbContext"/> is configured for SQL Server and Postgres side
+    /// </summary>
     public class TestAuthPermissionsDbContext
     {
         [Fact]

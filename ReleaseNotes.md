@@ -3,6 +3,7 @@
 ## 3.1.0
 
 - New feature: Now supports PostgreSQL database
+- NOTE: A lot of namespaces changed to support SqlServer and PostgreSQL
 
 ## 3.0.0
 
