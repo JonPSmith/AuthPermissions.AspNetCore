@@ -21,15 +21,15 @@ namespace AuthPermissions.BaseCode
         public TenantTypes TenantType { get; set; }
 
         /// <summary>
-        /// If sharding is turned on, then you can set the default connection string name in the appsettings file.
-        /// This defaults to "DefaultConnection"
+        /// If sharding is turned on, then you can define the sharding database data to use if not 
+        /// This defaults to "Default Database", which should be set up to 
         /// </summary>
-        public string ShardingDefaultConnectionName { get; set; } = "DefaultConnection";
+        public string ShardingDefaultDatabaseInfoName { get; set; } = "Default Database";
 
         /// <summary>
         /// This is needed if you are using sharding. Its used to get the ConnectionString
         /// </summary>
-        public IConfiguration Configuration { get; set; }
+        public ConfigurationManager Configuration { get; set; }
 
         /// <summary>
         /// This turns on the LinkToTenantData feature, e.g. an admin person can access the data in a specific tenant

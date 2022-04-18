@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuthPermissions.AspNetCore\AuthPermissions.AspNetCore.csproj" />
+    <ProjectReference Include="..\AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj" />
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
     <ProjectReference Include="..\Example6.SingleLevelSharding\Example6.SingleLevelSharding.csproj" />
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />

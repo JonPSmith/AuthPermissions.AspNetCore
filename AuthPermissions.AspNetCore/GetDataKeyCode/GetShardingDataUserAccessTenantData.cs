@@ -31,11 +31,12 @@ namespace AuthPermissions.AspNetCore.GetDataKeyCode
 
             DataKey = accessor.HttpContext?.User.GetAuthDataKeyFromUser()
                       ?? overrideLink.dataKey;
-            var connectionStringName = accessor.HttpContext?.User.GetConnectionNameFromUser()
-                                       ?? overrideLink.connectionName;
 
-            if (connectionStringName != null)
-                ConnectionString = connectionService.GetNamedConnectionString(connectionStringName);
+            var databaseDataName = accessor.HttpContext?.User.GetDatabaseInfoNameFromUser()
+                                   ?? overrideLink.connectionName;
+
+            if (databaseDataName != null)
+                ConnectionString = connectionService.FormConnectionString(databaseDataName);
         }
 
         /// <summary>

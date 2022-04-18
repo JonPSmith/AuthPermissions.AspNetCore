@@ -1,4 +1,6 @@
-﻿using AuthPermissions;
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
@@ -34,7 +36,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.ListConnections)]
         public async Task<IActionResult> ListConnections([FromServices] IShardingConnections connect)
         {
-            var connections = await connect.GetConnectionStringsWithTenantNamesAsync();
+            var connections = await connect.GetDatabaseInfoNamesWithTenantNamesAsync();
 
             return View(connections);
         }
@@ -44,7 +46,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [FromServices]IShardingConnections connect)
         {
             return View(ShardingSingleLevelTenantDto.SetupForCreate(authOptions,
-                connect.GetAllConnectionStringNames().ToList()
+                connect.GetAllPossibleShardingData().Select(x => x.Name).ToList()
                 ));
         }
 
@@ -125,7 +127,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                 TenantId = id,
                 TenantName = status.Result.TenantFullName,
                 ConnectionName = status.Result.ConnectionName,
-                AllPossibleConnectionNames = connect.GetAllConnectionStringNames().ToList()
+                AllPossibleConnectionNames = connect.GetAllPossibleShardingData().Select(x => x.Name).ToList()
             });
         }
 
@@ -142,7 +144,6 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                     new { errorMessage = status.GetAllErrors() })
                 : RedirectToAction(nameof(Index), new { message = status.Message });
         }
-
 
         public ActionResult ErrorDisplay(string errorMessage)
         {

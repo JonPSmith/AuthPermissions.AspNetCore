@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="appsettings.json" />
+    <None Remove="TestData\combinedshardingsettings.json" />
     <None Remove="TestData\example3-appsettings.json" />
   </ItemGroup>
 
@@ -18,6 +19,11 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Include="TestData\example3-appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="TestData\combinedshardingsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

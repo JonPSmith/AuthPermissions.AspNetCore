@@ -256,12 +256,12 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// <summary>
     /// This create a <see cref="ShardingSingleDbContext"/> with the correct connection string and DataKey
     /// </summary>
-    /// <param name="connectionName"></param>
+    /// <param name="databaseDataName"></param>
     /// <param name="dataKey"></param>
     /// <returns><see cref="ShardingSingleDbContext"/> or null if connectionName wasn't found in the appsetting file</returns>
-    private ShardingSingleDbContext? GetShardingSingleDbContext(string connectionName, string dataKey)
+    private ShardingSingleDbContext? GetShardingSingleDbContext(string databaseDataName, string dataKey)
     {
-        var connectionString = _connections.GetNamedConnectionString(connectionName);
+        var connectionString = _connections.FormConnectionString(databaseDataName);
         if (connectionString == null)
             return null;
 

@@ -133,7 +133,7 @@ namespace AuthPermissions
 
             if (_options.TenantType.IsSharding())
             {
-                result.Add(new Claim(PermissionConstants.ConnectionNameType, tenant.ConnectionName));
+                result.Add(new Claim(PermissionConstants.DatabaseInfoNameType, tenant.ConnectionName));
             }
 
             return result;

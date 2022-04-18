@@ -100,8 +100,8 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         public bool HasOwnDb { get; private set; }
 
         /// <summary>
-        /// If sharding is turned on then this will contain the name of the connection string
-        /// in the appsettings.json "ConnectionStrings" section. This must not be null
+        /// If sharding is turned on then this will contain the name of database data
+        /// in the shardingsettings.json file. This must not be null.
         /// </summary>
         public string ConnectionName { get; private set; } 
 
@@ -152,11 +152,11 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <summary>
         /// This allows you to change the sharding information for this tenant
         /// </summary>
-        /// <param name="newConnectionName"></param>
+        /// <param name="nawDatabaseInfoName">This contains the name of database data in the shardingsettings.json file</param>
         /// <param name="hasOwnDb">true if it is the only tenant in its database</param>
-        public void UpdateShardingState(string newConnectionName, bool hasOwnDb)
+        public void UpdateShardingState(string nawDatabaseInfoName, bool hasOwnDb)
         {
-            ConnectionName = newConnectionName ?? throw new ArgumentNullException(nameof(newConnectionName));
+            ConnectionName = nawDatabaseInfoName ?? throw new ArgumentNullException(nameof(nawDatabaseInfoName));
             HasOwnDb = hasOwnDb;
         }
 

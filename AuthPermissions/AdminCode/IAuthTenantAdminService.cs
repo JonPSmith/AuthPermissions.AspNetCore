@@ -52,10 +52,10 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="connectionName"></param>
+        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
-            bool? hasOwnDb = false, string connectionName = null);
+            bool? hasOwnDb = false, string databaseInfoName = null);
 
         /// <summary>
         /// This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
@@ -64,11 +64,11 @@ namespace AuthPermissions.AdminCode
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="connectionName"></param>
+        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
             List<string> tenantRoleNames = null,
-            bool? hasOwnDb = null, string connectionName = null);
+            bool? hasOwnDb = null, string databaseInfoName = null);
 
         /// <summary>
         /// This replaces the <see cref="Tenant.TenantRoles"/> in the tenant with <see param="tenantId"/> primary key

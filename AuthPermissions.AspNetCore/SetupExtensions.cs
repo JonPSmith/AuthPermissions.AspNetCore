@@ -26,6 +26,7 @@ using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
 
@@ -251,7 +252,13 @@ namespace AuthPermissions.AspNetCore
                     throw new AuthPermissionsException(
                         $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
 
+                //This gets access to the ConnectionStrings
                 setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
+                //This gets access to the ShardingData in the separate shardingsettings.json file
+                setupData.Services.Configure<ShardingSettingsOption>(setupData.Options.Configuration.GetSection(ShardingSettingsOption.SectionName));
+                //This adds the shardingsettings.json to the configuration
+                setupData.Options.Configuration.AddJsonFile("shardingsettings.json", optional: true, reloadOnChange: true);
+
                 setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
                 setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
 

@@ -45,7 +45,7 @@ namespace Example6.MvcWebApp.Sharding.Models
         {
             return new ShardingSingleLevelTenantDto
             {
-                ConnectionName = options.ShardingDefaultConnectionName,
+                ConnectionName = options.ShardingDefaultDatabaseInfoName,
                 AllPossibleConnectionNames = allPossibleConnectionNames,
             };
         }

@@ -37,7 +37,7 @@ public class TestTenantAdminServicesSharding
         var tenants = context.Tenants.ToList();
         tenants.Select(x => x.TenantFullName).ToArray().ShouldEqual(new[] { "Tenant1", "Tenant2", "Tenant3" });
         tenants.All(x => !x.HasOwnDb).ShouldBeTrue();
-        tenants.All(x => x.ConnectionName == "DefaultConnection").ShouldBeTrue();
+        tenants.All(x => x.ConnectionName == "Default Database").ShouldBeTrue();
     }
 
     [Fact]
@@ -110,12 +110,12 @@ public class TestTenantAdminServicesSharding
             tenantChange, null);
 
         //ATTEMPT
-        var status = await service.AddSingleTenantAsync("Tenant4", null, true, "DefaultConnection");
+        var status = await service.AddSingleTenantAsync("Tenant4", null, true, "Default Database");
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
         status.GetAllErrors().ShouldEqual(
-            "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection'.");
+            "The hasOwnDb parameter is true, but the sharding database name 'Default Database' already has tenant(s) using that database.");
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class TestTenantAdminServicesSharding
         var tenants = context.Tenants.ToList();
         tenants.Count.ShouldEqual(9);
         tenants.All(x => !x.HasOwnDb).ShouldBeTrue();
-        tenants.All(x => x.ConnectionName == "DefaultConnection").ShouldBeTrue();
+        tenants.All(x => x.ConnectionName == "Default Database").ShouldBeTrue();
     }
 
     [Fact]
@@ -165,7 +165,7 @@ public class TestTenantAdminServicesSharding
         var tenants = context.Tenants.ToList();
         tenants.Count.ShouldEqual(10);
         tenants.All(x => !x.HasOwnDb).ShouldBeTrue();
-        tenants.All(x => x.ConnectionName == "DefaultConnection").ShouldBeTrue();
+        tenants.All(x => x.ConnectionName == "Default Database").ShouldBeTrue();
     }
 
     [Fact]
@@ -221,7 +221,7 @@ public class TestTenantAdminServicesSharding
         status.IsValid.ShouldBeFalse();
         status.Errors.Count.ShouldEqual(2);
         status.Errors[0].ToString().ShouldEqual("The hasOwnDb parameter doesn't match the parent's HasOwnDb. Set the hasOwnDb parameter to null to use the parent's HasOwnDb value.");
-        status.Errors[1].ToString().ShouldEqual("The connectionName parameter doesn't match the parent's ConnectionName. Set the connectionName parameter to null to use the parent's ConnectionName value.");
+        status.Errors[1].ToString().ShouldEqual("The databaseInfoName parameter doesn't match the parent's ConnectionName. Set the databaseInfoName parameter to null to use the parent's ConnectionName value.");
     }
 
     [Fact]
@@ -242,11 +242,11 @@ public class TestTenantAdminServicesSharding
 
         //ATTEMPT
         var status = await service.AddHierarchicalTenantAsync("New Company", 0, null,
-            true, "DefaultConnection");
+            true, "Default Database");
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
         status.GetAllErrors().ShouldEqual(
-            "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection'.");
+            "The hasOwnDb parameter is true, but the sharding database name 'Default Database' already has tenant(s) using that database.");
     }
 }

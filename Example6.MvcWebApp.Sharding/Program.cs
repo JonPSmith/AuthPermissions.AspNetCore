@@ -1,10 +1,12 @@
+// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Example6.MvcWebApp.Sharding.Data;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Example6.SingleLevelSharding.AppStart;

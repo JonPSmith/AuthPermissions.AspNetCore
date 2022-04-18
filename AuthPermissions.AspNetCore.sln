@@ -45,7 +45,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.SqlServer",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SetupMigrations", "SetupMigrations\SetupMigrations.csproj", "{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthPermissions.BaseCode", "AuthPermissions.BaseCode\AuthPermissions.BaseCode.csproj", "{D4E6705B-2D35-4A43-9E02-EC77EC212441}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.BaseCode", "AuthPermissions.BaseCode\AuthPermissions.BaseCode.csproj", "{D4E6705B-2D35-4A43-9E02-EC77EC212441}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthPermissions.SupportCode", "AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj", "{50FCF8D4-EA0D-4261-B772-3376C50AB856}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -261,6 +263,18 @@ Global
 		{D4E6705B-2D35-4A43-9E02-EC77EC212441}.Release|x64.Build.0 = Release|Any CPU
 		{D4E6705B-2D35-4A43-9E02-EC77EC212441}.Release|x86.ActiveCfg = Release|Any CPU
 		{D4E6705B-2D35-4A43-9E02-EC77EC212441}.Release|x86.Build.0 = Release|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Debug|x64.Build.0 = Debug|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Debug|x86.Build.0 = Debug|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Release|x64.ActiveCfg = Release|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Release|x64.Build.0 = Release|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Release|x86.ActiveCfg = Release|Any CPU
+		{50FCF8D4-EA0D-4261-B772-3376C50AB856}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

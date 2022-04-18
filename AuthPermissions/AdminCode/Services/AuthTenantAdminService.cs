@@ -130,10 +130,10 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="connectionName"></param>
+        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         public async Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
-            bool? hasOwnDb = null, string connectionName = null)
+            bool? hasOwnDb = null, string databaseInfoName = null)
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
@@ -159,13 +159,13 @@ namespace AuthPermissions.AdminCode.Services
                         status.AddError($"The {nameof(hasOwnDb)} parameter must be set to true or false when sharding is turned on.",
                             nameof(hasOwnDb).CamelToPascal());
                     else
-                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, connectionName));
+                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, databaseInfoName));
 
                     if (status.HasErrors)
                         return status;
 
                     newTenantStatus.Result.UpdateShardingState(
-                        connectionName ?? _options.ShardingDefaultConnectionName,
+                        databaseInfoName ?? _options.ShardingDefaultDatabaseInfoName,
                         (bool)hasOwnDb);
                 }
 
@@ -201,10 +201,10 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="connectionName"></param>
+        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
-            List<string> tenantRoleNames = null, bool? hasOwnDb = false, string connectionName = null)
+            List<string> tenantRoleNames = null, bool? hasOwnDb = false, string databaseInfoName = null)
         {
             var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
 
@@ -258,19 +258,19 @@ namespace AuthPermissions.AdminCode.Services
                                 $"parameter to null to use the parent's {nameof(Tenant.HasOwnDb)} value.",
                                 nameof(hasOwnDb).CamelToPascal());
 
-                        if (connectionName != null &&
-                            parentTenant.ConnectionName != connectionName)
+                        if (databaseInfoName != null &&
+                            parentTenant.ConnectionName != databaseInfoName)
                             status.AddError(
-                                $"The {nameof(connectionName)} parameter doesn't match the parent's " +
-                                $"{nameof(Tenant.ConnectionName)}. Set the {nameof(connectionName)} " +
+                                $"The {nameof(databaseInfoName)} parameter doesn't match the parent's " +
+                                $"{nameof(Tenant.ConnectionName)}. Set the {nameof(databaseInfoName)} " +
                                 $"parameter to null to use the parent's {nameof(Tenant.ConnectionName)} value.",
-                                nameof(connectionName).CamelToPascal());
+                                nameof(databaseInfoName).CamelToPascal());
 
 
                         hasOwnDb = parentTenant.HasOwnDb;
-                        connectionName = parentTenant.ConnectionName;
+                        databaseInfoName = parentTenant.ConnectionName;
 
-                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, connectionName));
+                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, databaseInfoName));
                     }
                     else
                     {
@@ -280,14 +280,14 @@ namespace AuthPermissions.AdminCode.Services
                                 $"The {nameof(hasOwnDb)} parameter must be set to true or false if there is no parent and sharding is turned on.",
                                 nameof(hasOwnDb).CamelToPascal());
 
-                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, connectionName));
+                        status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, databaseInfoName));
                     }
 
                     if (status.HasErrors)
                         return status;
 
                     newTenantStatus.Result.UpdateShardingState(
-                        connectionName ?? _options.ShardingDefaultConnectionName,
+                        databaseInfoName ?? _options.ShardingDefaultDatabaseInfoName,
                         (bool)hasOwnDb);
                 }
 
@@ -683,20 +683,20 @@ namespace AuthPermissions.AdminCode.Services
         /// If the hasOwnDb is true, it returns an error if any tenants have the same <see cref="Tenant.ConnectionName"/>
         /// </summary>
         /// <param name="hasOwnDb"></param>
-        /// <param name="connectionName"></param>
+        /// <param name="databaseInfoName"></param>
         /// <returns>status</returns>
-        private async Task<IStatusGeneric> CheckHasOwnDbIsValidAsync(bool hasOwnDb, string connectionName)
+        private async Task<IStatusGeneric> CheckHasOwnDbIsValidAsync(bool hasOwnDb, string databaseInfoName)
         {
             var status = new StatusGenericHandler();
             if (!hasOwnDb)
                 return status;
 
-            connectionName ??= _options.ShardingDefaultConnectionName;
+            databaseInfoName ??= _options.ShardingDefaultDatabaseInfoName;
 
-            if (await _context.Tenants.AnyAsync(x => x.ConnectionName == connectionName))
+            if (await _context.Tenants.AnyAsync(x => x.ConnectionName == databaseInfoName))
                 status.AddError(
-                    $"The {nameof(hasOwnDb)} parameter is true, but there is " +
-                    $"already a tenant with the same connection name '{connectionName}'.");
+                    $"The {nameof(hasOwnDb)} parameter is true, but the sharding database name " +
+                    $"'{databaseInfoName}' already has tenant(s) using that database.");
 
             return status;
         }

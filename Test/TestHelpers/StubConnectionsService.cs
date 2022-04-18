@@ -17,28 +17,34 @@ public class StubConnectionsService : IShardingConnections
         _caller = caller;
     }
 
-
-    public IEnumerable<string> GetAllConnectionStringNames()
+    public List<ShardingDatabaseData> GetAllPossibleShardingData()
     {
-        return new[] { "DefaultConnection", "OtherConnection" };
+        return new List<ShardingDatabaseData>
+        {
+            new ShardingDatabaseData{Name = "Default Database", ConnectionName = "UnitTestConnection"},
+            new ShardingDatabaseData{Name = "OtherConnection", ConnectionName = "UnitTestConnection"},
+            new ShardingDatabaseData{Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = "Postgres"}
+        };
     }
 
-    public Task<List<(string connectionName, List<string> tenantNames)>> GetConnectionStringsWithTenantNamesAsync()
+    public string FormConnectionString(string databaseInfoName)
+    {
+        return databaseInfoName switch
+        {
+            "Default Database" => _caller.GetUniqueDatabaseConnectionString("main"),
+            "OtherConnection" => _caller.GetUniqueDatabaseConnectionString("other"),
+            "PostgreSql1" => _caller.GetUniquePostgreSqlConnectionString(),
+            _ => null
+        };
+    }
+
+    public Task<List<(string databaseInfoName, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
         return Task.FromResult( new List<(string key, List<string> tenantNames)>
         {
-            ("DefaultConnection", new List<string>{ "Tenant1, Tenant3"}),
-            ("OtherConnection", new List<string>{ "Tenant2"})
+            ("Default Database", new List<string>{ "Tenant1, Tenant3"}),
+            ("OtherConnection", new List<string>{ "Tenant2"}),
+            ("PostgreSql1", new List<string>())
         });
-    }
-
-    public string GetNamedConnectionString(string connectionName)
-    {
-        return connectionName switch
-        {
-            "DefaultConnection" => _caller.GetUniqueDatabaseConnectionString("main"),
-            "OtherConnection" => _caller.GetUniqueDatabaseConnectionString("other"),
-            _ => null
-        };
     }
 }

@@ -3,13 +3,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Example6.SingleLevelSharding.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
@@ -97,7 +94,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             //VERIFY
             status.IsValid.ShouldBeFalse(status.GetAllErrors());
             status.GetAllErrors().ShouldEqual(
-                "The hasOwnDb parameter is true, but there is already a tenant with the same connection name 'DefaultConnection'.");
+                "The hasOwnDb parameter is true, but the sharding database name 'Default Database' already has tenant(s) using that database.");
         }
 
         [Fact]

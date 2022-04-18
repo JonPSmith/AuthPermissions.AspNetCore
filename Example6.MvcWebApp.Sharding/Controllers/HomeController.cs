@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
+using System.Diagnostics;
 using Example6.MvcWebApp.Sharding.Models;
-using Example6.SingleLevelSharding.Dtos;
 using Example6.SingleLevelSharding.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Example6.MvcWebApp.Sharding.Controllers

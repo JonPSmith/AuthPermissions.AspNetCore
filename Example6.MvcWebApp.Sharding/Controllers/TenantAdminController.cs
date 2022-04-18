@@ -1,4 +1,7 @@
-﻿using AuthPermissions.AdminCode;
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
+using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
 using Example6.MvcWebApp.Sharding.PermissionsCode;

@@ -57,9 +57,9 @@ namespace AuthPermissions.BaseCode.CommonCode
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public static string GetConnectionNameFromUser(this ClaimsPrincipal user)
+        public static string GetDatabaseInfoNameFromUser(this ClaimsPrincipal user)
         {
-            return user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.ConnectionNameType)?.Value;
+            return user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.DatabaseInfoNameType)?.Value;
         }
     }
 }

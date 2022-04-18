@@ -114,7 +114,7 @@ namespace Test.TestHelpers
                 Tenant.CreateSingleTenant("Tenant3").Result,
             };
 
-            tenants.ForEach(x => x.UpdateShardingState("DefaultConnection", false));
+            tenants.ForEach(x => x.UpdateShardingState("Default Database", false));
 
             context.AddRange(tenants);
             context.SaveChanges();
@@ -192,7 +192,7 @@ namespace Test.TestHelpers
             var authOptions = new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant };
 
             (await service.AddTenantsToDatabaseAsync(GetHierarchicalDefinitionCompany(), authOptions)).IsValid.ShouldBeTrue();
-            context.Tenants.ToList().ForEach(x => x.UpdateShardingState("DefaultConnection", false));
+            context.Tenants.ToList().ForEach(x => x.UpdateShardingState("Default Database", false));
             await context.SaveChangesAsync();
 
             return context.Tenants.Select(x => x.TenantId).OrderBy(x => x).ToList();

@@ -2,18 +2,13 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions;
-using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
-using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Moq;
-using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;
 using Xunit;
@@ -25,55 +20,82 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore;
 public class TestShardingConnectionString
 {
     private readonly ITestOutputHelper _output;
+    private readonly IOptionsSnapshot<ConnectionStringsOption> _connectSnapshot;
+    private readonly IOptionsSnapshot<ShardingSettingsOption> _shardingSnapshot;
 
     public TestShardingConnectionString(ITestOutputHelper output)
     {
         _output = output;
+
+        var config = AppSettings.GetConfiguration("..\\Test\\TestData", "combinedshardingsettings.json");
+        var services = new ServiceCollection();
+        services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
+        services.Configure<ShardingSettingsOption>(config.GetSection(ShardingSettingsOption.SectionName));
+        var serviceProvider = services.BuildServiceProvider();
+
+        _connectSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
+        _shardingSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ShardingSettingsOption>>();
+    }
+
+    [Fact]
+    public void TestDefaultShardingDatabaseData()
+    {
+        //SETUP
+
+        //ATTEMPT
+        var databaseDefault = new ShardingDatabaseData();
+
+        //VERIFY
+        databaseDefault.Name.ShouldBeNull();
+        databaseDefault.DatabaseName.ShouldBeNull();
+        databaseDefault.ConnectionName.ShouldEqual("DefaultConnection");
+        databaseDefault.DatabaseType.ShouldEqual("SqlServer");
     }
 
     [Fact]
     public void TestGetAllConnectionStrings()
     {
         //SETUP
-        var config = AppSettings.GetConfiguration("..\\Test\\TestData");
-        var services = new ServiceCollection();
-        services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
-        var serviceProvider = services.BuildServiceProvider();
-
-        var snapShot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
-        var service = new ShardingConnections(snapShot, null);
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, null, new AuthPermissionsOptions());
 
         //ATTEMPT
-        var connectionNames = service.GetAllConnectionStringNames().ToArray();
+        var databaseData = service.GetAllPossibleShardingData();
 
         //VERIFY
-        foreach (var name in connectionNames)
+        foreach (var data in databaseData)
         {
-            _output.WriteLine(name);
+            _output.WriteLine(data.ToString());
         }
-        connectionNames.Length.ShouldEqual(3);
-        connectionNames[0].ShouldEqual("AnotherConnectionString");
-        connectionNames[1].ShouldEqual("UnitTestConnection");
-        connectionNames[2].ShouldEqual("Version1Example4");
+        databaseData.Count.ShouldEqual(3);
+        databaseData[0].Name.ShouldEqual("Default Database");
+        databaseData[1].Name.ShouldEqual("Another");
+        databaseData[2].Name.ShouldEqual("Special Postgres");
     }
 
     [Fact]
-    public void TestGetNamedConnectionString()
+    public void TestGetNamedConnectionStringSqlServer()
     {
         //SETUP
-        var config = AppSettings.GetConfiguration("..\\Test\\TestData");
-        var services = new ServiceCollection();
-        services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
-        var serviceProvider = services.BuildServiceProvider();
-
-        var snapShot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
-        var service = new ShardingConnections(snapShot, null);
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, null, new AuthPermissionsOptions());
 
         //ATTEMPT
-        var connectionString = service.GetNamedConnectionString("AnotherConnectionString");
+        var connectionString = service.FormConnectionString("Another");
 
         //VERIFY
-        connectionString.ShouldEqual("Server=MyServer;Database=DummyDatabase;");
+        connectionString.ShouldEqual("Data Source=MyServer;Initial Catalog=AnotherDatabase");
+    }
+
+    [Fact]
+    public void TestGetNamedConnectionStringPostgres()
+    {
+        //SETUP
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, null, new AuthPermissionsOptions());
+
+        //ATTEMPT
+        var connectionString = service.FormConnectionString("Special Postgres");
+
+        //VERIFY
+        connectionString.ShouldEqual("Host=127.0.0.1;Database=MyDatabase;Username=postgres;Password=LetMeIn");
     }
 
     [Fact]
@@ -85,11 +107,11 @@ public class TestShardingConnectionString
         context.Database.EnsureCreated();
 
         var tenant1 = Tenant.CreateSingleTenant("Tenant1").Result;
-        tenant1.UpdateShardingState("AnotherConnectionString", false);
+        tenant1.UpdateShardingState("Default Database", false);
         var tenant2 = Tenant.CreateSingleTenant("Tenant3").Result;
-        tenant2.UpdateShardingState("AnotherConnectionString", false);
+        tenant2.UpdateShardingState("Default Database", false);
         var tenant3 = Tenant.CreateSingleTenant("Tenant2").Result;
-        tenant3.UpdateShardingState("UnitTestConnection", false);
+        tenant3.UpdateShardingState("Another", false);
         context.AddRange(tenant1, tenant2, tenant3);
         context.SaveChanges();
 
@@ -101,17 +123,17 @@ public class TestShardingConnectionString
         var serviceProvider = services.BuildServiceProvider();
 
         var snapShot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
-        var service = new ShardingConnections(snapShot, context);
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, context, new AuthPermissionsOptions());
 
         //ATTEMPT
-        var keyPairs = await service.GetConnectionStringsWithTenantNamesAsync();
+        var keyPairs = await service.GetDatabaseInfoNamesWithTenantNamesAsync();
 
         //VERIFY
-        keyPairs.ShouldEqual(new List<(string connectionName, List<string> tenantNames)>
+        keyPairs.ShouldEqual(new List<(string databaseName, List<string> tenantNames)>
         {
-            ("AnotherConnectionString", new List<string>{"Tenant1", "Tenant3"}),
-            ("UnitTestConnection", new List<string>{ "Tenant2"}),
-            ("Version1Example4", new List<string>())
+            ("Default Database", new List<string>{"Tenant1", "Tenant3"}),
+            ("Another", new List<string>{ "Tenant2"}),
+            ("Special Postgres", new List<string>())
         });
     }
 }

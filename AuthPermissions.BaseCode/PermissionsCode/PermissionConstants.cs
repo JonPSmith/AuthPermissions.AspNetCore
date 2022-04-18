@@ -17,9 +17,9 @@ namespace AuthPermissions.BaseCode.PermissionsCode
         /// </summary>
         public const string DataKeyClaimType = "DataKey";
         /// <summary>
-        /// The claim name holding the name of the connection string in the appsettings 
+        /// The claim name holding the name of the database data in the shardingsettings file
         /// </summary>
-        public const string ConnectionNameType = "ConnectionName";
+        public const string DatabaseInfoNameType = "DatabaseInfoName";
 
         /// <summary>
         /// This is the char for the AccessAll permission

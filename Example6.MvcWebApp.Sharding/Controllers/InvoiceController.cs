@@ -1,4 +1,7 @@
-﻿using AuthPermissions.AspNetCore;
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
+using AuthPermissions.AspNetCore;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Example6.SingleLevelSharding.AppStart;
 using Example6.SingleLevelSharding.Dtos;
@@ -48,6 +51,5 @@ namespace Example6.MvcWebApp.Sharding.Controllers
 
             return RedirectToAction("Index", new { message = $"Added the invoice '{newInvoice.InvoiceName}'." });
         }
-
     }
 }

@@ -80,7 +80,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                     if (status.CombineStatuses(tenantStatus).IsValid)
                     {
                         if ((options.TenantType & TenantTypes.AddSharding) != 0)
-                            tenantStatus.Result.UpdateShardingState(options.ShardingDefaultConnectionName, false);
+                            tenantStatus.Result.UpdateShardingState(options.ShardingDefaultDatabaseInfoName, false);
                         _context.Add(tenantStatus.Result);
                     }
                 }
@@ -130,7 +130,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         {
                             _context.Add(newTenantStatus.Result);
                             if ((options.TenantType & TenantTypes.AddSharding) != 0)
-                                newTenantStatus.Result.UpdateShardingState(options.ShardingDefaultConnectionName, false);
+                                newTenantStatus.Result.UpdateShardingState(options.ShardingDefaultDatabaseInfoName, false);
                             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
                             //Now we copy the data so that a child can access to the parent data
