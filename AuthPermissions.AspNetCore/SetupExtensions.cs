@@ -125,20 +125,20 @@ namespace AuthPermissions.AspNetCore
         /// <summary>
         /// This allows you to replace the default <see cref="ShardingConnections"/> code with you own code.
         /// This allows you to add you own approach to managing sharding databases
-        /// NOTE: The <see cref="IOptionsSnapshot{TOptions}"/> of the connection strings and the shardingsettings are still registered
+        /// NOTE: The <see cref="IOptionsSnapshot{TOptions}"/> of the connection strings and the shardingsettings.json file are still registered
         /// </summary>
         /// <typeparam name="TYourShardingCode">Your class that implements the <see cref="IShardingConnections"/> interface.</typeparam>
         /// <param name="setupData"></param>
         /// <returns></returns>
         /// <exception cref="AuthPermissionsException"></exception>
         public static AuthSetupData ReplaceShardingConnections<TYourShardingCode>(this AuthSetupData setupData)
-            where TYourShardingCode : IShardingConnections, new()
+            where TYourShardingCode : class, IShardingConnections
         {
             if (!setupData.Options.TenantType.IsSharding())
                 throw new AuthPermissionsException(
                     $"The sharding feature isn't turned on so you can't override the {nameof(ShardingConnections)} service.");
 
-            setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
+            setupData.Services.AddScoped<IShardingConnections, TYourShardingCode>();
             setupData.Options.InternalData.OverrideShardingConnections = true;
 
             return setupData;
