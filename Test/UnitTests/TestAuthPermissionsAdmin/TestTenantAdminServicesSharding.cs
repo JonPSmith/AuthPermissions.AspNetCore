@@ -221,7 +221,7 @@ public class TestTenantAdminServicesSharding
         status.IsValid.ShouldBeFalse();
         status.Errors.Count.ShouldEqual(2);
         status.Errors[0].ToString().ShouldEqual("The hasOwnDb parameter doesn't match the parent's HasOwnDb. Set the hasOwnDb parameter to null to use the parent's HasOwnDb value.");
-        status.Errors[1].ToString().ShouldEqual("The databaseInfoName parameter doesn't match the parent's ConnectionName. Set the databaseInfoName parameter to null to use the parent's ConnectionName value.");
+        status.Errors[1].ToString().ShouldEqual("The databaseInfoName parameter doesn't match the parent's DatabaseInfoName. Set the databaseInfoName parameter to null to use the parent's DatabaseInfoName value.");
     }
 
     [Fact]

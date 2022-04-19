@@ -279,7 +279,7 @@ namespace AuthPermissions.AspNetCore
                 //This gets access to the ConnectionStrings
                 setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
                 //This gets access to the ShardingData in the separate shardingsettings.json file
-                setupData.Services.Configure<ShardingSettingsOption>(setupData.Options.Configuration.GetSection(ShardingSettingsOption.SectionName));
+                setupData.Services.Configure<ShardingSettingsOption>(setupData.Options.Configuration);
                 //This adds the shardingsettings.json to the configuration
                 setupData.Options.Configuration.AddJsonFile("shardingsettings.json", optional: true, reloadOnChange: true);
 

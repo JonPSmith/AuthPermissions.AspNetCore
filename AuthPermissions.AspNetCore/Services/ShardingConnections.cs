@@ -45,9 +45,9 @@ public class ShardingConnections : IShardingConnections
         _connectionDict = connectionsAccessor.Value;
         _shardingSettings = shardingSettingsAccessor.Value;
         //If no shardingsetting.json file, then we provide one default sharding settings data
-        _shardingSettings.ShardingDatabases ??= new List<ShardingDatabaseData>
+        _shardingSettings.ShardingDatabases ??= new List<DatabaseInformation>
         {
-            new ShardingDatabaseData { Name = options.ShardingDefaultDatabaseInfoName }
+            new DatabaseInformation { Name = options.ShardingDefaultDatabaseInfoName }
         };
         
         _context = context;
@@ -59,10 +59,19 @@ public class ShardingConnections : IShardingConnections
     /// NOTE: If the shardingsetting.json file is missing, or there is no "ShardingData" section,
     /// then it will return one <see cref="ShardingSettingsOption"/> that uses the "DefaultConnection" connection string
     /// </summary>
-    /// <returns>A list of <see cref="ShardingDatabaseData"/> from the shardingsetting.json file</returns>
-    public List<ShardingDatabaseData> GetAllPossibleShardingData()
+    /// <returns>A list of <see cref="DatabaseInformation"/> from the shardingsetting.json file</returns>
+    public List<DatabaseInformation> GetAllPossibleShardingData()
     {
         return _shardingSettings.ShardingDatabases;
+    }
+
+    /// <summary>
+    /// This provides the names of the connection string
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<string> GetConnectionStringNames()
+    {
+        return _connectionDict.Keys;
     }
 
     /// <summary>
@@ -116,26 +125,26 @@ public class ShardingConnections : IShardingConnections
     // private methods
 
     /// <summary>
-    /// This changes the database to the <see cref="ShardingDatabaseData.DatabaseName"/> in the given connectionString
-    /// NOTE: If the <see cref="ShardingDatabaseData.DatabaseName"/> is null, then it returns the connectionString with no change
+    /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString
+    /// NOTE: If the <see cref="DatabaseInformation.DatabaseName"/> is null, then it returns the connectionString with no change
     /// </summary>
-    /// <param name="databaseData">Information about the database type/name to be used in the connection string</param>
+    /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
     /// <param name="connectionString"></param>
     /// <returns>A connection string containing the correct database to be used</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    private static string SetDatabaseInConnectionString(ShardingDatabaseData databaseData, string connectionString)
+    private static string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        if (databaseData.DatabaseName == null)
+        if (databaseInformation.DatabaseName == null)
             //This uses the database that is already in the connection string
             return connectionString;
 
-        switch (databaseData.DatabaseType)
+        switch (databaseInformation.DatabaseType)
         {
             case "SqlServer":
             {
                 var builder = new SqlConnectionStringBuilder(connectionString)
                 {
-                    InitialCatalog = databaseData.DatabaseName
+                    InitialCatalog = databaseInformation.DatabaseName
                 };
                 return builder.ConnectionString;
             }
@@ -143,13 +152,13 @@ public class ShardingConnections : IShardingConnections
             {
                 var builder = new NpgsqlConnectionStringBuilder(connectionString)
                 {
-                    Database = databaseData.DatabaseName
+                    Database = databaseInformation.DatabaseName
                 };
                 return builder.ConnectionString;
             }
             default:
                 throw new InvalidEnumArgumentException(
-                    $"Missing a switch to handle a database type of {databaseData.DatabaseType}");
+                    $"Missing a switch to handle a database type of {databaseInformation.DatabaseType}");
         }
     }
 }

@@ -17,14 +17,19 @@ public class StubConnectionsService : IShardingConnections
         _caller = caller;
     }
 
-    public List<ShardingDatabaseData> GetAllPossibleShardingData()
+    public List<DatabaseInformation> GetAllPossibleShardingData()
     {
-        return new List<ShardingDatabaseData>
+        return new List<DatabaseInformation>
         {
-            new ShardingDatabaseData{Name = "Default Database", ConnectionName = "UnitTestConnection"},
-            new ShardingDatabaseData{Name = "OtherConnection", ConnectionName = "UnitTestConnection"},
-            new ShardingDatabaseData{Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = "Postgres"}
+            new DatabaseInformation{Name = "Default Database", ConnectionName = "UnitTestConnection"},
+            new DatabaseInformation{Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "UnitTestConnection"},
+            new DatabaseInformation{Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = "Postgres"}
         };
+    }
+
+    public IEnumerable<string> GetConnectionStringNames()
+    {
+        return new[] { "UnitTestConnection", "PostgreSqlConnection" };
     }
 
     public string FormConnectionString(string databaseInfoName)
@@ -32,7 +37,7 @@ public class StubConnectionsService : IShardingConnections
         return databaseInfoName switch
         {
             "Default Database" => _caller.GetUniqueDatabaseConnectionString("main"),
-            "OtherConnection" => _caller.GetUniqueDatabaseConnectionString("other"),
+            "Other Database" => _caller.GetUniqueDatabaseConnectionString("other"),
             "PostgreSql1" => _caller.GetUniquePostgreSqlConnectionString(),
             _ => null
         };
@@ -42,8 +47,8 @@ public class StubConnectionsService : IShardingConnections
     {
         return Task.FromResult( new List<(string key, List<string> tenantNames)>
         {
-            ("Default Database", new List<string>{ "Tenant1, Tenant3"}),
-            ("OtherConnection", new List<string>{ "Tenant2"}),
+            ("Default Database", new List<string>{ "Tenant1","Tenant3"}),
+            ("Other Database", new List<string>{ "Tenant2"}),
             ("PostgreSql1", new List<string>())
         });
     }

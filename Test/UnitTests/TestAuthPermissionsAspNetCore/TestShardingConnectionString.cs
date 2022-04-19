@@ -30,7 +30,7 @@ public class TestShardingConnectionString
         var config = AppSettings.GetConfiguration("..\\Test\\TestData", "combinedshardingsettings.json");
         var services = new ServiceCollection();
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
-        services.Configure<ShardingSettingsOption>(config.GetSection(ShardingSettingsOption.SectionName));
+        services.Configure<ShardingSettingsOption>(config);
         var serviceProvider = services.BuildServiceProvider();
 
         _connectSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
@@ -43,7 +43,7 @@ public class TestShardingConnectionString
         //SETUP
 
         //ATTEMPT
-        var databaseDefault = new ShardingDatabaseData();
+        var databaseDefault = new DatabaseInformation();
 
         //VERIFY
         databaseDefault.Name.ShouldBeNull();

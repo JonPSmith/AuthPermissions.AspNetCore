@@ -19,8 +19,14 @@ public interface IShardingConnections
     /// NOTE: If the shardingsetting.json file is missing, or there is no "ShardingData" section,
     /// then it will return one <see cref="ShardingSettingsOption"/> that uses the "DefaultConnection" connection string
     /// </summary>
-    /// <returns>A list of <see cref="ShardingDatabaseData"/> from the shardingsetting.json file</returns>
-    List<ShardingDatabaseData> GetAllPossibleShardingData();
+    /// <returns>A list of <see cref="DatabaseInformation"/> from the shardingsetting.json file</returns>
+    List<DatabaseInformation> GetAllPossibleShardingData();
+
+    /// <summary>
+    /// This provides the names of the connection string
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<string> GetConnectionStringNames();
 
     /// <summary>
     /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name

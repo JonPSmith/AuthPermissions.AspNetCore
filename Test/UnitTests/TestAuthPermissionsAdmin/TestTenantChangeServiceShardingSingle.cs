@@ -63,7 +63,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 changeServiceFactory, null);
 
             //ATTEMPT
-            var status = await service.AddSingleTenantAsync("Tenant4", null, true, "OtherConnection");
+            var status = await service.AddSingleTenantAsync("Tenant4", null, true, "Other Database");
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -178,7 +178,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 changeServiceFactory, null);
 
             //ATTEMPT
-            var status = await service.MoveToDifferentDatabaseAsync(tenantIds[1], true, "OtherConnection");
+            var status = await service.MoveToDifferentDatabaseAsync(tenantIds[1], true, "Other Database");
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -205,13 +205,13 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
                 changeServiceFactory, null);
 
-            var preStatus = await service.AddSingleTenantAsync("Tenant4", null, true, "OtherConnection");
+            var preStatus = await service.AddSingleTenantAsync("Tenant4", null, true, "Other Database");
             preStatus.IsValid.ShouldBeTrue(preStatus.GetAllErrors());
             var tenant4Id = contexts.AuthPContext.Tenants.Single(x => x.TenantFullName == "Tenant4").TenantId;
             contexts.AuthPContext.ChangeTracker.Clear();
 
             //ATTEMPT
-            var status = await service.MoveToDifferentDatabaseAsync(tenant4Id, false, "OtherConnection");
+            var status = await service.MoveToDifferentDatabaseAsync(tenant4Id, false, "Other Database");
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
