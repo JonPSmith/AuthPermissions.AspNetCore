@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using RunMethodsSequentially;
 
 namespace AuthPermissions.AspNetCore
@@ -122,6 +123,28 @@ namespace AuthPermissions.AspNetCore
         }
 
         /// <summary>
+        /// This allows you to replace the default <see cref="ShardingConnections"/> code with you own code.
+        /// This allows you to add you own approach to managing sharding databases
+        /// NOTE: The <see cref="IOptionsSnapshot{TOptions}"/> of the connection strings and the shardingsettings are still registered
+        /// </summary>
+        /// <typeparam name="TYourShardingCode">Your class that implements the <see cref="IShardingConnections"/> interface.</typeparam>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        /// <exception cref="AuthPermissionsException"></exception>
+        public static AuthSetupData ReplaceShardingConnections<TYourShardingCode>(this AuthSetupData setupData)
+            where TYourShardingCode : IShardingConnections, new()
+        {
+            if (!setupData.Options.TenantType.IsSharding())
+                throw new AuthPermissionsException(
+                    $"The sharding feature isn't turned on so you can't override the {nameof(ShardingConnections)} service.");
+
+            setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
+            setupData.Options.InternalData.OverrideShardingConnections = true;
+
+            return setupData;
+        }
+
+        /// <summary>
         /// This will finalize the setting up of the AuthPermissions parts needed by ASP.NET Core
         /// NOTE: It assumes the AuthPermissions database has been created and has the current migration applied
         /// </summary>
@@ -186,6 +209,7 @@ namespace AuthPermissions.AspNetCore
 
             return serviceProvider;
         }
+
 
         //------------------------------------------------
         // private methods
@@ -259,7 +283,9 @@ namespace AuthPermissions.AspNetCore
                 //This adds the shardingsettings.json to the configuration
                 setupData.Options.Configuration.AddJsonFile("shardingsettings.json", optional: true, reloadOnChange: true);
 
-                setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
+                if (!setupData.Options.InternalData.OverrideShardingConnections)
+                    //Don't add the default service if the developer has added their own service
+                    setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
                 setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
 
                 switch (setupData.Options.LinkToTenantType)

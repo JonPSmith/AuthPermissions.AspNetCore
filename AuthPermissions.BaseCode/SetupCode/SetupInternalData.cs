@@ -30,6 +30,11 @@ namespace AuthPermissions.BaseCode.SetupCode
         /// </summary>
         public AuthPAuthenticationTypes AuthPAuthenticationType { get; set; }
 
+        /// <summary>
+        /// If this is true, then the developer has 
+        /// </summary>
+        public bool OverrideShardingConnections { get; set; }
+
 
         /// <summary>
         /// This holds the classes containing the definition of a RolesToPermission database class
