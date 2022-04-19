@@ -37,7 +37,7 @@ public class TestTenantAdminServicesSharding
         var tenants = context.Tenants.ToList();
         tenants.Select(x => x.TenantFullName).ToArray().ShouldEqual(new[] { "Tenant1", "Tenant2", "Tenant3" });
         tenants.All(x => !x.HasOwnDb).ShouldBeTrue();
-        tenants.All(x => x.ConnectionName == "Default Database").ShouldBeTrue();
+        tenants.All(x => x.DatabaseInfoName == "Default Database").ShouldBeTrue();
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class TestTenantAdminServicesSharding
         context.ChangeTracker.Clear();
         var tenants = context.Tenants.ToList();
         tenants.Count.ShouldEqual(4);
-        tenants.Last().ConnectionName.ShouldEqual("MyConnectionName");
+        tenants.Last().DatabaseInfoName.ShouldEqual("MyConnectionName");
         tenants.Last().HasOwnDb.ShouldEqual(true);
     }
 
@@ -136,7 +136,7 @@ public class TestTenantAdminServicesSharding
         var tenants = context.Tenants.ToList();
         tenants.Count.ShouldEqual(9);
         tenants.All(x => !x.HasOwnDb).ShouldBeTrue();
-        tenants.All(x => x.ConnectionName == "Default Database").ShouldBeTrue();
+        tenants.All(x => x.DatabaseInfoName == "Default Database").ShouldBeTrue();
     }
 
     [Fact]
@@ -165,7 +165,7 @@ public class TestTenantAdminServicesSharding
         var tenants = context.Tenants.ToList();
         tenants.Count.ShouldEqual(10);
         tenants.All(x => !x.HasOwnDb).ShouldBeTrue();
-        tenants.All(x => x.ConnectionName == "Default Database").ShouldBeTrue();
+        tenants.All(x => x.DatabaseInfoName == "Default Database").ShouldBeTrue();
     }
 
     [Fact]

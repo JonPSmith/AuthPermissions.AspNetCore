@@ -173,7 +173,7 @@ namespace Test.UnitTests.TestAuthPermissions
             claims[1].Type.ShouldEqual(PermissionConstants.DataKeyClaimType);
             claims[1].Value.ShouldEqual(tenant.GetTenantDataKey());
             claims[2].Type.ShouldEqual(PermissionConstants.DatabaseInfoNameType);
-            claims[2].Value.ShouldEqual(tenant.ConnectionName);
+            claims[2].Value.ShouldEqual(tenant.DatabaseInfoName);
         }
 
         [Fact]
@@ -208,7 +208,7 @@ namespace Test.UnitTests.TestAuthPermissions
             claims[1].Type.ShouldEqual(PermissionConstants.DataKeyClaimType);
             claims[1].Value.ShouldEqual(MultiTenantExtensions.DataKeyNoQueryFilter);
             claims[2].Type.ShouldEqual(PermissionConstants.DatabaseInfoNameType);
-            claims[2].Value.ShouldEqual(tenant.ConnectionName);
+            claims[2].Value.ShouldEqual(tenant.DatabaseInfoName);
         }
 
         [Fact]

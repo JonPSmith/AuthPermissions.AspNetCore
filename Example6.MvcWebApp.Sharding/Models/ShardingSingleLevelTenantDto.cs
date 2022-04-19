@@ -35,7 +35,7 @@ namespace Example6.MvcWebApp.Sharding.Models
                 TenantId = x.TenantId,
                 TenantName = x.TenantFullName,
                 DataKey = x.GetTenantDataKey(),
-                ConnectionName = x.ConnectionName,
+                ConnectionName = x.DatabaseInfoName,
                 HasOwnDb = x.HasOwnDb
             });
         }

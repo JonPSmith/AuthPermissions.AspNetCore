@@ -19,7 +19,7 @@ namespace Example6.SingleLevelSharding.EfCoreCode;
 /// <summary>
 /// This is the <see cref="ITenantChangeService"/> service for a single-level tenant with Sharding turned on.
 /// This is different to the non-sharding versions, as we have to create the the instance of the application's
-/// DbContext because the connection string relies on the <see cref="Tenant.ConnectionName"/> in the tenant -
+/// DbContext because the connection string relies on the <see cref="Tenant.DatabaseInfoName"/> in the tenant -
 /// see <see cref="GetShardingSingleDbContext"/> at the end of this class. This also allows the DataKey to be added
 /// which removes the need for using the IgnoreQueryFilters method on any queries
 /// </summary>
@@ -50,9 +50,9 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// <returns>Null if no errors, otherwise string is shown as an error to the user</returns>
     public async Task<string> CreateNewTenantAsync(Tenant tenant)
     {
-        using var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
+        using var context = GetShardingSingleDbContext(tenant.DatabaseInfoName, tenant.GetTenantDataKey());
         if (context == null)
-            return $"There is no connection string with the name {tenant.ConnectionName}.";
+            return $"There is no connection string with the name {tenant.DatabaseInfoName}.";
 
         var databaseError = await CheckDatabaseAndPossibleMigrate(context, tenant, true);
         if (databaseError != null) 
@@ -76,9 +76,9 @@ public class ShardingTenantChangeService : ITenantChangeService
 
     public async Task<string> SingleTenantUpdateNameAsync(Tenant tenant)
     {
-        using var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
+        using var context = GetShardingSingleDbContext(tenant.DatabaseInfoName, tenant.GetTenantDataKey());
         if (context == null)
-            return $"There is no connection string with the name {tenant.ConnectionName}.";
+            return $"There is no connection string with the name {tenant.DatabaseInfoName}.";
 
         var companyTenant = await context.Companies
             .SingleOrDefaultAsync(x => x.AuthPTenantId == tenant.TenantId);
@@ -93,9 +93,9 @@ public class ShardingTenantChangeService : ITenantChangeService
 
     public async Task<string> SingleTenantDeleteAsync(Tenant tenant)
     {
-        using var context = GetShardingSingleDbContext(tenant.ConnectionName, tenant.GetTenantDataKey());
+        using var context = GetShardingSingleDbContext(tenant.DatabaseInfoName, tenant.GetTenantDataKey());
         if (context == null)
-            return $"There is no connection string with the name {tenant.ConnectionName}.";
+            return $"There is no connection string with the name {tenant.DatabaseInfoName}.";
 
         await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
         try
@@ -146,9 +146,9 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (oldContext == null)
             return $"There is no connection string with the name {oldConnectionName}.";
 
-        var newContext = GetShardingSingleDbContext(updatedTenant.ConnectionName, updatedTenant.GetTenantDataKey());
+        var newContext = GetShardingSingleDbContext(updatedTenant.DatabaseInfoName, updatedTenant.GetTenantDataKey());
         if (newContext == null)
-            return $"There is no connection string with the name {updatedTenant.ConnectionName}.";
+            return $"There is no connection string with the name {updatedTenant.DatabaseInfoName}.";
 
         var databaseError = await CheckDatabaseAndPossibleMigrate(newContext, updatedTenant, true);
         if (databaseError != null)
@@ -228,7 +228,7 @@ public class ShardingTenantChangeService : ITenantChangeService
                 await context.Database.MigrateAsync();
             else
             {
-                return $"The database defined by the connection string '{tenant.ConnectionName}' doesn't exist.";
+                return $"The database defined by the connection string '{tenant.DatabaseInfoName}' doesn't exist.";
             }
         }
         else if (!await context.Database.GetService<IRelationalDatabaseCreator>().HasTablesAsync())

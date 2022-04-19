@@ -147,7 +147,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     private string EncodeCookieContent(Tenant tenantToLinkToTenant)
     {
         var values = _options.TenantType.IsSharding()
-            ? $"{tenantToLinkToTenant.GetTenantDataKey()},{tenantToLinkToTenant.ConnectionName},{tenantToLinkToTenant.TenantFullName}"
+            ? $"{tenantToLinkToTenant.GetTenantDataKey()},{tenantToLinkToTenant.DatabaseInfoName},{tenantToLinkToTenant.TenantFullName}"
             : $"{tenantToLinkToTenant.GetTenantDataKey()},{tenantToLinkToTenant.TenantFullName}";
 
         return _encryptorService.Encrypt(values);

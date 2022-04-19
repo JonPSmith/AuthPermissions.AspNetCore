@@ -72,7 +72,7 @@ public class ShardingConnections : IShardingConnections
     public async Task<List<(string databaseInfoName, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
         var nameAndConnectionName  = await _context.Tenants
-            .Select(x => new { x.ConnectionName, x.TenantFullName})
+            .Select(x => new { ConnectionName = x.DatabaseInfoName, x.TenantFullName})
             .ToListAsync();
             
         var grouped = nameAndConnectionName.GroupBy(x => x.ConnectionName)

@@ -56,7 +56,7 @@ public static class MultiTenantExtensions
     /// <returns></returns>
     public static bool IsSharding(this Tenant tenant)
     {
-        return tenant.ConnectionName != null;
+        return tenant.DatabaseInfoName != null;
     }
 
     /// <summary>

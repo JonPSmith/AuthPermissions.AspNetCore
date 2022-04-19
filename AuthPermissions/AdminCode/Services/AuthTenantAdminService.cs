@@ -259,16 +259,16 @@ namespace AuthPermissions.AdminCode.Services
                                 nameof(hasOwnDb).CamelToPascal());
 
                         if (databaseInfoName != null &&
-                            parentTenant.ConnectionName != databaseInfoName)
+                            parentTenant.DatabaseInfoName != databaseInfoName)
                             status.AddError(
                                 $"The {nameof(databaseInfoName)} parameter doesn't match the parent's " +
-                                $"{nameof(Tenant.ConnectionName)}. Set the {nameof(databaseInfoName)} " +
-                                $"parameter to null to use the parent's {nameof(Tenant.ConnectionName)} value.",
+                                $"{nameof(Tenant.DatabaseInfoName)}. Set the {nameof(databaseInfoName)} " +
+                                $"parameter to null to use the parent's {nameof(Tenant.DatabaseInfoName)} value.",
                                 nameof(databaseInfoName).CamelToPascal());
 
 
                         hasOwnDb = parentTenant.HasOwnDb;
-                        databaseInfoName = parentTenant.ConnectionName;
+                        databaseInfoName = parentTenant.DatabaseInfoName;
 
                         status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, databaseInfoName));
                     }
@@ -599,10 +599,10 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This is used when sharding is enabled. It updates the tenant's <see cref="Tenant.ConnectionName"/> and
+        /// This is used when sharding is enabled. It updates the tenant's <see cref="Tenant.DatabaseInfoName"/> and
         /// <see cref="Tenant.HasOwnDb"/> and calls the  <see cref="ITenantChangeService"/> <see cref="ITenantChangeService.MoveToDifferentDatabaseAsync"/>
         /// which moves the tenant data to another database and then deletes the the original tenant data.
-        /// NOTE: You can change the <see cref="Tenant.HasOwnDb"/> by calling this method with no change to the <see cref="Tenant.ConnectionName"/>.
+        /// NOTE: You can change the <see cref="Tenant.HasOwnDb"/> by calling this method with no change to the <see cref="Tenant.DatabaseInfoName"/>.
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
         ///     NOTE: If its a hierarchical tenant, then the tenant must be the highest parent.</param>
@@ -633,7 +633,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (tenant.IsHierarchical && tenant.ParentDataKey != null)
                     return status.AddError("For hierarchical tenants you must provide the top tenant's TenantId, not a child tenant.");
 
-                if (tenant.ConnectionName == connectionName)
+                if (tenant.DatabaseInfoName == connectionName)
                 {
                     if (tenant.HasOwnDb == hasOwnDb)
                         return status.AddError("You didn't change any of the sharding parts, so nothing was changed.");
@@ -644,7 +644,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (status.CombineStatuses(await CheckHasOwnDbIsValidAsync(hasOwnDb, connectionName)).HasErrors)
                     return status;
 
-                var previousConnectionName = tenant.ConnectionName;
+                var previousConnectionName = tenant.DatabaseInfoName;
                 var previousDataKey = tenant.GetTenantDataKey();
                 tenant.UpdateShardingState(connectionName, hasOwnDb);
 
@@ -680,7 +680,7 @@ namespace AuthPermissions.AdminCode.Services
         // private methods
 
         /// <summary>
-        /// If the hasOwnDb is true, it returns an error if any tenants have the same <see cref="Tenant.ConnectionName"/>
+        /// If the hasOwnDb is true, it returns an error if any tenants have the same <see cref="Tenant.DatabaseInfoName"/>
         /// </summary>
         /// <param name="hasOwnDb"></param>
         /// <param name="databaseInfoName"></param>
@@ -693,7 +693,7 @@ namespace AuthPermissions.AdminCode.Services
 
             databaseInfoName ??= _options.ShardingDefaultDatabaseInfoName;
 
-            if (await _context.Tenants.AnyAsync(x => x.ConnectionName == databaseInfoName))
+            if (await _context.Tenants.AnyAsync(x => x.DatabaseInfoName == databaseInfoName))
                 status.AddError(
                     $"The {nameof(hasOwnDb)} parameter is true, but the sharding database name " +
                     $"'{databaseInfoName}' already has tenant(s) using that database.");

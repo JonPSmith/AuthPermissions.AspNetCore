@@ -18,12 +18,12 @@ namespace AuthPermissions.PostgreSql.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("authp")
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.AuthUser", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.AuthUser", b =>
                 {
                     b.Property<string>("UserId")
                         .HasMaxLength(256)
@@ -61,7 +61,7 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.ToTable("AuthUsers", "authp");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.RefreshToken", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken", b =>
                 {
                     b.Property<string>("TokenValue")
                         .HasMaxLength(50)
@@ -95,7 +95,7 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.ToTable("RefreshTokens", "authp");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.RoleToPermissions", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions", b =>
                 {
                     b.Property<string>("RoleName")
                         .HasMaxLength(100)
@@ -123,7 +123,7 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.ToTable("RoleToPermissions", "authp");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.Tenant", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.Tenant", b =>
                 {
                     b.Property<int>("TenantId")
                         .ValueGeneratedOnAdd()
@@ -131,7 +131,7 @@ namespace AuthPermissions.PostgreSql.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TenantId"));
 
-                    b.Property<string>("ConnectionName")
+                    b.Property<string>("DatabaseInfoName")
                         .HasColumnType("text");
 
                     b.Property<bool>("HasOwnDb")
@@ -170,7 +170,7 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.ToTable("Tenants", "authp");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.UserToRole", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.UserToRole", b =>
                 {
                     b.Property<string>("UserId")
                         .HasMaxLength(256)
@@ -212,33 +212,33 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.ToTable("RoleToPermissionsTenant", "authp");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.AuthUser", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.AuthUser", b =>
                 {
-                    b.HasOne("AuthPermissions.DataLayer.Classes.Tenant", "UserTenant")
+                    b.HasOne("AuthPermissions.BaseCode.DataLayer.Classes.Tenant", "UserTenant")
                         .WithMany()
                         .HasForeignKey("TenantId");
 
                     b.Navigation("UserTenant");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.Tenant", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.Tenant", b =>
                 {
-                    b.HasOne("AuthPermissions.DataLayer.Classes.Tenant", "Parent")
+                    b.HasOne("AuthPermissions.BaseCode.DataLayer.Classes.Tenant", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentTenantId");
 
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.UserToRole", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.UserToRole", b =>
                 {
-                    b.HasOne("AuthPermissions.DataLayer.Classes.RoleToPermissions", "Role")
+                    b.HasOne("AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions", "Role")
                         .WithMany()
                         .HasForeignKey("RoleName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AuthPermissions.DataLayer.Classes.AuthUser", null)
+                    b.HasOne("AuthPermissions.BaseCode.DataLayer.Classes.AuthUser", null)
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -249,25 +249,25 @@ namespace AuthPermissions.PostgreSql.Migrations
 
             modelBuilder.Entity("RoleToPermissionsTenant", b =>
                 {
-                    b.HasOne("AuthPermissions.DataLayer.Classes.RoleToPermissions", null)
+                    b.HasOne("AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions", null)
                         .WithMany()
                         .HasForeignKey("TenantRolesRoleName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AuthPermissions.DataLayer.Classes.Tenant", null)
+                    b.HasOne("AuthPermissions.BaseCode.DataLayer.Classes.Tenant", null)
                         .WithMany()
                         .HasForeignKey("TenantsTenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.AuthUser", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.AuthUser", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("AuthPermissions.DataLayer.Classes.Tenant", b =>
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.Tenant", b =>
                 {
                     b.Navigation("Children");
                 });

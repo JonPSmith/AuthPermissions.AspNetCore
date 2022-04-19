@@ -112,7 +112,7 @@ namespace AuthPermissions.AdminCode
         Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId);
 
         /// <summary>
-        /// This is used when sharding is enabled. It updates the tenant's <see cref="Tenant.ConnectionName"/> and
+        /// This is used when sharding is enabled. It updates the tenant's <see cref="Tenant.DatabaseInfoName"/> and
         /// <see cref="Tenant.HasOwnDb"/> and calls the  <see cref="ITenantChangeService"/> <see cref="ITenantChangeService.MoveToDifferentDatabaseAsync"/>
         /// which moves the tenant data to another database and then deletes the the original tenant data.
         /// </summary>

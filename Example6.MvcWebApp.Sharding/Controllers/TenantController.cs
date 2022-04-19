@@ -126,7 +126,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
             {
                 TenantId = id,
                 TenantName = status.Result.TenantFullName,
-                ConnectionName = status.Result.ConnectionName,
+                ConnectionName = status.Result.DatabaseInfoName,
                 AllPossibleConnectionNames = connect.GetAllPossibleShardingData().Select(x => x.Name).ToList()
             });
         }
