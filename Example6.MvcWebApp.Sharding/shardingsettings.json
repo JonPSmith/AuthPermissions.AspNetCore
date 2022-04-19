@@ -3,7 +3,9 @@
     "ShardingDatabases": [
       {
         //This is a way to define a database using all the defaults
-        //If you only define the name, then the other parts are set up to use the "DefaultConnection" without changing the database name
+        //If you only define the name, then the other parts are set up to use 
+        //the "DefaultConnection" connection string without changing the database name
+        //and assumes that the database server is using SqlServer
         "Name": "Default Database"
       },
       {

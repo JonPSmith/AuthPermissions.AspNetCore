@@ -1,5 +1,9 @@
 # Release Notes
 
+## 3.2.0
+
+- BREAKING CHANGE: The 3.0.0 sharding didn't work with Azure, so the way to define databases for sharding has changed - see issue #29
+
 ## 3.1.0
 
 - New feature: Now supports PostgreSQL database
