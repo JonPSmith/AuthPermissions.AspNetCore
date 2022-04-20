@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
+using StatusGeneric;
 using TestSupport.Helpers;
 
 namespace Test.TestHelpers;
@@ -11,10 +12,12 @@ namespace Test.TestHelpers;
 public class StubConnectionsService : IShardingConnections
 {
     private readonly object _caller;
+    private readonly bool _badConnectionString;
 
-    public StubConnectionsService(object caller)
+    public StubConnectionsService(object caller, bool badConnectionString = false)
     {
         _caller = caller;
+        _badConnectionString = badConnectionString;
     }
 
     public List<DatabaseInformation> GetAllPossibleShardingData()
@@ -30,6 +33,14 @@ public class StubConnectionsService : IShardingConnections
     public IEnumerable<string> GetConnectionStringNames()
     {
         return new[] { "UnitTestConnection", "PostgreSqlConnection" };
+    }
+
+    public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
+    {
+        var status = new StatusGenericHandler();
+        if (_badConnectionString)
+            status.AddError("Bad connection string");
+        return status;
     }
 
     public string FormConnectionString(string databaseInfoName)

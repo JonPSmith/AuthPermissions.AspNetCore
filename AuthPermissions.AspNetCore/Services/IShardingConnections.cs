@@ -1,9 +1,11 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using AuthPermissions.BaseCode.SetupCode;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.Services;
 
@@ -33,6 +35,15 @@ public interface IShardingConnections
     /// </summary>
     /// <returns>List of all the database info names with the tenants using that database data name</returns>
     Task<List<(string databaseInfoName, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
+
+    /// <summary>
+    /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a
+    /// a valid connection string. Useful when adding or editing the data in the shardingsettings file.
+    /// </summary>
+    /// <param name="databaseInfo">The full definition of the <see cref="DatabaseInformation"/> for this database info</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo);
 
     /// <summary>
     /// This will provide the connection string for the entry with the given sharding database info name

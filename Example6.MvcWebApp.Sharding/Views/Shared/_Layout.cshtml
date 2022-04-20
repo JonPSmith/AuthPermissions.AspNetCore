@@ -42,6 +42,10 @@
                                     {
                                         <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="ListConnections">List connections</a>
                                     }
+                                    @if (User.HasPermission(Example6Permissions.ListDatabases))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Sharding" asp-action="Index">List database info</a>
+                                    }
                                     @if (User.HasPermission(Example6Permissions.PermissionRead))
                                     {
                                         <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>

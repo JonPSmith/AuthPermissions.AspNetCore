@@ -1,19 +1,18 @@
-﻿{
+{
   "ShardingDatabases": [
     {
-      //This is a way to define a database using all the defaults
-      //If you only define the name, then the other parts are set up to use 
-      //the "DefaultConnection" connection string without changing the database name
-      //and assumes that the database server is using SqlServer
-      "Name": "Default Database"
+      "Name": "Default Database",
+      "DatabaseName": null,
+      "ConnectionName": "DefaultConnection",
+      "DatabaseType": "SqlServer"
     },
     {
-      //This defines the DatabaseName, so you will have another database
       "Name": "Database1",
-      "DatabaseName": "asp.net-Example6.Sharding_Database1"
+      "DatabaseName": "asp.net-Example6.Sharding_Database1",
+      "ConnectionName": "Connection1",
+      "DatabaseType": "SqlServer"
     },
     {
-      //This shows the complete set of the properties
       "Name": "Database2",
       "DatabaseName": "asp.net-Example6.Sharding_Database2",
       "ConnectionName": "DefaultConnection",

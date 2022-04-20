@@ -1,0 +1,61 @@
+﻿@using AuthPermissions.BaseCode.PermissionsCode
+@using Example6.MvcWebApp.Sharding.PermissionsCode
+@model IEnumerable<AuthPermissions.AspNetCore.Services.DatabaseInformation>
+
+@{
+    ViewData["Title"] = "Database Info";
+}
+
+<h1>Index</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@if (User.HasPermission(Example6Permissions.AddDatabase))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Add new db info</a>
+    </p>
+}
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Info Name
+        </th>
+        <th>
+            Connection Name
+        </th>
+        <th>
+            Database Name
+        </th>
+        <th>
+            Database Type
+        </th>
+        <th>Edit</th>
+    </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+    <tr>
+        <td>@item.Name</td>
+        <td>@item.ConnectionName</td>
+        <td>@(item.DatabaseName ?? "-uses db in connection-")</td>
+        <td>@item.DatabaseType</td>
+        <td>
+            @if (User.HasPermission(Example6Permissions.UpdateDatabase))
+            {
+                @Html.ActionLink("Edit", "Edit", new { name = @item.Name })
+            }
+            @if (User.HasPermission(Example6Permissions.MoveTenantDatabase))
+            {
+                @Html.Raw(" | ")
+                @Html.ActionLink("Remove", "Remove", new { name = @item.Name })
+            }
+        </td>
+    </tr>
+}
+    </tbody>
+</table>

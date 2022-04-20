@@ -94,7 +94,7 @@ public class TestAccessDatabaseInformation
         //SETUP
         ResetShardingSettingsFile();
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
-        var stubCon = new StubConnectionsService(this);
+        var stubCon = new StubConnectionsService(this, !isValid);
         var service = new AccessDatabaseInformation(stubEnv, stubCon);
 
         //ATTEMPT
@@ -118,7 +118,7 @@ public class TestAccessDatabaseInformation
         var service = new AccessDatabaseInformation(stubEnv, stubCon);
 
         //ATTEMPT
-        var status = await service.DeleteDatabaseInfoToJsonFileAsync(name);
+        var status = await service.RemoveDatabaseInfoToJsonFileAsync(name);
 
         //VERIFY
         _output.WriteLine(status.IsValid ? status.Message : status.GetAllErrors());

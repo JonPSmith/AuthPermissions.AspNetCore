@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -13,6 +14,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.Services;
 
@@ -119,6 +121,39 @@ public class ShardingConnections : IShardingConnections
                 $"Could not find the connection name '{connectionString}' that the sharding database data '{databaseInfoName}' requires.");
 
         return SetDatabaseInConnectionString(databaseData, connectionString);
+    }
+
+    /// <summary>
+    /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a
+    /// a valid connection string. Useful when adding or editing the data in the shardingsettings file.
+    /// </summary>
+    /// <param name="databaseInfo">The full definition of the <see cref="DatabaseInformation"/> for this database info</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
+    {
+        var status = new StatusGenericHandler();
+
+        if (databaseInfo == null)
+            throw new ArgumentNullException(nameof(databaseInfo));
+
+        if (!_connectionDict.TryGetValue(databaseInfo.ConnectionName, out var connectionString))
+            return status.AddError(
+                $"The {nameof(DatabaseInformation.ConnectionName)} '{databaseInfo.ConnectionName}' " +
+                "wasn't found in the connection strings.");
+
+        try
+        {
+            SetDatabaseInConnectionString(databaseInfo, connectionString);
+        }
+        catch (Exception e)
+        {
+            status.AddError(
+                "There was an  error when trying to create a connection string. Typically this is because " +
+                $"the connection string doesn't match the {nameof(DatabaseInformation.DatabaseType)}.");
+        }
+
+        return status;
     }
 
     //-----------------------------------------------------

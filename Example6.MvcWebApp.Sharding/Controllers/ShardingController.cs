@@ -1,0 +1,110 @@
+﻿using AuthPermissions.AspNetCore;
+using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.SupportCode;
+using Example6.MvcWebApp.Sharding.Models;
+using Example6.MvcWebApp.Sharding.PermissionsCode;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Example6.MvcWebApp.Sharding.Controllers;
+
+public class ShardingController : Controller
+{
+    private readonly IAccessDatabaseInformation _dbInfoService;
+
+    public ShardingController(IAccessDatabaseInformation dbInfoService)
+    {
+        _dbInfoService = dbInfoService;
+    }
+
+    [HasPermission(Example6Permissions.ListDatabases)]
+    public IActionResult Index(string message)
+    {
+        ViewBag.Message = message;
+
+        return View(_dbInfoService.ReadShardingSettingsFile());
+    }
+
+    [HasPermission(Example6Permissions.TenantCreate)]
+    public IActionResult Create([FromServices] IShardingConnections service)
+    {
+        var dto = new DatabaseInformationEdit
+        {
+            AllPossibleConnectionNames = service.GetConnectionStringNames()
+        };
+
+        return View(dto);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Example6Permissions.TenantCreate)]
+    public async Task<IActionResult> Create(DatabaseInformationEdit data)
+    {
+        var status = _dbInfoService.AddDatabaseInfoToJsonFile(data.DatabaseInfo);
+
+        if (status.HasErrors)
+            return RedirectToAction(nameof(ErrorDisplay),
+                new { errorMessage = status.GetAllErrors() });
+
+        return RedirectToAction(nameof(Index), new { message = status.Message });
+    }
+
+    [HasPermission(Example6Permissions.UpdateDatabase)]
+    public ActionResult Edit([FromServices] IShardingConnections service, string name)
+    {
+        var dto = new DatabaseInformationEdit
+        {
+            DatabaseInfo = _dbInfoService.GetDatabaseInformationByName(name),
+            AllPossibleConnectionNames = service.GetConnectionStringNames()
+        };
+
+        if (dto.DatabaseInfo == null)
+            return RedirectToAction(nameof(ErrorDisplay),
+                new { errorMessage = $"Could not find a database information with the name {name}." });
+
+        return View(dto);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Example6Permissions.AddDatabase)]
+    public ActionResult Edit(DatabaseInformationEdit data)
+    {
+        var status = _dbInfoService.UpdateDatabaseInfoToJsonFile(data.DatabaseInfo);
+
+        if (status.HasErrors)
+            return RedirectToAction(nameof(ErrorDisplay),
+                new { errorMessage = status.GetAllErrors() });
+
+        return RedirectToAction(nameof(Index), new { message = status.Message });
+    }
+
+    [HasPermission(Example6Permissions.TenantDelete)]
+    public IActionResult Remove(string name)
+    {
+        if (_dbInfoService.GetDatabaseInformationByName(name) == null)
+            return RedirectToAction(nameof(ErrorDisplay),
+                new { errorMessage = "Could not find that database information." });
+
+        return View((object)name);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Example6Permissions.TenantDelete)]
+    public async Task<IActionResult> Remove(string nameToRemove, bool dummyValue)
+    {
+        var status = await _dbInfoService.RemoveDatabaseInfoToJsonFileAsync(nameToRemove);
+
+        return status.HasErrors
+            ? RedirectToAction(nameof(ErrorDisplay),
+                new { errorMessage = status.GetAllErrors() })
+            : RedirectToAction(nameof(Index), new { message = status.Message });
+    }
+
+
+    public ActionResult ErrorDisplay(string errorMessage)
+    {
+        return View((object)errorMessage);
+    }
+}

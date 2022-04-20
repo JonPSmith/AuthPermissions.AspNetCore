@@ -72,6 +72,29 @@ public class TestShardingConnectionString
         databaseData[2].Name.ShouldEqual("Special Postgres");
     }
 
+    [Theory]
+    [InlineData("DefaultConnection", true)]
+    [InlineData("PostgresConnection", false)]
+    public void TestFormingConnectionString(string connectionName, bool isValid)
+    {
+        //SETUP
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, null, new AuthPermissionsOptions());
+        
+        //ATTEMPT
+        var databaseInfo = new DatabaseInformation
+        {
+            Name = "Test",
+            DatabaseName = "TestDb",
+            ConnectionName = connectionName,
+            DatabaseType = "SqlServer"
+        };
+        var status = service.TestFormingConnectionString(databaseInfo);
+
+        //VERIFY
+        _output.WriteLine(status.IsValid ? "success" : status.GetAllErrors());
+        status.IsValid.ShouldEqual(isValid);
+    }
+
     [Fact]
     public void TestGetNamedConnectionStringSqlServer()
     {
@@ -97,6 +120,8 @@ public class TestShardingConnectionString
         //VERIFY
         connectionString.ShouldEqual("Host=127.0.0.1;Database=MyDatabase;Username=postgres;Password=LetMeIn");
     }
+
+
 
     [Fact]
     public async Task TestQueryTenantsSingle()

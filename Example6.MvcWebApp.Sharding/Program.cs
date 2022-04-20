@@ -7,6 +7,7 @@ using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
+using AuthPermissions.SupportCode;
 using Example6.MvcWebApp.Sharding.Data;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Example6.SingleLevelSharding.AppStart;
@@ -60,6 +61,9 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
                     //This seeds the invoice database (if empty)
                     options.RegisterServiceToRunInJob<StartupServiceSeedShardingDbContext>();
     });
+
+//manually add services from the AuthPermissions.SupportCode project
+builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
 
 builder.Services.RegisterExample6Invoices(builder.Configuration);
 

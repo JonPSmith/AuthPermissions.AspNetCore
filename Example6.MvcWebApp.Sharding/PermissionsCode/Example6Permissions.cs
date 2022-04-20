@@ -97,6 +97,15 @@ namespace Example6.MvcWebApp.Sharding.PermissionsCode
         [Display(GroupName = "ShardingAdmin", Name = "Move tenant to another database", Description = "Move tenant to another database", AutoGenerateFilter = true)]
         MoveTenantDatabase = 42_101,
 
+        [Display(GroupName = "ShardingAdmin", Name = "List databases", Description = "List sharding databases", AutoGenerateFilter = true)]
+        ListDatabases = 42_110,
+        [Display(GroupName = "ShardingAdmin", Name = "Add new database", Description = "Add new sharding database", AutoGenerateFilter = true)]
+        AddDatabase = 42_111,
+        [Display(GroupName = "ShardingAdmin", Name = "Update database info", Description = "Update sharding database info", AutoGenerateFilter = true)]
+        UpdateDatabase = 42_112,
+        [Display(GroupName = "ShardingAdmin", Name = "Remove database info", Description = "Remove sharding database info", AutoGenerateFilter = true)]
+        RemoveDatabase = 42_113,
+
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions
         //Useful for multi-tenant applications where you can set up company-level admin users where you can hide some higher-level permissions

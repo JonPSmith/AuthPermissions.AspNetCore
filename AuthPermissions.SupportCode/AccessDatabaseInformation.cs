@@ -3,14 +3,12 @@
 
 using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.AspNetCore.Hosting;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode;
 
-public class AccessDatabaseInformation
+public class AccessDatabaseInformation : IAccessDatabaseInformation
 {
     public const string ShardingSettingFilename = "shardingsettings.json";
 
@@ -24,9 +22,12 @@ public class AccessDatabaseInformation
 
     }
 
+    /// <summary>
+    /// This will return a list of <see cref="DatabaseInformation"/> in the shardingsettings.json file in the application
+    /// </summary>
+    /// <returns></returns>
     public List<DatabaseInformation> ReadShardingSettingsFile()
     {
-
         if (!File.Exists(_settingsFilePath))
             return null;
 
@@ -37,6 +38,22 @@ public class AccessDatabaseInformation
         return content?.ShardingDatabases;
     }
 
+    /// <summary>
+    /// This returns the <see cref="DatabaseInformation"/> where its <see cref="DatabaseInformation.Name"/> matches the name property.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns>If no matching database information found, then it returns null</returns>
+    public DatabaseInformation GetDatabaseInformationByName(string name)
+    {
+        return ReadShardingSettingsFile().SingleOrDefault(x => x.Name == name);
+    }
+
+    /// <summary>
+    /// This adds a new <see cref="DatabaseInformation"/> to the list in the current shardingsettings.json file.
+    /// If there are no errors it will update the shardingsettings.json file in the application.
+    /// </summary>
+    /// <param name="databaseInfo"></param>
+    /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
         var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
@@ -44,6 +61,13 @@ public class AccessDatabaseInformation
         return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
     }
 
+    /// <summary>
+    /// This updates a <see cref="DatabaseInformation"/> already in the shardingsettings.json file.
+    /// It uses the <see cref="DatabaseInformation.Name"/> in the provided in the <see cref="DatabaseInformation"/> parameter.
+    /// If there are no errors it will update the shardingsettings.json file in the application.
+    /// </summary>
+    /// <param name="databaseInfo"></param>
+    /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric UpdateDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
         var status = new StatusGenericHandler();
@@ -57,7 +81,13 @@ public class AccessDatabaseInformation
         return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
     }
 
-    public async Task<IStatusGeneric> DeleteDatabaseInfoToJsonFileAsync(string databaseInfoName)
+    /// <summary>
+    /// This removes a <see cref="DatabaseInformation"/> with the same <see cref="DatabaseInformation.Name"/> as the databaseInfoName.
+    /// If there are no errors it will update the shardingsettings.json file in the application
+    /// </summary>
+    /// <param name="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> </param>
+    /// <returns>status containing a success message, or errors</returns>
+    public async Task<IStatusGeneric> RemoveDatabaseInfoToJsonFileAsync(string databaseInfoName)
     {
         var status = new StatusGenericHandler();
         var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
@@ -76,6 +106,9 @@ public class AccessDatabaseInformation
         return CheckDatabasesInfoAndSaveIfValid(fileContent, null);
     }
 
+    //-----------------------------------------------
+    // private methods
+
     private IStatusGeneric CheckDatabasesInfoAndSaveIfValid(List<DatabaseInformation> databasesInfo, DatabaseInformation changedInfo)
     {
         var status = new StatusGenericHandler
@@ -91,29 +124,9 @@ public class AccessDatabaseInformation
         if (duplicates.Any())
             return status.AddError($"The {nameof(DatabaseInformation.Name)} of {String.Join(",", duplicates)} is already used.");
 
-        //Check the ConnectionName
-        
-
         //Try creating a valid connection string
         if (changedInfo != null) //if deleted we don't test it
-            try
-            {
-                if (!_connectionsService.GetConnectionStringNames().Contains(changedInfo.ConnectionName))
-                    return status.AddError(
-                        $"The {nameof(DatabaseInformation.ConnectionName)} '{changedInfo.ConnectionName}' " +
-                        "wasn't found in the connection strings.");
-
-                var connectionString = _connectionsService.FormConnectionString(changedInfo.Name);
-            }
-            catch (AuthPermissionsException e)
-            {
-                status.AddError(e.Message);
-            }
-            catch (Exception)
-            {
-                status.AddError(
-                    "There was a system error when trying to create a connection string on the data you provides.");
-            }
+            status.CombineStatuses(_connectionsService.TestFormingConnectionString(changedInfo));
 
         if (status.HasErrors)
             return status;
