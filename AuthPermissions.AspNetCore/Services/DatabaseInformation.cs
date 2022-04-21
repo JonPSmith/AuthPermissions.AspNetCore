@@ -20,7 +20,8 @@ public class DatabaseInformation
     public string Name { get; set; }
 
     /// <summary>
-    /// This contains the name of the database. Can be null, in which case it will use the database name found in the connection string
+    /// This contains the name of the database. Can be null or empty string, in which case it will use the database name found in the connection string
+    /// NOTE: for some reason the <see cref="DatabaseName"/> is an empty string, when the actual json says it is null
     /// </summary>
     public string DatabaseName { get; set; }
 

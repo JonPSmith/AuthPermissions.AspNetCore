@@ -6,9 +6,7 @@
   },
   "ShardingDatabases": [
     {
-      "Name": "Default Database",
-      "DatabaseName": "AuthPermissions-Test_Sharding",
-      "ConnectionName": "DefaultConnection"
+      "Name": "Default Database"
     },
     {
       "Name": "Another",

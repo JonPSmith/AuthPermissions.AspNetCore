@@ -109,6 +109,19 @@ public class TestShardingConnectionString
     }
 
     [Fact]
+    public void TestGetNamedConnectionStringDefaultDatabase()
+    {
+        //SETUP
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, null, new AuthPermissionsOptions());
+
+        //ATTEMPT
+        var connectionString = service.FormConnectionString("Default Database");
+
+        //VERIFY
+        connectionString.ShouldEqual("Server=(localdb)\\mssqllocaldb;Database=AuthPermissions-Test;Trusted_Connection=True;MultipleActiveResultSets=true");
+    }
+
+    [Fact]
     public void TestGetNamedConnectionStringPostgres()
     {
         //SETUP

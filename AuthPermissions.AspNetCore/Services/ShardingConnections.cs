@@ -187,7 +187,7 @@ public class ShardingConnections : IShardingConnections
     /// <exception cref="InvalidEnumArgumentException"></exception>
     private static string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        if (databaseInformation.DatabaseName == null)
+        if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
             //This uses the database that is already in the connection string
             return connectionString;
 
