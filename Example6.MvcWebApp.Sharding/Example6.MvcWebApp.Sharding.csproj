@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
 	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
     <UserSecretsId>aspnet-Example6.MvcWebApp.Sharding-552573C0-E041-41D7-BEDF-5C733A26CB99</UserSecretsId>
   </PropertyGroup>
 
