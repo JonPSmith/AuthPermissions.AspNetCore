@@ -11,5 +11,5 @@ public class DatabaseInformationEdit
 
     public IEnumerable<string> AllPossibleConnectionNames { get; set; }
 
-    public string[] PossibleDatabaseTypes { get; } = { "SqlServer", "Postgres" };
+    public string[] PossibleDatabaseTypes { get; set; }
 }

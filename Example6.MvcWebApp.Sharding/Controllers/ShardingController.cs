@@ -29,7 +29,8 @@ public class ShardingController : Controller
     {
         var dto = new DatabaseInformationEdit
         {
-            AllPossibleConnectionNames = service.GetConnectionStringNames()
+            AllPossibleConnectionNames = service.GetConnectionStringNames(),
+            PossibleDatabaseTypes = service.GetSupportedDatabaseTypes()
         };
 
         return View(dto);
@@ -55,7 +56,8 @@ public class ShardingController : Controller
         var dto = new DatabaseInformationEdit
         {
             DatabaseInfo = _dbInfoService.GetDatabaseInformationByName(name),
-            AllPossibleConnectionNames = service.GetConnectionStringNames()
+            AllPossibleConnectionNames = service.GetConnectionStringNames(),
+            PossibleDatabaseTypes = service.GetSupportedDatabaseTypes()
         };
 
         if (dto.DatabaseInfo == null)

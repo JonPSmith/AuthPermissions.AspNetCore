@@ -37,6 +37,12 @@ public interface IShardingConnections
     Task<List<(string databaseInfoName, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
 
     /// <summary>
+    /// This returns a list of the DatabaseType supported by this implementation of the <see cref="IShardingConnections"/>
+    /// </summary>
+    /// <returns>The strings defining the different database types that are supported</returns>
+    string[] GetSupportedDatabaseTypes();
+
+    /// <summary>
     /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a
     /// a valid connection string. Useful when adding or editing the data in the shardingsettings file.
     /// </summary>

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
+using Npgsql.PostgresTypes;
 using StatusGeneric;
 using TestSupport.Helpers;
 
@@ -33,6 +34,11 @@ public class StubConnectionsService : IShardingConnections
     public IEnumerable<string> GetConnectionStringNames()
     {
         return new[] { "UnitTestConnection", "PostgreSqlConnection" };
+    }
+
+    public string[] GetSupportedDatabaseTypes()
+    {
+        return new string[] { "SqlServer", "Postgres" };
     }
 
     public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)

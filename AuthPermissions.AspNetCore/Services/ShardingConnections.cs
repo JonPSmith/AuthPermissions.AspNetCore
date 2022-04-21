@@ -28,6 +28,15 @@ public class ConnectionStringsOption : Dictionary<string, string> { }
 /// </summary>
 public class ShardingConnections : IShardingConnections
 {
+    /// <summary>
+    /// Defines the string for a SQL Server database server
+    /// </summary>
+    public const string SqlServerType = "SqlServer";
+    /// <summary>
+    /// Defines the string for a PostgreSQL database server
+    /// </summary>
+    public const string PostgresType =  "Postgres";
+
     private readonly ConnectionStringsOption _connectionDict;
     private readonly ShardingSettingsOption _shardingSettings;
     private readonly AuthPermissionsDbContext _context;
@@ -103,6 +112,15 @@ public class ShardingConnections : IShardingConnections
     }
 
     /// <summary>
+    /// This returns a list of the DatabaseType supported by this implementation of the <see cref="IShardingConnections"/>
+    /// </summary>
+    /// <returns>The strings defining the different database types that are supported</returns>
+    public string[] GetSupportedDatabaseTypes()
+    {
+        return new string []{ SqlServerType, PostgresType};
+    }
+
+    /// <summary>
     /// This will provide the connection string for the entry with the given database info name
     /// </summary>
     /// <param name="databaseInfoName">The name of sharding database info we want to access</param>
@@ -175,7 +193,7 @@ public class ShardingConnections : IShardingConnections
 
         switch (databaseInformation.DatabaseType)
         {
-            case "SqlServer":
+            case SqlServerType:
             {
                 var builder = new SqlConnectionStringBuilder(connectionString)
                 {
@@ -183,7 +201,7 @@ public class ShardingConnections : IShardingConnections
                 };
                 return builder.ConnectionString;
             }
-            case "Postgres":
+            case PostgresType:
             {
                 var builder = new NpgsqlConnectionStringBuilder(connectionString)
                 {
