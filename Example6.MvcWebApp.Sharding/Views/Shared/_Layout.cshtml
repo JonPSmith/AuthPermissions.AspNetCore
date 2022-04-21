@@ -38,11 +38,11 @@
                                     {
                                         <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="Index">List Tenants</a>
                                     }
-                                    @if (User.HasPermission(Example6Permissions.ListConnections))
+                                    @if (User.HasPermission(Example6Permissions.ListDbsWithTenants))
                                     {
-                                        <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="ListConnections">List connections</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="ListDatabases">List dbs with tenants</a>
                                     }
-                                    @if (User.HasPermission(Example6Permissions.ListDatabases))
+                                    @if (User.HasPermission(Example6Permissions.ListDatabaseInfos))
                                     {
                                         <a class="dropdown-item" asp-area="" asp-controller="Sharding" asp-action="Index">List database info</a>
                                     }

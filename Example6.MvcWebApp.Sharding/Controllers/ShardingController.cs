@@ -16,7 +16,7 @@ public class ShardingController : Controller
         _dbInfoService = dbInfoService;
     }
 
-    [HasPermission(Example6Permissions.ListDatabases)]
+    [HasPermission(Example6Permissions.ListDatabaseInfos)]
     public IActionResult Index(string message)
     {
         ViewBag.Message = message;
@@ -49,7 +49,7 @@ public class ShardingController : Controller
         return RedirectToAction(nameof(Index), new { message = status.Message });
     }
 
-    [HasPermission(Example6Permissions.UpdateDatabase)]
+    [HasPermission(Example6Permissions.UpdateDatabaseInfo)]
     public ActionResult Edit([FromServices] IShardingConnections service, string name)
     {
         var dto = new DatabaseInformationEdit
@@ -67,7 +67,7 @@ public class ShardingController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [HasPermission(Example6Permissions.AddDatabase)]
+    [HasPermission(Example6Permissions.AddDatabaseInfo)]
     public ActionResult Edit(DatabaseInformationEdit data)
     {
         var status = _dbInfoService.UpdateDatabaseInfoToJsonFile(data.DatabaseInfo);
@@ -79,7 +79,7 @@ public class ShardingController : Controller
         return RedirectToAction(nameof(Index), new { message = status.Message });
     }
 
-    [HasPermission(Example6Permissions.TenantDelete)]
+    [HasPermission(Example6Permissions.RemoveDatabaseInfo)]
     public IActionResult Remove(string name)
     {
         if (_dbInfoService.GetDatabaseInformationByName(name) == null)
@@ -91,7 +91,7 @@ public class ShardingController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [HasPermission(Example6Permissions.TenantDelete)]
+    [HasPermission(Example6Permissions.RemoveDatabaseInfo)]
     public async Task<IActionResult> Remove(string nameToRemove, bool dummyValue)
     {
         var status = await _dbInfoService.RemoveDatabaseInfoToJsonFileAsync(nameToRemove);

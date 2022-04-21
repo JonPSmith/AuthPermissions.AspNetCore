@@ -41,8 +41,12 @@
     <ol>
         <li>Log in as 'Super@@g1.com' or 'AppAdmin@@g1.com' so that you can create or move a sharding tenant.</li>
         <li>
-            Go to <a asp-area="" asp-controller="Tenant" asp-action="ListConnections">Auth Admin > List Connections</a>
-            to see the possible database connection names and now many tenants are in each datatbase.
+            Go to <a asp-area="" asp-controller="Tenant" asp-action="ListDatabases">Auth Admin > List Databases</a>
+            to see the possible databases and now many tenants are in each datatbase.
+        </li>
+        <li>
+            Go to <a asp-area="" asp-controller="Sharding" asp-action="Index">Auth Admin > List database info</a>
+            to see the database information and the ability to change them.
         </li>
         <li>
             Go to <a asp-area="" asp-controller="Tenant" asp-action="Index">Auth Admin > List Tenants</a>

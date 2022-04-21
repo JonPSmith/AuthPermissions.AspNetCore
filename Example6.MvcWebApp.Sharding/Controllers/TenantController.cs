@@ -33,8 +33,8 @@ namespace Example6.MvcWebApp.Sharding.Controllers
             return View(tenantNames);
         }
 
-        [HasPermission(Example6Permissions.ListConnections)]
-        public async Task<IActionResult> ListConnections([FromServices] IShardingConnections connect)
+        [HasPermission(Example6Permissions.ListDbsWithTenants)]
+        public async Task<IActionResult> ListDatabases([FromServices] IShardingConnections connect)
         {
             var connections = await connect.GetDatabaseInfoNamesWithTenantNamesAsync();
 

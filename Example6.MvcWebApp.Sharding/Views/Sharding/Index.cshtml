@@ -13,7 +13,7 @@
     <h3 class="text-success">@ViewBag.Message</h3>
 }
 
-@if (User.HasPermission(Example6Permissions.AddDatabase))
+@if (User.HasPermission(Example6Permissions.AddDatabaseInfo))
 {
     <p>
         <a asp-action="Create" class="btn btn-primary">Add new db info</a>
@@ -45,7 +45,7 @@
         <td>@(item.DatabaseName ?? "-uses db in connection-")</td>
         <td>@item.DatabaseType</td>
         <td>
-            @if (User.HasPermission(Example6Permissions.UpdateDatabase))
+            @if (User.HasPermission(Example6Permissions.UpdateDatabaseInfo))
             {
                 @Html.ActionLink("Edit", "Edit", new { name = @item.Name })
             }

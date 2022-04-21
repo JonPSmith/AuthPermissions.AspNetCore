@@ -9,13 +9,13 @@
     {
       "Name": "Database1",
       "DatabaseName": "asp.net-Example6.Sharding_Database1",
-      "ConnectionName": "Connection1",
+      "ConnectionName": "DefaultConnection",
       "DatabaseType": "SqlServer"
     },
     {
       "Name": "Database2",
       "DatabaseName": "asp.net-Example6.Sharding_Database2",
-      "ConnectionName": "DefaultConnection",
+      "ConnectionName": "AnotherConnection",
       "DatabaseType": "SqlServer"
     }
   ]

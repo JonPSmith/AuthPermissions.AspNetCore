@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 
 namespace Example6.MvcWebApp.Sharding.PermissionsCode
 {
@@ -14,7 +13,8 @@ namespace Example6.MvcWebApp.Sharding.PermissionsCode
             new("App Admin", "Overall app Admin",
                 "UserRead, UserSync, UserChange, UserRemove, " +
                 "UserRolesChange, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
-                "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData, ListConnections, MoveTenantDatabase"),
+                "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData, " +
+                "ListDbsWithTenants, MoveTenantDatabase, ListDatabaseInfos, AddDatabaseInfo, UpdateDatabaseInfo, RemoveDatabaseInfo"),
             new("App Support", "overall support - limited admin items",
                 "UserRead, UserRolesChange, RoleRead, TenantList, TenantAccessData"),
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),
