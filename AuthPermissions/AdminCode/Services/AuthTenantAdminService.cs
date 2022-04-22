@@ -12,7 +12,6 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -130,7 +129,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
+        /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         public async Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
             bool? hasOwnDb = null, string databaseInfoName = null)
@@ -201,7 +200,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
+        /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
             List<string> tenantRoleNames = null, bool? hasOwnDb = false, string databaseInfoName = null)
@@ -607,13 +606,13 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
         ///     NOTE: If its a hierarchical tenant, then the tenant must be the highest parent.</param>
         /// <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
-        /// <param name="connectionName">The name of the connection string in the ConnectionStrings part of the appsettings file</param>
+        /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
         /// <returns>status</returns>
         public async Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId, bool hasOwnDb,
-            string connectionName)
+            string databaseInfoName)
         {
             var status = new StatusGenericHandler 
-                { Message = $"Successfully moved the tenant to the database defined by the '{connectionName}' connection string name." };
+                { Message = $"Successfully moved the tenant to the database defined by the database information with the name '{databaseInfoName}'." };
 
             if (!_tenantType.IsSharding())
                 throw new AuthPermissionsException(
@@ -633,7 +632,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (tenant.IsHierarchical && tenant.ParentDataKey != null)
                     return status.AddError("For hierarchical tenants you must provide the top tenant's TenantId, not a child tenant.");
 
-                if (tenant.DatabaseInfoName == connectionName)
+                if (tenant.DatabaseInfoName == databaseInfoName)
                 {
                     if (tenant.HasOwnDb == hasOwnDb)
                         return status.AddError("You didn't change any of the sharding parts, so nothing was changed.");
@@ -641,21 +640,21 @@ namespace AuthPermissions.AdminCode.Services
                     status.Message = $"The tenant wasn't moved but its {nameof(Tenant.HasOwnDb)} was changed to {hasOwnDb}.";
                 }
 
-                if (status.CombineStatuses(await CheckHasOwnDbIsValidAsync(hasOwnDb, connectionName)).HasErrors)
+                if (status.CombineStatuses(await CheckHasOwnDbIsValidAsync(hasOwnDb, databaseInfoName)).HasErrors)
                     return status;
 
-                var previousConnectionName = tenant.DatabaseInfoName;
+                var previousDatabaseInfoName = tenant.DatabaseInfoName;
                 var previousDataKey = tenant.GetTenantDataKey();
-                tenant.UpdateShardingState(connectionName, hasOwnDb);
+                tenant.UpdateShardingState(databaseInfoName, hasOwnDb);
 
                 if (status.CombineStatuses(await _context.SaveChangesWithChecksAsync()).HasErrors)
                     return status;
 
-                if (previousConnectionName != connectionName)
+                if (previousDatabaseInfoName != databaseInfoName)
                 {
                     //Just changes the HasNoDb part
                     var mainError = await tenantChangeService
-                        .MoveToDifferentDatabaseAsync(previousConnectionName, previousDataKey, tenant);
+                        .MoveToDifferentDatabaseAsync(previousDatabaseInfoName, previousDataKey, tenant);
                     if (mainError != null)
                         return status.AddError(mainError);
                 }

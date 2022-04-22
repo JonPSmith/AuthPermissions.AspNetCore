@@ -103,11 +103,11 @@ namespace AuthPermissions.AdminCode
         /// doesn't have any application's data in the new database. This is especially important for a single-level tenant
         /// because the query filter will be turned off and any other data would be returned.
         /// </summary>
-        /// <param name="oldConnectionName">The connection string to the old database</param>
+        /// <param name="oldDatabaseInfoName">The connection string to the old database</param>
         /// <param name="oldDataKey"></param>
         /// <param name="updatedTenant">This tenant has had its sharding information updated</param>
         /// <returns></returns>
-        Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey, Tenant updatedTenant);
+        Task<string> MoveToDifferentDatabaseAsync(string oldDatabaseInfoName, string oldDataKey, Tenant updatedTenant);
 
     }
 }

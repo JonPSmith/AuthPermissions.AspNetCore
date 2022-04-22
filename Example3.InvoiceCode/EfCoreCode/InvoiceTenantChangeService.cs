@@ -138,7 +138,7 @@ namespace Example3.InvoiceCode.EfCoreCode
             throw new NotImplementedException();
         }
 
-        public Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey,
+        public Task<string> MoveToDifferentDatabaseAsync(string oldDatabaseInfoName, string oldDataKey,
             Tenant updatedTenant)
         {
             throw new NotImplementedException();

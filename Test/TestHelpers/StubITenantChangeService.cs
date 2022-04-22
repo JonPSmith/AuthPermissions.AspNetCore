@@ -92,7 +92,7 @@ namespace Test.TestHelpers
                 return Task.FromResult(_errorMessage);
             }
 
-            public Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName,
+            public Task<string> MoveToDifferentDatabaseAsync(string oldDatabaseInfoName,
                 string oldDataKey,
                 Tenant updatedTenant)
             {

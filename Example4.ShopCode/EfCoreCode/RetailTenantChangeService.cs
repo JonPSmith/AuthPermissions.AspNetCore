@@ -205,7 +205,7 @@ namespace Example4.ShopCode.EfCoreCode
             return null;
         }
 
-        public Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey,
+        public Task<string> MoveToDifferentDatabaseAsync(string oldDatabaseInfoName, string oldDataKey,
             Tenant updatedTenant)
         {
             throw new NotImplementedException();

@@ -52,7 +52,7 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
+        /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
             bool? hasOwnDb = false, string databaseInfoName = null);
@@ -64,7 +64,7 @@ namespace AuthPermissions.AdminCode
         /// <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
-        /// <param name="databaseInfoName">This is the name of the database name in the shardingsettings file.</param>
+        /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
         /// <returns>A status with any errors found</returns>
         Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
             List<string> tenantRoleNames = null,
@@ -119,9 +119,9 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
         ///     NOTE: If its a hierarchical tenant, then the tenant must be the highest parent.</param>
         /// <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
-        /// <param name="connectionName">The name of the connection string in the ConnectionStrings part of the appsettings file</param>
+        /// <param name="databaseInfoName">The name of the connection string in the ConnectionStrings part of the appsettings file</param>
         /// <returns>status</returns>
         Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId,
-            bool hasOwnDb, string connectionName);
+            bool hasOwnDb, string databaseInfoName);
     }
 }

@@ -135,16 +135,16 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// 2. Delete the old data
     /// These two steps have to be done within a transaction, so that a failure to delete the old data will roll back the copy.
     /// </summary>
-    /// <param name="oldConnectionName"></param>
+    /// <param name="oldDatabaseInfoName"></param>
     /// <param name="oldDataKey"></param>
     /// <param name="updatedTenant"></param>
     /// <returns></returns>
-    public async Task<string> MoveToDifferentDatabaseAsync(string oldConnectionName, string oldDataKey, Tenant updatedTenant)
+    public async Task<string> MoveToDifferentDatabaseAsync(string oldDatabaseInfoName, string oldDataKey, Tenant updatedTenant)
     {
         //NOTE: The oldContext and newContext have the correct DataKey so you don't have to use IgnoreQueryFilters.
-        var oldContext = GetShardingSingleDbContext(oldConnectionName, oldDataKey);
+        var oldContext = GetShardingSingleDbContext(oldDatabaseInfoName, oldDataKey);
         if (oldContext == null)
-            return $"There is no connection string with the name {oldConnectionName}.";
+            return $"There is no connection string with the name {oldDatabaseInfoName}.";
 
         var newContext = GetShardingSingleDbContext(updatedTenant.DatabaseInfoName, updatedTenant.GetTenantDataKey());
         if (newContext == null)

@@ -2,7 +2,8 @@
   "ConnectionStrings": {
     "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=AuthPermissions-Test;Trusted_Connection=True;MultipleActiveResultSets=true",
     "PostgresConnection": "Host=127.0.0.1;Database=ShardingTest;Username=postgres;Password=LetMeIn",
-    "AnotherConnectionString": "Server=MyServer;Database=DummyDatabase;"
+    "AnotherConnectionString": "Server=MyServer;Database=DummyDatabase;",
+    "ServerOnlyConnectionString": "Server=MyServer;Trusted_Connection=True;MultipleActiveResultSets=true"
   },
   "ShardingDatabases": [
     {
@@ -12,6 +13,11 @@
       "Name": "Another",
       "DatabaseName": "AnotherDatabase",
       "ConnectionName": "AnotherConnectionString"
+    },
+    {
+      "Name": "Bad: No DatabaseName",
+      "DatabaseName": null,
+      "ConnectionName": "ServerOnlyConnectionString"
     },
     {
       "Name": "Special Postgres",

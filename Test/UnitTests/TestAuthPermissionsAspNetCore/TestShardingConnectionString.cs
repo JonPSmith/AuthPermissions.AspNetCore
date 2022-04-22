@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,10 +67,11 @@ public class TestShardingConnectionString
         {
             _output.WriteLine(data.ToString());
         }
-        databaseData.Count.ShouldEqual(3);
+        databaseData.Count.ShouldEqual(4);
         databaseData[0].Name.ShouldEqual("Default Database");
         databaseData[1].Name.ShouldEqual("Another");
-        databaseData[2].Name.ShouldEqual("Special Postgres");
+        databaseData[2].Name.ShouldEqual("Bad: No DatabaseName");
+        databaseData[3].Name.ShouldEqual("Special Postgres");
     }
 
     [Theory]
@@ -106,6 +108,19 @@ public class TestShardingConnectionString
 
         //VERIFY
         connectionString.ShouldEqual("Data Source=MyServer;Initial Catalog=AnotherDatabase");
+    }
+
+    [Fact]
+    public void TestGetNamedConnectionStringSqlServer_NoDatabaseName()
+    {
+        //SETUP
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, null, new AuthPermissionsOptions());
+
+        //ATTEMPT
+        var ex = Assert.Throws<AuthPermissionsException>( () =>service.FormConnectionString("Bad: No DatabaseName"));
+
+        //VERIFY
+        ex.Message.ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
     }
 
     [Fact]
@@ -171,6 +186,7 @@ public class TestShardingConnectionString
         {
             ("Default Database", new List<string>{"Tenant1", "Tenant3"}),
             ("Another", new List<string>{ "Tenant2"}),
+            ("Bad: No DatabaseName", new List<string>()),
             ("Special Postgres", new List<string>())
         });
     }

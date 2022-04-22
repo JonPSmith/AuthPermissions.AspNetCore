@@ -7,15 +7,21 @@
       "DatabaseType": "SqlServer"
     },
     {
-      "Name": "Database1",
-      "DatabaseName": "asp.net-Example6.Sharding_Database1",
-      "ConnectionName": "DefaultConnection",
+      "Name": "DatabaseWest1",
+      "DatabaseName": "asp.net-Example6.Sharding_West1",
+      "ConnectionName": "WestCoastServer",
       "DatabaseType": "SqlServer"
     },
     {
-      "Name": "Database2",
-      "DatabaseName": "asp.net-Example6.Sharding_Database2",
-      "ConnectionName": "AnotherConnection",
+      "Name": "DatabaseCentral1",
+      "DatabaseName": "asp.net-Example6.Sharding_Central1",
+      "ConnectionName": "CentralServer",
+      "DatabaseType": "SqlServer"
+    },
+    {
+      "Name": "DatabaseEast1",
+      "DatabaseName": "asp.net-Example6.Sharding_East1",
+      "ConnectionName": "EastCoastServer",
       "DatabaseType": "SqlServer"
     }
   ]

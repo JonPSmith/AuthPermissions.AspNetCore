@@ -159,10 +159,13 @@ public class ShardingConnections : IShardingConnections
             return status.AddError(
                 $"The {nameof(DatabaseInformation.ConnectionName)} '{databaseInfo.ConnectionName}' " +
                 "wasn't found in the connection strings.");
-
         try
         {
             SetDatabaseInConnectionString(databaseInfo, connectionString);
+        }
+        catch (AuthPermissionsException e)
+        {
+            status.AddError(e.Message);
         }
         catch (Exception e)
         {
@@ -179,7 +182,7 @@ public class ShardingConnections : IShardingConnections
 
     /// <summary>
     /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString
-    /// NOTE: If the <see cref="DatabaseInformation.DatabaseName"/> is null, then it returns the connectionString with no change
+    /// NOTE: If the <see cref="DatabaseInformation.DatabaseName"/> is null / empty, then it returns the connectionString with no change
     /// </summary>
     /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
     /// <param name="connectionString"></param>
@@ -187,26 +190,35 @@ public class ShardingConnections : IShardingConnections
     /// <exception cref="InvalidEnumArgumentException"></exception>
     private static string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
-            //This uses the database that is already in the connection string
-            return connectionString;
-
         switch (databaseInformation.DatabaseType)
         {
             case SqlServerType:
             {
-                var builder = new SqlConnectionStringBuilder(connectionString)
-                {
-                    InitialCatalog = databaseInformation.DatabaseName
-                };
+                var builder = new SqlConnectionStringBuilder(connectionString);
+                if (string.IsNullOrEmpty(builder.InitialCatalog) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
+                    throw new AuthPermissionsException(
+                        $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
+                        "when the connection string doesn't have a database defined.");
+
+                if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
+                    //This uses the database that is already in the connection string
+                    return connectionString;
+                builder.InitialCatalog = databaseInformation.DatabaseName;
                 return builder.ConnectionString;
             }
             case PostgresType:
             {
-                var builder = new NpgsqlConnectionStringBuilder(connectionString)
-                {
-                    Database = databaseInformation.DatabaseName
-                };
+                var builder = new NpgsqlConnectionStringBuilder(connectionString);
+                if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
+                    throw new AuthPermissionsException(
+                        $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
+                        "when the connection string doesn't have a database defined.");
+
+                if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
+                    //This uses the database that is already in the connection string
+                    return connectionString;
+
+                builder.Database = databaseInformation.DatabaseName;
                 return builder.ConnectionString;
             }
             default:
