@@ -46,8 +46,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> EditRoles(SetupManualUserChange change)
         {
-            var status = await _authUsersAdmin.UpdateUserAsync(change.UserId,
-                change.Email, change.UserName, change.RoleNames, change.TenantName);
+            var status = await _authUsersAdmin.UpdateUserAsync(change.UserId, roleNames: change.RoleNames);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),

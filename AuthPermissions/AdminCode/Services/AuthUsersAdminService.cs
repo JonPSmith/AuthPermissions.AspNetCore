@@ -125,8 +125,10 @@ namespace AuthPermissions.AdminCode.Services
         /// Doesn't work properly when used in a create, as the user's tenant hasn't be set
         /// </summary>
         /// <param name="userId">UserId of the user you are updating. Only needed in multi-tenant applications </param>
+        /// <param name="addNone">Defaults to true, with will add the <see cref="CommonConstants.EmptyTenantName"/> at the start.
+        /// This is useful for selecting no roles</param>
         /// <returns></returns>
-        public async Task<List<string>> GetRoleNamesForUsersAsync(string userId = null)
+        public async Task<List<string>> GetRoleNamesForUsersAsync(string userId = null, bool addNone = true)
         {
             if (!_isMultiTenant)
                 return await _context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
@@ -157,6 +159,9 @@ namespace AuthPermissions.AdminCode.Services
             //Then add any TenantAdminAdd roles in the tenant's TenantRoles
             roleNames.AddRange(userWithTenantRoles.UserTenant.TenantRoles
                 .Where(x => x.RoleType == RoleTypes.TenantAdminAdd).Select(x => x.RoleName));
+
+            if (addNone)
+                roleNames.Insert(0, CommonConstants.EmptyTenantName);
 
             return roleNames;
         }
@@ -213,127 +218,87 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         /// <summary>
-        /// This update an existing AuthUser
+        /// This update an existing AuthUser. This method is designed so you only have to provide data for the parts you want to update,
+        /// i.e. if a parameter is null, then it keeps the original setting. The only odd one out is the tenantName,
+        /// where you have to provide the <see cref="CommonConstants.EmptyTenantName"/> value to remove the tenant.  
         /// </summary>
         /// <param name="userId"></param>
-        /// <param name="email">if not null, then checked to be a valid email</param>
-        /// <param name="userName"></param>
-        /// <param name="roleNames">The rolenames of this user</param>
-        /// <param name="tenantName">optional: full name of the tenant</param>
-        /// <returns></returns>
-        public async Task<IStatusGeneric> UpdateUserAsync(string userId, string email,
-            string userName, List<string> roleNames, string tenantName = null)
+        /// <param name="email">Either provide a email or null. if null, then uses the current user's email</param>
+        /// <param name="userName">Either provide a userName or null. if null, then uses the current user's userName</param>
+        /// <param name="roleNames">Either a list of rolenames or null. If null, then keeps its current rolenames.
+        /// If the rolesNames collection only contains a single entry with the value <see cref="CommonConstants.EmptyTenantName"/>,
+        /// then the roles will be set to an empty collection.</param>
+        /// <param name="tenantName">If null, then keeps current tenant. If it is <see cref="CommonConstants.EmptyTenantName"/> it will remove a tenant link.
+        /// Otherwise the user will be linked to the tenant with that name.</param>
+        /// <returns>status</returns>
+        public async Task<IStatusGeneric> UpdateUserAsync(string userId, 
+            string email = null, string userName = null, List<string> roleNames = null, string tenantName = null)
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
-            if (roleNames == null) throw new ArgumentNullException(nameof(roleNames));
 
-            var status = new StatusGenericHandler
-            { Message = $"Successfully updated a AuthUser with the name {userName ?? email}" };
+            var status = new StatusGenericHandler();
 
             var foundUserStatus = await FindAuthUserByUserIdAsync(userId);
             if (status.CombineStatuses(foundUserStatus).HasErrors)
                 return status;
+
+            email ??= foundUserStatus.Result.Email;
+            userName ??= foundUserStatus.Result.UserName;
+
+            status.Message = $"Successfully updated a AuthUser with the name {userName ?? email}";
 
             var authUserToUpdate = foundUserStatus.Result;
 
             if (email != null && !email.IsValidEmail())
                 status.AddError($"The email '{email}' is not a valid email.");
 
-            //Find the tenant
-            var foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyTenantName
-                ? null
-                : await _context.Tenants.Include(x => x.TenantRoles)
-                    .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
-            if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyTenantName && foundTenant == null)
-                status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
-
-            //Find/check Roles
-            var rolesStatus = await FindCheckRolesAreValidForUserAsync(roleNames, foundTenant, userName ?? email);
-
-            if (status.CombineStatuses(rolesStatus).HasErrors)
-                return status;
-
-            //Now we update the existing AuthUser
+            //Now we update the existing AuthUser's email and userName
             authUserToUpdate.ChangeUserNameAndEmailWithChecks(email, userName);
 
-            var existingRoleNames = authUserToUpdate.UserRoles
-                .Select(x => x.RoleName).OrderBy(x => x)
-                .ToList();
-               
-            authUserToUpdate.UpdateUserTenant(foundTenant);
-            if (rolesStatus.Result.Count != existingRoleNames.Count || existingRoleNames != roleNames.OrderBy(x => x))
-                //Different roles, so change
-                authUserToUpdate.ReplaceAllRoles(rolesStatus.Result);
+            //Get current tenant as roleNames needs tenant
+            var foundTenant = foundUserStatus.Result.UserTenant;
+            if (foundTenant != null && tenantName == null && roleNames != null)
+                //You are going to update the roles and you aren't changing the tenant, then you need to load the TenantRoles
+                await _context.Entry(foundTenant)
+                    .Collection(x => x.TenantRoles).LoadAsync();
+
+            //If tenantName isn't null, then update the user's tenant
+            if (tenantName != null)
+            {
+                //Find the tenant
+                foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyTenantName
+                    ? null
+                    : await _context.Tenants.Include(x => x.TenantRoles)
+                        .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
+
+                if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyTenantName && foundTenant == null)
+                    return status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
+            
+                authUserToUpdate.UpdateUserTenant(foundTenant);
+            }
+
+            //If rolenames isn't null, then update with new RoleNames
+            if (roleNames != null)
+            {
+                var updatedRoles = new List<RoleToPermissions>();
+                if (!(roleNames.Count == 1 && roleNames.Single() == CommonConstants.EmptyTenantName))
+                {
+                    //Find/check Roles
+                    var rolesStatus = await FindCheckRolesAreValidForUserAsync(roleNames, foundTenant, userName ?? email);
+
+                    if (status.CombineStatuses(rolesStatus).HasErrors)
+                        return status;
+
+                    updatedRoles = rolesStatus.Result;
+                }
+                authUserToUpdate.ReplaceAllRoles(updatedRoles);
+            }
 
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
             return status;
         }
 
-        /// <summary>
-        /// This adds a auth role to the auth user
-        /// </summary>
-        /// <param name="authUser"></param>
-        /// <param name="roleName"></param>
-        /// <returns></returns>
-        public async Task<IStatusGeneric> AddRoleToUser(AuthUser authUser, string roleName)
-        {
-            if (authUser == null) throw new ArgumentNullException(nameof(authUser));
-            if (string.IsNullOrEmpty(roleName))
-                throw new AuthPermissionsBadDataException("Cannot be null or an empty string", (nameof(roleName)));
-            if (authUser.UserRoles == null)
-                throw new AuthPermissionsBadDataException($"The AuthUser's {nameof(AuthUser.UserRoles)} must be loaded", (nameof(authUser)));
-
-            var status = new StatusGenericHandler();
-
-            var role = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
-
-            if (role == null)
-                return status.AddError($"Could not find the role {roleName}", nameof(roleName).CamelToPascal());
-
-            var addedStatus = authUser.AddRoleToUser(role);
-            if (status.CombineStatuses(addedStatus).HasErrors)
-                return status;
-
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-
-            status.Message = addedStatus.Result
-                ? $"Successfully added the role {roleName} to auth user {authUser.UserName ?? authUser.Email}."
-                : $"The auth user {authUser.UserName ?? authUser.Email} already had the role {roleName}";
-
-            return status;
-        }
-
-        /// <summary>
-        /// This removes a auth role from the auth user
-        /// </summary>
-        /// <param name="authUser"></param>
-        /// <param name="roleName"></param>
-        /// <returns>status</returns>
-        public async Task<IStatusGeneric> RemoveRoleToUser(AuthUser authUser, string roleName)
-        {
-            if (authUser == null) throw new ArgumentNullException(nameof(authUser));
-            if (string.IsNullOrEmpty(roleName))
-                throw new AuthPermissionsBadDataException("Cannot be null or an empty string", (nameof(roleName)));
-            if (authUser.UserRoles == null)
-                throw new AuthPermissionsBadDataException($"The AuthUser's {nameof(AuthUser.UserRoles)} must be loaded", (nameof(authUser)));
-
-            var status = new StatusGenericHandler();
-
-            var role = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
-
-            if (role == null)
-                return status.AddError($"Could not find the role {roleName}", nameof(roleName).CamelToPascal());
-
-            var removed = authUser.RemoveRoleFromUser(role);
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-
-            status.Message = removed
-                ? $"Successfully removed the role {roleName} to auth user {authUser.UserName ?? authUser.Email}."
-                : $"The auth user {authUser.UserName ?? authUser.Email} didn't have the role {roleName}";
-
-            return status;
-        }
 
         /// <summary>
         /// This will delete the AuthUser with the given userId

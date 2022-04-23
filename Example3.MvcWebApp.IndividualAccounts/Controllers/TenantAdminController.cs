@@ -48,7 +48,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         public async Task<ActionResult> EditRoles(SetupManualUserChange change)
         {
             var status = await _authUsersAdmin.UpdateUserAsync(change.UserId,
-                change.Email, change.UserName, change.RoleNames, change.TenantName);
+                roleNames: change.RoleNames);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),

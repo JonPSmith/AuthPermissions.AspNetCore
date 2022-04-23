@@ -1,5 +1,6 @@
 ﻿@using Example3.MvcWebApp.IndividualAccounts.PermissionsCode
 @using AuthPermissions.AspNetCore.AccessTenantData
+@using AuthPermissions.BaseCode.CommonCode
 @using AuthPermissions.BaseCode.PermissionsCode
 @inject ILinkToTenantDataService LinkToTenantDataService
 <!DOCTYPE html>
@@ -33,7 +34,14 @@
                         }
                         @if (User.Identity.IsAuthenticated)
                         {
+                            @if (User.HasPermission(Example3Permissions.TenantAccessData))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Invoice" asp-action="Index">Invoices</a>
+                                </li>
+                            }
                             <li class="dropdown nav-link text-dark">
+
                                 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                     Auth Admin
                                 </a>

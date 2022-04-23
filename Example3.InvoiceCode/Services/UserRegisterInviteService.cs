@@ -180,11 +180,8 @@ public class UserRegisterInviteService : IUserRegisterInviteService
                 result.Errors.Select(x => x.Description).ToList().ForEach(error => status.AddError(error));
             }
         }
-        else
-        {
-            if (!await _userManager.CheckPasswordAsync(user, password))
-                throw new AuthPermissionsException("The user was known, but the password was wrong");
-        }
+        else if(!await _userManager.CheckPasswordAsync(user, password))
+            status.AddError("The user was already known, but the password was wrong.");
 
         //Check if user is already in the AuthUsers (because a AuthUser can only be linked to one tenant)
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(email)).Result != null)
