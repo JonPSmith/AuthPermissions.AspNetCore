@@ -64,6 +64,26 @@ public class TestAccessDatabaseInformation
         databaseInfo[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: Postgres");
     }
 
+    [Fact]
+    public void TestReadShardingSettingsFile_NoFile()
+    {
+        //SETUP
+        ResetShardingSettingsFile();
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\" };
+        var stubCon = new StubConnectionsService(this);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon);
+
+        //ATTEMPT
+        var databaseInfo = service.ReadShardingSettingsFile();
+
+        //VERIFY
+        foreach (var databaseInformation in databaseInfo)
+        {
+            _output.WriteLine(databaseInformation.ToString());
+        }
+        databaseInfo.Count.ShouldEqual(0);
+    }
+
     [Theory]
     [InlineData("New Name", true)]
     [InlineData(null, false)]
