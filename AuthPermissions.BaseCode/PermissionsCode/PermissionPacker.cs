@@ -3,19 +3,33 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using AuthPermissions.BaseCode.CommonCode;
 
-[assembly: InternalsVisibleTo("Test")]
+
 namespace AuthPermissions.BaseCode.PermissionsCode
 {
+    /// <summary>
+    /// This class contains extension methods to pack Permissions names into a unicode string
+    /// </summary>
     public static class PermissionPacker
     {
+        /// <summary>
+        /// Packs permission names found in the comma delimited string into a unicode string
+        /// </summary>
+        /// <param name="enumPermissionsType"></param>
+        /// <param name="permissionNames"></param>
+        /// <returns></returns>
         public static string PackCommaDelimitedPermissionsNames(this Type enumPermissionsType, string permissionNames)
         {
             return enumPermissionsType.PackPermissionsNames(permissionNames.Split(',').Select(x => x.Trim()));
         }
 
+        /// <summary>
+        /// Packs a list of permissions names into a unicode string
+        /// </summary>
+        /// <param name="enumPermissionsType"></param>
+        /// <param name="permissionNames"></param>
+        /// <returns></returns>
         public static string PackPermissionsNames(this Type enumPermissionsType, IEnumerable<string> permissionNames)
         {
             var packedPermissions = permissionNames.Aggregate("", (s, permissionName) =>

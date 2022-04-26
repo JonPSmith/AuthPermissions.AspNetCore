@@ -6,6 +6,9 @@ using StatusGeneric;
 
 namespace AuthPermissions.SupportCode;
 
+/// <summary>
+/// This defines the CRUD methods to the shardingsettings.json which contains a list of <see cref="DatabaseInformation"/> 
+/// </summary>
 public interface IAccessDatabaseInformation
 {
     /// <summary>

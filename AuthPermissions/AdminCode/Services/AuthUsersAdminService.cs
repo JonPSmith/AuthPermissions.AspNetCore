@@ -130,8 +130,16 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns></returns>
         public async Task<List<string>> GetRoleNamesForUsersAsync(string userId = null, bool addNone = true)
         {
+            List<string> InsertEmptyNameIfNeeded(List<string> localRoleNames)
+            {
+                if (addNone)
+                    localRoleNames.Insert(0, CommonConstants.EmptyTenantName);
+                return localRoleNames;
+            }
+
             if (!_isMultiTenant)
-                return await _context.RoleToPermissions.Select(x => x.RoleName).ToListAsync();
+                return InsertEmptyNameIfNeeded(await _context.RoleToPermissions
+                    .Select(x => x.RoleName).ToListAsync());
 
             if (userId == null)
                 throw new ArgumentNullException(nameof(userId), "You must be logged in to use this feature.");
@@ -144,10 +152,10 @@ namespace AuthPermissions.AdminCode.Services
 
             if (userWithTenantRoles.UserTenant == null)
                 //Its an app-level user so return all non-tenant roles
-                return await _context.RoleToPermissions
+                return InsertEmptyNameIfNeeded(await _context.RoleToPermissions
                     .Where(x => x.RoleType == RoleTypes.Normal || x.RoleType == RoleTypes.HiddenFromTenant)
                     .Select(x => x.RoleName)
-                    .ToListAsync();
+                    .ToListAsync());
 
             //its a tenant-level user, so return Normal and TenantAdminAdd
             //First find the Normal Roles
@@ -160,10 +168,7 @@ namespace AuthPermissions.AdminCode.Services
             roleNames.AddRange(userWithTenantRoles.UserTenant.TenantRoles
                 .Where(x => x.RoleType == RoleTypes.TenantAdminAdd).Select(x => x.RoleName));
 
-            if (addNone)
-                roleNames.Insert(0, CommonConstants.EmptyTenantName);
-
-            return roleNames;
+            return InsertEmptyNameIfNeeded(roleNames);
         }
 
         /// <summary>

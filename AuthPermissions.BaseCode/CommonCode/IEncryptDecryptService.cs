@@ -3,6 +3,9 @@
 
 namespace AuthPermissions.BaseCode.CommonCode;
 
+/// <summary>
+/// This defines an Encrypt/Decrypt service used by AuthP
+/// </summary>
 public interface IEncryptDecryptService
 {
     /// <summary>

@@ -3,8 +3,17 @@
 
 namespace AuthPermissions.BaseCode.PermissionsCode
 {
+    /// <summary>
+    /// Holds a extension method to unpack permissions
+    /// </summary>
     public static class PermissionUnpacker
     {
+        /// <summary>
+        /// This takes a string containing packed permissions and returns the names of the Permission member names
+        /// </summary>
+        /// <param name="packedPermissions"></param>
+        /// <param name="permissionsEnumType"></param>
+        /// <returns></returns>
         public static List<string> ConvertPackedPermissionToNames(this string packedPermissions, Type permissionsEnumType)
         {
             if (packedPermissions == null)

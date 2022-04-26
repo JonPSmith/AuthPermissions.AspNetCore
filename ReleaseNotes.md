@@ -2,8 +2,8 @@
 
 ## 3.2.0
 
-- BREAKING CHANGE: The 3.0.0 sharding didn't work with Azure, so the way to define databases for sharding has changed - see issue #29 and Setup -> Multi tenant configuration -> Sharding database settings
-- Improvement: The AuthUserAdmin method called `UpdateUserAsync` now allows you to select which properties you want to update - see Admin -> AuthUser admin doc.
+- BREAKING CHANGE: The 3.0.0 sharding didn't work with Azure, so the way to define databases for sharding has changed - see issue #29 and docs: Setup -> Multi tenant configuration -> Sharding database settings
+- Improvement: The AuthUserAdmin method called `UpdateUserAsync` now allows you to select which properties you want to update - see docs: Admin -> AuthUser admin.
 - Removed: Removed AuthUserAdmin methods 1AddRoleToUser` and `RemoveRoleToUser` as the change to the `UpdateUserAsync` covers this.
 
 ## 3.1.0

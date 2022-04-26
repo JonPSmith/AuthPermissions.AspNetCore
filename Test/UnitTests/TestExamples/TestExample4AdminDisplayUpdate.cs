@@ -106,12 +106,12 @@ namespace Test.UnitTests.TestExamples
             status.Result.RoleNames.OrderBy(x => x).ToList().ShouldEqual(new List<string> { "Area Manager", "Tenant Admin" });
             status.Result.TenantName.ShouldEqual("4U Inc.");
 
-            status.Result.AllRoleNames.Count.ShouldEqual(5);
+            status.Result.AllRoleNames.Count.ShouldEqual(6);
         }
 
         [Theory]
-        [InlineData("Super@g1.com", 7)]
-        [InlineData("admin@4uInc.com", 5)]
+        [InlineData("Super@g1.com", 8)]
+        [InlineData("admin@4uInc.com", 6)]
         public async Task TestExample4AuthUserUpdatePrepareForUpdateAsyncAllRoleNames(string userId, int numRoles)
         {
             //SETUP

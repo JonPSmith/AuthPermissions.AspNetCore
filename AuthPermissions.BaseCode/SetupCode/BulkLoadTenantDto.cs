@@ -63,8 +63,14 @@ public class BulkLoadTenantDto
     /// </summary>
     public BulkLoadTenantDto Parent { get; set; }
 
+    /// <summary>
+    /// The TenantID of the created tenant
+    /// </summary>
     public int CreatedTenantId { get; set; }
 
+    /// <summary>
+    /// The full name of the created tenant
+    /// </summary>
     public string CreatedTenantFullName { get; set; }
 
     /// <summary>

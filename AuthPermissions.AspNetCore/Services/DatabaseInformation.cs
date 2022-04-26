@@ -36,6 +36,10 @@ public class DatabaseInformation
     /// </summary>
     public string DatabaseType { get; set; } = "SqlServer";
 
+    /// <summary>
+    /// Useful for debugging
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         return $"{nameof(Name)}: {Name}, {nameof(DatabaseName)}: {DatabaseName ?? " < null > "}, {nameof(ConnectionName)}: {ConnectionName}, {nameof(DatabaseType)}: {DatabaseType}";

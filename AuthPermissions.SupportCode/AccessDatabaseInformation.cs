@@ -8,18 +8,28 @@ using StatusGeneric;
 
 namespace AuthPermissions.SupportCode;
 
+/// <summary>
+/// This class contains CRUD methods to the shardingsettings.json which contains a list of <see cref="DatabaseInformation"/> 
+/// </summary>
 public class AccessDatabaseInformation : IAccessDatabaseInformation
 {
+    /// <summary>
+    /// Name of the file
+    /// </summary>
     public const string ShardingSettingFilename = "shardingsettings.json";
 
     private readonly string _settingsFilePath;
     private readonly IShardingConnections _connectionsService;
 
+    /// <summary>
+    /// Ctor
+    /// </summary>
+    /// <param name="env"></param>
+    /// <param name="connectionsService"></param>
     public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService)
     {
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
-
     }
 
     /// <summary>

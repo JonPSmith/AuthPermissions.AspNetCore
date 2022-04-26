@@ -39,7 +39,7 @@ public class ShardingController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Example6Permissions.TenantCreate)]
-    public async Task<IActionResult> Create(DatabaseInformationEdit data)
+    public IActionResult Create(DatabaseInformationEdit data)
     {
         var status = _dbInfoService.AddDatabaseInfoToJsonFile(data.DatabaseInfo);
 

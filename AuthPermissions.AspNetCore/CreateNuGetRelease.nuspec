@@ -2,13 +2,15 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-- New feature: Now supports PostgreSQL database
+- BREAKING CHANGE: The 3.0.0 sharding didn't work with Azure, so the way to define databases for sharding has changed - see issue #29 and docs: Setup -&gt; Multi tenant configuration -&gt; Sharding database settings
+- Improvement: The AuthUserAdmin method called `UpdateUserAsync` now allows you to select which properties you want to update - see docs: Admin -&gt; AuthUser admin.
+- Removed: Removed AuthUserAdmin methods 1AddRoleToUser` and `RemoveRoleToUser` as the change to the `UpdateUserAsync` covers this.
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
@@ -33,6 +35,8 @@
         <dependency id="EntityFrameworkCore.Exceptions.PostgreSQL" version="6.0.3" />
         <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="6.0.3" />
         <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.3" />
+        <dependency id="EfCore.TestSupport" version="5.2.2" />
+        <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
       </group>
     </dependencies>
   </metadata>
@@ -50,6 +54,9 @@
     <file src="..\AuthPermissions.PostgreSql\bin\Release\net6.0\AuthPermissions.PostgreSql.pdb" target="lib\net6.0" />
     <file src="..\AuthPermissions.SqlServer\bin\Release\net6.0\AuthPermissions.SqlServer.dll" target="lib\net6.0" />
     <file src="..\AuthPermissions.SqlServer\bin\Release\net6.0\AuthPermissions.SqlServer.pdb" target="lib\net6.0" />
+    <file src="..\AuthPermissions.SupportCode\bin\Release\net6.0\AuthPermissions.SupportCode.dll" target="lib\net6.0" />
+    <file src="..\AuthPermissions.SupportCode\bin\Release\net6.0\AuthPermissions.SupportCode.xml" target="lib\net6.0" />
+    <file src="..\AuthPermissions.SupportCode\bin\Release\net6.0\AuthPermissions.SupportCode.pdb" target="lib\net6.0" />
     <file src="..\AuthPermissions.AspNetCore\images\AuthPermissionsAspNetCoreNuGetIcon.png" target="images\" />
   </files>
 </package>

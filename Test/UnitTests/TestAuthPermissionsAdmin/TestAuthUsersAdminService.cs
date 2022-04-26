@@ -157,7 +157,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var expected = new List<string> { "Role1", "Role2", "Role3", "NormalRole" };
             if (addNone)
                 expected.Insert(0, CommonConstants.EmptyTenantName);
-            roleNames.ShouldEqual(new List<string> { "Role1", "Role2", "Role3", "NormalRole" });
+            roleNames.ShouldEqual(expected);
         }
 
         [Theory]
