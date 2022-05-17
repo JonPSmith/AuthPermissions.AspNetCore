@@ -4,7 +4,7 @@
 using AuthPermissions.AspNetCore.Services;
 using StatusGeneric;
 
-namespace AuthPermissions.SupportCode;
+namespace AuthPermissions.SupportCode.ShardingServices;
 
 /// <summary>
 /// This defines the CRUD methods to the shardingsettings.json which contains a list of <see cref="DatabaseInformation"/> 

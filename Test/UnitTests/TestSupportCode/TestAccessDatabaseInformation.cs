@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.SupportCode;
+using AuthPermissions.SupportCode.ShardingServices;
 using Test.TestHelpers;
 using TestSupport.Helpers;
 using Xunit;
