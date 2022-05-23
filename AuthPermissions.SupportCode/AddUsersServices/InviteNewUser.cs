@@ -5,7 +5,9 @@ using System.Text.Json;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StatusGeneric;
 
@@ -19,7 +21,7 @@ public class InviteNewUser
     private readonly IEncryptDecryptService _encryptorService;
     private readonly IAuthUsersAdminService _authUsersAdmin;
     private readonly IAuthTenantAdminService _tenantAdminService;
-    private readonly IAddUserLoginService _addUserLoginService;
+    private readonly NonRegisterAddUserManager _addUserLoginService;
 
     /// <summary>
     /// ctor
@@ -29,7 +31,7 @@ public class InviteNewUser
     /// <param name="tenantAdminService"></param>
     /// <param name="addUserLoginService"></param>
     public InviteNewUser(IEncryptDecryptService encryptorService, IAuthUsersAdminService authUsersAdmin, 
-        IAuthTenantAdminService tenantAdminService, IAddUserLoginService addUserLoginService,AuthPermissionsOptions options)
+        IAuthTenantAdminService tenantAdminService, NonRegisterAddUserManager addUserLoginService,AuthPermissionsOptions options)
     {
         _encryptorService = encryptorService;
         _authUsersAdmin = authUsersAdmin;

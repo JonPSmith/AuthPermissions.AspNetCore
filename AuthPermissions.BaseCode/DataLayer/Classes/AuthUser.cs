@@ -208,6 +208,8 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
             Email = email?.Trim();
             UserName = (userName?.Trim() ?? Email) ?? throw new AuthPermissionsBadDataException(
                 $"The {nameof(Email)} and {nameof(UserName)} can't both be null.");
+
+            Email = Email?.ToLower(); //make email lower case as Postgres string compare is case sensitive
         }
 
         /// <summary>

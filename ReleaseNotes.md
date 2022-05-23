@@ -1,5 +1,10 @@
 # Release Notes
 
+## 3.3.0
+
+- Bug fix. Email is now stored as lower case. This fixes the problem and Postgres string compare is case sensitive - see issue #35
+
+
 ## 3.2.0
 
 - BREAKING CHANGE: The 3.0.0 sharding didn't work with Azure, so the way to define databases for sharding has changed - see issue #29 and docs: Setup -> Multi tenant configuration -> Sharding database settings

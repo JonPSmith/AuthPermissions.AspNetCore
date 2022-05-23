@@ -3,10 +3,7 @@
 
 namespace AuthPermissions.SupportCode.AddUsersServices;
 
-/// <summary>
-/// The AddUser features require a way to register / login to your selected authentication handler 
-/// </summary>
-public interface IAddUserLoginService
+public class AddAuthUserFromInfo
 {
     
 }

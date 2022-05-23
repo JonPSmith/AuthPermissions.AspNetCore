@@ -53,6 +53,10 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// If you use AuthP's JWT refresh token, then the tokens are held in this entity
         /// </summary>
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        /// <summary>
+        /// This is used by the "invite user" and "sign on" features to define the Roles/Tenant for a new user
+        /// </summary>
+        public DbSet<AddNewUserInfo> AddNewUserInfos { get; set; }
 
 
         /// <summary>
@@ -134,6 +138,17 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
                 .HasIndex(x => x.AddedDateUtc)
                 .IsUnique();
 
+            modelBuilder.Entity<AddNewUserInfo>()
+                .HasKey(x => new { x.Email, x.UserName });
+            modelBuilder.Entity<AddNewUserInfo>()
+                .HasIndex(x => x.Email)
+                .IsUnique();
+            modelBuilder.Entity<AddNewUserInfo>()
+                .HasIndex(x => x.UserName)
+                .IsUnique();
+            modelBuilder.Entity<AddNewUserInfo>()
+                .Property(x => x.CreatedAtUtc)
+                .HasConversion<long>();
         }
     }
 }
