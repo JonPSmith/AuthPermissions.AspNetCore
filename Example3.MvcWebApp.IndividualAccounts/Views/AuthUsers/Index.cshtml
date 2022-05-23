@@ -68,7 +68,7 @@
                     </a>
                 </td>
                 <td>
-                    @if (User.HasPermission(Example3Permissions.UserChange) || User.HasPermission(Example3Permissions.UserRolesChange))
+                    @if (User.HasPermission(Example3Permissions.UserChange))
                     {
                         @Html.ActionLink("Edit", "Edit", new { userId = item.UserId });
                     }
