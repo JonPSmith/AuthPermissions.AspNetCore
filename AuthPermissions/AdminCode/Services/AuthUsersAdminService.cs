@@ -83,6 +83,8 @@ namespace AuthPermissions.AdminCode.Services
             if (email == null) throw new ArgumentNullException(nameof(email));
             var status = new StatusGenericHandler<AuthUser>();
 
+            email = email.ToLower();
+
             var authUser = await _context.AuthUsers
                 .Include(x => x.UserRoles)
                 .Include(x => x.UserTenant)
