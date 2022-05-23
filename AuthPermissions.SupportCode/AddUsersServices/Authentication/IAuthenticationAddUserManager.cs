@@ -5,23 +5,27 @@ using StatusGeneric;
 
 namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 
+/// <summary>
+/// This defines the properties / methods use to add a new user to an application that us using AuthP
+/// This means it much easier for you to use the "invite user" and "sign up" features with any authentication
+/// There are two implementation of this interface cover nearly all the normal authentication handlers
+/// 1. <see cref="IndividualUserAddUserManager{TIdentity}"/>, which works with the Individual User Accounts
+/// 2. <see cref="NonRegisterAddUserManager"/>, which works for any authentication handler where you can't access the user list,
+///    e.g., Social logins like Google, Twitter etc. NOTE: These need extra code that is called in a login event 
+/// </summary>
 public interface IAuthenticationAddUserManager
 {
+    /// <summary>
+    /// This tells you what Authentication handler, or group of handlers, that the Add User Manager supports
+    /// </summary>
+    string AuthenticationGroup { get; }
+
     /// <summary>
     /// This holds the data provided for the login.
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
     AddUserData UserLoginData { get; }
-
-    /// <summary>
-    /// This checks if a user already exists with the given email / userName
-    /// This is used to stop an AuthUser being registered again (which would fail) 
-    /// </summary>
-    /// <param name="email">email of the user. Can be null if userName is provided</param>
-    /// <param name="userName">Optional username</param>
-    /// <returns>returns true if there is no AuthP user with that email / username</returns>
-    Task<bool> CheckNoAuthUserAsync(string email, string userName = null);
 
     /// <summary>
     /// This either register the user and creates the AuthUser to match, or for
@@ -34,10 +38,12 @@ public interface IAuthenticationAddUserManager
 
     /// <summary>
     /// This logs in the user, checking that the email / username are the same as was provided
+    /// OR
+    /// For non-register authentication handles it can only check that the new user has be added properly
     /// </summary>
     /// <param name="givenEmail">email to login by</param>
     /// <param name="givenUserName">username to login by</param>
     /// <param name="isPersistent">true if cookie should be persistent</param>
     /// <returns>status</returns>
-    Task<IStatusGeneric> LoginUserWithVerificationAsync(string givenEmail, string givenUserName, bool isPersistent);
+    Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent = false);
 }

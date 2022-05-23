@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 
+/// <summary>
+/// This is an abstract class 
+/// </summary>
+/// <typeparam name="TEventContext"></typeparam>
 public abstract class NonRegisterAuthenticationEventCode<TEventContext> 
     where TEventContext : class
 {
@@ -37,7 +41,7 @@ public abstract class NonRegisterAuthenticationEventCode<TEventContext>
     /// <param name="email">email of the user we are looking for. Can be null</param>
     /// <param name="userName">userName of the user we are looking for. Can bu null</param>
     /// <returns></returns>
-    protected async Task<AddNewUserInfo> GetUserAuthPInfoFromTheDatabaseAsync(
+    protected async Task<AddNewUserInfo> GetUserAuthInfoFromTheDatabaseAsync(
         AuthPermissionsDbContext authPContext, string email, string userName = null)
     {
         if (email == null && userName == null)

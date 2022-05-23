@@ -207,7 +207,7 @@ namespace Test.UnitTests.TestExamples
         }
 
         //--------------------------------------------------------
-        //AcceptUserJoiningATenantAsync
+        //AddUserViaInvite
 
         [Fact]
         public async Task TestAcceptUserJoiningATenantOk()

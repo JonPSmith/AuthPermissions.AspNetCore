@@ -1,9 +1,11 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
@@ -16,35 +18,35 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 public class NonRegisterAddUserManager : IAuthenticationAddUserManager
 {
     private readonly AuthPermissionsDbContext _authPContext;
+    private readonly Logger<NonRegisterAddUserManager> _logger;
 
     /// <summary>
     /// ctor - used as a service
     /// </summary>
     /// <param name="authPContext"></param>
-    public NonRegisterAddUserManager(AuthPermissionsDbContext authPContext)
+    /// <param name="logger"></param>
+    public NonRegisterAddUserManager(AuthPermissionsDbContext authPContext, Logger<NonRegisterAddUserManager> logger)
     {
         _authPContext = authPContext;
+        _logger = logger;
     }
+    /// <summary>
+    /// This Add User Manager supports Authentication handlers where you can't register the user before they log in
+    /// e.g., Social logins like Google, Twitter etc. NOTE: These need extra code that is called in a login event
+    /// </summary>
+    public string AuthenticationGroup { get; } = "HandlersWithoutRegistration";
 
     /// <summary>
     /// This catches a user trying to add the same user while another user add is currently running
     /// </summary>
     public int TimeoutSecondsOnSameBeingAdded { get; set; } = 30;
 
-    public AddUserData UserLoginData { get; }
-
     /// <summary>
-    /// This returns true if there is no AuthP user with that email.
-    /// This is used to stop an AuthUser being registered again (which would fail) 
+    /// This holds the data provided for the login.
+    /// Used to check that the email of the person who will login is the same as the email provided by the user
+    /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    /// <param name="email">email of the user. Can be null if userName is provided</param>
-    /// <param name="userName">Optional username</param>
-    /// <returns></returns>
-    public async Task<bool> CheckNoAuthUserAsync(string email, string userName = null)
-    {
-        return !await _authPContext.AuthUsers
-            .AnyAsync(x => (x.Email != null && x.Email == email) || (x.UserName != null && x.UserName == userName));
-    }
+    public AddUserData UserLoginData { get; private set; }
 
     /// <summary>
     /// This adds a entry to the database with the user's email and the AuthP Roles / Tenant data for creating the AuthP user
@@ -53,6 +55,8 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// <param name="password">not used with NonRegister authentication handlers</param>
     public async Task<IStatusGeneric> SetUserInfoAsync(AddUserData userData, string password = null)
     {
+        UserLoginData = userData ?? throw new ArgumentNullException(nameof(userData));
+
         var status = new StatusGenericHandler();
 
         async Task<AddNewUserInfo> AddNewUserInfoToDatabaseAsync()
@@ -63,6 +67,11 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
             status.CombineStatuses(await _authPContext.SaveChangesWithChecksAsync());
             return addNewUserInfo;
         }
+
+        if (await _authPContext.AuthUsers
+                .AnyAsync(x => (x.Email != null && x.Email == userData.Email) 
+                               || (x.UserName != null && x.UserName == userData.UserName)))
+            return status.AddError("There is already an AuthUser with your email / username, so you can't add another.");
 
         var newUserInfo = await AddNewUserInfoToDatabaseAsync();
         while (status.HasErrors)
@@ -94,10 +103,39 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     }
 
     /// <summary>
-    /// This doesn't do anything with non-register authentication manager
+    /// This can't login, but it check that the expected AuthUser is there
     /// </summary>
-    public Task<IStatusGeneric> LoginUserWithVerificationAsync(string givenEmail, string givenUserName, bool isPersistent)
+    /// <param name="givenEmail">Ignored</param>
+    /// <param name="givenUserName">Ignored</param>
+    /// <param name="isPersistent">Ignored</param>
+    /// <returns>status</returns>
+    public async Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent)
     {
-        return Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
+        if (UserLoginData == null)
+            throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
+
+        var status = new StatusGenericHandler();
+
+        var expectedAuthUser = await _authPContext.AuthUsers
+            .SingleOrDefaultAsync(x => x.Email == UserLoginData.Email);
+
+        if (expectedAuthUser != null) 
+            //all OK
+            return status;
+
+        //Alert the user and the admin people (via a log) that the add of an AuthUser failed
+        var authInfoForUser = await _authPContext.AddNewUserInfos
+            .SingleOrDefaultAsync(x => (x.Email != null && x.Email == UserLoginData.Email) ||
+                                       (x.UserName != null && x.UserName == UserLoginData.UserName));
+
+        //Tell the admin people to check on this user
+        _logger.LogWarning("The AuthUser with email {0} wasn't added. " +
+                           "The matching AddNewUserInfo in the database was {1}. " +
+                           "Please check the user is OK",
+            UserLoginData.Email, authInfoForUser?.CreatedAtUtc.ToLongDateString() ?? "not found.");
+
+        return status.AddError(
+            $"Something went wrong. There wasn't an AuthUser with an email of {UserLoginData.Email}." +
+            "Please logout and repeat the process again.");
     }
 }

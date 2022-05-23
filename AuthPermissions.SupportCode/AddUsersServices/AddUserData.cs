@@ -11,12 +11,18 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// </summary>
 public class AddUserData
 {
+    private string _email;
+
     /// <summary>
-    /// Contains a unique Email, which is used for lookup
+    /// Contains a unique Email (normalized by applying .ToLower), which is used for lookup
     /// (can be null if using Windows authentication provider)
     /// </summary>
     [MaxLength(AuthDbConstants.EmailSize)]
-    public string Email { get; set; }
+    public string Email
+    {
+        get => _email;
+        set => _email = value.Trim().ToLower();
+    }
 
     /// <summary>
     /// Contains a unique user name
@@ -42,7 +48,7 @@ public class AddUserData
     /// <returns></returns>
     public string GetRolesAsCommaDelimited()
     {
-        return string.Join(",", Roles.Select(x => x.Trim()));
+        return string.Join(",", Roles?.Select(x => x.Trim()) ?? Array.Empty<string>());
     }
     
 }

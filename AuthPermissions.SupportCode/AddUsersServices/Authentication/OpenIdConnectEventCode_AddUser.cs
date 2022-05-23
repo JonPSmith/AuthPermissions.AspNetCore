@@ -15,12 +15,14 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 /// <summary>
 /// This class contains the code to run inside an OpenIDConnect <see cref="OpenIdConnectEvents.OnTokenValidated"/> event
 /// Its job is to find a AuthUser linked to the userId of the user that is logging in.
-/// If no AuthUser is found, then it checks to see if a new AuthUser should be added via "
+/// If no AuthUser is found, then it checks to see if a new AuthUser should be added via data added to the AuthP database
 /// </summary>
-public class OpenIdConnectEventCode : NonRegisterAuthenticationEventCode<TokenValidatedContext>
+public class OpenIdConnectEventCode_AddUser : NonRegisterAuthenticationEventCode<TokenValidatedContext>
 {
     /// <summary>
-    /// You need to implement this method which will run within the authentication event that which
+    /// This method adds an AuthUser when creating a new User via OpenIdConnect using a <see cref="NonRegisterAddUserManager"/>
+    /// This method should be added to the <see cref="OpenIdConnectEvents.OnTokenValidated"/> event code.
+    /// run within the authentication event that which
     /// says the login was valid and the <see cref="ClaimsPrincipal"/> is being created.
     /// In this case you should the following
     /// 1. Check if there an existing AuthUser with the given userId
@@ -46,7 +48,7 @@ public class OpenIdConnectEventCode : NonRegisterAuthenticationEventCode<TokenVa
 
             var authContext =
                 eventContext.HttpContext.RequestServices.GetRequiredService<AuthPermissionsDbContext>();
-            var authUserInfo = await GetUserAuthPInfoFromTheDatabaseAsync(authContext, email, userName);
+            var authUserInfo = await GetUserAuthInfoFromTheDatabaseAsync(authContext, email, userName);
             if (authUserInfo != null)
             {
                 //Yes, there information for creating a new AuthUser

@@ -10,9 +10,8 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 
 /// <summary>
 /// This the implementation of the <see cref="IAuthenticationAddUserManager"/> for the Individual User Accounts authentication handler
-/// This will create (or find) an individual user account and then  create an AuthUser linked to the individual user.
+/// This will create (or find) an individual user account and then create an AuthUser linked to that individual user.
 /// It uses the the authP data in the <see cref="AddUserData"/> class when creating the AuthUser
-/// If all is well it will log in the individual user
 /// </summary>
 /// <typeparam name="TIdentity"></typeparam>
 public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserManager
@@ -39,24 +38,16 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     }
 
     /// <summary>
+    /// This Add User Manager works with the Individual User Accounts authentication handler
+    /// </summary>
+    public string AuthenticationGroup { get; } = "IndividualUserAccounts";
+
+    /// <summary>
     /// This holds the data provided for the login.
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
     public AddUserData UserLoginData { get; private set; }
-
-    /// <summary>
-    /// This checks if a user already exists with the given email / userName
-    /// This is used to stop an AuthUser being registered again (which would fail) 
-    /// </summary>
-    /// <param name="email">email of the user. Can be null if userName is provided</param>
-    /// <param name="userName">Optional username</param>
-    /// <returns>returns true if there is no AuthP user with that email / username</returns>
-    public async Task<bool> CheckNoAuthUserAsync(string email, string userName = null)
-    {
-        //Check if user is already in the AuthUsers (because a AuthUser can only be linked to one tenant)
-        return (await _authUsersAdmin.FindAuthUserByEmailAsync(email)).Result == null;
-    }
 
     /// <summary>
     /// This either register the user and creates the AuthUser to match, or for
@@ -72,6 +63,9 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
         UserLoginData = userData ?? throw new ArgumentNullException(nameof(userData));
 
         var status = new StatusGenericHandler();
+
+        if ((await _authUsersAdmin.FindAuthUserByEmailAsync(userData.Email))?.Result != null)
+            return status.AddError("There is already an AuthUser with your email / username, so you can't add another.");
 
         var user = await _userManager.FindByEmailAsync(userData.Email);
         if (user == null)
@@ -106,18 +100,20 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// <param name="givenUserName">username to login by</param>
     /// <param name="isPersistent">true if cookie should be persistent</param>
     /// <returns>status</returns>
-    public async Task<IStatusGeneric> LoginUserWithVerificationAsync(string givenEmail, string givenUserName, bool isPersistent)
+    public async Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent)
     {
         if (UserLoginData == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
+        var normalizedEmail = givenEmail.Trim().ToLower();
+
         var status = new StatusGenericHandler();
-        if (UserLoginData.Email != null && UserLoginData.Email.ToLower() != givenEmail.ToLower())
+        if (UserLoginData.Email != null && UserLoginData.Email != normalizedEmail)
             return status.AddError("The email you used isn't the one that was expected.");
-        if (UserLoginData.UserName != null && UserLoginData.UserName.ToLower() != givenUserName.ToLower())
+        if (UserLoginData.UserName != null && UserLoginData.UserName != givenUserName)
             return status.AddError("The username you used isn't the one that was expected.");
 
-        var user = await _userManager.FindByEmailAsync(givenEmail);
+        var user = await _userManager.FindByEmailAsync(normalizedEmail);
         await _signInManager.SignInAsync(user, isPersistent: isPersistent);
 
         return status;
