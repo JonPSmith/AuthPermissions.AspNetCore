@@ -33,6 +33,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             return View(usersToShow);
         }
 
+        [HasPermission(Example3Permissions.UserRolesChange)]
         public async Task<ActionResult> EditRoles(string userId)
         {
             var status = await SetupManualUserChange.PrepareForUpdateAsync(userId, _authUsersAdmin);
@@ -45,6 +46,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HasPermission(Example3Permissions.UserRolesChange)]
         public async Task<ActionResult> EditRoles(SetupManualUserChange change)
         {
             var status = await _authUsersAdmin.UpdateUserAsync(change.UserId,

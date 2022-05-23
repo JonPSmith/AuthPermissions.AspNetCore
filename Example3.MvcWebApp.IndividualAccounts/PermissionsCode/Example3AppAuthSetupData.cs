@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 
 namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
 {
