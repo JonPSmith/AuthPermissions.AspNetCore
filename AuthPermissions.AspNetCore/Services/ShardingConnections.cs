@@ -89,23 +89,25 @@ public class ShardingConnections : IShardingConnections
     /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name
     /// </summary>
     /// <returns>List of all the database info names with the tenants using that database data name</returns>
-    public async Task<List<(string databaseInfoName, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
+    public async Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
         var nameAndConnectionName  = await _context.Tenants
-            .Select(x => new { ConnectionName = x.DatabaseInfoName, x.TenantFullName})
+            .Select(x => new { ConnectionName = x.DatabaseInfoName, x})
             .ToListAsync();
             
         var grouped = nameAndConnectionName.GroupBy(x => x.ConnectionName)
             .ToDictionary(x => x.Key,
-                y => y.Select(z => z.TenantFullName));
+                y => y.Select(z => new {z.x.HasOwnDb, z.x.TenantFullName}));
 
-        var result = new List<(string connectionName, List<string>)>();
+        var result = new List<(string databaseInfoName, bool? hasOwnDb, List<string>)>();
         //Add sharding database names that have no tenants in them so that you can see all the connection string  names
         foreach (var databaseInfoName in _shardingSettings.ShardingDatabases.Select(x => x.Name))
         {
             result.Add(grouped.ContainsKey(databaseInfoName)
-                ? (databaseInfoName, grouped[databaseInfoName].ToList())
-                : (databaseInfoName, new List<string>()));
+                ? (databaseInfoName, 
+                    hasOwnDb: (grouped[databaseInfoName].FirstOrDefault()?.HasOwnDb),  
+                    grouped[databaseInfoName].Select(x => x.TenantFullName).ToList())
+                : (databaseInfoName, null, new List<string>()));
         }
 
         return result;

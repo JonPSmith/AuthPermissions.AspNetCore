@@ -53,8 +53,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             changes.Select(x => x.ToString()).ShouldEqual(new[]
             {
                 "UPDATE: Email CHANGED, UserName CHANGED",
-                "CREATE: Email = User99@gmail.com, UserName = user 99",
-                "DELETE: Email = User3@gmail.com, UserName = first last 2"
+                "CREATE: Email = user99@gmail.com, UserName = user 99",
+                "DELETE: Email = user3@gmail.com, UserName = first last 2"
             });
         }
 
@@ -82,13 +82,13 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 _output.WriteLine(synChange.ToString());
             }
             changes.Select(x => x.FoundChangeType.ToString()).ShouldEqual(new[] { "Update", "Create", "Delete" });
-            changes.Select(x => x.Email).ShouldEqual(new[] { "User2@NewGmail.com", "User99@gmail.com", "User3@gmail.com" });
+            changes.Select(x => x.Email).ShouldEqual(new[] { "user2@newgmail.com", "user99@gmail.com", "user3@gmail.com" });
             changes.Select(x => x.UserName).ShouldEqual(new[] { "new name", "user 99", "first last 2" });
             changes.Select(x => x.ToString()).ShouldEqual(new[]
             {
                 "UPDATE: Email CHANGED, UserName CHANGED",
-                "CREATE: Email = User99@gmail.com, UserName = user 99",
-                "DELETE: Email = User3@gmail.com, UserName = first last 2"
+                "CREATE: Email = user99@gmail.com, UserName = user 99",
+                "DELETE: Email = user3@gmail.com, UserName = first last 2"
             });
         }
 
@@ -120,7 +120,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 _output.WriteLine(authUser.ToString());
             }
-            authUsers.Select(x => x.Email).ShouldEqual(new []{ "User1@gmail.com", "User2@NewGmail.com", "User99@gmail.com" });
+            authUsers.Select(x => x.Email).ShouldEqual(new []{ "user1@gmail.com", "user2@newgmail.com", "user99@gmail.com" });
             authUsers.Select(x => x.UserName).ShouldEqual(new[] { "first last 0", "new name", "user 99" });
         }
 

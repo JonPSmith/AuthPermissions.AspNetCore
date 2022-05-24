@@ -17,6 +17,9 @@ namespace AuthPermissions.AdminCode
     /// </summary>
     public class SyncAuthUserWithChange
     {
+        private string _email;
+        private string _oldEmail;
+
         /// <summary>
         /// Ctor for sending back the data
         /// </summary>
@@ -84,14 +87,25 @@ namespace AuthPermissions.AdminCode
         /// The userId of the user (NOTE: this is not shown) 
         /// </summary>
         public string UserId { get;  set; }
+
         /// <summary>
         /// The user's main email (used as one way to find the user) 
         /// </summary>
-        public string Email { get; set; }
+        public string Email
+        {
+            get => _email;
+            set => _email = value?.ToLower();
+        }
+
         /// <summary>
         /// Holds the AuthP version
         /// </summary>
-        public string OldEmail { get; set; }
+        public string OldEmail
+        {
+            get => _oldEmail;
+            set => _oldEmail = value?.ToLower();
+        }
+
         /// <summary>
         /// True if Emails are different
         /// </summary>

@@ -60,13 +60,13 @@ public class StubConnectionsService : IShardingConnections
         };
     }
 
-    public Task<List<(string databaseInfoName, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
+    public Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
-        return Task.FromResult( new List<(string key, List<string> tenantNames)>
+        return Task.FromResult( new List<(string key, bool? hasOwnDb, List<string> tenantNames)>
         {
-            ("Default Database", new List<string>{ "Tenant1","Tenant3"}),
-            ("Other Database", new List<string>{ "Tenant2"}),
-            ("PostgreSql1", new List<string>())
+            ("Default Database", false, new List<string>{ "Tenant1","Tenant3"}),
+            ("Other Database", true, new List<string>{ "Tenant2"}),
+            ("PostgreSql1", null, new List<string>())
         });
     }
 }

@@ -111,7 +111,7 @@ namespace Test.UnitTests.TestExamples
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             authContext.Tenants.Single().TenantFullName.ShouldEqual("TestTenant");
             var newUser = authContext.AuthUsers.Include(x => x.UserTenant).Single();
-            newUser.Email.ShouldEqual(createTenantDto.Email);
+            newUser.Email.ShouldEqual(createTenantDto.Email.ToLower());
             newUser.UserTenant.TenantFullName.ShouldEqual("TestTenant");
         }
 
@@ -234,7 +234,7 @@ namespace Test.UnitTests.TestExamples
             authContext.ChangeTracker.Clear();
             var addedUser = authContext.AuthUsers
                 .Include(x => x.UserTenant).Single();
-            addedUser.Email.ShouldEqual("User1@gmail.com");
+            addedUser.Email.ShouldEqual("user1@gmail.com");
             addedUser.UserTenant.TenantFullName.ShouldEqual("Test Tenant");
         }
 

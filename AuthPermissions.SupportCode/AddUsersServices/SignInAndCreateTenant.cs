@@ -69,10 +69,16 @@ public class SignInAndCreateTenant
         // Create tenant section
 
         var hasOwnDb = versionData.HasOwnDbForEachVersion?[dto.Version] ?? dto.HasOwnDb ?? false;
-        var databaseInfoName = _options.TenantType.IsSharding()
+
+        string databaseInfoName = null;
+        if (_options.TenantType.IsSharding())
+        {
             //This method will find a database for the new tenant when using sharding
-            ? await _getShardingDb.FindBestDatabaseInfoNameAsync(hasOwnDb)
-            : null;
+            var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync(hasOwnDb);
+            if (status.CombineStatuses(dbStatus).HasErrors)
+                return status;
+            databaseInfoName = dbStatus.Result;
+        }
 
         var tenantStatus = _options.TenantType.IsSingleLevel()
             ? await _tenantAdmin.AddSingleTenantAsync(dto.TenantName,

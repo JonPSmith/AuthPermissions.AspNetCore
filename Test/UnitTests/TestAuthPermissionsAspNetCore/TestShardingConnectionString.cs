@@ -173,21 +173,19 @@ public class TestShardingConnectionString
         var config = AppSettings.GetConfiguration("..\\Test\\TestData");
         var services = new ServiceCollection();
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
-        var serviceProvider = services.BuildServiceProvider();
 
-        var snapShot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, context, new AuthPermissionsOptions());
 
         //ATTEMPT
         var keyPairs = await service.GetDatabaseInfoNamesWithTenantNamesAsync();
 
         //VERIFY
-        keyPairs.ShouldEqual(new List<(string databaseName, List<string> tenantNames)>
+        keyPairs.ShouldEqual(new List<(string databaseName, bool? hasOwnDb, List<string> tenantNames)>
         {
-            ("Default Database", new List<string>{"Tenant1", "Tenant3"}),
-            ("Another", new List<string>{ "Tenant2"}),
-            ("Bad: No DatabaseName", new List<string>()),
-            ("Special Postgres", new List<string>())
+            ("Default Database", false, new List<string>{"Tenant1", "Tenant3"}),
+            ("Another", false, new List<string>{ "Tenant2"}),
+            ("Bad: No DatabaseName", null, new List<string>()),
+            ("Special Postgres", null, new List<string>())
         });
     }
 }

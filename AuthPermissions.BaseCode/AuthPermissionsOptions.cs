@@ -27,6 +27,12 @@ namespace AuthPermissions.BaseCode
         public string ShardingDefaultDatabaseInfoName { get; set; } = "Default Database";
 
         /// <summary>
+        /// When using sharding this sets the ratio of databases used for sharding
+        /// A value of 1 would say that all the databases would used for sharding
+        /// </summary>
+        public double ShardingPercentHasOwnDbs { get; set; } = 0.5;
+
+        /// <summary>
         /// This is needed if you are using sharding. Its used to get the ConnectionString
         /// </summary>
         public ConfigurationManager Configuration { get; set; }

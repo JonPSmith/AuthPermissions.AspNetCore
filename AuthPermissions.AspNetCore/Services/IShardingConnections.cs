@@ -33,8 +33,8 @@ public interface IShardingConnections
     /// <summary>
     /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name
     /// </summary>
-    /// <returns>List of all the database info names with the tenants using that database data name</returns>
-    Task<List<(string databaseInfoName, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
+    /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name</returns>
+    Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
 
     /// <summary>
     /// This returns a list of the DatabaseType supported by this implementation of the <see cref="IShardingConnections"/>

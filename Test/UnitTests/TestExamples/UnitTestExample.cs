@@ -47,7 +47,7 @@ namespace Test.UnitTests.TestExamples
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
             var rereadUser = status.Result;
-            rereadUser.Email.ShouldEqual(userId);
+            rereadUser.Email.ShouldEqual(userId.ToLower());
             rereadUser.UserName.ShouldEqual(userId);
             rereadUser.UserRoles.Select(x => x.RoleName).ShouldEqual(new List<string> { "Tenant Admin", "Area Manager" });
             rereadUser.UserTenant.TenantFullName.ShouldEqual("4U Inc.");

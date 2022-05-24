@@ -1,4 +1,4 @@
-﻿@model List<(string key, List<string> tenantNames)>
+﻿@model List<(string key, bool? hasOwnDb, List<string> tenantNames)>
 
 @{
     ViewData["Title"] = "ListTenants";
@@ -13,6 +13,9 @@
             Database Info Name
         </th>
         <th>
+            Sharding?
+        </th>
+        <th>
             tenants#
         </th>
 
@@ -24,6 +27,9 @@
         <tr>
             <td>
                 @item.key
+            </td>
+            <td>
+                @(item.hasOwnDb == null ? "empty" : item.hasOwnDb)
             </td>
             <td>
                 <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.tenantNames)'>

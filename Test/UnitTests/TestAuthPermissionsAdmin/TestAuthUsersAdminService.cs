@@ -55,7 +55,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             }
             users.Count.ShouldEqual(3);
             users.OrderBy(x => x.UserId).Select(x => x.UserId).ShouldEqual(new[]{ "User1", "User2", "User3" });
-            users.OrderBy(x => x.Email).Select(x => x.Email).ShouldEqual(new[] { "User1@gmail.com", "User2@gmail.com", "User3@gmail.com" });
+            users.OrderBy(x => x.Email).Select(x => x.Email).ShouldEqual(new[] { "user1@gmail.com", "user2@gmail.com", "user3@gmail.com" });
         }
 
 
