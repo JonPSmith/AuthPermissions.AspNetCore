@@ -130,11 +130,11 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
         /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
-        /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
+        /// <returns>A status containing the <see cref="Tenant"/> class</returns>
+        public async Task<IStatusGeneric<Tenant>> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
             bool? hasOwnDb = null, string databaseInfoName = null)
         {
-            var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
+            var status = new StatusGenericHandler<Tenant> { Message = $"Successfully added the new tenant {tenantName}." };
 
             if (!_tenantType.IsSingleLevel())
                 throw new AuthPermissionsException(
@@ -148,6 +148,7 @@ namespace AuthPermissions.AdminCode.Services
                 var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
                 var newTenantStatus = Tenant.CreateSingleTenant(tenantName, tenantRolesStatus.Result);
+                status.SetResult(newTenantStatus.Result);
 
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
                     return status;
@@ -201,11 +202,11 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
         /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
-        /// <returns>A status with any errors found</returns>
-        public async Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
+        /// <returns>A status containing the <see cref="Tenant"/> class</returns>
+        public async Task<IStatusGeneric<Tenant>> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
             List<string> tenantRoleNames = null, bool? hasOwnDb = false, string databaseInfoName = null)
         {
-            var status = new StatusGenericHandler { Message = $"Successfully added the new tenant {tenantName}." };
+            var status = new StatusGenericHandler<Tenant> { Message = $"Successfully added the new tenant {tenantName}." };
 
             if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
@@ -239,6 +240,7 @@ namespace AuthPermissions.AdminCode.Services
                 var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
                 var newTenantStatus = Tenant.CreateHierarchicalTenant(fullTenantName, parentTenant, tenantRolesStatus.Result);
+                status.SetResult(newTenantStatus.Result);
                 
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
                     return status;

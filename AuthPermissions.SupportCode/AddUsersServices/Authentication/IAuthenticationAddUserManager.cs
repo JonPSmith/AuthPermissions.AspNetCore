@@ -25,7 +25,14 @@ public interface IAuthenticationAddUserManager
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    AddUserData UserLoginData { get; }
+    AddUserDataDto UserLoginData { get; }
+
+    /// <summary>
+    /// This makes a quick check that the user isn't already has an AuthUser 
+    /// </summary>
+    /// <param name="userData"></param>
+    /// <returns>status, with error if there an user already</returns>
+    Task<IStatusGeneric> CheckNoExistingAuthUser(AddUserDataDto userData);
 
     /// <summary>
     /// This either register the user and creates the AuthUser to match, or for
@@ -34,7 +41,7 @@ public interface IAuthenticationAddUserManager
     /// </summary>
     /// <param name="userData">The information for creating an AuthUser </param>
     /// <param name="password">optional: If you have access to the users you can confirm their identity before creating an AuthUser</param>
-    Task<IStatusGeneric> SetUserInfoAsync(AddUserData userData, string password = null);
+    Task<IStatusGeneric> SetUserInfoAsync(AddUserDataDto userData, string password = null);
 
     /// <summary>
     /// This logs in the user, checking that the email / username are the same as was provided

@@ -11,7 +11,7 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 /// <summary>
 /// This the implementation of the <see cref="IAuthenticationAddUserManager"/> for the Individual User Accounts authentication handler
 /// This will create (or find) an individual user account and then create an AuthUser linked to that individual user.
-/// It uses the the authP data in the <see cref="AddUserData"/> class when creating the AuthUser
+/// It uses the the authP data in the <see cref="AddUserDataDto"/> class when creating the AuthUser
 /// </summary>
 /// <typeparam name="TIdentity"></typeparam>
 public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserManager
@@ -47,7 +47,20 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    public AddUserData UserLoginData { get; private set; }
+    public AddUserDataDto UserLoginData { get; private set; }
+
+    /// <summary>
+    /// This makes a quick check that the user isn't already has an AuthUser 
+    /// </summary>
+    /// <param name="userData"></param>
+    /// <returns>status, with error if there an user already</returns>
+    public async Task<IStatusGeneric> CheckNoExistingAuthUser(AddUserDataDto userData)
+    {
+        var status = new StatusGenericHandler();
+        if ((await _authUsersAdmin.FindAuthUserByEmailAsync(userData.Email))?.Result != null)
+            return status.AddError("There is already an AuthUser with your email, so you can't add another.");
+        return status;
+    }
 
     /// <summary>
     /// This either register the user and creates the AuthUser to match, or for
@@ -58,14 +71,11 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// <param name="password">This is used to create a user.
     /// It also checks if there is a user already, which could happen if the user's login failed</param>
     /// <returns>status</returns>
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddUserData userData, string password = null)
+    public async Task<IStatusGeneric> SetUserInfoAsync(AddUserDataDto userData, string password = null)
     {
         UserLoginData = userData ?? throw new ArgumentNullException(nameof(userData));
 
-        var status = new StatusGenericHandler();
-
-        if ((await _authUsersAdmin.FindAuthUserByEmailAsync(userData.Email))?.Result != null)
-            return status.AddError("There is already an AuthUser with your email / username, so you can't add another.");
+        var status = new StatusGenericHandler { Message = "New user with claims added" };
 
         var user = await _userManager.FindByEmailAsync(userData.Email);
         if (user == null)

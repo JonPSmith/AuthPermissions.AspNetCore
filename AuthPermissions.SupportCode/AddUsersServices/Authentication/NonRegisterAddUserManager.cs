@@ -46,14 +46,29 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    public AddUserData UserLoginData { get; private set; }
+    public AddUserDataDto UserLoginData { get; private set; }
+
+    /// <summary>
+    /// This makes a quick check that the user isn't already has an AuthUser 
+    /// </summary>
+    /// <param name="userData"></param>
+    /// <returns>status, with error if there an user already</returns>
+    public async Task<IStatusGeneric> CheckNoExistingAuthUser(AddUserDataDto userData)
+    {
+        var status = new StatusGenericHandler();
+        if (await _authPContext.AuthUsers
+                .AnyAsync(x => (x.Email != null && x.Email == userData.Email)
+                               || (x.UserName != null && x.UserName == userData.UserName)))
+            return status.AddError("There is already an AuthUser with your email / username, so you can't add another."); ;
+        return status;
+    }
 
     /// <summary>
     /// This adds a entry to the database with the user's email and the AuthP Roles / Tenant data for creating the AuthP user
     /// </summary>
     /// <param name="userData">The information for creating an AuthUser </param>
     /// <param name="password">not used with NonRegister authentication handlers</param>
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddUserData userData, string password = null)
+    public async Task<IStatusGeneric> SetUserInfoAsync(AddUserDataDto userData, string password = null)
     {
         UserLoginData = userData ?? throw new ArgumentNullException(nameof(userData));
 
@@ -114,7 +129,7 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
         if (UserLoginData == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
-        var status = new StatusGenericHandler();
+        var status = new StatusGenericHandler { Message = "Checked OK. Will set up claims when you log in." };
 
         var expectedAuthUser = await _authPContext.AuthUsers
             .SingleOrDefaultAsync(x => x.Email == UserLoginData.Email);

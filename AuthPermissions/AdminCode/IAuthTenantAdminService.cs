@@ -53,8 +53,8 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
         /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
-        /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
+        /// <returns>A status containing the <see cref="Tenant"/> class</returns>
+        Task<IStatusGeneric<Tenant>> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
             bool? hasOwnDb = false, string databaseInfoName = null);
 
         /// <summary>
@@ -65,8 +65,8 @@ namespace AuthPermissions.AdminCode
         /// <param name="tenantRoleNames">Optional: List of tenant role names</param>
         /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
         /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
-        /// <returns>A status with any errors found</returns>
-        Task<IStatusGeneric> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
+        /// <returns>A status containing the <see cref="Tenant"/> class</returns>
+        Task<IStatusGeneric<Tenant>> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
             List<string> tenantRoleNames = null,
             bool? hasOwnDb = null, string databaseInfoName = null);
 

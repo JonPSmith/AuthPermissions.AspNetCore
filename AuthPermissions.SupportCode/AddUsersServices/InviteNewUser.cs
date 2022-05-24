@@ -19,25 +19,16 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 public class InviteNewUser
 {
     private readonly IEncryptDecryptService _encryptService;
-    private readonly IAuthUsersAdminService _authUsersAdmin;
-    private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAuthenticationAddUserManager _addUserManager;
 
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="encryptService"></param>
-    /// <param name="authUsersAdmin"></param>
-    /// <param name="tenantAdminService"></param>
-    /// <param name="addUserLoginService"></param>
     /// <param name="addUserManager"></param>
-    public InviteNewUser(IEncryptDecryptService encryptService, IAuthUsersAdminService authUsersAdmin, 
-        IAuthTenantAdminService tenantAdminService, NonRegisterAddUserManager addUserLoginService,
-        IAuthenticationAddUserManager addUserManager)
+    public InviteNewUser(IEncryptDecryptService encryptService, IAuthenticationAddUserManager addUserManager)
     {
         _encryptService = encryptService;
-        _authUsersAdmin = authUsersAdmin;
-        _tenantAdminService = tenantAdminService;
         _addUserManager = addUserManager;
     }
 
@@ -47,7 +38,7 @@ public class InviteNewUser
     /// </summary>
     /// <param name="joiningUser">Data needed to add a new AuthP user</param>
     /// <returns>encrypted string containing the <see cref="InviteNewUser"/> data to send the user in a link</returns>
-    public string InviteUserToJoinTenantAsync(AddUserData joiningUser)
+    public string InviteUserToJoinTenantAsync(AddUserDataDto joiningUser)
     {
         var jsonString = JsonSerializer.Serialize(joiningUser);
         var verify = _encryptService.Encrypt(jsonString);
@@ -72,11 +63,11 @@ public class InviteNewUser
 
         var normalizedEmail = email.Trim().ToLower();
 
-        AddUserData inviteData;
+        AddUserDataDto inviteData;
         try
         {
             var decrypted = _encryptService.Decrypt(Base64UrlEncoder.Decode(inviteParam));
-            inviteData = JsonSerializer.Deserialize<AddUserData>(decrypted);
+            inviteData = JsonSerializer.Deserialize<AddUserDataDto>(decrypted);
         }
         catch (Exception)
         {

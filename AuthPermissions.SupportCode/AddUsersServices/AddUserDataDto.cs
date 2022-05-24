@@ -9,7 +9,7 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// <summary>
 /// This is used holds the data to securely add a new user to a AuthP application
 /// </summary>
-public class AddUserData
+public class AddUserDataDto
 {
     private string _email;
 
