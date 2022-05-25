@@ -54,7 +54,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// </summary>
     /// <param name="userData"></param>
     /// <returns>status, with error if there an user already</returns>
-    public async Task<IStatusGeneric> CheckNoExistingAuthUser(AddUserDataDto userData)
+    public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddUserDataDto userData)
     {
         var status = new StatusGenericHandler();
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(userData.Email))?.Result != null)

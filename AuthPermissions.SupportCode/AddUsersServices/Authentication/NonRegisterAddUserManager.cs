@@ -18,14 +18,14 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 public class NonRegisterAddUserManager : IAuthenticationAddUserManager
 {
     private readonly AuthPermissionsDbContext _authPContext;
-    private readonly Logger<NonRegisterAddUserManager> _logger;
+    private readonly ILogger _logger;
 
     /// <summary>
     /// ctor - used as a service
     /// </summary>
     /// <param name="authPContext"></param>
     /// <param name="logger"></param>
-    public NonRegisterAddUserManager(AuthPermissionsDbContext authPContext, Logger<NonRegisterAddUserManager> logger)
+    public NonRegisterAddUserManager(AuthPermissionsDbContext authPContext, ILogger<NonRegisterAddUserManager> logger)
     {
         _authPContext = authPContext;
         _logger = logger;
@@ -39,7 +39,7 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// <summary>
     /// This catches a user trying to add the same user while another user add is currently running
     /// </summary>
-    public int TimeoutSecondsOnSameBeingAdded { get; set; } = 30;
+    public double TimeoutSecondsOnSameUserAdded { get; set; } = 30;
 
     /// <summary>
     /// This holds the data provided for the login.
@@ -53,7 +53,7 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// </summary>
     /// <param name="userData"></param>
     /// <returns>status, with error if there an user already</returns>
-    public async Task<IStatusGeneric> CheckNoExistingAuthUser(AddUserDataDto userData)
+    public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddUserDataDto userData)
     {
         var status = new StatusGenericHandler();
         if (await _authPContext.AuthUsers
@@ -83,35 +83,33 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
             return addNewUserInfo;
         }
 
-        if (await _authPContext.AuthUsers
-                .AnyAsync(x => (x.Email != null && x.Email == userData.Email) 
-                               || (x.UserName != null && x.UserName == userData.UserName)))
-            return status.AddError("There is already an AuthUser with your email / username, so you can't add another.");
-
         var newUserInfo = await AddNewUserInfoToDatabaseAsync();
         while (status.HasErrors)
         {
             //most likely an old attempt to log on didn't work, but we need to compare their datetime
+            _authPContext.ChangeTracker.Clear(); //!! Had to do this to get rid of the last 
 
             var oldMatching = await _authPContext.AddNewUserInfos
                 .SingleOrDefaultAsync(x => (x.Email != null && x.Email == userData.Email) ||
                                            (x.UserName != null && x.UserName == userData.UserName));
             if (oldMatching == null)
-                return status; //something bad wrong, so sent back the save status
+                return status; //something other than a duplicate Email/UserName, so sent back the save status
 
-            if (oldMatching == newUserInfo)
+            //We are going to fix the problem so we reset the state 
+            status = new StatusGenericHandler();
+            if (AddNewUserInfo.AddNewUserInfoComparer.Equals(newUserInfo, oldMatching))
                 //the user data is the same, so we can use this
                 break;
 
-            if (newUserInfo.CreatedAtUtc.Subtract(oldMatching.CreatedAtUtc).TotalSeconds <
-                TimeoutSecondsOnSameBeingAdded)
+            var howOldWasTheLast = newUserInfo.CreatedAtUtc.Subtract(oldMatching.CreatedAtUtc).TotalSeconds;
+            if (howOldWasTheLast < TimeoutSecondsOnSameUserAdded)
+                //Enough time has gone by that the previous setup / login should have finished
                 return status.AddError("You have an failed try to register / login still in process. " +
-                                       $"Wait {TimeoutSecondsOnSameBeingAdded} seconds and try again.");
+                                       $"Wait {(TimeoutSecondsOnSameUserAdded - howOldWasTheLast):N0} seconds and try again.");
 
             //else the matching is old so we delete it 
             _authPContext.Remove(oldMatching);
-            await AddNewUserInfoToDatabaseAsync(); //this calls SaveChanges, so the old version will be removed
-
+            await AddNewUserInfoToDatabaseAsync();
         } //end of while
 
         return status;
@@ -124,7 +122,7 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// <param name="givenUserName">Ignored</param>
     /// <param name="isPersistent">Ignored</param>
     /// <returns>status</returns>
-    public async Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent)
+    public async Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent = false)
     {
         if (UserLoginData == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
@@ -132,11 +130,14 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
         var status = new StatusGenericHandler { Message = "Checked OK. Will set up claims when you log in." };
 
         var expectedAuthUser = await _authPContext.AuthUsers
-            .SingleOrDefaultAsync(x => x.Email == UserLoginData.Email);
+            .SingleOrDefaultAsync(x => x.Email == UserLoginData.Email || x.UserName == UserLoginData.UserName);
 
         if (expectedAuthUser != null) 
             //all OK
             return status;
+
+        //----------------------------------
+        //handle errors in this part
 
         //Alert the user and the admin people (via a log) that the add of an AuthUser failed
         var authInfoForUser = await _authPContext.AddNewUserInfos
@@ -145,12 +146,12 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
 
         //Tell the admin people to check on this user
         _logger.LogWarning("The AuthUser with email {0} wasn't added. " +
-                           "The matching AddNewUserInfo in the database was {1}. " +
-                           "Please check the user is OK",
-            UserLoginData.Email, authInfoForUser?.CreatedAtUtc.ToLongDateString() ?? "not found.");
+                           "The matching AddNewUserInfo in the database was added on {1} UTC. " +
+                           "Please check the authentication user is OK.",
+            UserLoginData.Email, authInfoForUser?.CreatedAtUtc.ToString("s") ?? "not found.");
 
         return status.AddError(
-            $"Something went wrong. There wasn't an AuthUser with an email of {UserLoginData.Email}." +
+            $"Something went wrong. There wasn't an AuthUser with an email of {UserLoginData.Email}. " +
             "Please logout and repeat the process again.");
     }
 }

@@ -21,7 +21,7 @@ public class AddUserDataDto
     public string Email
     {
         get => _email;
-        set => _email = value.Trim().ToLower();
+        set => _email = value?.Trim().ToLower();
     }
 
     /// <summary>

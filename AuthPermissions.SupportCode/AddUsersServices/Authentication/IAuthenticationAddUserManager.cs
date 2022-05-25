@@ -32,7 +32,7 @@ public interface IAuthenticationAddUserManager
     /// </summary>
     /// <param name="userData"></param>
     /// <returns>status, with error if there an user already</returns>
-    Task<IStatusGeneric> CheckNoExistingAuthUser(AddUserDataDto userData);
+    Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddUserDataDto userData);
 
     /// <summary>
     /// This either register the user and creates the AuthUser to match, or for

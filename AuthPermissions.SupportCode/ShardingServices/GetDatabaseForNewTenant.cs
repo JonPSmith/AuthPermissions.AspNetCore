@@ -16,6 +16,11 @@ public class GetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
     private readonly IShardingConnections _shardingService;
 
+    public GetDatabaseForNewTenant(IShardingConnections shardingService)
+    {
+        _shardingService = shardingService;
+    }
+
     /// <summary>
     /// This will look for a database for a new tenant.
     /// If the hasOwnDb is true, then it will find an empty database,

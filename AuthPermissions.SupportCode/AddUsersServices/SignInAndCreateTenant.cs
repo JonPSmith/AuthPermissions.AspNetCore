@@ -31,7 +31,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// <param name="addUserManager"></param>
     /// <param name="getShardingDb"></param>
     public SignInAndCreateTenant(AuthPermissionsOptions options, IAuthTenantAdminService tenantAdmin, 
-        IAuthenticationAddUserManager addUserManager, IGetDatabaseForNewTenant getShardingDb)
+        IAuthenticationAddUserManager addUserManager, IGetDatabaseForNewTenant getShardingDb = null)
     {
         _options = options;
         _tenantAdmin = tenantAdmin;
@@ -60,7 +60,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             throw new AuthPermissionsException(string.Format("The Version string {0} wasn't found in the {1}",
                 dto.Version ?? "<null>", nameof(MultiTenantVersionData.TenantRolesForEachVersion)));
 
-        if (status.CombineStatuses(await _addUserManager.CheckNoExistingAuthUser(dto)).HasErrors)
+        if (status.CombineStatuses(await _addUserManager.CheckNoExistingAuthUserAsync(dto)).HasErrors)
             return status;
 
         //---------------------------------------------------------------
@@ -70,6 +70,10 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         string databaseInfoName = null;
         if (_options.TenantType.IsSharding())
         {
+            if (_getShardingDb == null)
+                throw new AuthPermissionsException(
+                    $"If you are using sharding, then you must register the {nameof(IGetDatabaseForNewTenant)} service.");
+
             if (versionData.HasOwnDbForEachVersion != null && versionData.HasOwnDbForEachVersion.ContainsKey(dto.Version))
                 throw new AuthPermissionsException(string.Format("The Version string wasn't found in the {0}",
                     nameof(MultiTenantVersionData.HasOwnDbForEachVersion)));

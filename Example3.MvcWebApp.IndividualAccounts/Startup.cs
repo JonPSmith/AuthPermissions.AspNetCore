@@ -17,6 +17,8 @@ using RunMethodsSequentially;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
+using AuthPermissions.SupportCode.AddUsersServices;
+using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Example3.InvoiceCode.Services;
 using ExamplesCommonCode.IdentityCookieCode;
 
@@ -86,6 +88,11 @@ namespace Example3.MvcWebApp.IndividualAccounts
                     //This seeds the invoice database (if empty)
                     options.RegisterServiceToRunInJob<StartupServiceSeedInvoiceDbContext>();
                 });
+
+            //Add the SupportCode services
+            services.AddTransient<IAuthenticationAddUserManager, IndividualUserAddUserManager<IdentityUser>>();
+            services.AddTransient<ISignInAndCreateTenant, SignInAndCreateTenant>();
+            services.AddTransient<IInviteNewUserService, InviteNewUserService>();
 
             services.RegisterExample3Invoices(_configuration);
         }
