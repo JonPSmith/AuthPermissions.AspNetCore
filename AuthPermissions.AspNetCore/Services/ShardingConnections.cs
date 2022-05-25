@@ -88,7 +88,8 @@ public class ShardingConnections : IShardingConnections
     /// <summary>
     /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name
     /// </summary>
-    /// <returns>List of all the database info names with the tenants using that database data name</returns>
+    /// <returns>List of all the database info names with the tenants using that database data name
+    /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
     public async Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
         var nameAndConnectionName  = await _context.Tenants

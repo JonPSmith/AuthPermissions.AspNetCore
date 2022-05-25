@@ -1,13 +1,12 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Security.Claims;
 using System.Text.Json;
 using AuthPermissions.AdminCode;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StatusGeneric;
 
@@ -16,20 +15,24 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// <summary>
 /// This service implements the "invite user to join the application" feature
 /// </summary>
-public class InviteNewUser
+public class InviteNewUserService : IInviteNewUserService
 {
     private readonly IEncryptDecryptService _encryptService;
+    private readonly IAuthUsersAdminService _usersAdmin;
     private readonly IAuthenticationAddUserManager _addUserManager;
 
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="encryptService"></param>
+    /// <param name="usersAdmin"></param>
     /// <param name="addUserManager"></param>
-    public InviteNewUser(IEncryptDecryptService encryptService, IAuthenticationAddUserManager addUserManager)
+    public InviteNewUserService(IEncryptDecryptService encryptService, IAuthUsersAdminService usersAdmin,
+        IAuthenticationAddUserManager addUserManager)
     {
         _encryptService = encryptService;
         _addUserManager = addUserManager;
+        _usersAdmin = usersAdmin;
     }
 
     /// <summary>
@@ -37,12 +40,31 @@ public class InviteNewUser
     /// invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
     /// </summary>
     /// <param name="joiningUser">Data needed to add a new AuthP user</param>
-    /// <returns>encrypted string containing the <see cref="InviteNewUser"/> data to send the user in a link</returns>
-    public string InviteUserToJoinTenantAsync(AddUserDataDto joiningUser)
+    /// <param name="currentUser">Get the current user to find what tenant (if multi-tenant) the caller is in.</param>
+    /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
+    public async Task<IStatusGeneric<string>> InviteUserToJoinTenantAsync(AddUserDataDto joiningUser, ClaimsPrincipal currentUser)
     {
+        var status = new StatusGenericHandler<string>();
+
+        if (currentUser == null)
+            throw new ArgumentNullException(nameof(currentUser));
+
+        var authUserStatus = await _usersAdmin.FindAuthUserByUserIdAsync(currentUser.GetUserIdFromUser());
+        if (authUserStatus.Result == null)
+            throw new AuthPermissionsException("User must be registered with AuthP");
+
+        joiningUser.TenantId = authUserStatus.Result.TenantId;
+        status.Message =
+            $"Please send the url to the user '{joiningUser.Email ?? joiningUser.UserName}' which allow them to join" +
+            (joiningUser.TenantId == null
+                ? "your application"
+                : $"the tenant {authUserStatus.Result.UserTenant.TenantFullName}.");
+
         var jsonString = JsonSerializer.Serialize(joiningUser);
         var verify = _encryptService.Encrypt(jsonString);
-        return Base64UrlEncoder.Encode(verify);
+
+        status.SetResult(Base64UrlEncoder.Encode(verify));
+        return status;
     }
 
     /// <summary>
@@ -50,17 +72,18 @@ public class InviteNewUser
     /// allows the user to create an authentication login, and that created user has
     /// an AuthUser containing the email/username, Roles and Tenant info held in joining data
     /// </summary>
-    /// <param name="email">email given to log in</param>
-    /// <param name="password">password given to log in</param>
     /// <param name="inviteParam">The encrypted part of the url encoded to work with urls
     ///     that was created by <see cref="InviteUserToJoinTenantAsync"/></param>
-    /// <param name="isPersistent">true if cookie should be persistent</param>
+    /// <param name="email">email - used to check that the user is the same as the invite</param>
+    /// <param name="password">If use are using a register / login authentication handler (e.g. individual user accounts),
+    /// then the password for the new user should be provided</param>
+    /// <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
+    /// and you are using authentication cookie, then setting this to true makes the login persistent</param>
     /// <returns>Status with the individual accounts user</returns>
-    public async Task<IStatusGeneric> AddUserViaInvite(string email, string password, 
-        string inviteParam, bool isPersistent = false)
+    public async Task<IStatusGeneric> AddUserViaInvite(string inviteParam, 
+        string email, string password = null, bool isPersistent = false)
     {
         var status = new StatusGenericHandler<IdentityUser>();
-
         var normalizedEmail = email.Trim().ToLower();
 
         AddUserDataDto inviteData;

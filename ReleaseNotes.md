@@ -2,8 +2,13 @@
 
 ## 3.3.0
 
+- BREAKING CHANGE (small): The `GetDatabaseInfoNamesWithTenantNamesAsync` method returned collection now has `HasOwnDb` in it
 - Bug fix. Email is now stored as lower case. This fixes the problem and Postgres string compare is case sensitive - see issue #35
-
+- New Sharding feature: New method called `GetDatabaseForNewTenant` which will return a DatabaseInfoName of a database to use for a new tenant.
+- New support feature: `InviteNewUser` service that handles the ""invite user" feature" - now works with all types of application
+- New support feature: `SignInAndCreateTenant` service to implement the "sign in" feature - now works with all types of multi-tenant app
+- New support feature: `IAuthenticationAddUserManager` for adding a new user, with two versions for different authentication types
+- Improvement: The Azure AD handler now supports adding a AuthUser on login
 
 ## 3.2.0
 

@@ -33,7 +33,8 @@ public interface IShardingConnections
     /// <summary>
     /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name
     /// </summary>
-    /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name</returns>
+    /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name
+    /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
     Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
 
     /// <summary>

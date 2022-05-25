@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.SupportCode.AddUsersServices;
 using Example3.InvoiceCode.Services;
 using Example3.MvcWebApp.IndividualAccounts.Models;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
@@ -72,18 +73,13 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example3Permissions.InviteUsers)]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> InviteUser([FromServices] IUserRegisterInviteService userRegisterInvite, string email)
+        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteUserServiceService, string email)
         {
-            var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
-                .Result;
+            var addUserData = new AddUserDataDto { Email = email }; //you can define Roles 
+            var status = await inviteUserServiceService.InviteUserToJoinTenantAsync(addUserData, HttpContext.User);
+            var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home",  new { status.Result });
 
-            if (currentUser == null || currentUser.TenantId == null)
-                return RedirectToAction(nameof(ErrorDisplay), new { errorMessage = "must be logged in and have a tenant" });
-
-            var verify = userRegisterInvite.InviteUserToJoinTenantAsync((int)currentUser.TenantId, email);
-            var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home",  new { verify });
-
-            return View("InviteUserUrl", new InviteUserDto(email, currentUser.UserTenant.TenantFullName, inviteUrl));
+            return View("InviteUserUrl", new InviteUserDto( status.Message, inviteUrl));
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

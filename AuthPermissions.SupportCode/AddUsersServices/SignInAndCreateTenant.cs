@@ -16,7 +16,7 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// create a new tenant and becomes the tenant admin user for this new tenant.
 /// This class handles different versions, as defined in the <see cref="MultiTenantVersionData"/> class
 /// </summary>
-public class SignInAndCreateTenant
+public class SignInAndCreateTenant : ISignInAndCreateTenant
 {
     private readonly AuthPermissionsOptions _options;
     private readonly IAuthTenantAdminService _tenantAdmin;
@@ -40,16 +40,15 @@ public class SignInAndCreateTenant
     }
 
     /// <summary>
-    /// This implements "sign up" feature, where a new user 
+    /// This implements "sign up" feature, where a new user signs up for a new tenant.
+    /// This method creates the tenant using the information provides by the user and the
+    /// <see cref="MultiTenantVersionData"/> for this application.
     /// </summary>
-    /// <param name="dto"></param>
-    /// <param name="versionData"></param>
-    /// <param name="password"></param>
-    /// <param name="isPersistent"></param>
-    /// <returns></returns>
+    /// <param name="dto">The data provided by the user and extra data, like the version, from the sign in</param>
+    /// <param name="versionData">This contains the application's setup of your tenants, including different versions.</param>
+    /// <returns>Status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    public async Task<IStatusGeneric> AddUserAndNewTenantAsync(AddNewTenantDto dto, 
-        MultiTenantVersionData versionData, string password, bool isPersistent = false)
+    public async Task<IStatusGeneric> AddUserAndNewTenantAsync(AddNewTenantDto dto, MultiTenantVersionData versionData)
     {
         var status = new StatusGenericHandler();
 
@@ -57,10 +56,9 @@ public class SignInAndCreateTenant
         if (await _tenantAdmin.QueryTenants().AnyAsync(x => x.TenantFullName == dto.TenantName))
             return status.AddError($"The tenant name '{dto.TenantName}' is already taken", new[] { nameof(AddNewTenantDto.TenantName) });
 
-        if (versionData.TenantRolesForEachVersion.ContainsKey(dto.Version))
-            throw new AuthPermissionsException($"The Version string wasn't found in the {nameof(MultiTenantVersionData.TenantRolesForEachVersion)}");
-        if (versionData.HasOwnDbForEachVersion != null && versionData.HasOwnDbForEachVersion.ContainsKey(dto.Version))
-            throw new AuthPermissionsException($"The Version string wasn't found in the {nameof(MultiTenantVersionData.HasOwnDbForEachVersion)}");
+        if (versionData.TenantRolesForEachVersion != null && versionData.TenantRolesForEachVersion.ContainsKey(dto.Version))
+            throw new AuthPermissionsException(string.Format("The Version string {0} wasn't found in the {1}",
+                dto.Version ?? "<null>", nameof(MultiTenantVersionData.TenantRolesForEachVersion)));
 
         if (status.CombineStatuses(await _addUserManager.CheckNoExistingAuthUser(dto)).HasErrors)
             return status;
@@ -68,13 +66,20 @@ public class SignInAndCreateTenant
         //---------------------------------------------------------------
         // Create tenant section
 
-        var hasOwnDb = versionData.HasOwnDbForEachVersion?[dto.Version] ?? dto.HasOwnDb ?? false;
-
+        bool? hasOwnDb = null;
         string databaseInfoName = null;
         if (_options.TenantType.IsSharding())
         {
+            if (versionData.HasOwnDbForEachVersion != null && versionData.HasOwnDbForEachVersion.ContainsKey(dto.Version))
+                throw new AuthPermissionsException(string.Format("The Version string wasn't found in the {0}",
+                    nameof(MultiTenantVersionData.HasOwnDbForEachVersion)));
+
+            hasOwnDb = versionData.HasOwnDbForEachVersion?[dto.Version] ?? dto.HasOwnDb;
+            if (hasOwnDb == null)
+                return status.AddError($"You must set the {nameof(AddNewTenantDto.HasOwnDb)} parameter to true or false");
+
             //This method will find a database for the new tenant when using sharding
-            var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync(hasOwnDb);
+            var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync((bool)hasOwnDb, dto.Region);
             if (status.CombineStatuses(dbStatus).HasErrors)
                 return status;
             databaseInfoName = dbStatus.Result;
@@ -82,9 +87,11 @@ public class SignInAndCreateTenant
 
         var tenantStatus = _options.TenantType.IsSingleLevel()
             ? await _tenantAdmin.AddSingleTenantAsync(dto.TenantName,
-                versionData.TenantRolesForEachVersion[dto.Version], dto.HasOwnDb, databaseInfoName)
-            : await _tenantAdmin.AddHierarchicalTenantAsync(dto.TenantName, dto.ParentId,
-                versionData.TenantRolesForEachVersion[dto.Version], dto.HasOwnDb, databaseInfoName);
+                versionData.TenantRolesForEachVersion?[dto.Version] ?? new List<string>(),
+                hasOwnDb, databaseInfoName)
+            : await _tenantAdmin.AddHierarchicalTenantAsync(dto.TenantName, 0,
+                versionData.TenantRolesForEachVersion?[dto.Version] ?? new List<string>(), 
+                hasOwnDb, databaseInfoName);
 
         if (status.CombineStatuses(tenantStatus).HasErrors)
             return status;
@@ -92,13 +99,17 @@ public class SignInAndCreateTenant
         //-------------------------------------------------------------
 
         //Now we update the user information with the version data
-        dto.Roles = versionData.TenantAdminRoles;
+        if (versionData.TenantAdminRoles != null && versionData.TenantAdminRoles.ContainsKey(dto.Version))
+            throw new AuthPermissionsException(string.Format("The Version string {0} wasn't found in the {1}",
+                dto.Version ?? "<null>", nameof(MultiTenantVersionData.TenantAdminRoles)));
+
+        dto.Roles = versionData.TenantAdminRoles?[dto.Version] ?? new List<string>();
         dto.TenantId = tenantStatus.Result.TenantId;
 
-        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(dto, password));
+        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(dto, dto.Password));
 
         if (status.IsValid)
-            status.CombineStatuses(await _addUserManager.LoginVerificationAsync(dto.Email, dto.UserName, isPersistent));
+            status.CombineStatuses(await _addUserManager.LoginVerificationAsync(dto.Email, dto.UserName, dto.IsPersistent));
 
         if (status.HasErrors)
             //Delete the tenant if anything went wrong, because the user most likely will want to try again

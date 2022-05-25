@@ -12,6 +12,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.SetupCode;
+using AuthPermissions.SupportCode.AddUsersServices;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.Dtos;
 using Example3.InvoiceCode.EfCoreCode;
@@ -56,7 +57,7 @@ namespace Test.UnitTests.TestExamples
                 options.UseSqlServer(this.GetUniqueDatabaseConnectionString("Invoice"), dbOptions =>
                         dbOptions.MigrationsHistoryTable(StartupExtensions.InvoicesDbContextHistoryName)));
 
-            services.AddTransient<IUserRegisterInviteService, UserRegisterInviteService>();
+            services.AddTransient<IInviteNewUserService, InviteNewUserService>();
             services.AddScoped<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
             services.RegisterAuthPermissions<Example3Permissions>(options =>
                 {

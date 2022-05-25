@@ -94,7 +94,7 @@ namespace AuthPermissions.AdminCode
         public string Email
         {
             get => _email;
-            set => _email = value?.ToLower();
+            set => _email = value?.ToLower().ToLower();
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace AuthPermissions.AdminCode
         public string OldEmail
         {
             get => _oldEmail;
-            set => _oldEmail = value?.ToLower();
+            set => _oldEmail = value?.ToLower().Trim();
         }
 
         /// <summary>

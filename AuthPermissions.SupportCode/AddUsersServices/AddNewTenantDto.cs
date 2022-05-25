@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode.SetupCode;
+using AuthPermissions.SupportCode.ShardingServices;
 
 namespace AuthPermissions.SupportCode.AddUsersServices;
 
@@ -11,7 +12,6 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// </summary>
 public class AddNewTenantDto : AddUserDataDto
 {
-
     /// <summary>
     /// This holds the name of the version of the multi-tenant features the user has selected
     /// </summary>
@@ -23,16 +23,19 @@ public class AddNewTenantDto : AddUserDataDto
     public string TenantName { get; set; }
 
     /// <summary>
-    /// If using hierarchical tenant, then you need to provide the TenantId of the parent
-    /// </summary>
-    public int ParentId { get; set; }
-
-    /// <summary>
-    /// If <see cref="TenantTypes.AddSharding"/> is on you must set this
-    /// It true the new tenant has its own database, otherwise shared.
-    /// NOTE: The 
+    /// If the <see cref="MultiTenantVersionData"/>.<see cref="MultiTenantVersionData.HasOwnDbForEachVersion"/> is null
+    /// and <see cref="TenantTypes.AddSharding"/> is on, then you must set this to true / false.
+    /// true means the new tenant has its own database, while false means the database will contain multiple tenants
+    /// NOTE: If the <see cref="MultiTenantVersionData"/>.<see cref="MultiTenantVersionData.HasOwnDbForEachVersion"/> isn't null
+    /// then this parameter is ignored.
     /// </summary>
     public bool? HasOwnDb { get; set; }
 
-
+    /// <summary>
+    /// If <see cref="TenantTypes.AddSharding"/> and you have servers geographically spread,
+    /// then you can provide some information to help the <see cref="IGetDatabaseForNewTenant"/> service
+    /// to pick the right server/database.
+    /// Can be null.
+    /// </summary>
+    public string Region { get; set; }
 }

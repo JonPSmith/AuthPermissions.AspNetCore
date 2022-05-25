@@ -42,6 +42,20 @@ public class AddUserDataDto
     /// </summary>
     public int? TenantId { get; set; }
 
+    //----------------------------------------------------
+    //If using a register / login authentication provider
+
+    /// <summary>
+    /// If using a register / login authentication provider you need to provide the user's password
+    /// </summary>
+    public string Password { get; set; }
+
+    /// <summary>
+    /// If using a register / login authentication provider and using cookies
+    /// setting this to true will make the cookie persist after using the app
+    /// </summary>
+    public bool IsPersistent { get; set; }
+
     /// <summary>
     /// This converts the list of roles into 
     /// </summary>

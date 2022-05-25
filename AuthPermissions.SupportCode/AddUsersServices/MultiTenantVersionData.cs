@@ -13,24 +13,21 @@ public class MultiTenantVersionData
 {
     /// <summary>
     /// The dictionary key should contain the name of each version,
-    /// and each value contains the Tenant Roles to be added to this version of a Tenant
+    /// and each value contains the Tenant Roles to be added to this version of a Tenant.
+    /// It null, then no Tenant Roles are added to the tenant
     /// </summary>
     public Dictionary<string, List<string>> TenantRolesForEachVersion { get; set; }
 
     /// <summary>
-    /// This holds the Roles of a tenant admin, i.e. they can manage the users in their tenant
-    /// including the ability to invite a new user to your tenant
+    /// This holds the Roles of a tenant admin for each version,
+    /// i.e. they can manage the users in their tenant including the
+    /// ability to invite a new user to your tenant.
     /// </summary>
-    public List<string> TenantAdminRoles { get; set; }
-
-    /// <summary>
-    /// This holds the default Roles of a new user that is invited to a user
-    /// </summary>
-    public List<string> InvitedUsersRoles { get; set; }
+    public Dictionary<string, List<string>> TenantAdminRoles { get; set; }
 
     /// <summary>
     /// If <see cref="TenantTypes.AddSharding"/> is on, then you can define which
-    /// tenant versions have their own DB
+    /// tenant versions have their own DB.
     /// If this property isn't null, then it will override the <see cref="AddNewTenantDto"/>.<see cref="AddNewTenantDto.HasOwnDb"/> property
     /// </summary>
     public Dictionary<string, bool> HasOwnDbForEachVersion { get; set; }
