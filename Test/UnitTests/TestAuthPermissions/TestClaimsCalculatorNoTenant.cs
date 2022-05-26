@@ -13,6 +13,7 @@ using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using ExamplesCommonCode.IdentityCookieCode;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -29,13 +30,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var rolePer1 = new RoleToPermissions("Role1", null, $"{(char)1}{(char)3}");
-            var rolePer2 = new RoleToPermissions("Role2", null, $"{(char)2}{(char)3}");
-            context.AddRange(rolePer1, rolePer2);
-            var user = AuthUser.CreateAuthUser("User1", "User1@g.com", null, new List<RoleToPermissions>() { rolePer1 }).Result;
-            context.Add(user);
-            context.SaveChanges();
-
+            context.AddOneUserWithRoles();
             context.ChangeTracker.Clear();
 
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants }, new List<IClaimsAdder>());

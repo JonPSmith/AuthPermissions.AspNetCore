@@ -76,7 +76,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteUserServiceService, string email)
         {
             var addUserData = new AddUserDataDto { Email = email }; //you can define Roles 
-            var status = await inviteUserServiceService.InviteUserToJoinTenantAsync(addUserData, HttpContext.User);
+            var status = await inviteUserServiceService.CreateInviteUserToJoinAsync(addUserData, HttpContext.User.GetUserIdFromUser());
             var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home",  new { status.Result });
 
             return View("InviteUserUrl", new InviteUserDto( status.Message, inviteUrl));

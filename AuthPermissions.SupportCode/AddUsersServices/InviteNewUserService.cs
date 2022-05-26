@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Security.Claims;
 using System.Text.Json;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -13,7 +12,7 @@ using StatusGeneric;
 namespace AuthPermissions.SupportCode.AddUsersServices;
 
 /// <summary>
-/// This service implements the "invite user to join the application" feature
+/// This service implements the "invite user" feature
 /// </summary>
 public class InviteNewUserService : IInviteNewUserService
 {
@@ -31,8 +30,8 @@ public class InviteNewUserService : IInviteNewUserService
         IAuthenticationAddUserManager addUserManager)
     {
         _encryptService = encryptService;
-        _addUserManager = addUserManager;
         _usersAdmin = usersAdmin;
+        _addUserManager = addUserManager;
     }
 
     /// <summary>
@@ -40,16 +39,16 @@ public class InviteNewUserService : IInviteNewUserService
     /// invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
     /// </summary>
     /// <param name="joiningUser">Data needed to add a new AuthP user</param>
-    /// <param name="currentUser">Get the current user to find what tenant (if multi-tenant) the caller is in.</param>
+    /// <param name="userId">userId of current user - used to obtain any tenant info.</param>
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
-    public async Task<IStatusGeneric<string>> InviteUserToJoinTenantAsync(AddUserDataDto joiningUser, ClaimsPrincipal currentUser)
+    public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddUserDataDto joiningUser, string userId)
     {
         var status = new StatusGenericHandler<string>();
 
-        if (currentUser == null)
-            throw new ArgumentNullException(nameof(currentUser));
+        if (userId == null)
+            throw new ArgumentNullException(nameof(userId));
 
-        var authUserStatus = await _usersAdmin.FindAuthUserByUserIdAsync(currentUser.GetUserIdFromUser());
+        var authUserStatus = await _usersAdmin.FindAuthUserByUserIdAsync(userId);
         if (authUserStatus.Result == null)
             throw new AuthPermissionsException("User must be registered with AuthP");
 
@@ -68,18 +67,19 @@ public class InviteNewUserService : IInviteNewUserService
     }
 
     /// <summary>
-    /// This will take the new user's information plus the encrypted invite code and
-    /// allows the user to create an authentication login, and that created user has
-    /// an AuthUser containing the email/username, Roles and Tenant info held in joining data
+    /// This takes the information from the user using the invite plus the encrypted invite code.
+    /// After a check on the user email is the same as the email in the invite, it then creates
+    /// an authentication login / user, which provides the UserId, and then created an AuthUser 
+    /// containing the email/username, Roles and Tenant info held in encrypted invite data.
     /// </summary>
     /// <param name="inviteParam">The encrypted part of the url encoded to work with urls
-    ///     that was created by <see cref="InviteUserToJoinTenantAsync"/></param>
+    ///     that was created by <see cref="CreateInviteUserToJoinAsync"/></param>
     /// <param name="email">email - used to check that the user is the same as the invite</param>
     /// <param name="password">If use are using a register / login authentication handler (e.g. individual user accounts),
     /// then the password for the new user should be provided</param>
     /// <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
     /// and you are using authentication cookie, then setting this to true makes the login persistent</param>
-    /// <returns>Status with the individual accounts user</returns>
+    /// <returns>Status</returns>
     public async Task<IStatusGeneric> AddUserViaInvite(string inviteParam, 
         string email, string password = null, bool isPersistent = false)
     {
