@@ -1,13 +1,16 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -26,37 +29,106 @@ public class TestInviteNewUserService
         _output = output;
     }
 
-    private static InviteNewUserService CreateInviteAndAddSenderAuthUser(AuthPermissionsDbContext context, out AuthUsersAdminService userAdmin)
+    private static async Task<(InviteNewUserService inviteService, AuthUsersAdminService userAdmin)> 
+        CreateInviteAndAddSenderAuthUserAsync(AuthPermissionsDbContext context, 
+        TenantTypes tenantType = TenantTypes.NotUsingTenants)
     {
-        var authOptions = new AuthPermissionsOptions { EncryptionKey = "asfafffggdgerxbd" };
-        userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), authOptions);
+        var authOptions = new AuthPermissionsOptions
+        {
+            EncryptionKey = "asfafffggdgerxbd", TenantType = tenantType
+        };
+        var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), authOptions);
         var encryptService = new EncryptDecryptService(authOptions);
-        var service =
-            new InviteNewUserService(encryptService, userAdmin, new StubAuthenticationAddUserManager(userAdmin));
+        var service = new InviteNewUserService(authOptions, context, encryptService, userAdmin, 
+                new StubAuthenticationAddUserManager(userAdmin));
 
-        context.AddOneUserWithRoles();
-        return service;
+        if (tenantType == TenantTypes.SingleLevel)
+            context.Add(Tenant.CreateSingleTenant("Company").Result);
+        else if (tenantType == TenantTypes.HierarchicalTenant)
+            await context.BulkLoadHierarchicalTenantInDbAsync();
+        context.SaveChanges();
+
+        context.AddOneUserWithRolesAndOptionalTenant("User1@g.com", 
+            tenantType != TenantTypes.NotUsingTenants ? "Company" : null);
+        return (service, userAdmin);
     }
 
     [Fact]
-    public async Task TestInviteUserToJoinTenantAsync()
+    public async Task TestInviteUserToJoinTenantAsync_NoMultiTenant()
     {
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var service = CreateInviteAndAddSenderAuthUser(context, out var userAdmin);
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
 
         context.ChangeTracker.Clear();
 
         //ATTEMPT
         var dto = new AddUserDataDto { Email = "User2@g.com", Roles = new List<string>{"Role1"}};
-        var status = await service.CreateInviteUserToJoinAsync(dto, "User1");
+        var status = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "User1");
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
         _output.WriteLine(status.Result);
+    }
+
+    [Theory]
+    [InlineData(TenantTypes.SingleLevel, 999, true)]        //Single tenant: takes the invite's tenant
+    [InlineData(TenantTypes.HierarchicalTenant, 1, true)]   //Hierarchical: pick the top
+    [InlineData(TenantTypes.HierarchicalTenant, 3, true)]   //Hierarchical: pick a child
+    [InlineData(TenantTypes.HierarchicalTenant, 99, false)] //Hierarchical: bad tenantId
+    public async Task TestInviteUserToJoinTenantAsync_MultiTenant_TenantAdmin(TenantTypes tenantType, int? joinerTenantId, bool isValid)
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context, tenantType);
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var dto = new AddUserDataDto { Email = "User2@g.com", TenantId = joinerTenantId};
+        var status = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "User1");
+
+        //VERIFY
+        status.IsValid.ShouldEqual(isValid);
+        if (status.HasErrors)
+            _output.WriteLine(status.GetAllErrors());
+    }
+
+    [Theory]
+    [InlineData(TenantTypes.SingleLevel, null, true)]        //make another app user
+    [InlineData(TenantTypes.SingleLevel, 1, true)]           //Single tenant: select
+    [InlineData(TenantTypes.HierarchicalTenant, null, true)] //make another app user
+    [InlineData(TenantTypes.HierarchicalTenant, 1, true)]    //Hierarchical: pick the top
+    [InlineData(TenantTypes.HierarchicalTenant, 3, true)]    //Hierarchical: pick a child
+    [InlineData(TenantTypes.SingleLevel, 99, false)]         //Single tenant: bad tenantId
+    [InlineData(TenantTypes.HierarchicalTenant, 99, false)]  //Hierarchical: bad tenantId
+    public async Task TestInviteUserToJoinTenantAsync_MultiTenant_AppAdmin(TenantTypes tenantType, int? joinerTenantId, bool isValid)
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context, tenantType);
+        context.Add( AuthUser.CreateAuthUser("AppAdminId", "AppAdmin@g.com", null, new List<RoleToPermissions>()).Result);
+        context.SaveChanges();
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var dto = new AddUserDataDto { Email = "User2@g.com", TenantId = joinerTenantId };
+        var status = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "AppAdminId");
+
+        //VERIFY
+        status.IsValid.ShouldEqual(isValid);
+        if (status.HasErrors)
+            _output.WriteLine(status.GetAllErrors());
     }
 
     [Theory]
@@ -69,21 +141,21 @@ public class TestInviteNewUserService
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var service = CreateInviteAndAddSenderAuthUser(context, out var userAdmin);
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
         var dto = new AddUserDataDto { Email = "User2@g.com", Roles = new List<string> { "Role1", "Role2" } };
-        var inviteStatus = await service.CreateInviteUserToJoinAsync(dto, "User1");
+        var inviteStatus = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "User1");
 
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = await service.AddUserViaInvite(inviteStatus.Result, emailGiven);
+        var status = await tuple.inviteService.AddUserViaInvite(inviteStatus.Result, emailGiven);
 
         //VERIFY
         context.ChangeTracker.Clear();
         status.IsValid.ShouldEqual(isValid);
         if (isValid)
         {
-            var statusNewUser = await userAdmin.FindAuthUserByEmailAsync("User2@g.com");
+            var statusNewUser = await tuple.userAdmin.FindAuthUserByEmailAsync("User2@g.com");
             statusNewUser.Result.UserRoles.Select(x => x.RoleName).ShouldEqual(new[] { "Role1", "Role2" });
         }
     }

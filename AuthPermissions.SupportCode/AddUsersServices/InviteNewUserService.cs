@@ -3,9 +3,14 @@
 
 using System.Text.Json;
 using AuthPermissions.AdminCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using StatusGeneric;
 
@@ -17,18 +22,25 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 public class InviteNewUserService : IInviteNewUserService
 {
     private readonly IEncryptDecryptService _encryptService;
+    private readonly AuthPermissionsDbContext _context;
     private readonly IAuthUsersAdminService _usersAdmin;
+    private readonly AuthPermissionsOptions _options;
     private readonly IAuthenticationAddUserManager _addUserManager;
 
     /// <summary>
     /// ctor
     /// </summary>
+    /// <param name="options"></param>
+    /// <param name="context"></param>
     /// <param name="encryptService"></param>
     /// <param name="usersAdmin"></param>
     /// <param name="addUserManager"></param>
-    public InviteNewUserService(IEncryptDecryptService encryptService, IAuthUsersAdminService usersAdmin,
-        IAuthenticationAddUserManager addUserManager)
+    public InviteNewUserService(AuthPermissionsOptions options, AuthPermissionsDbContext context,
+        IEncryptDecryptService encryptService,
+        IAuthUsersAdminService usersAdmin, IAuthenticationAddUserManager addUserManager)
     {
+        _options = options;
+        _context = context;
         _encryptService = encryptService;
         _usersAdmin = usersAdmin;
         _addUserManager = addUserManager;
@@ -37,6 +49,9 @@ public class InviteNewUserService : IInviteNewUserService
     /// <summary>
     /// This creates an encrypted string containing the information containing the
     /// invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
+    /// Normally the tenantId is set from the user creating the invite, but there are two exceptions
+    /// - Invite user must allow for a Hierarchical tenant where the tenant is deeper than the admin user
+    /// - If the user is an non-tenant user (app admin), then the tenantId can be set to null or any tenant
     /// </summary>
     /// <param name="joiningUser">Data needed to add a new AuthP user</param>
     /// <param name="userId">userId of current user - used to obtain any tenant info.</param>
@@ -48,16 +63,55 @@ public class InviteNewUserService : IInviteNewUserService
         if (userId == null)
             throw new ArgumentNullException(nameof(userId));
 
-        var authUserStatus = await _usersAdmin.FindAuthUserByUserIdAsync(userId);
-        if (authUserStatus.Result == null)
+        var inviterStatus = await _usersAdmin.FindAuthUserByUserIdAsync(userId);
+        if (inviterStatus.Result == null)
             throw new AuthPermissionsException("User must be registered with AuthP");
 
-        joiningUser.TenantId = authUserStatus.Result.TenantId;
+        Tenant foundTenant = null;
+        if (_options.TenantType.IsMultiTenant())
+        {
+            //we need to check / set the the tenantId
+
+            if (joiningUser.TenantId != null)
+            {
+                if (inviterStatus.Result.TenantId == null)
+                {
+                    // An tenant admin user is sending the invite, so any valid tenantId is allowed
+                }
+                else if (_options.TenantType.IsSingleLevel())
+                {
+                    //The tenantId is set from the tenant admin user
+                    joiningUser.TenantId = inviterStatus.Result.TenantId;
+                }
+                else
+                {
+                    //its hierarchical so we check that the tenantId 
+                    foundTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == joiningUser.TenantId);
+                    //Check that the tenant is within the scope of the inviting user 
+                    if (foundTenant != null && !foundTenant.GetTenantDataKey()
+                            .StartsWith(inviterStatus.Result.UserTenant.GetTenantDataKey()))
+                        return status.AddError("The Tenant you have selected isn't within your group.");
+                }
+            }
+            else if (inviterStatus.Result.TenantId != null)
+            {
+                return status.AddError("You must select a tenant for the invite.");
+            }
+            
+            //check that the tenantId (if not null) refers to a actual tenant
+            if (joiningUser.TenantId != null)
+            {
+                foundTenant ??= await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == joiningUser.TenantId);
+                if (foundTenant == null)
+                    return status.AddError("you forgot to select a tenant for the invite (or the tenant is invalid).");
+            }
+        }
+
         status.Message =
             $"Please send the url to the user '{joiningUser.Email ?? joiningUser.UserName}' which allow them to join" +
             (joiningUser.TenantId == null
-                ? "your application"
-                : $"the tenant {authUserStatus.Result.UserTenant.TenantFullName}.");
+                ? "your application."
+                : $"the tenant '{foundTenant.TenantFullName}'.");
 
         var jsonString = JsonSerializer.Serialize(joiningUser);
         var verify = _encryptService.Encrypt(jsonString);

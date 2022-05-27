@@ -30,7 +30,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            context.AddOneUserWithRoles();
+            context.AddOneUserWithRolesAndOptionalTenant();
             context.ChangeTracker.Clear();
 
             var service = new ClaimsCalculator(context, new AuthPermissionsOptions{ TenantType =  TenantTypes.NotUsingTenants }, new List<IClaimsAdder>());

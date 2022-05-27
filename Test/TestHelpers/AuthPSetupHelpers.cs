@@ -55,12 +55,17 @@ namespace Test.TestHelpers
             context.SaveChanges();
         }
 
-        public static void AddOneUserWithRoles(this AuthPermissionsDbContext context, string email = "User1@g.com", string userId = "User1")
+        public static void AddOneUserWithRolesAndOptionalTenant(this AuthPermissionsDbContext context, 
+            string email = "User1@g.com", string tenantName = null)
         {
             var rolePer1 = new RoleToPermissions("Role1", null, $"{(char)1}{(char)3}");
             var rolePer2 = new RoleToPermissions("Role2", null, $"{(char)2}{(char)3}");
             context.AddRange(rolePer1, rolePer2);
-            var user = AuthUser.CreateAuthUser(userId, email, null, new List<RoleToPermissions>() { rolePer1 }).Result;
+            var tenant = tenantName != null
+                ? context.Tenants.Single(x => x.TenantFullName == tenantName)
+                : null;
+            var user = AuthUser.CreateAuthUser("User1", email, null, 
+                new List<RoleToPermissions>() { rolePer1 }, tenant).Result;
             context.Add(user);
             context.SaveChanges();
         }
