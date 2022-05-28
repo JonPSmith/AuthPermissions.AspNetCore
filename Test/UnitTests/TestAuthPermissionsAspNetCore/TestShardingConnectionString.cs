@@ -188,4 +188,50 @@ public class TestShardingConnectionString
             ("Special Postgres", null, new List<string>())
         });
     }
+
+    
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TestQueryTenantsSingleDefaultConnectionName(bool addTenantDefaultDatabase)
+    {
+        //This checks that the Default DatabaseInfoName always returns a HasOwnDb of false.
+        //That's because that database contains the AuthP data as well, so sharding database would have other data with it
+
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        if (addTenantDefaultDatabase)
+        {
+            var tenant1 = Tenant.CreateSingleTenant("Tenant1").Result;
+            tenant1.UpdateShardingState(new AuthPermissionsOptions().ShardingDefaultDatabaseInfoName, true);
+            context.Add(tenant1);
+        }
+        var tenant2 = Tenant.CreateSingleTenant("Tenant2").Result;
+        tenant2.UpdateShardingState("Another", false);
+        context.Add(tenant2);
+        context.SaveChanges();
+
+        context.ChangeTracker.Clear();
+
+        var config = AppSettings.GetConfiguration("..\\Test\\TestData");
+        var services = new ServiceCollection();
+        services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
+
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, context, new AuthPermissionsOptions());
+
+        //ATTEMPT
+        var keyPairs = await service.GetDatabaseInfoNamesWithTenantNamesAsync();
+
+        //VERIFY
+        keyPairs.ShouldEqual(new List<(string databaseName, bool? hasOwnDb, List<string> tenantNames)>
+        {
+            ("Default Database", false, addTenantDefaultDatabase ? new List<string>{ "Tenant1"} : new List<string>()),
+            ("Another", false, new List<string>{ "Tenant2"}),
+            ("Bad: No DatabaseName", null, new List<string>()),
+            ("Special Postgres", null, new List<string>())
+        });
+    }
 }

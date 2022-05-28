@@ -127,7 +127,7 @@ public class TestNonRegisterAddUserManager
         var readInfo = context.AddNewUserInfos.Single();
         readInfo.Email.ShouldEqual(userData.Email);
         readInfo.RolesNamesCommaDelimited.ShouldEqual("Role1,Role2");
-        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(50, 500);
+        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(1, 500);
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class TestNonRegisterAddUserManager
         var readInfo = context.AddNewUserInfos.Single();
         readInfo.Email.ShouldEqual(userData.Email);
         readInfo.RolesNamesCommaDelimited.ShouldEqual("DifferentRoles");
-        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(10, 200);
+        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(1, 200);
     }
 
     [Theory]

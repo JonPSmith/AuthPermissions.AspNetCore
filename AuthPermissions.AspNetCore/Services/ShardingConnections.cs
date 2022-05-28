@@ -40,6 +40,7 @@ public class ShardingConnections : IShardingConnections
     private readonly ConnectionStringsOption _connectionDict;
     private readonly ShardingSettingsOption _shardingSettings;
     private readonly AuthPermissionsDbContext _context;
+    private readonly AuthPermissionsOptions _options;
 
     /// <summary>
     /// ctor
@@ -55,13 +56,15 @@ public class ShardingConnections : IShardingConnections
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor.Value;
         _shardingSettings = shardingSettingsAccessor.Value;
+        _context = context;
+        _options = options;
+
         //If no shardingsetting.json file, then we provide one default sharding settings data
+        //which also contains other support data
         _shardingSettings.ShardingDatabases ??= new List<DatabaseInformation>
         {
             new DatabaseInformation { Name = options.ShardingDefaultDatabaseInfoName }
         };
-        
-        _context = context;
     }
 
     /// <summary>
@@ -87,6 +90,8 @@ public class ShardingConnections : IShardingConnections
 
     /// <summary>
     /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name
+    /// NOTE: The DatabaseInfoName which matches the <see cref="AuthPermissionsOptions.ShardingDefaultDatabaseInfoName"/> is always
+    /// returns a HasOwnDb value of false. This is because the default database has the AuthP data in it.
     /// </summary>
     /// <returns>List of all the database info names with the tenants using that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
@@ -105,10 +110,14 @@ public class ShardingConnections : IShardingConnections
         foreach (var databaseInfoName in _shardingSettings.ShardingDatabases.Select(x => x.Name))
         {
             result.Add(grouped.ContainsKey(databaseInfoName)
-                ? (databaseInfoName, 
-                    hasOwnDb: (grouped[databaseInfoName].FirstOrDefault()?.HasOwnDb),  
+                ? (databaseInfoName,
+                    databaseInfoName == _options.ShardingDefaultDatabaseInfoName
+                        ? false //The default DatabaseInfoName contains the AuthP information, so its a shared database
+                        : grouped[databaseInfoName].FirstOrDefault()?.HasOwnDb,  
                     grouped[databaseInfoName].Select(x => x.TenantFullName).ToList())
-                : (databaseInfoName, null, new List<string>()));
+                : (databaseInfoName, 
+                    databaseInfoName == _options.ShardingDefaultDatabaseInfoName ? false : null,
+                    new List<string>()));
         }
 
         return result;

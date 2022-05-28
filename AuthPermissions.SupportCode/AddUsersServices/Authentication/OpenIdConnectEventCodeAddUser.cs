@@ -17,7 +17,7 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 /// Its job is to find a AuthUser linked to the userId of the user that is logging in.
 /// If no AuthUser is found, then it checks to see if a new AuthUser should be added via data added to the AuthP database
 /// </summary>
-public class OpenIdConnectEventCode_AddUser : NonRegisterAuthenticationEventCode<TokenValidatedContext>
+public class OpenIdConnectEventCodeAddUser : NonRegisterAuthenticationEventCode<TokenValidatedContext>
 {
     /// <summary>
     /// This method adds an AuthUser when creating a new User via OpenIdConnect using a <see cref="NonRegisterAddUserManager"/>

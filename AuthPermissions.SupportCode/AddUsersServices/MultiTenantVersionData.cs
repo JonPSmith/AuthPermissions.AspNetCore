@@ -30,5 +30,5 @@ public class MultiTenantVersionData
     /// tenant versions have their own DB.
     /// If this property isn't null, then it will override the <see cref="AddNewTenantDto"/>.<see cref="AddNewTenantDto.HasOwnDb"/> property
     /// </summary>
-    public Dictionary<string, bool> HasOwnDbForEachVersion { get; set; }
+    public Dictionary<string, bool?> HasOwnDbForEachVersion { get; set; }
 }

@@ -10,17 +10,19 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// This holds user data (via the inherit of the <see cref="AddUserDataDto"/>)
 /// and the Tenant information.
 /// </summary>
-public class AddNewTenantDto : AddUserDataDto
+public class AddNewTenantDto
 {
     /// <summary>
-    /// This holds the name of the version of the multi-tenant features the user has selected
-    /// </summary>
-    public string Version { get; set; }
-
-    /// <summary>
     /// This is the name of the new tenant the user wants to create
+    /// Must be provided
     /// </summary>
     public string TenantName { get; set; }
+
+    /// <summary>
+    /// This holds the name of the version of the multi-tenant features the user has selected
+    /// Can be null if not using versions 
+    /// </summary>
+    public string Version { get; set; }
 
     /// <summary>
     /// If the <see cref="MultiTenantVersionData"/>.<see cref="MultiTenantVersionData.HasOwnDbForEachVersion"/> is null
@@ -32,10 +34,15 @@ public class AddNewTenantDto : AddUserDataDto
     public bool? HasOwnDb { get; set; }
 
     /// <summary>
-    /// If <see cref="TenantTypes.AddSharding"/> and you have servers geographically spread,
+    /// If <see cref="TenantTypes.AddSharding"/> and you have database servers geographically spread,
     /// then you can provide some information to help the <see cref="IGetDatabaseForNewTenant"/> service
     /// to pick the right server/database.
     /// Can be null.
     /// </summary>
     public string Region { get; set; }
+
+    /// <summary>
+    /// This holds the information for adding a new user
+    /// </summary>
+    public AddUserDataDto NewUserInfo { get; set; }
 }

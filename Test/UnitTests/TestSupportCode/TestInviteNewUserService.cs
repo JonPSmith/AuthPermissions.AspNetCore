@@ -29,7 +29,7 @@ public class TestInviteNewUserService
         _output = output;
     }
 
-    private static async Task<(InviteNewUserService inviteService, AuthUsersAdminService userAdmin)> 
+    private static async Task<(InviteNewUserService service, AuthUsersAdminService userAdmin)> 
         CreateInviteAndAddSenderAuthUserAsync(AuthPermissionsDbContext context, 
         TenantTypes tenantType = TenantTypes.NotUsingTenants)
     {
@@ -67,7 +67,7 @@ public class TestInviteNewUserService
 
         //ATTEMPT
         var dto = new AddUserDataDto { Email = "User2@g.com", Roles = new List<string>{"Role1"}};
-        var status = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "User1");
+        var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -92,7 +92,7 @@ public class TestInviteNewUserService
 
         //ATTEMPT
         var dto = new AddUserDataDto { Email = "User2@g.com", TenantId = joinerTenantId};
-        var status = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "User1");
+        var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
 
         //VERIFY
         status.IsValid.ShouldEqual(isValid);
@@ -123,7 +123,7 @@ public class TestInviteNewUserService
 
         //ATTEMPT
         var dto = new AddUserDataDto { Email = "User2@g.com", TenantId = joinerTenantId };
-        var status = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "AppAdminId");
+        var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "AppAdminId");
 
         //VERIFY
         status.IsValid.ShouldEqual(isValid);
@@ -143,12 +143,12 @@ public class TestInviteNewUserService
 
         var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
         var dto = new AddUserDataDto { Email = "User2@g.com", Roles = new List<string> { "Role1", "Role2" } };
-        var inviteStatus = await tuple.inviteService.CreateInviteUserToJoinAsync(dto, "User1");
+        var inviteStatus = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
 
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = await tuple.inviteService.AddUserViaInvite(inviteStatus.Result, emailGiven);
+        var status = await tuple.service.AddUserViaInvite(inviteStatus.Result, emailGiven);
 
         //VERIFY
         context.ChangeTracker.Clear();

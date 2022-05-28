@@ -45,8 +45,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> CreateTenant([FromServices] ISignInAndCreateTenant userRegisterInvite,
             AddNewTenantDto data, string password, bool isPersistent)
         {
-            var status = await userRegisterInvite.AddUserAndNewTenantAsync(data, 
-                CreateTenantSettings.TenantSetupData);
+            var status = await userRegisterInvite.SignUpNewTenantWithVersionAsync(data, 
+                Example3CreateTenantSettings.TenantSetupData);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

@@ -18,7 +18,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
                 "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData"),
             new("App Support", "overall support - limited admin items",
                 "UserRead, UserRolesChange, RoleRead, TenantList, TenantAccessData"),
-            new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),
+            new("Invoice reader", "Can read invoices", "InvoiceRead"),
+            new("Invoice read/write", "Can access invoices", "InvoiceRead, InvoiceCreate"),
             //tenant roles
             new("Tenant Admin", "Tenant-level admin",
                 "UserRead, UserRolesChange, RoleRead, InviteUsers", RoleTypes.TenantAdminAdd),
@@ -40,18 +41,18 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
             new ("extraUser@g1.com", null, "Tenant User"),
             //Company admins.
             new ("admin@4uInc.com", null,
-                "Tenant User, Tenant Admin", tenantNameForDataKey: "4U Inc."),
+                "Invoice read/write, Tenant Admin", tenantNameForDataKey: "4U Inc."),
             new("admin1@Pets.com", null,
-                "Tenant User, Tenant Admin", tenantNameForDataKey: "Pets Ltd."),
+                "Invoice read/write, Tenant Admin", tenantNameForDataKey: "Pets Ltd."),
             //Company users.
-            new ("user1@4uInc.com", null,
-                "Tenant User", tenantNameForDataKey: "4U Inc."),
-            new ("user2@4uInc.com", null,
-                "Tenant User", tenantNameForDataKey: "4U Inc."),
+            new ("reader1@4uInc.com", null,
+                "Invoice reader", tenantNameForDataKey: "4U Inc."),
+            new ("read_write@4uInc.com", null,
+                "Invoice read/write", tenantNameForDataKey: "4U Inc."),
             new ("user1@Pets.com", null,
-                "Tenant User", tenantNameForDataKey: "Pets Ltd."),
+                "Invoice read/write", tenantNameForDataKey: "Pets Ltd."),
             new ("user1@BigR.com", null,
-                "Tenant User", tenantNameForDataKey: "Big Rocks Inc."),
+                "Invoice read/write", tenantNameForDataKey: "Big Rocks Inc."),
         };
     }
 }

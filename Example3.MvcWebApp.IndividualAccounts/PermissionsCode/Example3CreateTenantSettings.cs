@@ -6,7 +6,7 @@ using AuthPermissions.SupportCode.AddUsersServices;
 
 namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 
-public static class CreateTenantSettings
+public static class Example3CreateTenantSettings
 {
     public static readonly MultiTenantVersionData TenantSetupData = new()
     {
@@ -18,9 +18,9 @@ public static class CreateTenantSettings
         },
         TenantAdminRoles = new Dictionary<string, List<string>>()
         {
-            { "Free", new List<string> { "Tenant User" } },
-            { "Pro", new List<string> { "Tenant User", "Tenant Admin" } },
-            { "Enterprise", new List<string> { "Tenant User", "Tenant Admin" } }
+            { "Free", new List<string> { "Invoice read/write" } },
+            { "Pro", new List<string> { "Invoice read/write", "Tenant Admin" } },
+            { "Enterprise", new List<string> { "Invoice read/write", "Tenant Admin" } }
         }
         //No settings for HasOwnDbForEachVersion as this isn't a sharding 
     };
