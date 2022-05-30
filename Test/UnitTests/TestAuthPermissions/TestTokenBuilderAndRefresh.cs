@@ -108,6 +108,34 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
+        public async Task RefreshTokenUsingRefreshTokenAsyncTwiceOk()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var setup = new SetupTokenBuilder(context);
+            var tokenAndRefresh = await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
+
+            context.ChangeTracker.Clear();
+
+            //ATTEMPT
+            var tokensAndStatus1 = await setup.TokenBuilder.RefreshTokenUsingRefreshTokenAsync(tokenAndRefresh);
+            var tokensAndStatus = await setup.TokenBuilder.RefreshTokenUsingRefreshTokenAsync(tokensAndStatus1.updatedTokens);
+
+            //VERIFY
+            context.ChangeTracker.Clear();
+            tokensAndStatus.HttpStatusCode.ShouldEqual(200);
+
+            var allRefreshTokens = context.RefreshTokens.ToList();
+            allRefreshTokens.Count.ShouldEqual(3);
+            allRefreshTokens.Single(x => x.TokenValue == tokensAndStatus.updatedTokens.RefreshToken).IsInvalid.ShouldBeFalse();
+            allRefreshTokens.Where(x => x.TokenValue != tokensAndStatus.updatedTokens.RefreshToken)
+                .All(x => x.IsInvalid).ShouldBeTrue();
+        }
+
+        [Fact]
         public async Task RefreshTokenUsingRefreshTokenAsyncRefreshAlreadyUsed()
         {
             //SETUP
