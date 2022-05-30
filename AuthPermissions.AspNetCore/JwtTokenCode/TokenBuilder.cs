@@ -134,7 +134,8 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
                     $"The JTW token didn't contain a claim holding the UserId. Token = {tokenAndRefresh.Token}");
             }
             //b) Create a JWT containing the same data, but with a new Expired time
-            var tokenAndDesc = GenerateJwtTokenHandler(userId, claimsPrincipal.Claims);
+            var claims = await _claimsCalculator.GetClaimsForAuthUserAsync(userId);
+            var tokenAndDesc = GenerateJwtTokenHandler(userId, claims);
             var token = tokenAndDesc.tokenHandler.CreateToken(tokenAndDesc.tokenDescriptor);
             //c) Mark the refreshTokenFromDb as used
             refreshTokenFromDb.MarkAsInvalid();
