@@ -49,7 +49,7 @@ public class TestNonRegisterAddUserManager
         context.AddMultipleUsersWithRolesInDb();
 
         var service = new NonRegisterAddUserManager(context, CreateLogger<NonRegisterAddUserManager>());
-        var userData = new AddUserDataDto { Email = email };
+        var userData = new AddNewUserDto { Email = email };
 
         context.ChangeTracker.Clear();
         //ATTEMPT
@@ -71,7 +71,7 @@ public class TestNonRegisterAddUserManager
         context.AddMultipleUsersWithRolesInDb();
 
         var service = new NonRegisterAddUserManager(context, CreateLogger<NonRegisterAddUserManager>());
-        var userData = new AddUserDataDto { UserName = userName };
+        var userData = new AddNewUserDto { UserName = userName };
 
         //ATTEMPT
         var status = await service.CheckNoExistingAuthUserAsync(userData);
@@ -89,7 +89,7 @@ public class TestNonRegisterAddUserManager
         context.Database.EnsureCreated();
 
         var service = new NonRegisterAddUserManager(context, CreateLogger<NonRegisterAddUserManager>());
-        var userData = new AddUserDataDto { Email = "me@gmail.com", Roles = new(){"Role1","Role2"} };
+        var userData = new AddNewUserDto { Email = "me@gmail.com", Roles = new(){"Role1","Role2"} };
 
         //ATTEMPT
         var status = await service.SetUserInfoAsync(userData);
@@ -113,7 +113,7 @@ public class TestNonRegisterAddUserManager
         context.Database.EnsureCreated();
 
         var service = new NonRegisterAddUserManager(context, CreateLogger<NonRegisterAddUserManager>());
-        var userData = new AddUserDataDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
+        var userData = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
 
         (await service.SetUserInfoAsync(userData)).IsValid.ShouldBeTrue();
         context.ChangeTracker.Clear();
@@ -127,7 +127,7 @@ public class TestNonRegisterAddUserManager
         var readInfo = context.AddNewUserInfos.Single();
         readInfo.Email.ShouldEqual(userData.Email);
         readInfo.RolesNamesCommaDelimited.ShouldEqual("Role1,Role2");
-        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(1, 500);
+        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(0, 500);
     }
 
     [Fact]
@@ -140,13 +140,13 @@ public class TestNonRegisterAddUserManager
         context.Database.EnsureCreated();
 
         var service = new NonRegisterAddUserManager(context, CreateLogger<NonRegisterAddUserManager>());
-        var userData = new AddUserDataDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
+        var userData = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
 
         (await service.SetUserInfoAsync(userData)).IsValid.ShouldBeTrue();
         context.ChangeTracker.Clear();
         //ATTEMPT
 
-        var newUserData = new AddUserDataDto { Email = "me@gmail.com", Roles = new() { "DifferentRoles"} };
+        var newUserData = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "DifferentRoles"} };
         var status = await service.SetUserInfoAsync(newUserData);
 
         //VERIFY
@@ -165,14 +165,14 @@ public class TestNonRegisterAddUserManager
         context.Database.EnsureCreated();
 
         var service = new NonRegisterAddUserManager(context, CreateLogger<NonRegisterAddUserManager>());
-        var userData = new AddUserDataDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
+        var userData = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
 
         (await service.SetUserInfoAsync(userData)).IsValid.ShouldBeTrue();
         context.ChangeTracker.Clear();
         //ATTEMPT
 
         service.TimeoutSecondsOnSameUserAdded = 0;
-        var newUserData = new AddUserDataDto { Email = "me@gmail.com", Roles = new() { "DifferentRoles" } };
+        var newUserData = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "DifferentRoles" } };
         var status = await service.SetUserInfoAsync(newUserData);
 
         //VERIFY
@@ -181,7 +181,7 @@ public class TestNonRegisterAddUserManager
         var readInfo = context.AddNewUserInfos.Single();
         readInfo.Email.ShouldEqual(userData.Email);
         readInfo.RolesNamesCommaDelimited.ShouldEqual("DifferentRoles");
-        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(1, 200);
+        DateTime.UtcNow.Subtract(readInfo.CreatedAtUtc).TotalMilliseconds.ShouldBeInRange(0, 200);
     }
 
     [Theory]
@@ -196,7 +196,7 @@ public class TestNonRegisterAddUserManager
         context.Database.EnsureCreated();
 
         var service = new NonRegisterAddUserManager(context, CreateLogger<NonRegisterAddUserManager>());
-        var userData = new AddUserDataDto { Email = email, Roles = new() { "Role1", "Role2" } };
+        var userData = new AddNewUserDto { Email = email, Roles = new() { "Role1", "Role2" } };
 
         (await service.SetUserInfoAsync(userData)).IsValid.ShouldBeTrue();
         context.AddMultipleUsersWithRolesInDb();

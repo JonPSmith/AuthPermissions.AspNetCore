@@ -3,9 +3,9 @@
 
 namespace Example3.MvcWebApp.IndividualAccounts.Models;
 
-public class InviteUserDto
+public class InviteUserResult
 {
-    public InviteUserDto(string message, string url)
+    public InviteUserResult(string message, string url)
     {
         Message = message;
         Url = url;

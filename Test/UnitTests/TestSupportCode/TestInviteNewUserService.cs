@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
@@ -12,11 +14,13 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices;
+using Microsoft.IdentityModel.Tokens;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
+using Xunit.Sdk;
 
 namespace Test.UnitTests.TestSupportCode;
 
@@ -29,7 +33,7 @@ public class TestInviteNewUserService
         _output = output;
     }
 
-    private static async Task<(InviteNewUserService service, AuthUsersAdminService userAdmin)> 
+    private static async Task<(InviteNewUserService service, AuthUsersAdminService userAdmin, EncryptDecryptService encryptService)> 
         CreateInviteAndAddSenderAuthUserAsync(AuthPermissionsDbContext context, 
         TenantTypes tenantType = TenantTypes.NotUsingTenants)
     {
@@ -50,7 +54,7 @@ public class TestInviteNewUserService
 
         context.AddOneUserWithRolesAndOptionalTenant("User1@g.com", 
             tenantType != TenantTypes.NotUsingTenants ? "Company" : null);
-        return (service, userAdmin);
+        return (service, userAdmin, encryptService);
     }
 
     [Fact]
@@ -66,20 +70,63 @@ public class TestInviteNewUserService
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var dto = new AddUserDataDto { Email = "User2@g.com", Roles = new List<string>{"Role1"}};
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string>{"Role1"}};
         var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        _output.WriteLine(status.Result);
+        _output.WriteLine(status.Message);
+    }
+
+    [Fact]
+    public async Task TestInviteUserToJoinTenantAsync_NoRoles()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var dto = new AddNewUserDto { Email = "User2@g.com"};
+        var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse(status.GetAllErrors());
+        status.GetAllErrors().ShouldEqual("You haven't set up the Roles for the invited user. If you really what that, then select the '< none >' dropdown item.");
+    }
+
+    [Fact]
+    public async Task TestInviteUserToJoinTenantAsync_NoEmailOrUserName()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var dto = new AddNewUserDto { };
+        var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse();
+        status.GetAllErrors().ShouldEqual("You must provide an email or username for the invitation.");
     }
 
     [Theory]
-    [InlineData(TenantTypes.SingleLevel, 999, true)]        //Single tenant: takes the invite's tenant
-    [InlineData(TenantTypes.HierarchicalTenant, 1, true)]   //Hierarchical: pick the top
-    [InlineData(TenantTypes.HierarchicalTenant, 3, true)]   //Hierarchical: pick a child
-    [InlineData(TenantTypes.HierarchicalTenant, 99, false)] //Hierarchical: bad tenantId
-    public async Task TestInviteUserToJoinTenantAsync_MultiTenant_TenantAdmin(TenantTypes tenantType, int? joinerTenantId, bool isValid)
+    [InlineData(TenantTypes.SingleLevel, 999, true, 1)]        //Single tenant: takes the invite's tenant
+    [InlineData(TenantTypes.HierarchicalTenant, 1, true, 1)]   //Hierarchical: pick the top
+    [InlineData(TenantTypes.HierarchicalTenant, 3, true, 3)]   //Hierarchical: pick a child
+    [InlineData(TenantTypes.HierarchicalTenant, 99, false, null)] //Hierarchical: bad tenantId
+    public async Task TestInviteUserToJoinTenantAsync_MultiTenant_TenantAdmin(
+        TenantTypes tenantType, int? joinerTenantId, bool isValid, int? expectedTenantId)
     {
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -91,24 +138,31 @@ public class TestInviteNewUserService
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var dto = new AddUserDataDto { Email = "User2@g.com", TenantId = joinerTenantId};
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string> { "Role1" }, TenantId = joinerTenantId};
         var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
 
         //VERIFY
-        status.IsValid.ShouldEqual(isValid);
         if (status.HasErrors)
             _output.WriteLine(status.GetAllErrors());
+        status.IsValid.ShouldEqual(isValid);
+        if (status.IsValid)
+        {
+            var decrypted = tuple.encryptService.Decrypt(Base64UrlEncoder.Decode(status.Result));
+            var invite = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
+            invite.TenantId.ShouldEqual(expectedTenantId);
+        }
     }
 
     [Theory]
-    [InlineData(TenantTypes.SingleLevel, null, true)]        //make another app user
-    [InlineData(TenantTypes.SingleLevel, 1, true)]           //Single tenant: select
-    [InlineData(TenantTypes.HierarchicalTenant, null, true)] //make another app user
-    [InlineData(TenantTypes.HierarchicalTenant, 1, true)]    //Hierarchical: pick the top
-    [InlineData(TenantTypes.HierarchicalTenant, 3, true)]    //Hierarchical: pick a child
-    [InlineData(TenantTypes.SingleLevel, 99, false)]         //Single tenant: bad tenantId
-    [InlineData(TenantTypes.HierarchicalTenant, 99, false)]  //Hierarchical: bad tenantId
-    public async Task TestInviteUserToJoinTenantAsync_MultiTenant_AppAdmin(TenantTypes tenantType, int? joinerTenantId, bool isValid)
+    [InlineData(TenantTypes.SingleLevel, null, true, null)]        //make another app user
+    [InlineData(TenantTypes.SingleLevel, 1, true, 1)]           //Single tenant: select
+    [InlineData(TenantTypes.HierarchicalTenant, null, true, null)] //make another app user
+    [InlineData(TenantTypes.HierarchicalTenant, 1, true, 1)]    //Hierarchical: pick the top
+    [InlineData(TenantTypes.HierarchicalTenant, 3, true, 3)]    //Hierarchical: pick a child
+    [InlineData(TenantTypes.SingleLevel, 99, false, null)]         //Single tenant: bad tenantId
+    [InlineData(TenantTypes.HierarchicalTenant, 99, false, null)]  //Hierarchical: bad tenantId
+    public async Task TestInviteUserToJoinTenantAsync_MultiTenant_AppAdmin(
+        TenantTypes tenantType, int? joinerTenantId, bool isValid, int? expectedTenantId)
     {
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -122,13 +176,19 @@ public class TestInviteNewUserService
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var dto = new AddUserDataDto { Email = "User2@g.com", TenantId = joinerTenantId };
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string> { "Role1" }, TenantId = joinerTenantId };
         var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "AppAdminId");
 
         //VERIFY
-        status.IsValid.ShouldEqual(isValid);
         if (status.HasErrors)
             _output.WriteLine(status.GetAllErrors());
+        status.IsValid.ShouldEqual(isValid);
+        if (status.IsValid)
+        {
+            var decrypted = tuple.encryptService.Decrypt(Base64UrlEncoder.Decode(status.Result));
+            var invite = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
+            invite.TenantId.ShouldEqual(expectedTenantId);
+        }
     }
 
     [Theory]
@@ -142,7 +202,7 @@ public class TestInviteNewUserService
         context.Database.EnsureCreated();
 
         var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
-        var dto = new AddUserDataDto { Email = "User2@g.com", Roles = new List<string> { "Role1", "Role2" } };
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string> { "Role1", "Role2" } };
         var inviteStatus = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
 
         context.ChangeTracker.Clear();

@@ -13,6 +13,6 @@ namespace AuthPermissions
         /// <summary>
         /// This is used in the <see cref="AuthUsersAdminService"/> and in the display code in the AuthUserChange class
         /// </summary>
-        public const string EmptyTenantName = "< none >";
+        public const string EmptyItemName = "< none >";
     }
 }

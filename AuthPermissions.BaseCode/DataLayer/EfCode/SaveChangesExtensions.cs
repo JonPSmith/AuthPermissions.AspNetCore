@@ -74,21 +74,18 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
                 var name = (entities[0].Entity as INameToShowOnException)?.NameToUseForError ?? "<unknown>";
                 var typeName = entities[0].Entity.GetType().Name;
 
-                switch (exceptionType)
+                return exceptionType switch
                 {
-                    case ExceptionTypes.Duplicate:
-                        return status.AddError($"There is already a {typeName} with a value: name = {name}");
-                    case ExceptionTypes.ConcurrencyError:
-                        return status.AddError($"Another user changed the {typeName} with the name = {name}. Please re-read the entity and add you change again.");
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(exceptionType), exceptionType, null);
-                }
+                    ExceptionTypes.Duplicate => status.AddError(
+                        $"There is already a {typeName} with a value: name = {name}"),
+                    ExceptionTypes.ConcurrencyError => status.AddError(
+                        $"Another user changed the {typeName} with the name = {name}. Please re-read the entity and add you change again."),
+                    _ => throw new ArgumentOutOfRangeException(nameof(exceptionType), exceptionType, null)
+                };
             }
-            else
-            {
-                //This shouldn't happen, but just in case
-                status.AddError($"There was a {exceptionType} on an auth class.");
-            }
+
+            //This shouldn't happen, but just in case
+            status.AddError($"There was a {exceptionType} on an auth class.");
 
             return status;
         }

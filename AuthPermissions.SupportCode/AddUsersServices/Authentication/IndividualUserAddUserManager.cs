@@ -11,7 +11,7 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 /// <summary>
 /// This the implementation of the <see cref="IAuthenticationAddUserManager"/> for the Individual User Accounts authentication handler
 /// This will create (or find) an individual user account and then create an AuthUser linked to that individual user.
-/// It uses the the authP data in the <see cref="AddUserDataDto"/> class when creating the AuthUser
+/// It uses the the authP data in the <see cref="AddNewUserDto"/> class when creating the AuthUser
 /// </summary>
 /// <typeparam name="TIdentity"></typeparam>
 public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserManager
@@ -47,17 +47,17 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    public AddUserDataDto UserLoginData { get; private set; }
+    public AddNewUserDto NewUserLogin { get; private set; }
 
     /// <summary>
     /// This makes a quick check that the user isn't already has an AuthUser 
     /// </summary>
-    /// <param name="userData"></param>
+    /// <param name="newUser"></param>
     /// <returns>status, with error if there an user already</returns>
-    public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddUserDataDto userData)
+    public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
         var status = new StatusGenericHandler();
-        if ((await _authUsersAdmin.FindAuthUserByEmailAsync(userData.Email))?.Result != null)
+        if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
             return status.AddError("There is already an AuthUser with your email, so you can't add another.");
         return status;
     }
@@ -67,20 +67,20 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// external authentication handlers where you can't get a user's data before the login 
     /// it adds the new user AuthP information into the database to be read within the login event
     /// </summary>
-    /// <param name="userData">The information for creating an AuthUser </param>
+    /// <param name="newUser">The information for creating an AuthUser </param>
     /// <param name="password">This is used to create a user.
     /// It also checks if there is a user already, which could happen if the user's login failed</param>
     /// <returns>status</returns>
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddUserDataDto userData, string password = null)
+    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser, string password = null)
     {
-        UserLoginData = userData ?? throw new ArgumentNullException(nameof(userData));
+        NewUserLogin = newUser ?? throw new ArgumentNullException(nameof(newUser));
 
         var status = new StatusGenericHandler { Message = "New user with claims added" };
 
-        var user = await _userManager.FindByEmailAsync(userData.Email);
+        var user = await _userManager.FindByEmailAsync(newUser.Email);
         if (user == null)
         {
-            user = new TIdentity { UserName = userData.UserName, Email = userData.Email };
+            user = new TIdentity { UserName = newUser.UserName, Email = newUser.Email };
             var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
@@ -93,12 +93,12 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
         //We have created the individual user account, so we have the user's UserId.
         //Now we create the AuthUser using the data we have been given
 
-        var tenantName = userData.TenantId == null
+        var tenantName = newUser.TenantId == null
             ? null
-            : (await _tenantAdminService.GetTenantViaIdAsync((int)userData.TenantId)).Result?.TenantFullName;
+            : (await _tenantAdminService.GetTenantViaIdAsync((int)newUser.TenantId)).Result?.TenantFullName;
 
         status.CombineStatuses(await _authUsersAdmin.AddNewUserAsync(user.Id, 
-            userData.Email, userData.UserName, userData.Roles, tenantName));
+            newUser.Email, newUser.UserName, newUser.Roles, tenantName));
 
         return status;
     }
@@ -112,15 +112,15 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// <returns>status</returns>
     public async Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent)
     {
-        if (UserLoginData == null)
+        if (NewUserLogin == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
         var normalizedEmail = givenEmail.Trim().ToLower();
 
         var status = new StatusGenericHandler();
-        if (UserLoginData.Email != null && UserLoginData.Email != normalizedEmail)
+        if (NewUserLogin.Email != null && NewUserLogin.Email != normalizedEmail)
             return status.AddError("The email you used isn't the one that was expected.");
-        if (UserLoginData.UserName != null && UserLoginData.UserName != givenUserName)
+        if (NewUserLogin.UserName != null && NewUserLogin.UserName != givenUserName)
             return status.AddError("The username you used isn't the one that was expected.");
 
         var user = await _userManager.FindByEmailAsync(normalizedEmail);

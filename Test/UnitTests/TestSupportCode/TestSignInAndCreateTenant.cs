@@ -65,14 +65,14 @@ public class TestSignInAndCreateTenant
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var dto = new AddNewTenantDto { TenantName = "New Tenant", Version = version,
-            NewUserInfo = new AddUserDataDto{Email = "me!@g1.com"} };
-        var status = await tuple.service.SignUpNewTenantWithVersionAsync(dto, Example3CreateTenantSettings.TenantSetupData);
+        var userData = new AddNewUserDto{Email = "me!@g1.com"};
+        var tenantData = new AddNewTenantDto { TenantName = "New Tenant", Version = version };
+        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
         var tenant = context.Tenants.Single();
-        tenant.TenantFullName.ShouldEqual(dto.TenantName);
+        tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
         tenant.TenantRoles.Select(x => x.RoleName).ToArray()
             .ShouldEqual(tenantRoles?.Split(',') ?? Array.Empty<string>());
         var user = context.AuthUsers.Single();
@@ -93,12 +93,13 @@ public class TestSignInAndCreateTenant
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var userInfo = new AddUserDataDto
+        var userData = new AddNewUserDto
         {
             Email = "me!@g1.com",
             Roles = new List<string> { "Role1", "Role3" }
         };
-        var status = await tuple.service.SignUpNewTenantAsync(userInfo, "New Tenant");
+        var tenantData = new AddNewTenantDto { TenantName = "New Tenant"};
+        var status = await tuple.service.SignUpNewTenantAsync(userData, tenantData);
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -127,15 +128,14 @@ public class TestSignInAndCreateTenant
         var rolesSetup = new BulkLoadRolesService(context, authSettings);
         await rolesSetup.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
 
-        var dto = new AddNewTenantDto
+        var userData = new AddNewUserDto { Email = "me!@g1.com" };
+        var tenantData = new AddNewTenantDto
         {
-            NewUserInfo = new AddUserDataDto { Email = "me!@g1.com"},
             TenantName = "New Tenant",
             Version = "Free",
             HasOwnDb = dtoHasOwnDb,
         };
-
-        Example3CreateTenantSettings.TenantSetupData.HasOwnDbForEachVersion = new Dictionary<string, bool?>()
+        Example3CreateTenantVersions.TenantSetupData.HasOwnDbForEachVersion = new Dictionary<string, bool?>()
         {
             { "Free", setupHasOwnDb },
         };
@@ -143,12 +143,12 @@ public class TestSignInAndCreateTenant
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = await tuple.service.SignUpNewTenantWithVersionAsync(dto, Example3CreateTenantSettings.TenantSetupData);
+        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
         var tenant = context.Tenants.Single();
-        tenant.TenantFullName.ShouldEqual(dto.TenantName);
+        tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
         tenant.DatabaseInfoName.ShouldEqual(databaseInfoName);
 
     }

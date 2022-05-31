@@ -127,7 +127,7 @@ namespace AuthPermissions.AdminCode.Services
         /// Doesn't work properly when used in a create, as the user's tenant hasn't be set
         /// </summary>
         /// <param name="userId">UserId of the user you are updating. Only needed in multi-tenant applications </param>
-        /// <param name="addNone">Defaults to true, with will add the <see cref="CommonConstants.EmptyTenantName"/> at the start.
+        /// <param name="addNone">Defaults to true, with will add the <see cref="CommonConstants.EmptyItemName"/> at the start.
         /// This is useful for selecting no roles</param>
         /// <returns></returns>
         public async Task<List<string>> GetRoleNamesForUsersAsync(string userId = null, bool addNone = true)
@@ -135,7 +135,7 @@ namespace AuthPermissions.AdminCode.Services
             List<string> InsertEmptyNameIfNeeded(List<string> localRoleNames)
             {
                 if (addNone)
-                    localRoleNames.Insert(0, CommonConstants.EmptyTenantName);
+                    localRoleNames.Insert(0, CommonConstants.EmptyItemName);
                 return localRoleNames;
             }
 
@@ -201,11 +201,11 @@ namespace AuthPermissions.AdminCode.Services
                 status.AddError($"The email '{email}' is not a valid email.");
 
             //Find the tenant
-            var foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyTenantName
+            var foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyItemName
                 ? null
                 : await _context.Tenants.Include(x => x.TenantRoles)
                     .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
-            if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyTenantName && foundTenant == null)
+            if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyItemName && foundTenant == null)
                 status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
 
             //Find/check the roles
@@ -227,15 +227,15 @@ namespace AuthPermissions.AdminCode.Services
         /// <summary>
         /// This update an existing AuthUser. This method is designed so you only have to provide data for the parts you want to update,
         /// i.e. if a parameter is null, then it keeps the original setting. The only odd one out is the tenantName,
-        /// where you have to provide the <see cref="CommonConstants.EmptyTenantName"/> value to remove the tenant.  
+        /// where you have to provide the <see cref="CommonConstants.EmptyItemName"/> value to remove the tenant.  
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="email">Either provide a email or null. if null, then uses the current user's email</param>
         /// <param name="userName">Either provide a userName or null. if null, then uses the current user's userName</param>
         /// <param name="roleNames">Either a list of rolenames or null. If null, then keeps its current rolenames.
-        /// If the rolesNames collection only contains a single entry with the value <see cref="CommonConstants.EmptyTenantName"/>,
+        /// If the rolesNames collection only contains a single entry with the value <see cref="CommonConstants.EmptyItemName"/>,
         /// then the roles will be set to an empty collection.</param>
-        /// <param name="tenantName">If null, then keeps current tenant. If it is <see cref="CommonConstants.EmptyTenantName"/> it will remove a tenant link.
+        /// <param name="tenantName">If null, then keeps current tenant. If it is <see cref="CommonConstants.EmptyItemName"/> it will remove a tenant link.
         /// Otherwise the user will be linked to the tenant with that name.</param>
         /// <returns>status</returns>
         public async Task<IStatusGeneric> UpdateUserAsync(string userId, 
@@ -273,12 +273,12 @@ namespace AuthPermissions.AdminCode.Services
             if (tenantName != null)
             {
                 //Find the tenant
-                foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyTenantName
+                foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyItemName
                     ? null
                     : await _context.Tenants.Include(x => x.TenantRoles)
                         .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
 
-                if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyTenantName && foundTenant == null)
+                if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyItemName && foundTenant == null)
                     return status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
             
                 authUserToUpdate.UpdateUserTenant(foundTenant);
@@ -288,7 +288,7 @@ namespace AuthPermissions.AdminCode.Services
             if (roleNames != null)
             {
                 var updatedRoles = new List<RoleToPermissions>();
-                if (!(roleNames.Count == 1 && roleNames.Single() == CommonConstants.EmptyTenantName))
+                if (!(roleNames.Count == 1 && roleNames.Single() == CommonConstants.EmptyItemName))
                 {
                     //Find/check Roles
                     var rolesStatus = await FindCheckRolesAreValidForUserAsync(roleNames, foundTenant, userName ?? email);

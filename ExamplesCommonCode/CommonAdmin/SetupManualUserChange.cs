@@ -125,7 +125,7 @@ namespace ExamplesCommonCode.CommonAdmin
         {
             AllRoleNames = await authUsersAdmin.GetRoleNamesForUsersAsync(UserId);
             AllTenantNames = await authUsersAdmin.GetAllTenantNamesAsync();
-            AllTenantNames.Insert(0, CommonConstants.EmptyTenantName);
+            AllTenantNames.Insert(0, CommonConstants.EmptyItemName);
         }
     }
 }

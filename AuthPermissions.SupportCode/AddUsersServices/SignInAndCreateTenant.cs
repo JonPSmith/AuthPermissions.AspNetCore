@@ -43,24 +43,19 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// This implements "sign up" feature, where a new user signs up for a new tenant,
     /// where there is only version of the tenant. It also creates a new user which is linked to the new tenant.
     /// </summary>
-    /// <param name="userInfo">This contains the information for the new user. Both the user login and any AuthP Roles, etc.</param>
-    /// <param name="tenantName">This is the name for the new tenant - it will check the name is not already used</param>
-    /// <param name="hasOwnDb">If the app is sharding, then must be set to true of tenant having its own db, of false for shared db</param>
-    /// <param name="region">Optional: This is used when you have database servers geographically spread.
-    /// It helps the <see cref="IGetDatabaseForNewTenant"/> service to pick the right server/database.</param>
+    /// <param name="newUser">The information for the new user that is signing in</param>
+    /// <param name="tenantData">The information for how the new tenant should be created</param>
     /// <returns>status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    public async Task<IStatusGeneric> SignUpNewTenantAsync(AddUserDataDto userInfo, string tenantName, bool? hasOwnDb = null, string region = null)
+    public async Task<IStatusGeneric> SignUpNewTenantAsync(AddNewUserDto newUser, AddNewTenantDto tenantData)
     {
-        var signUpInfo = new AddNewTenantDto
-        {
-            NewUserInfo = userInfo,
-            TenantName = tenantName,
-            HasOwnDb = hasOwnDb,
-            Region = region,
-        };
+        if (tenantData == null) throw new ArgumentNullException(nameof(tenantData));
+        if (tenantData.Version != null)
+            throw new AuthPermissionsException(
+                $"The {nameof(AddNewTenantDto.Version)} wasn't null. " +
+                $"If you want to use versioning then call the {nameof(SignUpNewTenantWithVersionAsync)} method.");
 
-        return await SignUpNewTenantWithVersionAsync(signUpInfo, new MultiTenantVersionData());
+        return await SignUpNewTenantWithVersionAsync(newUser, tenantData, new MultiTenantVersionData());
     }
 
     /// <summary>
@@ -69,24 +64,27 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// with backup version information provides by the user.
     /// At the same time is creates a new user which is linked to the new tenant.
     /// </summary>
-    /// <param name="signUpInfo">The data provided by the user and extra data, like the version, from the sign in</param>
+    /// <param name="newUser">The information for the new user that is signing in</param>
+    /// <param name="tenantData">The information for how the new tenant should be created</param>
     /// <param name="versionData">This contains the application's setup of your tenants, including different versions.</param>
     /// <returns>Status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    public async Task<IStatusGeneric> SignUpNewTenantWithVersionAsync(AddNewTenantDto signUpInfo, MultiTenantVersionData versionData)
+    public async Task<IStatusGeneric> SignUpNewTenantWithVersionAsync(AddNewUserDto newUser, 
+        AddNewTenantDto tenantData, MultiTenantVersionData versionData)
     {
-        if (signUpInfo == null) throw new ArgumentNullException(nameof(signUpInfo));
+        if (newUser == null) throw new ArgumentNullException(nameof(newUser));
+        if (tenantData == null) throw new ArgumentNullException(nameof(tenantData));
         if (versionData == null) throw new ArgumentNullException(nameof(versionData));
         var status = new StatusGenericHandler();
 
-        if (signUpInfo.TenantName == null)
+        if (tenantData.TenantName == null)
             return status.AddError("You forgot to give a tenant name");
 
         //Check if tenant name is available
-        if (await _tenantAdmin.QueryTenants().AnyAsync(x => x.TenantFullName == signUpInfo.TenantName))
-            return status.AddError($"The tenant name '{signUpInfo.TenantName}' is already taken", new[] { nameof(AddNewTenantDto.TenantName) });
+        if (await _tenantAdmin.QueryTenants().AnyAsync(x => x.TenantFullName == tenantData.TenantName))
+            return status.AddError($"The tenant name '{tenantData.TenantName}' is already taken", new[] { nameof(AddNewTenantDto.TenantName) });
 
-        if (status.CombineStatuses(await _addUserManager.CheckNoExistingAuthUserAsync(signUpInfo.NewUserInfo)).HasErrors)
+        if (status.CombineStatuses(await _addUserManager.CheckNoExistingAuthUserAsync(newUser)).HasErrors)
             return status;
 
         //---------------------------------------------------------------
@@ -100,26 +98,26 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                 throw new AuthPermissionsException(
                     $"If you are using sharding, then you must register the {nameof(IGetDatabaseForNewTenant)} service.");
 
-            hasOwnDb = GetDirectoryWithChecks(signUpInfo.Version, versionData.HasOwnDbForEachVersion,
-                nameof(MultiTenantVersionData.HasOwnDbForEachVersion)) ?? signUpInfo.HasOwnDb;
+            hasOwnDb = GetDirectoryWithChecks(tenantData.Version, versionData.HasOwnDbForEachVersion,
+                nameof(MultiTenantVersionData.HasOwnDbForEachVersion)) ?? tenantData.HasOwnDb;
 
             if (hasOwnDb == null)
                 return status.AddError($"You must set the {nameof(AddNewTenantDto.HasOwnDb)} parameter to true or false");
 
             //This method will find a database for the new tenant when using sharding
-            var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync((bool)hasOwnDb, signUpInfo.Region);
+            var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync((bool)hasOwnDb, tenantData.Region);
             if (status.CombineStatuses(dbStatus).HasErrors)
                 return status;
             databaseInfoName = dbStatus.Result;
         }
 
-        var tenantRoles = GetDirectoryWithChecks(signUpInfo.Version, versionData.TenantRolesForEachVersion,
+        var tenantRoles = GetDirectoryWithChecks(tenantData.Version, versionData.TenantRolesForEachVersion,
             nameof(MultiTenantVersionData.TenantRolesForEachVersion));
 
         var tenantStatus = _options.TenantType.IsSingleLevel()
-            ? await _tenantAdmin.AddSingleTenantAsync(signUpInfo.TenantName, tenantRoles,
+            ? await _tenantAdmin.AddSingleTenantAsync(tenantData.TenantName, tenantRoles,
                 hasOwnDb, databaseInfoName)
-            : await _tenantAdmin.AddHierarchicalTenantAsync(signUpInfo.TenantName, 0,
+            : await _tenantAdmin.AddHierarchicalTenantAsync(tenantData.TenantName, 0,
                 tenantRoles, hasOwnDb, databaseInfoName);
 
         if (status.CombineStatuses(tenantStatus).HasErrors)
@@ -129,16 +127,16 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
 
         //Now we update the sign in user information with the version data
         
-        if (signUpInfo.Version != null)
+        if (tenantData.Version != null)
             //Only override the new user's Roles if you are using versioning
-            signUpInfo.NewUserInfo.Roles = GetDirectoryWithChecks(signUpInfo.Version, versionData.TenantAdminRoles,
+            newUser.Roles = GetDirectoryWithChecks(tenantData.Version, versionData.TenantAdminRoles,
                 nameof(MultiTenantVersionData.TenantAdminRoles));
-        signUpInfo.NewUserInfo.TenantId = tenantStatus.Result.TenantId;
+        newUser.TenantId = tenantStatus.Result.TenantId;
 
-        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(signUpInfo.NewUserInfo, signUpInfo.NewUserInfo.Password));
+        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUser, newUser.Password));
 
         if (status.IsValid)
-            status.CombineStatuses(await _addUserManager.LoginVerificationAsync(signUpInfo.NewUserInfo.Email, signUpInfo.NewUserInfo.UserName, signUpInfo.NewUserInfo.IsPersistent));
+            status.CombineStatuses(await _addUserManager.LoginVerificationAsync(newUser.Email, newUser.UserName, newUser.IsPersistent));
 
         if (status.HasErrors)
             //Delete the tenant if anything went wrong, because the user most likely will want to try again

@@ -179,7 +179,7 @@ public class ShardingConnections : IShardingConnections
         {
             status.AddError(e.Message);
         }
-        catch (Exception e)
+        catch
         {
             status.AddError(
                 "There was an  error when trying to create a connection string. Typically this is because " +

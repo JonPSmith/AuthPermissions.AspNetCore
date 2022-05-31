@@ -22,21 +22,21 @@ public class StubAuthenticationAddUserManager : IAuthenticationAddUserManager
     }
 
     public string AuthenticationGroup { get; } = "Stub";
-    public AddUserDataDto UserLoginData { get; }
+    public AddNewUserDto NewUserLogin { get; }
 
-    public Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddUserDataDto userData)
+    public Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
         return Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
     }
 
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddUserDataDto userData, string password = null)
+    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser, string password = null)
     {
-        var tenantName = _authTenantAdmin != null && userData.TenantId != null
-            ? (await _authTenantAdmin.GetTenantViaIdAsync((int)userData.TenantId)).Result.TenantFullName
+        var tenantName = _authTenantAdmin != null && newUser.TenantId != null
+            ? (await _authTenantAdmin.GetTenantViaIdAsync((int)newUser.TenantId)).Result.TenantFullName
             : null;
 
-        return await _authUsersAdmin.AddNewUserAsync(userData.Email,
-            userData.Email, userData.UserName, userData.Roles, tenantName);
+        return await _authUsersAdmin.AddNewUserAsync(newUser.Email,
+            newUser.Email, newUser.UserName, newUser.Roles, tenantName);
     }
 
     public Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent = false)

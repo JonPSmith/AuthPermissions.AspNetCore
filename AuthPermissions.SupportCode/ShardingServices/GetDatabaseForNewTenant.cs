@@ -16,6 +16,10 @@ public class GetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
     private readonly IShardingConnections _shardingService;
 
+    /// <summary>
+    /// ctor
+    /// </summary>
+    /// <param name="shardingService"></param>
     public GetDatabaseForNewTenant(IShardingConnections shardingService)
     {
         _shardingService = shardingService;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
@@ -62,24 +63,30 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 
 
         [HasPermission(Example3Permissions.InviteUsers)]
-        public async Task<ActionResult> InviteUser()
+        public async Task<ActionResult> InviteUser([FromServices]IAuthTenantAdminService rolesAdmin)
         {
-            var currentUser = (await _authUsersAdmin.FindAuthUserByUserIdAsync(User.GetUserIdFromUser()))
-                .Result;
+            var setupInvite = new InviteUserSetup
+            {
+                AllRoleNames = await _authUsersAdmin.GetRoleNamesForUsersAsync(User.GetUserIdFromUser())
+            }; 
 
-            return View((object) currentUser?.UserTenant?.TenantFullName);
+            return View(setupInvite);
         }
 
         [HasPermission(Example3Permissions.InviteUsers)]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteUserServiceService, string email)
+        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteUserServiceService, InviteUserSetup data)
         {
-            var addUserData = new AddUserDataDto { Email = email }; //you can define Roles 
-            var status = await inviteUserServiceService.CreateInviteUserToJoinAsync(addUserData, HttpContext.User.GetUserIdFromUser());
-            var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home",  new { status.Result });
+            var addUserData = new AddNewUserDto { Email = data.Email, Roles = data.RoleNames}; 
+            var status = await inviteUserServiceService.CreateInviteUserToJoinAsync(addUserData, User.GetUserIdFromUser());
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
 
-            return View("InviteUserUrl", new InviteUserDto( status.Message, inviteUrl));
+            var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home",  new { verify = status.Result });
+
+            return View("InviteUserUrl", new InviteUserResult( status.Message, inviteUrl));
         }
 
         public ActionResult ErrorDisplay(string errorMessage)

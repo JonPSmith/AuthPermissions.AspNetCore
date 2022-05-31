@@ -145,6 +145,26 @@ namespace AuthPermissions.AspNetCore
         }
 
         /// <summary>
+        /// This allows you to register your implementation of the <see cref="IShardingSelectDatabase"/> service.
+        /// This service is used in the "sign up" feature in the SupportCode part, or if you want to use this in your own code.
+        /// </summary>
+        /// <typeparam name="TGetDatabase">Your class that implements the <see cref="IShardingSelectDatabase"/> interface.</typeparam>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        /// <exception cref="AuthPermissionsException"></exception>
+        public static AuthSetupData RegisterShardingGetDatabase<TGetDatabase>(this AuthSetupData setupData)
+            where TGetDatabase : class, IShardingSelectDatabase
+        {
+            if (!setupData.Options.TenantType.IsSharding())
+                throw new AuthPermissionsException(
+                    $"The sharding feature isn't turned on so adding your {nameof(IShardingSelectDatabase)} service isn't useful.");
+
+            setupData.Services.AddScoped<IShardingSelectDatabase, TGetDatabase>();
+
+            return setupData;
+        }
+
+        /// <summary>
         /// This will finalize the setting up of the AuthPermissions parts needed by ASP.NET Core
         /// NOTE: It assumes the AuthPermissions database has been created and has the current migration applied
         /// </summary>

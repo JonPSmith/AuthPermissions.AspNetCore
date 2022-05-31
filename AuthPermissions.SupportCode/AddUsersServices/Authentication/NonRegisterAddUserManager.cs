@@ -46,19 +46,19 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    public AddUserDataDto UserLoginData { get; private set; }
+    public AddNewUserDto NewUserLogin { get; private set; }
 
     /// <summary>
     /// This makes a quick check that the user isn't already has an AuthUser 
     /// </summary>
-    /// <param name="userData"></param>
+    /// <param name="newUser"></param>
     /// <returns>status, with error if there an user already</returns>
-    public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddUserDataDto userData)
+    public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
         var status = new StatusGenericHandler();
         if (await _authPContext.AuthUsers
-                .AnyAsync(x => (x.Email != null && x.Email == userData.Email)
-                               || (x.UserName != null && x.UserName == userData.UserName)))
+                .AnyAsync(x => (x.Email != null && x.Email == newUser.Email)
+                               || (x.UserName != null && x.UserName == newUser.UserName)))
             return status.AddError("There is already an AuthUser with your email / username, so you can't add another."); ;
         return status;
     }
@@ -66,18 +66,18 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// <summary>
     /// This adds a entry to the database with the user's email and the AuthP Roles / Tenant data for creating the AuthP user
     /// </summary>
-    /// <param name="userData">The information for creating an AuthUser </param>
+    /// <param name="newUser">The information for creating an AuthUser </param>
     /// <param name="password">not used with NonRegister authentication handlers</param>
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddUserDataDto userData, string password = null)
+    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser, string password = null)
     {
-        UserLoginData = userData ?? throw new ArgumentNullException(nameof(userData));
+        NewUserLogin = newUser ?? throw new ArgumentNullException(nameof(newUser));
 
         var status = new StatusGenericHandler();
 
         async Task<AddNewUserInfo> AddNewUserInfoToDatabaseAsync()
         {
-            var addNewUserInfo = new AddNewUserInfo(userData.Email, userData.UserName,
-                userData.GetRolesAsCommaDelimited(), userData.TenantId);
+            var addNewUserInfo = new AddNewUserInfo(newUser.Email, newUser.UserName,
+                newUser.GetRolesAsCommaDelimited(), newUser.TenantId);
             _authPContext.Add(addNewUserInfo);
             status.CombineStatuses(await _authPContext.SaveChangesWithChecksAsync());
             return addNewUserInfo;
@@ -90,8 +90,8 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
             _authPContext.ChangeTracker.Clear(); //!! Had to do this to get rid of the last 
 
             var oldMatching = await _authPContext.AddNewUserInfos
-                .SingleOrDefaultAsync(x => (x.Email != null && x.Email == userData.Email) ||
-                                           (x.UserName != null && x.UserName == userData.UserName));
+                .SingleOrDefaultAsync(x => (x.Email != null && x.Email == newUser.Email) ||
+                                           (x.UserName != null && x.UserName == newUser.UserName));
             if (oldMatching == null)
                 return status; //something other than a duplicate Email/UserName, so sent back the save status
 
@@ -124,13 +124,13 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
     /// <returns>status</returns>
     public async Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent = false)
     {
-        if (UserLoginData == null)
+        if (NewUserLogin == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
         var status = new StatusGenericHandler { Message = "Checked OK. Will set up claims when you log in." };
 
         var expectedAuthUser = await _authPContext.AuthUsers
-            .SingleOrDefaultAsync(x => x.Email == UserLoginData.Email || x.UserName == UserLoginData.UserName);
+            .SingleOrDefaultAsync(x => x.Email == NewUserLogin.Email || x.UserName == NewUserLogin.UserName);
 
         if (expectedAuthUser != null) 
             //all OK
@@ -141,17 +141,17 @@ public class NonRegisterAddUserManager : IAuthenticationAddUserManager
 
         //Alert the user and the admin people (via a log) that the add of an AuthUser failed
         var authInfoForUser = await _authPContext.AddNewUserInfos
-            .SingleOrDefaultAsync(x => (x.Email != null && x.Email == UserLoginData.Email) ||
-                                       (x.UserName != null && x.UserName == UserLoginData.UserName));
+            .SingleOrDefaultAsync(x => (x.Email != null && x.Email == NewUserLogin.Email) ||
+                                       (x.UserName != null && x.UserName == NewUserLogin.UserName));
 
         //Tell the admin people to check on this user
         _logger.LogWarning("The AuthUser with email {0} wasn't added. " +
                            "The matching AddNewUserInfo in the database was added on {1} UTC. " +
                            "Please check the authentication user is OK.",
-            UserLoginData.Email, authInfoForUser?.CreatedAtUtc.ToString("s") ?? "not found.");
+            NewUserLogin.Email, authInfoForUser?.CreatedAtUtc.ToString("s") ?? "not found.");
 
         return status.AddError(
-            $"Something went wrong. There wasn't an AuthUser with an email of {UserLoginData.Email}. " +
+            $"Something went wrong. There wasn't an AuthUser with an email of {NewUserLogin.Email}. " +
             "Please logout and repeat the process again.");
     }
 }

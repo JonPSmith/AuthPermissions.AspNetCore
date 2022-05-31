@@ -117,7 +117,7 @@ public class TestIndividualUserAddUserManager
         context.AddMultipleUsersWithRolesInDb();
 
         var service = _serviceProvider.GetRequiredService<IAuthenticationAddUserManager>();
-        var userData = new AddUserDataDto { Email = email };
+        var userData = new AddNewUserDto { Email = email };
 
         context.ChangeTracker.Clear();
 
@@ -137,7 +137,7 @@ public class TestIndividualUserAddUserManager
         await context.SetupRolesInDbAsync();
 
         var service = _serviceProvider.GetRequiredService<IAuthenticationAddUserManager>();
-        var userData = new AddUserDataDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
+        var userData = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
 
         context.ChangeTracker.Clear();
 
@@ -163,13 +163,13 @@ public class TestIndividualUserAddUserManager
     //    await context.SetupRolesInDbAsync();
 
     //    var service = _serviceProvider.GetRequiredService<IAuthenticationAddUserManager>();
-    //    var userData = new AddUserDataDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
-    //    (await service.SetUserInfoAsync(userData, "Pass!3ord")).IsValid.ShouldBeTrue();
+    //    var newUser = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
+    //    (await service.SetUserInfoAsync(newUser, "Pass!3ord")).IsValid.ShouldBeTrue();
 
     //    context.ChangeTracker.Clear();
 
     //    //ATTEMPT
-    //    var status = await service.LoginVerificationAsync(userData.Email, userData.UserName);
+    //    var status = await service.LoginVerificationAsync(newUser.Email, newUser.UserName);
 
     //    //VERIFY
     //    context.ChangeTracker.Clear();

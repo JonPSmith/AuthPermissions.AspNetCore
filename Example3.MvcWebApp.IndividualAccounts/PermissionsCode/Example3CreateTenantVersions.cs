@@ -6,7 +6,7 @@ using AuthPermissions.SupportCode.AddUsersServices;
 
 namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 
-public static class Example3CreateTenantSettings
+public static class Example3CreateTenantVersions
 {
     public static readonly MultiTenantVersionData TenantSetupData = new()
     {

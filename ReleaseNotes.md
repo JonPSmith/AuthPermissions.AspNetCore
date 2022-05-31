@@ -2,9 +2,10 @@
 
 ## 3.3.0
 
-- BREAKING CHANGE (small): The `GetDatabaseInfoNamesWithTenantNamesAsync` method returned collection now has `HasOwnDb` in it
+- BREAKING CHANGE (small): The `GetDatabaseInfoNamesWithTenantNamesAsync` method returned collection now has `HasOwnDb` in it - see issue #39
+- Bug fix: Second refresh JWT Bearer token failed. Fixed by @akema-trebla - see issue #36
 - Bug fix. Email is now stored as lower case. This fixes the problem and Postgres string compare is case sensitive - see issue #35
-- New Sharding feature: New method called `GetDatabaseForNewTenant` which will return a DatabaseInfoName of a database to use for a new tenant.
+- New Sharding feature: New service called `IShardingSelectDatabase` which will find a DatabaseInfoName of a database to use for a new tenant.
 - New support feature: `InviteNewUser` service that handles the ""invite user" feature" - now works with all types of application
 - New support feature: `SignInAndCreateTenant` service to implement the "sign in" feature - now works with all types of multi-tenant app
 - New support feature: `IAuthenticationAddUserManager` for adding a new user, with two versions for different authentication types

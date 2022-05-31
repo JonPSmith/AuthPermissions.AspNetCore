@@ -37,15 +37,15 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         {
             new ("Super@g1.com", null, "SuperAdmin"),
             new ("AppAdmin@g1.com", null, "App Admin"),
-            new("AppSupport@g1.com", null, "App Support, Tenant User"),
-            new ("extraUser@g1.com", null, "Tenant User"),
+            new("AppSupport@g1.com", null, "App Support, Invoice read/write"),
+            new ("extraUser@g1.com", null, "Invoice read/write"),
             //Company admins.
             new ("admin@4uInc.com", null,
                 "Invoice read/write, Tenant Admin", tenantNameForDataKey: "4U Inc."),
             new("admin1@Pets.com", null,
                 "Invoice read/write, Tenant Admin", tenantNameForDataKey: "Pets Ltd."),
             //Company users.
-            new ("reader1@4uInc.com", null,
+            new ("reader@4uInc.com", null,
                 "Invoice reader", tenantNameForDataKey: "4U Inc."),
             new ("read_write@4uInc.com", null,
                 "Invoice read/write", tenantNameForDataKey: "4U Inc."),

@@ -43,10 +43,12 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTenant([FromServices] ISignInAndCreateTenant userRegisterInvite,
-            AddNewTenantDto data, string password, bool isPersistent)
+            string tenantName, string email, string password, string version, bool isPersistent)
         {
-            var status = await userRegisterInvite.SignUpNewTenantWithVersionAsync(data, 
-                Example3CreateTenantSettings.TenantSetupData);
+            var newUserData = new AddNewUserDto { Email = email, Password = password, IsPersistent = isPersistent};
+            var newTenantData = new AddNewTenantDto { TenantName = tenantName, Version = version };
+            var status = await userRegisterInvite.SignUpNewTenantWithVersionAsync(newUserData, newTenantData,
+                Example3CreateTenantVersions.TenantSetupData);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

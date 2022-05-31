@@ -17,16 +17,11 @@ public interface ISignInAndCreateTenant
     /// This implements "sign up" feature, where a new user signs up for a new tenant,
     /// where there is only version of the tenant. It also creates a new user which is linked to the new tenant.
     /// </summary>
-    /// <param name="userInfo">This contains the information for the new user. Both the user login and any AuthP Roles, etc.</param>
-    /// <param name="tenantName">This is the name for the new tenant - it will check the name is not already used</param>
-    /// <param name="hasOwnDb">If the app is sharding, then must be set to true of tenant having its own db, of false for shared db</param>
-    /// <param name="region">Optional: This is used when you have database servers geographically spread.
-    /// It helps the <see cref="IGetDatabaseForNewTenant"/> service to pick the right server/database.</param>
+    /// <param name="newUser">The information for the new user that is signing in</param>
+    /// <param name="tenantData">The information for how the new tenant should be created</param>
     /// <returns>status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    Task<IStatusGeneric> SignUpNewTenantAsync(AddUserDataDto userInfo, string tenantName, bool? hasOwnDb = null,
-        string region = null);
-
+    Task<IStatusGeneric> SignUpNewTenantAsync(AddNewUserDto newUser, AddNewTenantDto tenantData);
 
     /// <summary>
     /// This implements "sign up" feature, where a new user signs up for a new tenant, with versioning.
@@ -34,9 +29,11 @@ public interface ISignInAndCreateTenant
     /// with backup version information provides by the user.
     /// At the same time is creates a new user which is linked to the new tenant.
     /// </summary>
-    /// <param name="signUpInfo">The data provided by the user and extra data, like the version, from the sign in</param>
+    /// <param name="newUser">The information for the new user that is signing in</param>
+    /// <param name="tenantData">The information for how the new tenant should be created</param>
     /// <param name="versionData">This contains the application's setup of your tenants, including different versions.</param>
     /// <returns>Status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    Task<IStatusGeneric> SignUpNewTenantWithVersionAsync(AddNewTenantDto signUpInfo, MultiTenantVersionData versionData);
+    Task<IStatusGeneric> SignUpNewTenantWithVersionAsync(AddNewUserDto newUser,
+        AddNewTenantDto tenantData, MultiTenantVersionData versionData);
 }

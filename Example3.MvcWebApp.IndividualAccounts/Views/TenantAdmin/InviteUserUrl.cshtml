@@ -1,4 +1,4 @@
-﻿@model InviteUserDto
+﻿@model InviteUserResult
 
 @{
     ViewData["Title"] = "Invite User URL";
@@ -7,7 +7,7 @@
 
 <h1>Invite User URL</h1>
 
-<div>@Model.Message</div>
+<h4 class="text-primary">@Model.Message</h4>
 <hr />
 <div class="h4">@Html.Encode(Model.Url)</div>
 

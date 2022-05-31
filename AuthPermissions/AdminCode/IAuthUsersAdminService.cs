@@ -49,7 +49,7 @@ namespace AuthPermissions.AdminCode
         /// Doesn't work properly when used in a create, as the user's tenant hasn't be set
         /// </summary>
         /// <param name="userId">UserId of the user you are updating. Only needed in multi-tenant applications </param>
-        /// <param name="addNone">Defaults to true, with will add the <see cref="CommonConstants.EmptyTenantName"/> at the start.
+        /// <param name="addNone">Defaults to true, with will add the <see cref="CommonConstants.EmptyItemName"/> at the start.
         /// This is useful for selecting no roles</param>
         /// <returns></returns>
         Task<List<string>> GetRoleNamesForUsersAsync(string userId = null, bool addNone = true);
@@ -76,13 +76,13 @@ namespace AuthPermissions.AdminCode
         /// <summary>
         /// This update an existing AuthUser. This method is designed so you only have to provide data for the parts you want to update,
         /// i.e. if a parameter is null, then it keeps the original setting. The only odd one out is the tenantName,
-        /// where you have to provide the <see cref="CommonConstants.EmptyTenantName"/> value to remove the tenant.  
+        /// where you have to provide the <see cref="CommonConstants.EmptyItemName"/> value to remove the tenant.  
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="email">Either provide a email or null. if null, then uses the current user's email</param>
         /// <param name="userName">Either provide a userName or null. if null, then uses the current user's userName</param>
         /// <param name="roleNames">Either a list of rolenames or null. If null, then keeps its current rolenames.</param>
-        /// <param name="tenantName">If null, then keeps current tenant. If it is <see cref="CommonConstants.EmptyTenantName"/> it will remove a tenant link.
+        /// <param name="tenantName">If null, then keeps current tenant. If it is <see cref="CommonConstants.EmptyItemName"/> it will remove a tenant link.
         /// Otherwise the user will be linked to the tenant with that name.</param>
         /// <returns>status</returns>
         Task<IStatusGeneric> UpdateUserAsync(string userId,

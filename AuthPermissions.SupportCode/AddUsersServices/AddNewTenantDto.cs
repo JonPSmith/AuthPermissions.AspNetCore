@@ -7,7 +7,7 @@ using AuthPermissions.SupportCode.ShardingServices;
 namespace AuthPermissions.SupportCode.AddUsersServices;
 
 /// <summary>
-/// This holds user data (via the inherit of the <see cref="AddUserDataDto"/>)
+/// This holds user data (via the inherit of the <see cref="AddNewUserDto"/>)
 /// and the Tenant information.
 /// </summary>
 public class AddNewTenantDto
@@ -40,9 +40,4 @@ public class AddNewTenantDto
     /// Can be null.
     /// </summary>
     public string Region { get; set; }
-
-    /// <summary>
-    /// This holds the information for adding a new user
-    /// </summary>
-    public AddUserDataDto NewUserInfo { get; set; }
 }

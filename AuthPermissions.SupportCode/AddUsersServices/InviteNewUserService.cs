@@ -2,10 +2,12 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -53,10 +55,10 @@ public class InviteNewUserService : IInviteNewUserService
     /// - Invite user must allow for a Hierarchical tenant where the tenant is deeper than the admin user
     /// - If the user is an non-tenant user (app admin), then the tenantId can be set to null or any tenant
     /// </summary>
-    /// <param name="joiningUser">Data needed to add a new AuthP user</param>
+    /// <param name="invitedUser">Data needed to add a new AuthP user</param>
     /// <param name="userId">userId of current user - used to obtain any tenant info.</param>
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
-    public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddUserDataDto joiningUser, string userId)
+    public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId)
     {
         var status = new StatusGenericHandler<string>();
 
@@ -67,53 +69,75 @@ public class InviteNewUserService : IInviteNewUserService
         if (inviterStatus.Result == null)
             throw new AuthPermissionsException("User must be registered with AuthP");
 
+        if (string.IsNullOrEmpty(invitedUser.Email) && string.IsNullOrEmpty(invitedUser.UserName))
+            return status.AddError("You must provide an email or username for the invitation.");
+
         Tenant foundTenant = null;
         if (_options.TenantType.IsMultiTenant())
         {
             //we need to check / set the the tenantId
 
-            if (joiningUser.TenantId != null)
+            if (inviterStatus.Result.TenantId == null)
             {
-                if (inviterStatus.Result.TenantId == null)
-                {
-                    // An tenant admin user is sending the invite, so any valid tenantId is allowed
-                }
-                else if (_options.TenantType.IsSingleLevel())
+                //the inviter is an app admin, so use the invited user Id
+            }
+            else
+            {
+                //The inviter is a tenant admin 
+
+                if (_options.TenantType.IsSingleLevel())
                 {
                     //The tenantId is set from the tenant admin user
-                    joiningUser.TenantId = inviterStatus.Result.TenantId;
+                    invitedUser.TenantId = inviterStatus.Result.TenantId;
                 }
                 else
                 {
                     //its hierarchical so we check that the tenantId 
-                    foundTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == joiningUser.TenantId);
+                    foundTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == invitedUser.TenantId);
                     //Check that the tenant is within the scope of the inviting user 
                     if (foundTenant != null && !foundTenant.GetTenantDataKey()
                             .StartsWith(inviterStatus.Result.UserTenant.GetTenantDataKey()))
                         return status.AddError("The Tenant you have selected isn't within your group.");
                 }
+
+                if (invitedUser.TenantId == null)
+                    return status.AddError("You forgot to select a tenant for the invite.");
             }
-            else if (inviterStatus.Result.TenantId != null)
+
+            if (invitedUser.TenantId != null) //if app user, then doesn't have a tenant
             {
-                return status.AddError("You must select a tenant for the invite.");
-            }
-            
-            //check that the tenantId (if not null) refers to a actual tenant
-            if (joiningUser.TenantId != null)
-            {
-                foundTenant ??= await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == joiningUser.TenantId);
+                //check that the tenantId is valid
+                foundTenant ??= await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == invitedUser.TenantId);
                 if (foundTenant == null)
-                    return status.AddError("you forgot to select a tenant for the invite (or the tenant is invalid).");
+                    return status.AddError("The tenant you selected isn't correct.");
+
+                if (invitedUser.Roles != null)
+                {
+                    //Check that the Roles for the invited user are acceptable for a tenant user
+                    var badRoles = await _context.RoleToPermissions.Where(x =>
+                            invitedUser.Roles.Contains(x.RoleName) 
+                            && (x.RoleType == RoleTypes.HiddenFromTenant || x.RoleType == RoleTypes.TenantAutoAdd))
+                        .Select(x => x.RoleName).ToListAsync();
+                    if (badRoles.Any())
+                        return status.AddError("The following Roles aren't allowed for a tenant user: "+string.Join(", ", badRoles));
+                }
             }
         }
 
+        if (invitedUser.Roles == null || !invitedUser.Roles.Any())
+            return status.AddError(
+                "You haven't set up the Roles for the invited user. If you really what that, then select the "
+                + $"'{CommonConstants.EmptyItemName}' dropdown item.");
+
         status.Message =
-            $"Please send the url to the user '{joiningUser.Email ?? joiningUser.UserName}' which allow them to join" +
-            (joiningUser.TenantId == null
+            $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join " +
+            (invitedUser.TenantId == null
                 ? "your application."
                 : $"the tenant '{foundTenant.TenantFullName}'.");
 
-        var jsonString = JsonSerializer.Serialize(joiningUser);
+        //This setting makes the string shorter
+        JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
+        var jsonString = JsonSerializer.Serialize(invitedUser, options);
         var verify = _encryptService.Encrypt(jsonString);
 
         status.SetResult(Base64UrlEncoder.Encode(verify));
@@ -134,32 +158,32 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
     /// and you are using authentication cookie, then setting this to true makes the login persistent</param>
     /// <returns>Status</returns>
-    public async Task<IStatusGeneric> AddUserViaInvite(string inviteParam, 
+        public async Task<IStatusGeneric> AddUserViaInvite(string inviteParam, 
         string email, string password = null, bool isPersistent = false)
     {
         var status = new StatusGenericHandler<IdentityUser>();
         var normalizedEmail = email.Trim().ToLower();
 
-        AddUserDataDto inviteData;
+        AddNewUserDto invite;
         try
         {
             var decrypted = _encryptService.Decrypt(Base64UrlEncoder.Decode(inviteParam));
-            inviteData = JsonSerializer.Deserialize<AddUserDataDto>(decrypted);
+            invite = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
         }
-        catch (Exception)
+        catch (Exception e)
         {
             //Could add a log here
             return status.AddError("Sorry, the verification failed.");
         }
 
-        if (inviteData.Email!= normalizedEmail)
+        if (invite.Email!= normalizedEmail)
             return status.AddError("Sorry, your email didn't match the invite.");
 
-        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(inviteData, password));
+        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(invite, password));
 
         if (status.HasErrors)
             return status;
 
-        return await _addUserManager.LoginVerificationAsync(inviteData.Email, inviteData.UserName, isPersistent);
+        return await _addUserManager.LoginVerificationAsync(invite.Email, invite.UserName, isPersistent);
     }
 }

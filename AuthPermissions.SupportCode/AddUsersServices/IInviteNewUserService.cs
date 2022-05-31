@@ -15,10 +15,10 @@ public interface IInviteNewUserService
     /// This creates an encrypted string containing the information containing the
     /// invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
     /// </summary>
-    /// <param name="joiningUser">Data needed to add a new AuthP user</param>
+    /// <param name="invitedUser">Data needed to add a new AuthP user</param>
     /// <param name="userId">userId of current user - used to obtain any tenant info.</param>
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
-    Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddUserDataDto joiningUser, string userId);
+    Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId);
 
     /// <summary>
     /// This takes the information from the user using the invite plus the encrypted invite code.

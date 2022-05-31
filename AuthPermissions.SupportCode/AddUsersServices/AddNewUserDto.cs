@@ -9,27 +9,33 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// <summary>
 /// This is used holds the data to securely add a new user to a AuthP application
 /// </summary>
-public class AddUserDataDto
+public class AddNewUserDto
 {
     private string _email;
+    private string _userName;
 
     /// <summary>
     /// Contains a unique Email (normalized by applying .ToLower), which is used for lookup
-    /// (can be null if using Windows authentication provider)
+    /// If null, then it takes the UserName value
     /// </summary>
     [MaxLength(AuthDbConstants.EmailSize)]
     public string Email
     {
-        get => _email;
-        set => _email = value?.Trim().ToLower();
+        get => _email?.Trim().ToLower() ?? _userName;
+        set => _email = value;
     }
 
     /// <summary>
     /// Contains a unique user name
     /// This is used to a) provide more info on the user, or b) when using Windows authentication provider
+    /// If null, then it takes non-normalized Email
     /// </summary>
     [MaxLength(AuthDbConstants.UserNameSize)]
-    public string UserName { get; set; }
+    public string UserName
+    {
+        get => _userName ?? _email;
+        set => _userName = value;
+    }
 
     /// <summary>
     /// A list of Role names to add to the AuthP user when the AuthP user is created
