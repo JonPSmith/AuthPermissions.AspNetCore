@@ -18,65 +18,76 @@
     <i>NOTE: This example multi-tenant application makes each company think the application was build just for them.</i>
 </p>
 
-<p>
-    <a class="btn btn-primary" asp-action="CreateInvoice">Create Invoice</a>
-</p>
-<table class="table">
-    <thead>
-    <tr>
-        <th>
-            InvoiceName
-        </th>
-        <th>
-            DateCreated
-        </th>
-        <th>
-            NumItems
-        </th>
-        <th>
-            TotalCost
-        </th>
-        @*<th></th>*@
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.InvoiceName)
-            </td>
-            <td>
-                @item.DateCreated.ToString("d")
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NumItems)
-            </td>
-            <td>
-                @item.TotalCost?.ToString("C2")
-            </td>
-            @*<td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>*@
-        </tr>
-    }
-    </tbody>
-</table>
-
-@if (User.HasPermission(Example3Permissions.InvoiceSum))
+@if (User.HasPermission(Example3Permissions.InvoiceCreate))
 {
-    <h2>Enterprise Feature!</h2>
-    @if (Model.Any())
+    <p>
+        <a class="btn btn-primary" asp-action="CreateInvoice">Create Invoice</a>
+    </p>
+}
+else
+{
+    <h4>You can see the list of current invoices, but you can't create a new invoice.</h4>
+}
+
+@if (Model != null)
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                InvoiceName
+            </th>
+            <th>
+                DateCreated
+            </th>
+            <th>
+                NumItems
+            </th>
+            <th>
+                TotalCost
+            </th>
+            @*<th></th>*@
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InvoiceName)
+                </td>
+                <td>
+                    @item.DateCreated.ToString("d")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumItems)
+                </td>
+                <td>
+                    @item.TotalCost?.ToString("C2")
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    @if (User.HasPermission(Example3Permissions.InvoiceSum))
     {
-        <div>The sum of the @Model.Count invoices is <span class="h3">@Model.Sum(x => x.TotalCost)?.ToString("C2")</span></div>
+        <h2>Enterprise Feature!</h2>
+        @if (Model.Any())
+        {
+            <div>The sum of the @Model.Count invoices is <span class="h3">@Model.Sum(x => x.TotalCost)?.ToString("C2")</span></div>
+        }
+        else
+        {
+            <div>No invoices found</div>
+        }
     }
     else
     {
-        <div>No invoices found</div>
+        <div class="h4">If you upgrade to the Enterprise version you will see total cost of your invoices.</div>
     }
 }
 else
 {
-    <div class="h4">If you upgrade to the Enterprise version you will see total cost of your invoices.</div>
+    <h4>You can create a invoice, but you can't see the list of current invoices.</h4>
 }

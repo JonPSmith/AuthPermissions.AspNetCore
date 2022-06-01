@@ -18,8 +18,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
                 "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData"),
             new("App Support", "overall support - limited admin items",
                 "UserRead, UserRolesChange, RoleRead, TenantList, TenantAccessData"),
-            new("Invoice reader", "Can read invoices", "InvoiceRead"),
-            new("Invoice read/write", "Can access invoices", "InvoiceRead, InvoiceCreate"),
+            new("Invoice Reader", "Can read invoices", "InvoiceRead"),
+            new("Invoice Creator", "Can access invoices", "InvoiceCreate"),
             //tenant roles
             new("Tenant Admin", "Tenant-level admin",
                 "UserRead, UserRolesChange, RoleRead, InviteUsers", RoleTypes.TenantAdminAdd),
@@ -37,22 +37,22 @@ namespace Example3.MvcWebApp.IndividualAccounts.PermissionsCode
         {
             new ("Super@g1.com", null, "SuperAdmin"),
             new ("AppAdmin@g1.com", null, "App Admin"),
-            new("AppSupport@g1.com", null, "App Support, Invoice read/write"),
-            new ("extraUser@g1.com", null, "Invoice read/write"),
+            new("AppSupport@g1.com", null, "App Support, Invoice Creator"),
+            new ("extraUser@g1.com", null, "Invoice Creator"),
             //Company admins.
             new ("admin@4uInc.com", null,
-                "Invoice read/write, Tenant Admin", tenantNameForDataKey: "4U Inc."),
+                "Invoice Reader, Invoice Creator, Tenant Admin", tenantNameForDataKey: "4U Inc."),
             new("admin1@Pets.com", null,
-                "Invoice read/write, Tenant Admin", tenantNameForDataKey: "Pets Ltd."),
+                "Invoice Reader, Invoice Creator, Tenant Admin", tenantNameForDataKey: "Pets Ltd."),
             //Company users.
             new ("reader@4uInc.com", null,
-                "Invoice reader", tenantNameForDataKey: "4U Inc."),
-            new ("read_write@4uInc.com", null,
-                "Invoice read/write", tenantNameForDataKey: "4U Inc."),
+                "Invoice Reader", tenantNameForDataKey: "4U Inc."),
+            new ("creator@4uInc.com", null,
+                "Invoice Creator", tenantNameForDataKey: "4U Inc."),
             new ("user1@Pets.com", null,
-                "Invoice read/write", tenantNameForDataKey: "Pets Ltd."),
+                "Invoice Reader, Invoice Creator", tenantNameForDataKey: "Pets Ltd."),
             new ("user1@BigR.com", null,
-                "Invoice read/write", tenantNameForDataKey: "Big Rocks Inc."),
+                "Invoice Reader, Invoice Creator", tenantNameForDataKey: "Big Rocks Inc."),
         };
     }
 }

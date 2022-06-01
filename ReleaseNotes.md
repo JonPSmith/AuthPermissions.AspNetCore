@@ -1,5 +1,9 @@
 # Release Notes
 
+## suggestions
+
+- Improvement: Change the register methods for SqlServer / Postgres to allow access to the database options (like the EfCore.TestSupport library).
+
 ## 3.3.0
 
 - BREAKING CHANGE (small): The `GetDatabaseInfoNamesWithTenantNamesAsync` method returned collection now has `HasOwnDb` in it - see issue #39

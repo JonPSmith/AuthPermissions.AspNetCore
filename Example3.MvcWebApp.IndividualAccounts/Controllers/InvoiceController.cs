@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.BaseCode.PermissionsCode;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.Dtos;
 using Example3.InvoiceCode.EfCoreClasses;
@@ -22,14 +24,15 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
             _context = context;
         }
 
-        [HasPermission(Example3Permissions.InvoiceRead)]
         public async Task<IActionResult> Index(string message)
         {
             ViewBag.Message = message;
 
-            var listInvoices = await InvoiceSummaryDto.SelectInvoices(_context.Invoices)
-                .OrderByDescending(x => x.DateCreated)
-                .ToListAsync();
+            var listInvoices = User.HasPermission(Example3Permissions.InvoiceRead)
+                ? await InvoiceSummaryDto.SelectInvoices(_context.Invoices)
+                    .OrderByDescending(x => x.DateCreated)
+                    .ToListAsync()
+                : null;
             return View(listInvoices);
         }
 
