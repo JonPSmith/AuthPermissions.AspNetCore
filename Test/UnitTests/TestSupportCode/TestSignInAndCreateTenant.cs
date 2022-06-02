@@ -47,9 +47,9 @@ public class TestSignInAndCreateTenant
     }
 
     [Theory]
-    [InlineData("Free", null, "Invoice read/write")]
-    [InlineData("Pro", "Tenant Admin", "Invoice read/write,Tenant Admin")]
-    [InlineData("Enterprise", "Enterprise,Tenant Admin", "Invoice read/write,Tenant Admin")]
+    [InlineData("Free", null, "Invoice Creator,Invoice Reader")]
+    [InlineData("Pro", "Tenant Admin", "Invoice Creator,Invoice Reader,Tenant Admin")]
+    [InlineData("Enterprise", "Enterprise,Tenant Admin", "Invoice Creator,Invoice Reader,Tenant Admin")]
     public async Task TestAddUserAndNewTenantAsync_Example3Version(string version, string tenantRoles, string adminRoles)
     {
         //SETUP

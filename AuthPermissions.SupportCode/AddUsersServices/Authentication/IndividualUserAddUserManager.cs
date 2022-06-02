@@ -68,10 +68,9 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// it adds the new user AuthP information into the database to be read within the login event
     /// </summary>
     /// <param name="newUser">The information for creating an AuthUser </param>
-    /// <param name="password">This is used to create a user.
     /// It also checks if there is a user already, which could happen if the user's login failed</param>
     /// <returns>status</returns>
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser, string password = null)
+    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser)
     {
         NewUserLogin = newUser ?? throw new ArgumentNullException(nameof(newUser));
 
@@ -81,13 +80,13 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
         if (user == null)
         {
             user = new TIdentity { UserName = newUser.UserName, Email = newUser.Email };
-            var result = await _userManager.CreateAsync(user, password);
+            var result = await _userManager.CreateAsync(user, newUser.Password);
             if (!result.Succeeded)
             {
                 result.Errors.Select(x => x.Description).ToList().ForEach(error => status.AddError(error));
             }
         }
-        else if (!await _userManager.CheckPasswordAsync(user, password))
+        else if (!await _userManager.CheckPasswordAsync(user, newUser.Password))
             status.AddError("The user was already known, but the password was wrong.");
 
         //We have created the individual user account, so we have the user's UserId.
@@ -104,28 +103,17 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     }
 
     /// <summary>
-    /// This logs in the user, checking that the email / username are the same as was provided
+    /// This logs in the user
     /// </summary>
-    /// <param name="givenEmail">email to login by</param>
-    /// <param name="givenUserName">username to login by</param>
-    /// <param name="isPersistent">true if cookie should be persistent</param>
     /// <returns>status</returns>
-    public async Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent)
+    public async Task<IStatusGeneric> LoginAsync()
     {
         if (NewUserLogin == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
-        var normalizedEmail = givenEmail.Trim().ToLower();
+        var user = await _userManager.FindByEmailAsync(NewUserLogin.Email);
+        await _signInManager.SignInAsync(user, isPersistent: NewUserLogin.IsPersistent);
 
-        var status = new StatusGenericHandler();
-        if (NewUserLogin.Email != null && NewUserLogin.Email != normalizedEmail)
-            return status.AddError("The email you used isn't the one that was expected.");
-        if (NewUserLogin.UserName != null && NewUserLogin.UserName != givenUserName)
-            return status.AddError("The username you used isn't the one that was expected.");
-
-        var user = await _userManager.FindByEmailAsync(normalizedEmail);
-        await _signInManager.SignInAsync(user, isPersistent: isPersistent);
-
-        return status;
+        return new StatusGenericHandler { Message = "You have been registered and logged in to this application." };
     }
 }

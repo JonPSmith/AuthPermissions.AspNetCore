@@ -12,7 +12,6 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using StatusGeneric;
 
@@ -158,17 +157,17 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
     /// and you are using authentication cookie, then setting this to true makes the login persistent</param>
     /// <returns>Status</returns>
-        public async Task<IStatusGeneric> AddUserViaInvite(string inviteParam, 
-        string email, string password = null, bool isPersistent = false)
+    public async Task<IStatusGeneric> AddUserViaInvite(string inviteParam, 
+    string email, string password = null, bool isPersistent = false)
     {
         var status = new StatusGenericHandler<IdentityUser>();
         var normalizedEmail = email.Trim().ToLower();
 
-        AddNewUserDto invite;
+        AddNewUserDto newUserData;
         try
         {
             var decrypted = _encryptService.Decrypt(Base64UrlEncoder.Decode(inviteParam));
-            invite = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
+            newUserData = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
         }
         catch (Exception e)
         {
@@ -176,14 +175,15 @@ public class InviteNewUserService : IInviteNewUserService
             return status.AddError("Sorry, the verification failed.");
         }
 
-        if (invite.Email!= normalizedEmail)
+        if (newUserData.Email!= normalizedEmail)
             return status.AddError("Sorry, your email didn't match the invite.");
 
-        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(invite, password));
+        newUserData.Password = password;
+        newUserData.IsPersistent = isPersistent;
 
         if (status.HasErrors)
             return status;
 
-        return await _addUserManager.LoginVerificationAsync(invite.Email, invite.UserName, isPersistent);
+        return await _addUserManager.SetUserInfoAsync(newUserData);
     }
 }

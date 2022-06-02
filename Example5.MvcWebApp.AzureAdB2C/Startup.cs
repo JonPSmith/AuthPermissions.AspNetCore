@@ -1,7 +1,9 @@
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.OpenIdCode;
-using Example5.MvcWebApp.AzureAdB2C.AzureAdCode;
+using AuthPermissions.SupportCode.AddUsersServices;
+using AuthPermissions.SupportCode.AddUsersServices.Authentication;
+using AuthPermissions.SupportCode.AzureAdServices;
 using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
 using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -31,15 +33,16 @@ namespace Example5.MvcWebApp.AzureAdB2C
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var azureAdSection = _configuration.GetSection("AzureAd");
+
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(identityOptions =>
                 {
-                    var section = _configuration.GetSection("AzureAd");
-                    identityOptions.Instance = section["Instance"];
-                    identityOptions.TenantId = section["TenantId"];
-                    identityOptions.ClientId = section["ClientId"];
-                    identityOptions.CallbackPath = section["CallbackPath"];
-                    identityOptions.ClientSecret = section["ClientSecret"];
+                    identityOptions.Instance = azureAdSection["Instance"];
+                    identityOptions.TenantId = azureAdSection["TenantId"];
+                    identityOptions.ClientId = azureAdSection["ClientId"];
+                    identityOptions.CallbackPath = azureAdSection["CallbackPath"];
+                    identityOptions.ClientSecret = azureAdSection["ClientSecret"];
                 }, cookieOptions =>
                     cookieOptions.Events.OnValidatePrincipal = PeriodicCookieEvent.PeriodicRefreshUsersClaims);
 
@@ -47,27 +50,25 @@ namespace Example5.MvcWebApp.AzureAdB2C
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
 
-            //Needed by the SyncAzureAdUsers code
+            //Needed by the AzureAdAccessService code
             services.Configure<AzureAdOptions>(_configuration.GetSection("AzureAd"));
 
             services.RegisterAuthPermissions<Example5Permissions>(options =>
                 {
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
-                //************************************************
-                //To try using Postgres then:
-                //1. Edit the PostgreSqlConnection string in the appsettings file to your Postgres server
-                //2. Comment out the UsingEfCoreSqlServer method
-                //3. Uncomment the UsingEfCorePostgres
                 .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
-                //.UsingEfCorePostgres(_configuration.GetConnectionString("PostgreSqlConnection"))
-                //************************************************
                 .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
                 .RegisterAddClaimToUser<AddRefreshEveryMinuteClaim>()
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.RolesDefinition)
                 .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)
-                .RegisterAuthenticationProviderReader<SyncAzureAdUsers>()
+                .RegisterAuthenticationProviderReader<AzureAdAccessService>()
                 .SetupAspNetCoreAndDatabase();
+
+            //Add the SupportCode services
+            services.AddTransient<IAzureAdAccessService, AzureAdAccessService>();
+            services.AddTransient<IAuthenticationAddUserManager, AzureAdUserManager>();
+            services.AddTransient<IInviteNewUserService, InviteNewUserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using Example5.MvcWebApp.AzureAdB2C.AzureAdCode;
+using AuthPermissions.SupportCode.AzureAdServices;
 using Microsoft.Extensions.DependencyInjection;
 using TestSupport.Attributes;
 using TestSupport.Helpers;
@@ -29,15 +29,13 @@ namespace Test.UnitTests.TestAzureAd
         [RunnableInDebugOnly]
         public async Task TestSyncAzureAdUsersService()
         {
-
             //SETUP
             var config = AppSettings.GetConfiguration();
             var services = new ServiceCollection();
             services.Configure<AzureAdOptions>(config.GetSection("AzureAd"));
-            services.AddHttpClient();
-            services.AddTransient<ISyncAuthenticationUsers, SyncAzureAdUsers>();
+            services.AddTransient<ISyncAuthenticationUsers, AzureAdAccessService>();
             var serviceProvider = services.BuildServiceProvider();
-
+            
             var service = serviceProvider.GetService<ISyncAuthenticationUsers>();
             service.ShouldNotBeNull();
 

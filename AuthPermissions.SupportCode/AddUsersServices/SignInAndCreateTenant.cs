@@ -132,15 +132,17 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             newUser.Roles = GetDirectoryWithChecks(tenantData.Version, versionData.TenantAdminRoles,
                 nameof(MultiTenantVersionData.TenantAdminRoles));
         newUser.TenantId = tenantStatus.Result.TenantId;
-
-        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUser, newUser.Password));
-
-        if (status.IsValid)
-            status.CombineStatuses(await _addUserManager.LoginVerificationAsync(newUser.Email, newUser.UserName, newUser.IsPersistent));
+        
+        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUser));
 
         if (status.HasErrors)
+        {
             //Delete the tenant if anything went wrong, because the user most likely will want to try again
             await _tenantAdmin.DeleteTenantAsync(tenantStatus.Result.TenantId);
+            return status;
+        }
+
+        await _addUserManager.LoginAsync();
 
         status.Message =
             $"Successfully created the tenant '{tenantStatus.Result.TenantFullName}' and registered you as the tenant admin.";

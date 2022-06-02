@@ -36,30 +36,6 @@ public class TestIndividualUserAddUserManager
 
     public TestIndividualUserAddUserManager(ITestOutputHelper output)
     {
-        //var identityOptions = SqliteInMemory.CreateOptions<ApplicationDbContext>();
-        //using var identityContext = new ApplicationDbContext(identityOptions);
-        //identityContext.Database.EnsureCreated();
-        //var authOptions = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-        //using var authContext = new AuthPermissionsDbContext(authOptions);
-        //authContext.Database.EnsureCreated();
-
-        //var services = new ServiceCollection();
-        //services.AddIdentity<IdentityUser, IdentityRole>()
-        //    .AddEntityFrameworkStores<ApplicationDbContext>();
-
-        //var serviceProvider = services.BuildServiceProvider();
-        //var authSettings = new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel };
-
-        //var individualUserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-        //var individualUserSign = serviceProvider.GetRequiredService<SignInManager<IdentityUser>>();
-        //var authUserAdmin = new AuthUsersAdminService(authContext, null, authSettings);
-        //var authTenantAdmin =
-        //    new AuthTenantAdminService(authContext, authSettings, new StubITenantChangeServiceFactory(), null);
-
-        //_userManager = new IndividualUserAddUserManager<IdentityUser>(authUserAdmin, authTenantAdmin,
-        //    individualUserManager, individualUserSign);
-
-
         _output = output;
         this.GetUniqueDatabaseConnectionString();
 
@@ -99,7 +75,7 @@ public class TestIndividualUserAddUserManager
 
 
         var accountContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
-        accountContext.Database.EnsureCreated();
+        accountContext.Database.EnsureClean();
         var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
         authContext.Database.EnsureClean();
         var invoiceContext = _serviceProvider.GetRequiredService<InvoicesDbContext>();
@@ -137,12 +113,13 @@ public class TestIndividualUserAddUserManager
         await context.SetupRolesInDbAsync();
 
         var service = _serviceProvider.GetRequiredService<IAuthenticationAddUserManager>();
-        var userData = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
+        var userData = new AddNewUserDto { Email = "me@gmail.com", Password = "Pas!w0d",
+            Roles = new() { "Role1", "Role2" } };
 
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = await service.SetUserInfoAsync(userData, "Pass!3ord");
+        var status = await service.SetUserInfoAsync(userData);
 
         //VERIFY
         context.ChangeTracker.Clear();
@@ -151,28 +128,4 @@ public class TestIndividualUserAddUserManager
         var user = (await userAdmin.FindAuthUserByEmailAsync(userData.Email)).Result;
         user.UserRoles.Select(x => x.RoleName).ShouldEqual(new [] { "Role1", "Role2" });
     }
-
-    //Can't test IndividualUserAddUserManager.LoginVerificationAsync because it needs a HttpContext
-
-    //[Fact]
-    //public async Task TestLoginVerificationAsync()
-    //{
-    //    //SETUP
-    //    var context = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
-    //    context.Database.EnsureClean();
-    //    await context.SetupRolesInDbAsync();
-
-    //    var service = _serviceProvider.GetRequiredService<IAuthenticationAddUserManager>();
-    //    var newUser = new AddNewUserDto { Email = "me@gmail.com", Roles = new() { "Role1", "Role2" } };
-    //    (await service.SetUserInfoAsync(newUser, "Pass!3ord")).IsValid.ShouldBeTrue();
-
-    //    context.ChangeTracker.Clear();
-
-    //    //ATTEMPT
-    //    var status = await service.LoginVerificationAsync(newUser.Email, newUser.UserName);
-
-    //    //VERIFY
-    //    context.ChangeTracker.Clear();
-    //    status.IsValid.ShouldBeTrue(status.GetAllErrors());
-    //}
 }

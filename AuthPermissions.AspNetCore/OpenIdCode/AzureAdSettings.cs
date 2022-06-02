@@ -55,17 +55,15 @@ namespace AuthPermissions.AspNetCore.OpenIdCode
         /// Contains the claim name holding the user's name
         /// </summary>
         public string UsernameClaimName { get; }
-
-
         /// <summary>
         /// This holds the AuthenticationScheme Name
         /// </summary>
         public string AuthenticationSchemeName { get; }
-
         /// <summary>
         /// If true and the user isn't known to AuthP, then it will add an new AuthP user using the given data
+        /// NOTE: This needs a NonRegisterAddUserManager or equivalent service and an event code to set up a user
         /// </summary>
-        public bool AddNewUserIfNotPresent { get; }
+        public bool AddNewUserIfNotPresent { get; set; }
 
     }
 }

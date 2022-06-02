@@ -18,9 +18,9 @@ public static class Example3CreateTenantVersions
         },
         TenantAdminRoles = new Dictionary<string, List<string>>()
         {
-            { "Free", new List<string> { "Invoice read/write" } },
-            { "Pro", new List<string> { "Invoice read/write", "Tenant Admin" } },
-            { "Enterprise", new List<string> { "Invoice read/write", "Tenant Admin" } }
+            { "Free", new List<string> { "Invoice Reader", "Invoice Creator" } },
+            { "Pro", new List<string> { "Invoice Reader", "Invoice Creator", "Tenant Admin" } },
+            { "Enterprise", new List<string> { "Invoice Reader", "Invoice Creator", "Tenant Admin" } }
         }
         //No settings for HasOwnDbForEachVersion as this isn't a sharding 
     };

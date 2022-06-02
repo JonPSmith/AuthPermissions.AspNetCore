@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="EfCore.TestSupport" Version="5.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.Graph" Version="4.29.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -29,7 +29,7 @@ public class StubAuthenticationAddUserManager : IAuthenticationAddUserManager
         return Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
     }
 
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser, string password = null)
+    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser)
     {
         var tenantName = _authTenantAdmin != null && newUser.TenantId != null
             ? (await _authTenantAdmin.GetTenantViaIdAsync((int)newUser.TenantId)).Result.TenantFullName
@@ -39,8 +39,5 @@ public class StubAuthenticationAddUserManager : IAuthenticationAddUserManager
             newUser.Email, newUser.UserName, newUser.Roles, tenantName);
     }
 
-    public Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent = false)
-    {
-        return Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
-    }
+    public Task<IStatusGeneric> LoginAsync() => Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
 }

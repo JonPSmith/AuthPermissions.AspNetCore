@@ -40,17 +40,11 @@ public interface IAuthenticationAddUserManager
     /// it adds the new user AuthP information into the database to be read within the login event
     /// </summary>
     /// <param name="newUser">The information for creating an AuthUser </param>
-    /// <param name="password">optional: If you have access to the users you can confirm their identity before creating an AuthUser</param>
-    Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser, string password = null);
+    Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser);
 
     /// <summary>
-    /// This logs in the user, checking that the email / username are the same as was provided
-    /// OR
-    /// For non-register authentication handles it can only check that the new user has be added properly
+    /// Optional: this logs in the user if the authentication handler can do that
     /// </summary>
-    /// <param name="givenEmail">email to login by</param>
-    /// <param name="givenUserName">username to login by</param>
-    /// <param name="isPersistent">true if cookie should be persistent</param>
     /// <returns>status</returns>
-    Task<IStatusGeneric> LoginVerificationAsync(string givenEmail, string givenUserName, bool isPersistent = false);
+    Task<IStatusGeneric> LoginAsync();
 }
