@@ -97,7 +97,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             if (claimsPrincipal == null)
             {
                 //The JWT didn't pass the validation - this is a potential problem
-                _logger.LogWarning($"The token didn't pass the validation. Token = {tokenAndRefresh.Token}");
+                _logger.LogWarning("The token didn't pass the validation. Token = {0}", tokenAndRefresh.Token);
                 return (null, 400); //BadRequest
             }
 
@@ -106,14 +106,15 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             if (refreshTokenFromDb == null)
             {
                 //Could not find the refresh token in the database - this is a potential problem
-                _logger.LogWarning($"No refresh token was found in the database. Token = {tokenAndRefresh.Token}");
+                _logger.LogWarning("No refresh token was found in the database. Token = {0}", tokenAndRefresh.Token);
                 return (null, 400); //BadRequest
             }
 
             if (refreshTokenFromDb.IsInvalid)
             {
                 //Refresh token was a) has already been used, or b) manually  - this is a potential problem
-                _logger.LogWarning($"The refresh token in the database was marked as {nameof(refreshTokenFromDb.IsInvalid)}. Token = {tokenAndRefresh.Token}");
+                _logger.LogWarning("The refresh token in the database was marked as {0}. Token = {1}",
+                    nameof(refreshTokenFromDb.IsInvalid), tokenAndRefresh.Token);
                 return (null, 401); //Unauthorized - need to log in again
             }
             if (refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureAuthPJwtToken.RefreshTokenExpires) < DateTime.UtcNow)
@@ -121,7 +122,8 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
                 //Refresh token was out of date
                 var howFarOutOfDate = refreshTokenFromDb.AddedDateUtc.Add(_options.ConfigureAuthPJwtToken.RefreshTokenExpires)
                     .Subtract(DateTime.UtcNow);
-                _logger.LogInformation($"Refresh token had expired by {howFarOutOfDate:g}. Token = {tokenAndRefresh.Token}");
+                _logger.LogInformation("Refresh token had expired by {0:g}. Token = {1}",
+                    howFarOutOfDate, tokenAndRefresh.Token);
                 return (null, 401); //Unauthorized - need to log in again
             }
 

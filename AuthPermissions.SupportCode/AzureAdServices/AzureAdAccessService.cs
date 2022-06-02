@@ -1,10 +1,13 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Text.Json;
 using AuthPermissions.AdminCode;
+using AuthPermissions.AspNetCore.OpenIdCode;
 using Azure.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
+using StatusGeneric;
 
 namespace AuthPermissions.SupportCode.AzureAdServices;
 
@@ -13,7 +16,7 @@ namespace AuthPermissions.SupportCode.AzureAdServices;
 /// This implementation uses Microsoft.Graph library
 /// This code came from https://docs.microsoft.com/en-us/samples/azure-samples/ms-identity-dotnetcore-b2c-account-management/manage-b2c-users-dotnet-core-ms-graph/
 /// </summary>
-public class AzureAdAccessService : IAzureAdAccessService, ISyncAuthenticationUsers
+public class AzureAdAccessService : IAzureAdAccessService
 {
     private readonly ClientSecretCredential _clientSecretCredential;
     private readonly string[] _scopes = new[] { "https://graph.microsoft.com/.default" };
@@ -34,7 +37,6 @@ public class AzureAdAccessService : IAzureAdAccessService, ISyncAuthenticationUs
     /// <returns></returns>
     public async Task<IEnumerable<SyncAuthenticationUser>> GetAllActiveUserInfoAsync()
     {
-        
         var result = new List<SyncAuthenticationUser>();
         var graphClient = new GraphServiceClient(_clientSecretCredential, _scopes);
 
@@ -60,37 +62,109 @@ public class AzureAdAccessService : IAzureAdAccessService, ISyncAuthenticationUs
 
         await pageIterator.IterateAsync();
 
-        return result; 
+        return result;
+    }
+
+    /// <summary>
+    /// This will look for a user with the given email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>if found it returns the user's ID, otherwise it returns null</returns>
+    public async Task<string> FindAzureUserAsync(string email)
+    {
+        try
+        {
+            var graphClient = new GraphServiceClient(_clientSecretCredential, _scopes);
+            var user = await graphClient.Users[email]
+                .Request()
+                .Select("id")
+                .GetAsync();
+
+            return user.Id;
+        }
+        catch (ServiceException e)
+        {
+            var errorJson = JsonSerializer.Deserialize<Rootobject>(e.RawResponseBody);
+            if (errorJson.error.code == "Request_ResourceNotFound")
+                return null;
+            throw;
+        }
     }
 
     /// <summary>
     /// This creates a new user in the Azure AD. It returns the ID of the new Azure AD user.
     /// </summary>
-    /// <param name="email"></param>
-    /// <param name="userName"></param>
-    /// <param name="password"></param>
-    /// <returns>returns the ID of the newly created Azure AD user</returns>
-    public async Task<string> CreateNewUserAsync(string email, string userName, string password )
+    /// <param name="email">Must be provided</param>
+    /// <param name="userName">Must be provided</param>
+    /// <param name="temporaryPassword">Must be present. It is a temporary Password</param>
+    /// <returns>status: if error then return message, otherwise Result holds ID of the newly created Azure AD user</returns>
+    public async Task<IStatusGeneric<string>> CreateNewUserAsync(string email, string userName, string temporaryPassword)
     {
-        var graphClient = new GraphServiceClient(_clientSecretCredential, _scopes);
+        var status = new StatusGenericHandler<string>();
+
+        if (string.IsNullOrWhiteSpace(temporaryPassword)) throw new ArgumentNullException(nameof(temporaryPassword));
+
+        //I have to check that the email otherwise the creating of the MailNickname would fail
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
+            return status.AddError("The email was either missing or does not contain a '@'.", "Email");
 
         var user = new User
         {
             AccountEnabled = true,
             DisplayName = userName,
+            MailNickname = GenerateValidMailNickname(email),
             UserPrincipalName = email,
             PasswordProfile = new PasswordProfile
             {
-                ForceChangePasswordNextSignIn = false,
-                Password = password
+                ForceChangePasswordNextSignIn = true,
+                Password = temporaryPassword
             }
         };
 
-        var result = await graphClient.Users
-            .Request()
-            .AddAsync(user);
+        try
+        {
+            var graphClient = new GraphServiceClient(_clientSecretCredential, _scopes);
+            var result = await graphClient.Users
+                .Request()
+                .AddAsync(user);
 
-        return result.Id;
+            return status.SetResult(result.Id);
+        }
+        catch (ServiceException e)
+        {
+            var errorJson = JsonSerializer.Deserialize<Rootobject>(e.RawResponseBody);
+            if (errorJson.error.code == "Request_BadRequest")
+                return status.AddError($"The Azure AD authorization service says: {errorJson.error.message}");
+            throw;
+        }
+    }
+
+    //-------------------------------------------------------
+    //private methods / classes 
+
+    private static readonly char[] NickNameInvalidChars = 
+        new char [] { '@', '(', ')', '\\', '[', ']', '"', ';', ':', '.', '<', '>', ',', ' ' };
+
+    private string GenerateValidMailNickname(string email)
+    {
+        //see the link below on what are allowed charaters in the Azure AD MailNickname
+        //https://docs.microsoft.com/en-us/graph/api/group-post-groups?view=graph-rest-1.0&tabs=http#request-body
+
+        return new(email.Substring(0, email.IndexOf('@'))
+            .Where(c => c < 128 && !NickNameInvalidChars.Contains(c)).ToArray());
+    }
+
+
+    private class Rootobject
+    {
+        public Error error { get; set; }
+    }
+
+    private class Error
+    {
+        public string code { get; set; }
+        public string message { get; set; }
+
     }
 
 }

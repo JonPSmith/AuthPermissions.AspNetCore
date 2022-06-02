@@ -1,6 +1,7 @@
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.OpenIdCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.SupportCode.AddUsersServices;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using AuthPermissions.SupportCode.AzureAdServices;
@@ -51,14 +52,15 @@ namespace Example5.MvcWebApp.AzureAdB2C
                  .AddMicrosoftIdentityUI();
 
             //Needed by the AzureAdAccessService code
-            services.Configure<AzureAdOptions>(_configuration.GetSection("AzureAd"));
+            services.Configure<AzureAdOptions>(_configuration.GetSection(AzureAdOptions.SectionName));
 
             services.RegisterAuthPermissions<Example5Permissions>(options =>
                 {
+                    options.EncryptionKey = _configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
                     options.PathToFolderToLock = _env.WebRootPath;
                 })
                 .UsingEfCoreSqlServer(_configuration.GetConnectionString("DefaultConnection"))
-                .AzureAdAuthentication(AzureAdSettings.AzureAdDefaultSettings(false))
+                .AzureAdAuthentication(AzureAdEventSettings.AzureAdDefaultSettings())
                 .RegisterAddClaimToUser<AddRefreshEveryMinuteClaim>()
                 .AddRolesPermissionsIfEmpty(Example5AppAuthSetupData.RolesDefinition)
                 .AddAuthUsersIfEmpty(Example5AppAuthSetupData.UsersRolesDefinition)

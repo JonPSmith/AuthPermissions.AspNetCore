@@ -5,23 +5,22 @@ namespace AuthPermissions.AspNetCore.OpenIdCode
     /// <summary>
     /// This contains the names of the claims to get the userId, Email and Username when using Azure AD
     /// </summary>
-    public class AzureAdSettings
+    public class AzureAdEventSettings
     {
         /// <summary>
         /// This provides a standard set of claim names when working with Azure AD
         /// </summary>
-        /// <param name="addNewUserIfNotPresent">If true and the logging in user isn't in the AuthP users, then a new AuthP user is created</param>
         /// <param name="authenticationSchemeName">Optional:
         /// Needs to be that same as used in AddAuthentication call - defaults to <see cref="OpenIdConnectDefaults.AuthenticationScheme"/></param>
-        /// <returns>AzureAdSettings</returns>
-        public static AzureAdSettings AzureAdDefaultSettings(bool addNewUserIfNotPresent, 
+        /// <returns>AzureAdEventSettings</returns>
+        public static AzureAdEventSettings AzureAdDefaultSettings(
             string authenticationSchemeName = OpenIdConnectDefaults.AuthenticationScheme)
         {
-            return new AzureAdSettings(
+            return new AzureAdEventSettings(
                 "http://schemas.microsoft.com/identity/claims/objectidentifier",
                 "preferred_username",
                 "name",
-                addNewUserIfNotPresent, authenticationSchemeName);
+                authenticationSchemeName);
         }
 
         /// <summary>
@@ -30,16 +29,13 @@ namespace AuthPermissions.AspNetCore.OpenIdCode
         /// <param name="userIdClaimName"></param>
         /// <param name="emailClaimName"></param>
         /// <param name="usernameClaimName"></param>
-        /// <param name="addNewUserIfNotPresent"></param>
         /// <param name="authenticationSchemeName"></param>
-        public AzureAdSettings(string userIdClaimName, string emailClaimName, string usernameClaimName,
-            bool addNewUserIfNotPresent,
+        public AzureAdEventSettings(string userIdClaimName, string emailClaimName, string usernameClaimName,
             string authenticationSchemeName)
         {
             UserIdClaimName = userIdClaimName;
             EmailClaimName = emailClaimName;
             UsernameClaimName = usernameClaimName;
-            AddNewUserIfNotPresent = addNewUserIfNotPresent;
             AuthenticationSchemeName = authenticationSchemeName;
         }
 
@@ -59,11 +55,6 @@ namespace AuthPermissions.AspNetCore.OpenIdCode
         /// This holds the AuthenticationScheme Name
         /// </summary>
         public string AuthenticationSchemeName { get; }
-        /// <summary>
-        /// If true and the user isn't known to AuthP, then it will add an new AuthP user using the given data
-        /// NOTE: This needs a NonRegisterAddUserManager or equivalent service and an event code to set up a user
-        /// </summary>
-        public bool AddNewUserIfNotPresent { get; set; }
 
     }
 }

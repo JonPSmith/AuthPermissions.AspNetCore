@@ -20,18 +20,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.PermissionCode
         BasicFeature = 10,
 
 
-        //----------------------------------------------------
-        //This is an example of what to do with permission you don't used anymore.
-        //You don't want its number to be reused as it could cause problems 
-        //Just mark it as obsolete and the PermissionDisplay code won't show it
-        [Obsolete]
-        [Display(GroupName = "Old", Name = "Not used", Description = "example of old permission")]
-        OldPermissionNotUsed = 1_000,
 
-        //----------------------------------------------------
-        // A enum member with no <see cref="DisplayAttribute"/> can be used, but its not shown in the PermissionDisplay at all
-        // Useful if are working on new permissions but you don't want it to be used by anyone yet 
-        AnotherPermission = 2_000,
 
         //----------------------------------------------------
         //Admin section
@@ -49,6 +38,9 @@ namespace Example5.MvcWebApp.AzureAdB2C.PermissionCode
         UserChangeTenant = 40_004,
         [Display(GroupName = "UserAdmin", Name = "Remove user", Description = "Can delete the user")]
         UserRemove = 40_005,
+
+        [Display(GroupName = "Employees", Description = "Can invite new users to join the tenant")]
+        InviteUsers = 40_100,
 
         //41_000 - Roles admin
         [Display(GroupName = "RolesAdmin", Name = "Read Roles", Description = "Can list Role")]

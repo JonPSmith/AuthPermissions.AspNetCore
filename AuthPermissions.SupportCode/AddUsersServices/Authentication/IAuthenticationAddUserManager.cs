@@ -10,8 +10,7 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 /// This means it much easier for you to use the "invite user" and "sign up" features with any authentication
 /// There are two implementation of this interface cover nearly all the normal authentication handlers
 /// 1. <see cref="IndividualUserAddUserManager{TIdentity}"/>, which works with the Individual User Accounts
-/// 2. <see cref="NonRegisterAddUserManager"/>, which works for any authentication handler where you can't access the user list,
-///    e.g., Social logins like Google, Twitter etc. NOTE: These need extra code that is called in a login event 
+/// 2. <see cref="AzureAdUserManager"/>, which works for Azure AD
 /// </summary>
 public interface IAuthenticationAddUserManager
 {
@@ -25,7 +24,7 @@ public interface IAuthenticationAddUserManager
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    AddNewUserDto NewUserLogin { get; }
+    AddNewUserDto UserLoginData { get; }
 
     /// <summary>
     /// This makes a quick check that the user isn't already has an AuthUser 
@@ -45,6 +44,7 @@ public interface IAuthenticationAddUserManager
     /// <summary>
     /// Optional: this logs in the user if the authentication handler can do that
     /// </summary>
-    /// <returns>status</returns>
-    Task<IStatusGeneric> LoginAsync();
+    /// <returns>status with the final <see cref="AddNewUserDto"/> setting.
+    /// This is needed in the Azure AD version, as it creates a temporary password.</returns>
+    Task<IStatusGeneric<AddNewUserDto>> LoginAsync();
 }

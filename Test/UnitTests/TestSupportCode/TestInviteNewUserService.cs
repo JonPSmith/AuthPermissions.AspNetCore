@@ -188,6 +188,7 @@ public class TestInviteNewUserService
             var decrypted = tuple.encryptService.Decrypt(Base64UrlEncoder.Decode(status.Result));
             var invite = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
             invite.TenantId.ShouldEqual(expectedTenantId);
+            _output.WriteLine(status.Message);
         }
     }
 
@@ -208,7 +209,7 @@ public class TestInviteNewUserService
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = await tuple.service.AddUserViaInvite(inviteStatus.Result, emailGiven);
+        var status = await tuple.service.AddUserViaInvite(inviteStatus.Result, emailGiven, null);
 
         //VERIFY
         context.ChangeTracker.Clear();

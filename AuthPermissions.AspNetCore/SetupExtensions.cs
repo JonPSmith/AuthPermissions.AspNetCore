@@ -69,12 +69,12 @@ namespace AuthPermissions.AspNetCore
         /// This registers an OpenIDConnect set up to work with Azure AD authorization
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="settings">This contains the data needed to add the AuthP claims to the Azure AD login</param>
+        /// <param name="eventSettings">This contains the data needed to add the AuthP claims to the Azure AD login</param>
         /// <returns></returns>
-        public static AuthSetupData AzureAdAuthentication(this AuthSetupData setupData, AzureAdSettings settings)
+        public static AuthSetupData AzureAdAuthentication(this AuthSetupData setupData, AzureAdEventSettings eventSettings)
         {
             setupData.Options.InternalData.AuthPAuthenticationType = AuthPAuthenticationTypes.OpenId;
-            setupData.Services.SetupOpenAzureAdOpenId(settings);
+            setupData.Services.SetupOpenAzureAdOpenId(eventSettings);
 
             return setupData;
         }

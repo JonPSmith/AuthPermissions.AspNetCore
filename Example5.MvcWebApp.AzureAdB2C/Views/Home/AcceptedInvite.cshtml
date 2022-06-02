@@ -1,0 +1,12 @@
+﻿@model InviteAddedDto
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h4 class="text-primary">@Model.Message</h4>
+
+@if (Model.TempPassword != null)
+{
+    <p>Please use the temporary password below on your first sign-in.</p>
+    <h3>@Model.TempPassword</h3>
+}

@@ -10,7 +10,6 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StatusGeneric;
@@ -78,7 +77,8 @@ public class InviteNewUserService : IInviteNewUserService
 
             if (inviterStatus.Result.TenantId == null)
             {
-                //the inviter is an app admin, so use the invited user Id
+                //the inviter is an app admin, so they can set any tenant including null
+                //but for security reasons they can't invite a app user (it's just too easy to not provide the TenantId)
             }
             else
             {
@@ -129,10 +129,13 @@ public class InviteNewUserService : IInviteNewUserService
                 + $"'{CommonConstants.EmptyItemName}' dropdown item.");
 
         status.Message =
-            $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join " +
-            (invitedUser.TenantId == null
-                ? "your application."
-                : $"the tenant '{foundTenant.TenantFullName}'.");
+            invitedUser.TenantId == null && _options.TenantType.IsMultiTenant()
+                ? "WARNING: you are creating an invite that will make the user an app admin (i.e. not a tenant). " +
+                  "This is allowable, but wanted to make sure that what you want to do."
+                : $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join " +
+                  (invitedUser.TenantId == null
+                      ? "your application."
+                      : $"the tenant '{foundTenant.TenantFullName}'.");
 
         //This setting makes the string shorter
         JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
@@ -152,15 +155,16 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="inviteParam">The encrypted part of the url encoded to work with urls
     ///     that was created by <see cref="CreateInviteUserToJoinAsync"/></param>
     /// <param name="email">email - used to check that the user is the same as the invite</param>
+    /// <param name="userName">username - used for creating the user</param>
     /// <param name="password">If use are using a register / login authentication handler (e.g. individual user accounts),
     /// then the password for the new user should be provided</param>
     /// <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
     /// and you are using authentication cookie, then setting this to true makes the login persistent</param>
-    /// <returns>Status</returns>
-    public async Task<IStatusGeneric> AddUserViaInvite(string inviteParam, 
-    string email, string password = null, bool isPersistent = false)
+    /// <returns>Status with the data used to create the user</returns>
+    public async Task<IStatusGeneric<AddNewUserDto>> AddUserViaInvite(string inviteParam, 
+    string email, string userName, string password = null, bool isPersistent = false)
     {
-        var status = new StatusGenericHandler<IdentityUser>();
+        var status = new StatusGenericHandler<AddNewUserDto>();
         var normalizedEmail = email.Trim().ToLower();
 
         AddNewUserDto newUserData;
@@ -178,12 +182,18 @@ public class InviteNewUserService : IInviteNewUserService
         if (newUserData.Email!= normalizedEmail)
             return status.AddError("Sorry, your email didn't match the invite.");
 
+        newUserData.UserName = userName;
         newUserData.Password = password;
         newUserData.IsPersistent = isPersistent;
 
         if (status.HasErrors)
             return status;
 
-        return await _addUserManager.SetUserInfoAsync(newUserData);
+        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUserData));
+
+        if (status.HasErrors)
+            return status;
+
+        return await _addUserManager.LoginAsync(); //This returns the final AddNewUserDto settings
     }
 }

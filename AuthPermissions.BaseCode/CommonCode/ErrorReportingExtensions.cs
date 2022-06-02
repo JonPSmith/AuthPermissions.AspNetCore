@@ -57,7 +57,7 @@ namespace AuthPermissions.BaseCode.CommonCode
         public static void IfErrorsTurnToException(this IStatusGeneric status)
         {
             if (status.HasErrors)
-                throw new AuthPermissionsBadDataException(status.Errors.Count() == 1
+                throw new AuthPermissionsBadDataException(status.Errors.Count == 1
                     ? status.Errors.Single().ToString()
                     : $"{status.HasErrors}:{Environment.NewLine}{status.GetAllErrors()}");
         }

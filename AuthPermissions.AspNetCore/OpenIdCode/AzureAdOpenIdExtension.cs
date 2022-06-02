@@ -18,17 +18,17 @@ namespace AuthPermissions.AspNetCore.OpenIdCode
         /// This will register an OpenId Connect event which will add the AuthP's claims to the principal user
         /// </summary>
         /// <param name="services">The service collection to register this to</param>
-        /// <param name="settings">This contains the data needed to add the AuthP claims to the Azure AD login</param>
-        public static void SetupOpenAzureAdOpenId(this IServiceCollection services, AzureAdSettings settings)
+        /// <param name="eventSettings">This contains the data needed to add the AuthP claims to the Azure AD login</param>
+        public static void SetupOpenAzureAdOpenId(this IServiceCollection services, AzureAdEventSettings eventSettings)
         {
-            services.Configure<OpenIdConnectOptions>(settings.AuthenticationSchemeName, options =>
+            services.Configure<OpenIdConnectOptions>(eventSettings.AuthenticationSchemeName, options =>
             {
                 options.Events = new OpenIdConnectEvents
                 {
                     OnTokenValidated = async context =>
                     {
-                        string userId = context.Principal.FindFirstValue(settings.UserIdClaimName);
-                        var email = context.Principal.FindFirstValue(settings.EmailClaimName);
+                        string userId = context.Principal.FindFirstValue(eventSettings.UserIdClaimName);
+                        var email = context.Principal.FindFirstValue(eventSettings.EmailClaimName);
 
                         //The claims as set by AzureAD don't match what ASP.NET Core / AuthP needs so sort it out
                         var updatedClaims = context.Principal.Identities.First().Claims.ToList();

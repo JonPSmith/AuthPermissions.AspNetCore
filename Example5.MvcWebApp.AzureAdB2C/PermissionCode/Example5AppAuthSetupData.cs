@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 
 namespace Example5.MvcWebApp.AzureAdB2C.PermissionCode
 {
@@ -12,8 +11,9 @@ namespace Example5.MvcWebApp.AzureAdB2C.PermissionCode
         public static readonly List<BulkLoadRolesDto> RolesDefinition = new ()
         {
             new("SuperAdmin", "Super admin - only use for setup", "AccessAll"),
-            new("Admin Role", "Overall app Admin", 
-                "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead"),
+            new("Admin Role", "Overall app Admin",
+                "UserRead, UserSync, UserChange, UserRolesChange, InviteUsers, UserChangeTenant, UserRemove, " +
+                "RoleRead, RoleChange, PermissionRead"),
             new("Basic Role", "Normal User", "BasicFeature"),
         };
 

@@ -29,11 +29,12 @@ public interface IInviteNewUserService
     /// <param name="inviteParam">The encrypted part of the url encoded to work with urls
     ///     that was created by <see cref="CreateInviteUserToJoinAsync"/></param>
     /// <param name="email">email - used to check that the user is the same as the invite</param>
+    /// <param name="userName">username - used for creating the user</param>
     /// <param name="password">If use are using a register / login authentication handler (e.g. individual user accounts),
-    /// then the password for the new user should be provided</param>
+    ///     then the password for the new user should be provided</param>
     /// <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
-    /// and you are using authentication cookie, then setting this to true makes the login persistent</param>
-    /// <returns>Status with the individual accounts user</returns>
-    Task<IStatusGeneric> AddUserViaInvite(string inviteParam,
-        string email, string password = null, bool isPersistent = false);
+    ///     and you are using authentication cookie, then setting this to true makes the login persistent</param>
+    /// <returns>Status with the data used to create the user</returns>
+    public Task<IStatusGeneric<AddNewUserDto>> AddUserViaInvite(string inviteParam,
+        string email, string userName, string password = null, bool isPersistent = false);
 }

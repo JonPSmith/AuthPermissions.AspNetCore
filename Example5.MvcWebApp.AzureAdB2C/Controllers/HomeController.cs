@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.PermissionsCode;
+using AuthPermissions.SupportCode.AddUsersServices;
 using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
 
 namespace Example5.MvcWebApp.AzureAdB2C.Controllers
@@ -35,6 +37,31 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
                 appSummary.WhatTypeOfAuthUser = "Logged in user is an AuthP normal user";
 
             return View(appSummary);
+        }
+
+        [AllowAnonymous]
+        public ActionResult AcceptInvite(string verify)
+        {
+            return View(new AcceptInviteAzureAdDto { Verify = verify });
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> AcceptInvite([FromServices] IInviteNewUserService inviteUserServiceService,
+            AcceptInviteAzureAdDto data)
+        {
+            var status = await inviteUserServiceService.AddUserViaInvite(data.Verify, data.Email, data.UserName);
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            return View("AcceptedInvite", new InviteAddedDto(status.Message, status.Result.Password));
+        }
+
+        public ActionResult ErrorDisplay(string errorMessage)
+        {
+            return View((object)errorMessage);
         }
 
         public IActionResult Privacy()

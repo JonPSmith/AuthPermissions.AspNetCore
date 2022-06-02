@@ -34,6 +34,6 @@ public interface ISignInAndCreateTenant
     /// <param name="versionData">This contains the application's setup of your tenants, including different versions.</param>
     /// <returns>Status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    Task<IStatusGeneric> SignUpNewTenantWithVersionAsync(AddNewUserDto newUser,
+    Task<IStatusGeneric<AddNewUserDto>> SignUpNewTenantWithVersionAsync(AddNewUserDto newUser,
         AddNewTenantDto tenantData, MultiTenantVersionData versionData);
 }

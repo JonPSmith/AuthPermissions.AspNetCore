@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
+using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.SupportCode.AzureAdServices;
 using Microsoft.Extensions.DependencyInjection;
 using TestSupport.Attributes;
@@ -48,6 +49,30 @@ namespace Test.UnitTests.TestAzureAd
                 _output.WriteLine($"Email: {user.Email}, Name: {user.UserName}, UserId: {user.UserId}");
             }
             users.Any().ShouldBeTrue();
+        }
+
+        /// <summary>
+        /// This test takes some time so only run it manually in Debug
+        /// </summary>
+        /// <returns></returns>
+        [RunnableInDebugOnly]
+        public async Task TestAzureAdAccessService_FindAzureUserAsync()
+        {
+            //SETUP
+            var config = AppSettings.GetConfiguration();
+            var services = new ServiceCollection();
+            services.Configure<AzureAdOptions>(config.GetSection("AzureAd"));
+            services.AddTransient<IAzureAdAccessService, AzureAdAccessService>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var service = serviceProvider.GetService<IAzureAdAccessService>();
+            service.ShouldNotBeNull();
+
+            //ATTEMPT
+            var userId = await service.FindAzureUserAsync("bad@authpermissions.onmicrosoft.com");
+
+            //VERIFY
+            _output.WriteLine(userId ?? "< null >");
         }
 
     }

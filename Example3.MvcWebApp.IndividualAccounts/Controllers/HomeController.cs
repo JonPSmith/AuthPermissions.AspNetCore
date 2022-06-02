@@ -4,11 +4,9 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using AuthPermissions.SupportCode.AddUsersServices;
-using Example3.InvoiceCode.Dtos;
 using Example3.InvoiceCode.Services;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 
 namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -67,9 +65,9 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> AcceptInvite([FromServices] IInviteNewUserService inviteUserServiceService,
-            string verify, string email, string password, bool isPersistent)
+            string verify, string email, string userName, string password, bool isPersistent)
         {
-            var status = await inviteUserServiceService.AddUserViaInvite(verify, email, password, isPersistent);
+            var status = await inviteUserServiceService.AddUserViaInvite(verify, email, null, password, isPersistent);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

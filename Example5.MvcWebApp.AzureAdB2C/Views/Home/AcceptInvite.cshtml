@@ -1,4 +1,4 @@
-﻿@model Example3.MvcWebApp.IndividualAccounts.Models.AcceptInviteDto
+﻿@model AcceptInviteAzureAdDto
 
 @{
     ViewData["Title"] = "AcceptInvite";
@@ -6,7 +6,7 @@
 
 <h1>Accept the Invite</h1>
 
-<h5>Fill in your email and password and you will be registered to the Invoice Manager.</h5>
+<h5>Fill in your email and you will be registered as a user for this application.</h5>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -20,18 +20,8 @@
             </div>
             <div class="form-group">
                 <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" type="test" class="form-control" />
+                <input asp-for="UserName" type="text" class="form-control" />
                 <span asp-validation-for="UserName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" type="password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IsPersistent" class="control-label"></label>
-                <input asp-for="IsPersistent" type="checkbox" class="form-control" />
-                <span asp-validation-for="IsPersistent" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Join" class="btn btn-primary" />
@@ -41,6 +31,6 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back to home</a>
 </div>
 

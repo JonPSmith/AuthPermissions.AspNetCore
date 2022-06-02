@@ -47,7 +47,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// Used to check that the email of the person who will login is the same as the email provided by the user
     /// NOTE: Email and UserName can be null if providing a default value
     /// </summary>
-    public AddNewUserDto NewUserLogin { get; private set; }
+    public AddNewUserDto UserLoginData { get; private set; }
 
     /// <summary>
     /// This makes a quick check that the user isn't already has an AuthUser 
@@ -67,12 +67,12 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// external authentication handlers where you can't get a user's data before the login 
     /// it adds the new user AuthP information into the database to be read within the login event
     /// </summary>
-    /// <param name="newUser">The information for creating an AuthUser </param>
+    /// <param name="newUser">The information for creating an AuthUser
     /// It also checks if there is a user already, which could happen if the user's login failed</param>
     /// <returns>status</returns>
     public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser)
     {
-        NewUserLogin = newUser ?? throw new ArgumentNullException(nameof(newUser));
+        UserLoginData = newUser ?? throw new ArgumentNullException(nameof(newUser));
 
         var status = new StatusGenericHandler { Message = "New user with claims added" };
 
@@ -105,15 +105,17 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     /// <summary>
     /// This logs in the user
     /// </summary>
-    /// <returns>status</returns>
-    public async Task<IStatusGeneric> LoginAsync()
+    /// <returns>status with the final <see cref="AddNewUserDto"/> setting.
+    /// This is needed in the Azure AD version, as it creates a temporary password.</returns>
+    public async Task<IStatusGeneric<AddNewUserDto>> LoginAsync()
     {
-        if (NewUserLogin == null)
+        if (UserLoginData == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
-        var user = await _userManager.FindByEmailAsync(NewUserLogin.Email);
-        await _signInManager.SignInAsync(user, isPersistent: NewUserLogin.IsPersistent);
+        var user = await _userManager.FindByEmailAsync(UserLoginData.Email);
+        await _signInManager.SignInAsync(user, isPersistent: UserLoginData.IsPersistent);
 
-        return new StatusGenericHandler { Message = "You have been registered and logged in to this application." };
+        var status = new StatusGenericHandler<AddNewUserDto> { Message = "You have been registered and logged in to this application." };
+        return status.SetResult(UserLoginData);
     }
 }

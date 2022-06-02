@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
+using AuthPermissions.AspNetCore;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.SupportCode.AddUsersServices;
 using Example5.MvcWebApp.AzureAdB2C.Models;
+using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +34,46 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
             return View(usersToShow);
         }
 
+        [HasPermission(Example5Permissions.InviteUsers)]
+        public async Task<ActionResult> InviteUser([FromServices] IAuthTenantAdminService rolesAdmin)
+        {
+            var setupInvite = new InviteUserSetup
+            {
+                AllRoleNames = await _authUsersAdmin.GetRoleNamesForUsersAsync(User.GetUserIdFromUser())
+            };
+
+            return View(setupInvite);
+        }
+
+        [HasPermission(Example5Permissions.InviteUsers)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteUserServiceService, InviteUserSetup data)
+        {
+            var addUserData = new AddNewUserDto { Email = data.Email, Roles = data.RoleNames };
+            var status = await inviteUserServiceService.CreateInviteUserToJoinAsync(addUserData, User.GetUserIdFromUser());
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home", new { verify = status.Result });
+
+            return View("InviteUserUrl", new InviteUserResult(status.Message, inviteUrl));
+        }
+
+        //-------------------------------------------------------
+
+        //Thanks to https://stackoverflow.com/questions/30755827/getting-absolute-urls-using-asp-net-core
+        public string AbsoluteAction(IUrlHelper url,
+            string actionName,
+            string controllerName,
+            object routeValues = null)
+        {
+            string scheme = HttpContext.Request.Scheme;
+            return url.Action(actionName, controllerName, routeValues, scheme);
+        }
+
+        [HasPermission(Example5Permissions.UserChange)]
         public async Task<ActionResult> Edit(string userId)
         {
             var status = await SetupManualUserChange.PrepareForUpdateAsync(userId,_authUsersAdmin);

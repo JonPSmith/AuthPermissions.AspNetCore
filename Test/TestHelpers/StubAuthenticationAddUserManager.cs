@@ -22,7 +22,7 @@ public class StubAuthenticationAddUserManager : IAuthenticationAddUserManager
     }
 
     public string AuthenticationGroup { get; } = "Stub";
-    public AddNewUserDto NewUserLogin { get; }
+    public AddNewUserDto UserLoginData { get; }
 
     public Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
@@ -39,5 +39,6 @@ public class StubAuthenticationAddUserManager : IAuthenticationAddUserManager
             newUser.Email, newUser.UserName, newUser.Roles, tenantName);
     }
 
-    public Task<IStatusGeneric> LoginAsync() => Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
+    public Task<IStatusGeneric<AddNewUserDto>> LoginAsync() => 
+        Task.FromResult<IStatusGeneric<AddNewUserDto>>(new StatusGenericHandler<AddNewUserDto>());
 }

@@ -69,13 +69,13 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// <param name="versionData">This contains the application's setup of your tenants, including different versions.</param>
     /// <returns>Status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
-    public async Task<IStatusGeneric> SignUpNewTenantWithVersionAsync(AddNewUserDto newUser, 
+    public async Task<IStatusGeneric<AddNewUserDto>> SignUpNewTenantWithVersionAsync(AddNewUserDto newUser, 
         AddNewTenantDto tenantData, MultiTenantVersionData versionData)
     {
         if (newUser == null) throw new ArgumentNullException(nameof(newUser));
         if (tenantData == null) throw new ArgumentNullException(nameof(tenantData));
         if (versionData == null) throw new ArgumentNullException(nameof(versionData));
-        var status = new StatusGenericHandler();
+        var status = new StatusGenericHandler<AddNewUserDto>();
 
         if (tenantData.TenantName == null)
             return status.AddError("You forgot to give a tenant name");
@@ -133,7 +133,18 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                 nameof(MultiTenantVersionData.TenantAdminRoles));
         newUser.TenantId = tenantStatus.Result.TenantId;
         
+        //From the point where the tenant is created any errors will delete the tenant, as the user might try again
+
         status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUser));
+
+        if (status.IsValid)
+        {
+            var loginStatus = await _addUserManager.LoginAsync();
+            status.CombineStatuses(loginStatus);
+            //The LoginAsync returns the final AddNewUserDto for the new user
+            //We return this because the UserManager may have altered the data, e.g. the Azure AD manager will create a temporary password 
+            status.SetResult(loginStatus.Result); 
+        }
 
         if (status.HasErrors)
         {
@@ -141,8 +152,6 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             await _tenantAdmin.DeleteTenantAsync(tenantStatus.Result.TenantId);
             return status;
         }
-
-        await _addUserManager.LoginAsync();
 
         status.Message =
             $"Successfully created the tenant '{tenantStatus.Result.TenantFullName}' and registered you as the tenant admin.";
@@ -157,7 +166,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     {
         if (versionString == null && versionDirectory == null)
             //not using versioning, so send back default value
-            return default(T);
+            return default;
 
         if (versionString == null && versionDirectory != null)
             throw new AuthPermissionsException(string.Format("The version string was null, but {0}.{1} contained version data.",
