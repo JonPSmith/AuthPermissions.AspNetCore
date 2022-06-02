@@ -1,5 +1,10 @@
 # Release Notes
 
+## 3.2.1
+
+- Bug fix: Second refresh JWT Bearer token failed. Fixed by @akema-trebla - see issue #36 (thanks to @akema-trebla)
+- Bug fix: TenantRoles would give an exception if the _tenantRoles was null - see pull request #45 (thanks to @emorell96)
+
 ## 3.2.0
 
 - BREAKING CHANGE: The 3.0.0 sharding didn't work with Azure, so the way to define databases for sharding has changed - see issue #29 and docs: Setup -> Multi tenant configuration -> Sharding database settings
