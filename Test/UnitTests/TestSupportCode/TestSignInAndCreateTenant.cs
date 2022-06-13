@@ -12,6 +12,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.SupportCode.AddUsersServices;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
+using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -70,24 +71,27 @@ public class TestSignInAndCreateTenant
         var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
 
         //VERIFY
+        context.ChangeTracker.Clear();
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        var tenant = context.Tenants.Single();
+        var tenant = context.Tenants.Include(x => x.TenantRoles).Single();
         tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
         tenant.TenantRoles.Select(x => x.RoleName).ToArray()
             .ShouldEqual(tenantRoles?.Split(',') ?? Array.Empty<string>());
-        var user = context.AuthUsers.Single();
+        var user = context.AuthUsers.Include(x => x.UserRoles).Single();
         user.UserRoles.Select(x => x.RoleName).ToArray().ShouldEqual(adminRoles.Split(','));
     }
 
-    [Fact]
-    public async Task TestAddUserAndNewTenantAsync_NoVersionSetup()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TestAddUserAndNewTenantAsync_NoVersionSetup(bool hasOwnDb)
     {
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel);
+        var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding);
         await context.SetupRolesInDbAsync();
 
         context.ChangeTracker.Clear();
@@ -98,15 +102,17 @@ public class TestSignInAndCreateTenant
             Email = "me!@g1.com",
             Roles = new List<string> { "Role1", "Role3" }
         };
-        var tenantData = new AddNewTenantDto { TenantName = "New Tenant"};
+        var tenantData = new AddNewTenantDto { TenantName = "New Tenant", HasOwnDb = hasOwnDb};
         var status = await tuple.service.SignUpNewTenantAsync(userData, tenantData);
 
         //VERIFY
+        context.ChangeTracker.Clear();
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        var tenant = context.Tenants.Single();
+        var tenant = context.Tenants.Include(x => x.TenantRoles).Single();
         tenant.TenantFullName.ShouldEqual("New Tenant");
         tenant.TenantRoles.Count.ShouldEqual(0);
-        var user = context.AuthUsers.Single();
+        tenant.HasOwnDb.ShouldEqual(hasOwnDb);
+        var user = context.AuthUsers.Include(x => x.UserRoles).Single();
         user.UserRoles.Select(x => x.RoleName).ToArray().ShouldEqual(new []{ "Role1", "Role3" });
     }
 
@@ -146,6 +152,7 @@ public class TestSignInAndCreateTenant
         var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
 
         //VERIFY
+        context.ChangeTracker.Clear();
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
         var tenant = context.Tenants.Single();
         tenant.TenantFullName.ShouldEqual(tenantData.TenantName);

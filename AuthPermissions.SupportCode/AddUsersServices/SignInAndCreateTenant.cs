@@ -43,8 +43,10 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// This implements "sign up" feature, where a new user signs up for a new tenant,
     /// where there is only version of the tenant. It also creates a new user which is linked to the new tenant.
     /// </summary>
-    /// <param name="newUser">The information for the new user that is signing in</param>
-    /// <param name="tenantData">The information for how the new tenant should be created</param>
+    /// <param name="newUser">The information for the new user that is signing in.
+    /// NOTE: any Roles for the user should be added to the <see cref="AddNewUserDto.Roles"/> property</param>
+    /// <param name="tenantData">The information for how the new tenant should be created.
+    /// NOTE: Set the <see cref="AddNewTenantDto.HasOwnDb"/> to true/false if sharding is on.</param>
     /// <returns>status</returns>
     /// <exception cref="AuthPermissionsException"></exception>
     public async Task<IStatusGeneric> SignUpNewTenantAsync(AddNewUserDto newUser, AddNewTenantDto tenantData)
@@ -78,11 +80,13 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         var status = new StatusGenericHandler<AddNewUserDto>();
 
         if (tenantData.TenantName == null)
-            return status.AddError("You forgot to give a tenant name");
+            return status.AddError("You forgot to give a tenant name",
+                nameof(AddNewTenantDto.TenantName));
 
         //Check if tenant name is available
         if (await _tenantAdmin.QueryTenants().AnyAsync(x => x.TenantFullName == tenantData.TenantName))
-            return status.AddError($"The tenant name '{tenantData.TenantName}' is already taken", new[] { nameof(AddNewTenantDto.TenantName) });
+            return status.AddError($"The tenant name '{tenantData.TenantName}' is already taken",
+                new[] { nameof(AddNewTenantDto.TenantName) });
 
         if (status.CombineStatuses(await _addUserManager.CheckNoExistingAuthUserAsync(newUser)).HasErrors)
             return status;
@@ -102,7 +106,9 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                 nameof(MultiTenantVersionData.HasOwnDbForEachVersion)) ?? tenantData.HasOwnDb;
 
             if (hasOwnDb == null)
-                return status.AddError($"You must set the {nameof(AddNewTenantDto.HasOwnDb)} parameter to true or false");
+                return status.AddError(
+                    $"You must set the {nameof(AddNewTenantDto.HasOwnDb)} parameter to true or false",
+                    nameof(AddNewTenantDto.HasOwnDb));
 
             //This method will find a database for the new tenant when using sharding
             var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync((bool)hasOwnDb, tenantData.Region);
@@ -111,8 +117,9 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             databaseInfoName = dbStatus.Result;
         }
 
-        var tenantRoles = GetDirectoryWithChecks(tenantData.Version, versionData.TenantRolesForEachVersion,
-            nameof(MultiTenantVersionData.TenantRolesForEachVersion));
+        var tenantRoles = GetDirectoryWithChecks(tenantData.Version, 
+            versionData.TenantRolesForEachVersion,
+            nameof(MultiTenantVersionData.TenantRolesForEachVersion)) ?? new List<string>();
 
         var tenantStatus = _options.TenantType.IsSingleLevel()
             ? await _tenantAdmin.AddSingleTenantAsync(tenantData.TenantName, tenantRoles,
@@ -126,24 +133,35 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         //-------------------------------------------------------------
 
         //Now we update the sign in user information with the version data
-        
-        if (tenantData.Version != null)
-            //Only override the new user's Roles if you are using versioning
-            newUser.Roles = GetDirectoryWithChecks(tenantData.Version, versionData.TenantAdminRoles,
-                nameof(MultiTenantVersionData.TenantAdminRoles));
-        newUser.TenantId = tenantStatus.Result.TenantId;
-        
-        //From the point where the tenant is created any errors will delete the tenant, as the user might try again
 
-        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUser));
-
-        if (status.IsValid)
+        try
         {
-            var loginStatus = await _addUserManager.LoginAsync();
-            status.CombineStatuses(loginStatus);
-            //The LoginAsync returns the final AddNewUserDto for the new user
-            //We return this because the UserManager may have altered the data, e.g. the Azure AD manager will create a temporary password 
-            status.SetResult(loginStatus.Result); 
+            //we do this within a try / catch so that if the set up of the user fails the tenant is deleted 
+
+            if (tenantData.Version != null)
+                //Only override the new user's Roles if you are using versioning
+                newUser.Roles = GetDirectoryWithChecks(tenantData.Version, versionData.TenantAdminRoles,
+                    nameof(MultiTenantVersionData.TenantAdminRoles));
+            newUser.TenantId = tenantStatus.Result.TenantId;
+        
+            //From the point where the tenant is created any errors will delete the tenant, as the user might try again
+
+            status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUser));
+
+            if (status.IsValid)
+            {
+                var loginStatus = await _addUserManager.LoginAsync();
+                status.CombineStatuses(loginStatus);
+                //The LoginAsync returns the final AddNewUserDto for the new user
+                //We return this because the UserManager may have altered the data, e.g. the Azure AD manager will create a temporary password 
+                status.SetResult(loginStatus.Result); 
+            }
+        }
+        catch
+        {
+            //Delete the tenant before throwing the exception
+            await _tenantAdmin.DeleteTenantAsync(tenantStatus.Result.TenantId);
+            throw;
         }
 
         if (status.HasErrors)

@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreCode;
 using Example3.MvcWebApp.IndividualAccounts.Data;

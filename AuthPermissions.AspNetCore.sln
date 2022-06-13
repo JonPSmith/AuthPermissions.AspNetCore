@@ -18,7 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		README.md = README.md
 		ReleaseNotes.md = ReleaseNotes.md
-		Roadmap.md = Roadmap.md
 		UpdateToVersion2.md = UpdateToVersion2.md
 		UpdateToVersion3.md = UpdateToVersion3.md
 	EndProjectSection
@@ -47,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SetupMigrations", "SetupMig
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.BaseCode", "AuthPermissions.BaseCode\AuthPermissions.BaseCode.csproj", "{D4E6705B-2D35-4A43-9E02-EC77EC212441}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthPermissions.SupportCode", "AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj", "{50FCF8D4-EA0D-4261-B772-3376C50AB856}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.SupportCode", "AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj", "{50FCF8D4-EA0D-4261-B772-3376C50AB856}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

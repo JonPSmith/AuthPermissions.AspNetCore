@@ -9,9 +9,10 @@
 - BREAKING CHANGE (small): The `GetDatabaseInfoNamesWithTenantNamesAsync` method returned collection now has `HasOwnDb` in it - see issue #39
 - Bug fix: Second refresh JWT Bearer token failed. Fixed by @akema-trebla - see issue #36
 - Bug fix. Email is now stored as lower case. This fixes the problem and Postgres string compare is case sensitive - see issue #35
+- Bug fix: TenantRoles collection now return null if not loaded - this captures missing Includes etc.
 - New Sharding feature: New service called `IShardingSelectDatabase` which will find a DatabaseInfoName of a database to use for a new tenant.
 - New support feature: `InviteNewUser` service that handles the ""invite user" feature" - now works with all types of application
-- New support feature: `SignInAndCreateTenant` service to implement the "sign in" feature - now works with all types of multi-tenant app
+- New support feature: `SignInAndCreateTenant` service to implement the "sign up" feature - now works with all types of multi-tenant app
 - New support feature: `IAuthenticationAddUserManager` for adding a new user, with two versions for different authentication types
 - Improvement: The Azure AD handler now supports adding a AuthUser on login
 
@@ -24,7 +25,7 @@
 
 - BREAKING CHANGE: The 3.0.0 sharding didn't work with Azure, so the way to define databases for sharding has changed - see issue #29 and docs: Setup -> Multi tenant configuration -> Sharding database settings
 - Improvement: The AuthUserAdmin method called `UpdateUserAsync` now allows you to select which properties you want to update - see docs: Admin -> AuthUser admin.
-- Removed: Removed AuthUserAdmin methods 1AddRoleToUser` and `RemoveRoleToUser` as the change to the `UpdateUserAsync` covers this.
+- Removed: Removed AuthUserAdmin methods `AddRoleToUser` and `RemoveRoleToUser` as the change to the `UpdateUserAsync` covers this.
 
 ## 3.1.0
 

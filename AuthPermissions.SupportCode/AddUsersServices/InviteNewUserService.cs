@@ -68,7 +68,8 @@ public class InviteNewUserService : IInviteNewUserService
             throw new AuthPermissionsException("User must be registered with AuthP");
 
         if (string.IsNullOrEmpty(invitedUser.Email) && string.IsNullOrEmpty(invitedUser.UserName))
-            return status.AddError("You must provide an email or username for the invitation.");
+            return status.AddError("You must provide an email or username for the invitation.",
+                nameof(AddNewUserDto.Email), nameof(AddNewUserDto.UserName));
 
         Tenant foundTenant = null;
         if (_options.TenantType.IsMultiTenant())
@@ -96,11 +97,13 @@ public class InviteNewUserService : IInviteNewUserService
                     //Check that the tenant is within the scope of the inviting user 
                     if (foundTenant != null && !foundTenant.GetTenantDataKey()
                             .StartsWith(inviterStatus.Result.UserTenant.GetTenantDataKey()))
-                        return status.AddError("The Tenant you have selected isn't within your group.");
+                        return status.AddError("The Tenant you have selected isn't within your group.",
+                            nameof(AddNewUserDto.TenantId));
                 }
 
                 if (invitedUser.TenantId == null)
-                    return status.AddError("You forgot to select a tenant for the invite.");
+                    return status.AddError("You forgot to select a tenant for the invite.",
+                        nameof(AddNewUserDto.TenantId));
             }
 
             if (invitedUser.TenantId != null) //if app user, then doesn't have a tenant
@@ -108,7 +111,8 @@ public class InviteNewUserService : IInviteNewUserService
                 //check that the tenantId is valid
                 foundTenant ??= await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == invitedUser.TenantId);
                 if (foundTenant == null)
-                    return status.AddError("The tenant you selected isn't correct.");
+                    return status.AddError("The tenant you selected isn't correct.",
+                        nameof(AddNewUserDto.TenantId));
 
                 if (invitedUser.Roles != null)
                 {
@@ -118,7 +122,8 @@ public class InviteNewUserService : IInviteNewUserService
                             && (x.RoleType == RoleTypes.HiddenFromTenant || x.RoleType == RoleTypes.TenantAutoAdd))
                         .Select(x => x.RoleName).ToListAsync();
                     if (badRoles.Any())
-                        return status.AddError("The following Roles aren't allowed for a tenant user: "+string.Join(", ", badRoles));
+                        return status.AddError("The following Roles aren't allowed for a tenant user: "+string.Join(", ", badRoles),
+                            nameof(AddNewUserDto.Roles));
                 }
             }
         }
@@ -126,7 +131,8 @@ public class InviteNewUserService : IInviteNewUserService
         if (invitedUser.Roles == null || !invitedUser.Roles.Any())
             return status.AddError(
                 "You haven't set up the Roles for the invited user. If you really what that, then select the "
-                + $"'{CommonConstants.EmptyItemName}' dropdown item.");
+                + $"'{CommonConstants.EmptyItemName}' dropdown item.",
+                nameof(AddNewUserDto.Roles));
 
         status.Message =
             invitedUser.TenantId == null && _options.TenantType.IsMultiTenant()
@@ -180,7 +186,8 @@ public class InviteNewUserService : IInviteNewUserService
         }
 
         if (newUserData.Email!= normalizedEmail)
-            return status.AddError("Sorry, your email didn't match the invite.");
+            return status.AddError("Sorry, your email didn't match the invite.",
+                nameof(AddNewUserDto.Email));
 
         newUserData.UserName = userName;
         newUserData.Password = password;

@@ -59,7 +59,8 @@ public class AzureAdUserManager : IAuthenticationAddUserManager
     {
         var status = new StatusGenericHandler();
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
-            return status.AddError("There is already an AuthUser with your email, so you can't add another.");
+            return status.AddError("There is already an AuthUser with your email, so you can't add another.",
+                nameof(AddNewUserDto.Email));
         return status;
     }
 

@@ -58,7 +58,8 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
     {
         var status = new StatusGenericHandler();
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
-            return status.AddError("There is already an AuthUser with your email, so you can't add another.");
+            return status.AddError("There is already an AuthUser with your email, so you can't add another.",
+                nameof(AddNewUserDto.Email));
         return status;
     }
 
@@ -87,7 +88,8 @@ public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserMan
             }
         }
         else if (!await _userManager.CheckPasswordAsync(user, newUser.Password))
-            status.AddError("The user was already known, but the password was wrong.");
+            status.AddError("The user was already known, but the password was wrong.",
+                nameof(AddNewUserDto.Password));
 
         //We have created the individual user account, so we have the user's UserId.
         //Now we create the AuthUser using the data we have been given
