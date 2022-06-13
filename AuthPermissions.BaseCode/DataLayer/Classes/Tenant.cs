@@ -124,11 +124,10 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// </summary>
         public IReadOnlyCollection<Tenant> Children => _children?.ToList();
 
-
         /// <summary>
         /// This holds any Roles that have been specifically 
         /// </summary>
-        public IReadOnlyCollection<RoleToPermissions> TenantRoles => _tenantRoles?.ToList() ?? new List<RoleToPermissions>();
+        public IReadOnlyCollection<RoleToPermissions> TenantRoles => _tenantRoles?.ToList();
         /// <summary>
         /// Easy way to see the tenant and its key
         /// </summary>
