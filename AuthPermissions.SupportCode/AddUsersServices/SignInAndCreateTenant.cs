@@ -111,7 +111,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                     nameof(AddNewTenantDto.HasOwnDb));
 
             //This method will find a database for the new tenant when using sharding
-            var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync((bool)hasOwnDb, tenantData.Region);
+            var dbStatus = await _getShardingDb.FindBestDatabaseInfoNameAsync((bool)hasOwnDb, tenantData.Region, tenantData.Version);
             if (status.CombineStatuses(dbStatus).HasErrors)
                 return status;
             databaseInfoName = dbStatus.Result;
