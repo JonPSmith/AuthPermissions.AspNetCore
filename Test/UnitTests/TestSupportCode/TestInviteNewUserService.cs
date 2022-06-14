@@ -20,7 +20,6 @@ using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
-using Xunit.Sdk;
 
 namespace Test.UnitTests.TestSupportCode;
 
@@ -124,6 +123,7 @@ public class TestInviteNewUserService
     [InlineData(TenantTypes.SingleLevel, 999, true, 1)]        //Single tenant: takes the invite's tenant
     [InlineData(TenantTypes.HierarchicalTenant, 1, true, 1)]   //Hierarchical: pick the top
     [InlineData(TenantTypes.HierarchicalTenant, 3, true, 3)]   //Hierarchical: pick a child
+    [InlineData(TenantTypes.HierarchicalTenant, null, false, null)] //Hierarchical: no tenant set
     [InlineData(TenantTypes.HierarchicalTenant, 99, false, null)] //Hierarchical: bad tenantId
     public async Task TestInviteUserToJoinTenantAsync_MultiTenant_TenantAdmin(
         TenantTypes tenantType, int? joinerTenantId, bool isValid, int? expectedTenantId)
