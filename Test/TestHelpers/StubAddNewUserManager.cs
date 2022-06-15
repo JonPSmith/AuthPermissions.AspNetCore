@@ -10,12 +10,12 @@ using StatusGeneric;
 
 namespace Test.TestHelpers;
 
-public class StubAuthenticationAddUserManager : IAuthenticationAddUserManager
+public class StubAddNewUserManager : IAddNewUserManager
 {
     private readonly IAuthUsersAdminService _authUsersAdmin;
     private readonly AuthTenantAdminService _authTenantAdmin;
 
-    public StubAuthenticationAddUserManager(IAuthUsersAdminService usersAdmin, AuthTenantAdminService authTenantAdmin = null)
+    public StubAddNewUserManager(IAuthUsersAdminService usersAdmin, AuthTenantAdminService authTenantAdmin = null)
     {
         _authUsersAdmin = usersAdmin;
         _authTenantAdmin = authTenantAdmin;

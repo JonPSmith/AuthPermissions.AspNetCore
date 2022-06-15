@@ -15,7 +15,7 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 /// <summary>
 /// This implements a user manager when using Azure AD as your authentication handler
 /// </summary>
-public class AzureAdUserManager : IAuthenticationAddUserManager
+public class AzureAdNewUserManager : IAddNewUserManager
 {
     private readonly IAuthUsersAdminService _authUsersAdmin;
     private readonly IAuthTenantAdminService _tenantAdminService;
@@ -29,7 +29,7 @@ public class AzureAdUserManager : IAuthenticationAddUserManager
     /// <param name="tenantAdminService"></param>
     /// <param name="azureAccessService"></param>
     /// <param name="azureOptions"></param>
-    public AzureAdUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, 
+    public AzureAdNewUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, 
         IAzureAdAccessService azureAccessService, IOptions<AzureAdOptions> azureOptions)
     {
         _authUsersAdmin = authUsersAdmin;

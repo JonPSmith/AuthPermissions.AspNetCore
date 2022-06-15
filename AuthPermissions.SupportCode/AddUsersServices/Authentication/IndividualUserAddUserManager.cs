@@ -9,12 +9,12 @@ using StatusGeneric;
 namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 
 /// <summary>
-/// This the implementation of the <see cref="IAuthenticationAddUserManager"/> for the Individual User Accounts authentication handler
+/// This the implementation of the <see cref="IAddNewUserManager"/> for the Individual User Accounts authentication handler
 /// This will create (or find) an individual user account and then create an AuthUser linked to that individual user.
 /// It uses the the authP data in the <see cref="AddNewUserDto"/> class when creating the AuthUser
 /// </summary>
 /// <typeparam name="TIdentity"></typeparam>
-public class IndividualUserAddUserManager<TIdentity> : IAuthenticationAddUserManager
+public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     where TIdentity : IdentityUser, new()
 {
     private readonly IAuthUsersAdminService _authUsersAdmin;

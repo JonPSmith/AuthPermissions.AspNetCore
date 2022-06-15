@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.BaseCode;
-using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
-using AuthPermissions.SupportCode.AzureAdServices;
 using Microsoft.Extensions.Options;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -31,7 +29,7 @@ public class TestAzureAdUserManager
         _output = output;
     }
 
-    private static async Task<(AzureAdUserManager service, AuthUsersAdminService userAdmin)>
+    private static async Task<(AzureAdNewUserManager service, AuthUsersAdminService userAdmin)>
         CreateAzureAdUserManagerAsync(AuthPermissionsDbContext context,
             TenantTypes tenantType = TenantTypes.NotUsingTenants)
     {
@@ -44,7 +42,7 @@ public class TestAzureAdUserManager
         var azureAdStub = new StubAzureAdAccessService();
         var azureOptions = Options.Create(new AzureAdOptions{ AzureAdApproaches = "Find,Create"});
 
-        var service = new AzureAdUserManager(userAdmin, tenantAdmin, azureAdStub, azureOptions);
+        var service = new AzureAdNewUserManager(userAdmin, tenantAdmin, azureAdStub, azureOptions);
 
         if (tenantType == TenantTypes.SingleLevel)
             context.Add(Tenant.CreateSingleTenant("Company").Result);

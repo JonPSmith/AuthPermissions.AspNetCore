@@ -69,7 +69,7 @@ namespace Example5.MvcWebApp.AzureAdB2C
 
             //Add the SupportCode services
             services.AddTransient<IAzureAdAccessService, AzureAdAccessService>();
-            services.AddTransient<IAuthenticationAddUserManager, AzureAdUserManager>();
+            services.AddTransient<IAddNewUserManager, AzureAdNewUserManager>();
             services.AddTransient<IInviteNewUserService, InviteNewUserService>();
         }
 

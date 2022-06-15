@@ -10,9 +10,9 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 /// This means it much easier for you to use the "invite user" and "sign up" features with any authentication
 /// There are two implementation of this interface cover nearly all the normal authentication handlers
 /// 1. <see cref="IndividualUserAddUserManager{TIdentity}"/>, which works with the Individual User Accounts
-/// 2. <see cref="AzureAdUserManager"/>, which works for Azure AD
+/// 2. <see cref="AzureAdNewUserManager"/>, which works for Azure AD
 /// </summary>
-public interface IAuthenticationAddUserManager
+public interface IAddNewUserManager
 {
     /// <summary>
     /// This tells you what Authentication handler, or group of handlers, that the Add User Manager supports

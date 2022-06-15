@@ -89,7 +89,7 @@ namespace Example3.MvcWebApp.IndividualAccounts
                 });
 
             //Add the SupportCode services
-            services.AddTransient<IAuthenticationAddUserManager, IndividualUserAddUserManager<IdentityUser>>();
+            services.AddTransient<IAddNewUserManager, IndividualUserAddUserManager<IdentityUser>>();
             services.AddTransient<ISignInAndCreateTenant, SignInAndCreateTenant>();
             services.AddTransient<IInviteNewUserService, InviteNewUserService>();
 

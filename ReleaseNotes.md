@@ -13,7 +13,7 @@
 - New Sharding feature: New service called `IShardingSelectDatabase` which will find a DatabaseInfoName of a database to use for a new tenant.
 - New support feature: `InviteNewUser` service that handles the ""invite user" feature" - now works with all types of application
 - New support feature: `SignInAndCreateTenant` service to implement the "sign up" feature - now works with all types of multi-tenant app
-- New support feature: `IAuthenticationAddUserManager` for adding a new user, with two versions for different authentication types
+- New support feature: `IAddNewUserManager` for adding a new user, with two versions for different ASP.NET Core authentication handers
 - Improvement: The Azure AD handler now supports adding a AuthUser on login
 
 ## 3.2.1

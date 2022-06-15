@@ -20,7 +20,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
 {
     private readonly AuthPermissionsOptions _options;
     private readonly IAuthTenantAdminService _tenantAdmin;
-    private readonly IAuthenticationAddUserManager _addUserManager;
+    private readonly IAddNewUserManager _addNewUserManager;
     private readonly IGetDatabaseForNewTenant _getShardingDb;
 
     /// <summary>
@@ -28,14 +28,14 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// </summary>
     /// <param name="options"></param>
     /// <param name="tenantAdmin"></param>
-    /// <param name="addUserManager"></param>
+    /// <param name="addNewUserManager"></param>
     /// <param name="getShardingDb"></param>
     public SignInAndCreateTenant(AuthPermissionsOptions options, IAuthTenantAdminService tenantAdmin, 
-        IAuthenticationAddUserManager addUserManager, IGetDatabaseForNewTenant getShardingDb = null)
+        IAddNewUserManager addNewUserManager, IGetDatabaseForNewTenant getShardingDb = null)
     {
         _options = options;
         _tenantAdmin = tenantAdmin;
-        _addUserManager = addUserManager;
+        _addNewUserManager = addNewUserManager;
         _getShardingDb = getShardingDb;
     }
 
@@ -88,7 +88,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             return status.AddError($"The tenant name '{tenantData.TenantName}' is already taken",
                 new[] { nameof(AddNewTenantDto.TenantName) });
 
-        if (status.CombineStatuses(await _addUserManager.CheckNoExistingAuthUserAsync(newUser)).HasErrors)
+        if (status.CombineStatuses(await _addNewUserManager.CheckNoExistingAuthUserAsync(newUser)).HasErrors)
             return status;
 
         //---------------------------------------------------------------
@@ -146,11 +146,11 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         
             //From the point where the tenant is created any errors will delete the tenant, as the user might try again
 
-            status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUser));
+            status.CombineStatuses(await _addNewUserManager.SetUserInfoAsync(newUser));
 
             if (status.IsValid)
             {
-                var loginStatus = await _addUserManager.LoginAsync();
+                var loginStatus = await _addNewUserManager.LoginAsync();
                 status.CombineStatuses(loginStatus);
                 //The LoginAsync returns the final AddNewUserDto for the new user
                 //We return this because the UserManager may have altered the data, e.g. the Azure AD manager will create a temporary password 

@@ -67,7 +67,7 @@ public class TestIndividualUserAddUserManager
             .SetupAspNetCorePart();
 
         //Add the SupportCode services
-        services.AddTransient<IAuthenticationAddUserManager, IndividualUserAddUserManager<IdentityUser>>();
+        services.AddTransient<IAddNewUserManager, IndividualUserAddUserManager<IdentityUser>>();
         services.AddTransient<ISignInAndCreateTenant, SignInAndCreateTenant>();
         services.AddTransient<IInviteNewUserService, InviteNewUserService>();
 
@@ -92,7 +92,7 @@ public class TestIndividualUserAddUserManager
         context.Database.EnsureClean();
         context.AddMultipleUsersWithRolesInDb();
 
-        var service = _serviceProvider.GetRequiredService<IAuthenticationAddUserManager>();
+        var service = _serviceProvider.GetRequiredService<IAddNewUserManager>();
         var userData = new AddNewUserDto { Email = email };
 
         context.ChangeTracker.Clear();
@@ -112,7 +112,7 @@ public class TestIndividualUserAddUserManager
         context.Database.EnsureClean();
         await context.SetupRolesInDbAsync();
 
-        var service = _serviceProvider.GetRequiredService<IAuthenticationAddUserManager>();
+        var service = _serviceProvider.GetRequiredService<IAddNewUserManager>();
         var userData = new AddNewUserDto { Email = "me@gmail.com", Password = "Pas!w0d",
             Roles = new() { "Role1", "Role2" } };
 

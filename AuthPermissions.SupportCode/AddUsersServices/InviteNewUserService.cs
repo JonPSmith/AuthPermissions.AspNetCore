@@ -25,7 +25,7 @@ public class InviteNewUserService : IInviteNewUserService
     private readonly AuthPermissionsDbContext _context;
     private readonly IAuthUsersAdminService _usersAdmin;
     private readonly AuthPermissionsOptions _options;
-    private readonly IAuthenticationAddUserManager _addUserManager;
+    private readonly IAddNewUserManager _addNewUserManager;
 
     /// <summary>
     /// ctor
@@ -34,16 +34,16 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="context"></param>
     /// <param name="encryptService"></param>
     /// <param name="usersAdmin"></param>
-    /// <param name="addUserManager"></param>
+    /// <param name="addNewUserManager"></param>
     public InviteNewUserService(AuthPermissionsOptions options, AuthPermissionsDbContext context,
         IEncryptDecryptService encryptService,
-        IAuthUsersAdminService usersAdmin, IAuthenticationAddUserManager addUserManager)
+        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager)
     {
         _options = options;
         _context = context;
         _encryptService = encryptService;
         _usersAdmin = usersAdmin;
-        _addUserManager = addUserManager;
+        _addNewUserManager = addNewUserManager;
     }
 
     /// <summary>
@@ -196,11 +196,11 @@ public class InviteNewUserService : IInviteNewUserService
         if (status.HasErrors)
             return status;
 
-        status.CombineStatuses(await _addUserManager.SetUserInfoAsync(newUserData));
+        status.CombineStatuses(await _addNewUserManager.SetUserInfoAsync(newUserData));
 
         if (status.HasErrors)
             return status;
 
-        return await _addUserManager.LoginAsync(); //This returns the final AddNewUserDto settings
+        return await _addNewUserManager.LoginAsync(); //This returns the final AddNewUserDto settings
     }
 }

@@ -43,7 +43,7 @@ public class TestInviteNewUserService
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), authOptions);
         var encryptService = new EncryptDecryptService(authOptions);
         var service = new InviteNewUserService(authOptions, context, encryptService, userAdmin, 
-                new StubAuthenticationAddUserManager(userAdmin));
+                new StubAddNewUserManager(userAdmin));
 
         if (tenantType == TenantTypes.SingleLevel)
             context.Add(Tenant.CreateSingleTenant("Company").Result);
