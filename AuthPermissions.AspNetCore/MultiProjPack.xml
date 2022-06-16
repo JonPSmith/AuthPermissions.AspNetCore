@@ -4,14 +4,21 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>3.2.1</version>
+    <version>3.3.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-- Bug fix: Second refresh JWT Bearer token failed. Fixed by @akema-trebla - see issue #36 (thanks to @akema-trebla)
-- Bug fix: TenantRoles would give an exception if the _tenantRoles was null - see pull request #45 (thanks to @emorell96)
+- BREAKING CHANGE (small): The `GetDatabaseInfoNamesWithTenantNamesAsync` method returned collection now has `HasOwnDb` in it - see issue #39
+- Bug fix: Second refresh JWT Bearer token failed. Fixed by @akema-trebla - see issue #36
+- Bug fix. Email is now stored as lower case. This fixes the problem and Postgres string compare is case sensitive - see issue #35
+- Bug fix: TenantRoles collection now return null if not loaded - this captures missing Includes etc.
+- New Sharding feature: New service called `IShardingSelectDatabase` which will find a DatabaseInfoName of a database to use for a new tenant.
+- New support feature: `InviteNewUser` service that handles the ""invite user" feature" - now works with all types of application
+- New support feature: `SignInAndCreateTenant` service to implement the "sign up" feature - now works with all types of multi-tenant app
+- New support feature: `IAddNewUserManager` for adding a new user, with two versions for different ASP.NET Core authentication handers
+- Improvement: The Azure AD handler now supports adding a AuthUser on login
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
