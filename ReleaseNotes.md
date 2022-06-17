@@ -7,7 +7,6 @@
 ## 3.3.0
 
 - BREAKING CHANGE (small): The `GetDatabaseInfoNamesWithTenantNamesAsync` method returned collection now has `HasOwnDb` in it - see issue #39
-- Bug fix: Second refresh JWT Bearer token failed. Fixed by @akema-trebla - see issue #36
 - Bug fix. Email is now stored as lower case. This fixes the problem and Postgres string compare is case sensitive - see issue #35
 - Bug fix: TenantRoles collection now return null if not loaded - this captures missing Includes etc.
 - New Sharding feature: New service called `IShardingSelectDatabase` which will find a DatabaseInfoName of a database to use for a new tenant.
