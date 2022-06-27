@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -11,6 +13,8 @@ using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Moq;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -35,6 +39,31 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             //VERIFY
             authAtt.ShouldNotBeNull();
             authAtt.Policy.ShouldEqual(TestEnum.Two.ToString());
+        }
+
+        [Fact]
+        public void TestHasPermissionFluent()
+        {
+            //SETUP
+            var endpointConventionBuilderMock = new Mock<IEndpointConventionBuilder>();
+            var stubEndpointBuilder = new StubEndpointBuilder();
+
+            endpointConventionBuilderMock.Setup(e => e.Add(It.IsAny<Action<EndpointBuilder>>()))
+                .Callback<Action<EndpointBuilder>>(x =>
+                {
+                    x.Invoke(stubEndpointBuilder);
+                })
+                .Verifiable();
+
+            //ATTEMPT
+            endpointConventionBuilderMock.Object.HasPermission(TestEnum.One);
+            var authorizeDataObject = stubEndpointBuilder.Metadata.FirstOrDefault();
+            var hasPermissionAttribute = authorizeDataObject as HasPermissionAttribute;
+
+            //VERIFY
+            endpointConventionBuilderMock.Verify(x => x.Add(It.IsAny<Action<EndpointBuilder>>()), Times.Once);
+            hasPermissionAttribute.ShouldNotBeNull();
+            hasPermissionAttribute.Policy.ShouldEqual(TestEnum.One.ToString());
         }
 
         [Theory]
