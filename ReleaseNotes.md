@@ -1,8 +1,8 @@
 # Release Notes
 
-## suggestions
+## 3.4.0
 
-- Improvement: Change the register methods for SqlServer / Postgres to allow access to the database options (like the EfCore.TestSupport library).
+- New feature: Code for minimal API's fluent HasPermission - see #47. Thanks for @idan-h 
 
 ## 3.3.0
 
