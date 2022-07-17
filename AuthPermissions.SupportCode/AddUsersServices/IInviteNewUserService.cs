@@ -17,8 +17,9 @@ public interface IInviteNewUserService
     /// </summary>
     /// <param name="invitedUser">Data needed to add a new AuthP user</param>
     /// <param name="userId">userId of current user - used to obtain any tenant info.</param>
+    /// <param name="expireAfter">The amount of time that the invitation expires after - if null, never expires</param>
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
-    Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId);
+    Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId, TimeSpan? expireAfter = null);
 
     /// <summary>
     /// This takes the information from the user using the invite plus the encrypted invite code.

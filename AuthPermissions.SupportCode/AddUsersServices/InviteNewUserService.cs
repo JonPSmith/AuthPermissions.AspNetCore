@@ -55,8 +55,9 @@ public class InviteNewUserService : IInviteNewUserService
     /// </summary>
     /// <param name="invitedUser">Data needed to add a new AuthP user</param>
     /// <param name="userId">userId of current user - used to obtain any tenant info.</param>
+    /// <param name="expireAfter">The amount of time that the invitation expires after - if null, never expires</param>
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
-    public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId)
+    public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId, TimeSpan? expireAfter = null)
     {
         var status = new StatusGenericHandler<string>();
 
@@ -143,9 +144,20 @@ public class InviteNewUserService : IInviteNewUserService
                       ? "your application."
                       : $"the tenant '{foundTenant.TenantFullName}'.");
 
+        var invitedUserWithExpiration = new AddNewUserWithExpirationDto
+        {
+            Email = invitedUser.Email,
+            Password = invitedUser.Password,
+            IsPersistent = invitedUser.IsPersistent,
+            Roles = invitedUser.Roles,
+            TenantId = invitedUser.TenantId,
+            UserName = invitedUser.UserName,
+            Expiration = (expireAfter is null ? DateTimeOffset.MaxValue : DateTimeOffset.UtcNow.Add(expireAfter.Value)).ToUnixTimeSeconds(),
+        };
+
         //This setting makes the string shorter
         JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
-        var jsonString = JsonSerializer.Serialize(invitedUser, options);
+        var jsonString = JsonSerializer.Serialize(invitedUserWithExpiration, options);
         var verify = _encryptService.Encrypt(jsonString);
 
         status.SetResult(Base64UrlEncoder.Encode(verify));
@@ -173,11 +185,11 @@ public class InviteNewUserService : IInviteNewUserService
         var status = new StatusGenericHandler<AddNewUserDto>();
         var normalizedEmail = email.Trim().ToLower();
 
-        AddNewUserDto newUserData;
+        AddNewUserWithExpirationDto newUserDataWithExpiration;
         try
         {
             var decrypted = _encryptService.Decrypt(Base64UrlEncoder.Decode(inviteParam));
-            newUserData = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
+            newUserDataWithExpiration = JsonSerializer.Deserialize<AddNewUserWithExpirationDto>(decrypted);
         }
         catch (Exception e)
         {
@@ -185,13 +197,25 @@ public class InviteNewUserService : IInviteNewUserService
             return status.AddError("Sorry, the verification failed.");
         }
 
-        if (newUserData.Email!= normalizedEmail)
+        var expiration = DateTimeOffset.FromUnixTimeSeconds(newUserDataWithExpiration.Expiration);
+        if (DateTimeOffset.UtcNow >= expiration)
+        {
+            return status.AddError("Sorry, the invitation expired.");
+        }
+
+        if (newUserDataWithExpiration.Email!= normalizedEmail)
             return status.AddError("Sorry, your email didn't match the invite.",
                 nameof(AddNewUserDto.Email));
 
-        newUserData.UserName = userName;
-        newUserData.Password = password;
-        newUserData.IsPersistent = isPersistent;
+        var newUserData = new AddNewUserDto
+        {
+            Email = newUserDataWithExpiration.Email,
+            Roles = newUserDataWithExpiration.Roles,
+            TenantId = newUserDataWithExpiration.TenantId,
+            UserName = userName,
+            Password = password,
+            IsPersistent = isPersistent,
+        };
 
         if (status.HasErrors)
             return status;

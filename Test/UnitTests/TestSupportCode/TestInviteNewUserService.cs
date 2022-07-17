@@ -119,6 +119,29 @@ public class TestInviteNewUserService
         status.GetAllErrors().ShouldEqual("You must provide an email or username for the invitation.");
     }
 
+    [Fact]
+    public async Task TestInviteUserToJoinTenantAsync_Expired()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string> { "Role1" } };
+        var invitationStatus = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1", TimeSpan.FromSeconds(-1));
+        var creationStatus = await tuple.service.AddUserViaInvite(invitationStatus.Result, dto.Email, null, "Password123!");
+
+        //VERIFY
+        invitationStatus.IsValid.ShouldBeTrue();
+        creationStatus.IsValid.ShouldBeFalse();
+        creationStatus.GetAllErrors().ShouldEqual("Sorry, the invitation expired.");
+    }
+
     [Theory]
     [InlineData(TenantTypes.SingleLevel, 999, true, 1)]        //Single tenant: takes the invite's tenant
     [InlineData(TenantTypes.HierarchicalTenant, 1, true, 1)]   //Hierarchical: pick the top
