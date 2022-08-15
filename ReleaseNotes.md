@@ -1,8 +1,18 @@
 # Release Notes
 
-## 3.4.0
+## ToDo
 
-- New feature: Code for minimal API's fluent HasPermission - see #47. Thanks for @idan-h 
+- New feature: Stop users linked to a tenant from accessing the the tenant while its being moved
+- New feature: Take the application "down for maintenance", which diverts users to a "please wait" page
+- Improved feature: Refresh users claims now uses Net.DistributedFileStoreCache
+- Improved feature: Sharding now has distributed lock on changes to the shardingsettings.json file
+
+- Improved feature: Added timout on user invitation - thanks to @idan-h
+- New feature: Code for minimal API's fluent HasPermission - see #47. Thanks to @idan-h
+- Bug fix: Changed JWT refresh token to handle multiple logged-in users - see issue #54
+- Bug fix: Update RunStartupMethodsSequentially to latest DistributedLock version
+
+- New feature: Create / delete an Azure database
 
 ## 3.3.0
 

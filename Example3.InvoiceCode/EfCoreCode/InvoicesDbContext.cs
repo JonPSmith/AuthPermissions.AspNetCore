@@ -21,7 +21,7 @@ namespace Example3.InvoiceCode.EfCoreCode
         {
             // The DataKey is null when: no one is logged in, its a background service, or user hasn't got an assigned tenant
             // In these cases its best to set the data key that doesn't match any possible DataKey 
-            DataKey = dataKeyFilter?.DataKey ?? "stop any user without a DataKey to access the data";
+            DataKey = dataKeyFilter?.DataKey ?? "Bad key";
         }
 
         public DbSet<CompanyTenant> Companies { get; set; }
