@@ -89,6 +89,15 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
         [Display(GroupName = "TenantAdmin", Name = "Delete tenant", Description = "Can delete tenant (WARNING)", AutoGenerateFilter = true)]
         TenantDelete = 42_004,
 
+        //43_000
+        [Display(GroupName = "Maintenance", Name = "list active maintenance", Description = "Can list active maintenance", AutoGenerateFilter = true)]
+        MaintenanceList = 43_000,
+        [Display(GroupName = "Maintenance", Name = "Remove an active maintenance", Description = "Can turn off any active maintenance", AutoGenerateFilter = true)]
+        MaintenanceRemove = 43_001,
+        [Display(GroupName = "Maintenance", Name = "Stop all users accessing app", Description = "Stop all users, apart from user who set this", AutoGenerateFilter = true)]
+        MaintenanceAllDown = 43_002,
+
+
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions
         //Useful for multi-tenant applications where you can set up company-level admin users where you can hide some higher-level permissions

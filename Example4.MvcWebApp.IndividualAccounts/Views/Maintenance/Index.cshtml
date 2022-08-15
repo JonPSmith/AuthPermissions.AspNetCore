@@ -1,0 +1,64 @@
+﻿@using Example4.MvcWebApp.IndividualAccounts.PermissionsCode
+@using AuthPermissions.BaseCode.PermissionsCode
+@using Example4.ShopCode.Middleware
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<KeyValuePair<string,string>>
+
+@{
+    ViewData["Title"] = "ListMaintenance";
+}
+
+<h1>List active maintenances</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@if (User.HasPermission(Example4Permissions.MaintenanceAllDown) 
+    && Model.All(x => x.Key != DownForMaintenanceConstants.DownForMaintenanceAllAppDown))
+{
+    <form asp-action="TakeAllDown">
+        <div>
+            <button type="submit">Stop ALL users!</button>
+            </div>
+    </form>
+    <p>
+        NOTE: You are the only user that will have access to the application while this setting is active.
+        To undo this situation, then list the maintenance settings and remove the 
+    </p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Key
+            </th>
+            <th>
+                Value
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                   @item.Key
+                </td>
+                <td>
+                    @item.Value
+                </td>
+                <td>
+                    @if (User.HasPermission(Example4Permissions.MaintenanceList))
+                    {
+                        @Html.ActionLink("Remove", "Remove", new { key = item.Key })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

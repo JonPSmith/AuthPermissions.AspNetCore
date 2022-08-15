@@ -22,7 +22,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RunMethodsSequentially;
 using System.Reflection;
+using Example4.ShopCode.Middleware;
 using GenericServices.Setup;
+using Net.DistributedFileStoreCache;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +75,13 @@ builder.Services.RegisterAuthPermissions<Example4Permissions>(options =>
         options.RegisterServiceToRunInJob<StartupServiceServiceSeedRetailDatabase>();
     });
 
+builder.Services.AddDistributedFileStoreCache(options =>
+{
+    options.WhichVersion = FileStoreCacheVersions.Class;
+    //I override the the default first part of the FileStore cache file because there are many example apps in this repo
+    options.FirstPartOfCacheFileName = "Example4CacheFileStore";
+}, builder.Environment);
+
 //This registers all the code to handle the shop part of the demo
 //Register RetailDbContext database and some services (included hosted services)
 builder.Services.RegisterExample4ShopCode(builder.Configuration);
@@ -100,6 +109,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.AddDownForMaintenance();
 
 app.MapControllerRoute(
     name: "default",

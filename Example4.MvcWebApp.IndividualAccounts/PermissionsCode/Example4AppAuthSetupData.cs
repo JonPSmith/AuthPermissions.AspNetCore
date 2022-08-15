@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 
 namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
 {
@@ -14,7 +13,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
         {
             new("SuperAdmin", "Super admin - only use for setup", "AccessAll"),
             new("App Admin", "Overall app Admin",
-                "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, TenantList, TenantCreate, TenantUpdate"),
+                "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, " +
+                "RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
+                "TenantList, TenantCreate, TenantUpdate, " +
+                "MaintenanceList, MaintenanceRemove, MaintenanceAllDown"),
             new("Tenant Admin", "Tenant-level admin", "EmployeeRead, UserRead, UserRolesChange, RoleRead"),
             new("Tenant Director", "Company CEO, can see stock/sales and employees", "EmployeeRead, StockRead, SalesRead"),
             new("Area Manager", "Area manager - check stock and sales", "StockRead, SalesRead"),

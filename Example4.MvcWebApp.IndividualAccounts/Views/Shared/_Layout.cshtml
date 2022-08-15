@@ -60,6 +60,10 @@
                                 {
                                     <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
                                 }
+                                @if (User.HasPermission(Example4Permissions.MaintenanceAllDown))
+                                {
+                                    <a class="dropdown-item" asp-area="" asp-controller="Maintenance" asp-action="Index">List statues</a>
+                                }
                             </div>
                         </li>
                         <li class="dropdown nav-link text-dark">
