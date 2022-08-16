@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Example4.MvcWebApp.IndividualAccounts.Middleware;
+namespace Example4.ShopCode.CacheCode;
 
 public class AllAppDownDto
 {

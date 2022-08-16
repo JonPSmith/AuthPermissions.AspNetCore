@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
-using Example4.MvcWebApp.IndividualAccounts.Middleware;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
+using Example4.ShopCode.CacheCode;
 using Microsoft.AspNetCore.Mvc;
 using Net.DistributedFileStoreCache;
 
@@ -28,7 +28,7 @@ public class MaintenanceController : Controller
         ViewBag.Message = message;
 
         var downCacheList = _fsCache.GetAllKeyValues()
-            .Where(x => x.Key.StartsWith(DownForMaintenanceConstants.DownForMaintenancePrefix))
+            .Where(x => x.Key.StartsWith(DownForStatusExtensions.DownForStatusPrefix))
             .Select(x => new KeyValuePair<string,string>(x.Key, x.Value))
             .ToList();
 
@@ -49,7 +49,7 @@ public class MaintenanceController : Controller
         data.UserId = User.GetUserIdFromUser();
         data.StartedUtc = DateTime.UtcNow;
 
-        _fsCache.SetClass(DownForMaintenanceConstants.DownForMaintenanceAllAppDown, data);
+        _fsCache.SetClass(DownForStatusExtensions.DownForStatusAllAppDown, data);
         return RedirectToAction("Index", new { });
     }
 
@@ -63,7 +63,12 @@ public class MaintenanceController : Controller
 
     public IActionResult ShowAllDownStatus()
     {
-        var dto = _fsCache.GetClass<AllAppDownDto>(DownForMaintenanceConstants.DownForMaintenanceAllAppDown);
+        var dto = _fsCache.GetClass<AllAppDownDto>(DownForStatusExtensions.DownForStatusAllAppDown);
         return View(dto);
+    }
+
+    public IActionResult ShowTenantDownStatus()
+    {
+        return View();
     }
 }
