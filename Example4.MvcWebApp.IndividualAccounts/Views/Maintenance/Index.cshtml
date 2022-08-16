@@ -1,6 +1,6 @@
 ﻿@using Example4.MvcWebApp.IndividualAccounts.PermissionsCode
 @using AuthPermissions.BaseCode.PermissionsCode
-@using Example4.ShopCode.Middleware
+@using Example4.MvcWebApp.IndividualAccounts.Middleware
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model List<KeyValuePair<string,string>>
 
@@ -18,15 +18,7 @@
 @if (User.HasPermission(Example4Permissions.MaintenanceAllDown) 
     && Model.All(x => x.Key != DownForMaintenanceConstants.DownForMaintenanceAllAppDown))
 {
-    <form asp-action="TakeAllDown">
-        <div>
-            <button type="submit">Stop ALL users!</button>
-            </div>
-    </form>
-    <p>
-        NOTE: You are the only user that will have access to the application while this setting is active.
-        To undo this situation, then list the maintenance settings and remove the 
-    </p>
+    <a asp-action="TakeAllDown" class="btn btn-primary">set status to "all down"</a>
 }
 
 <table class="table">

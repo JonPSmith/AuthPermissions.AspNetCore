@@ -1,0 +1,41 @@
+﻿@model Example4.MvcWebApp.IndividualAccounts.Middleware.AllAppDownDto
+
+@{
+    ViewData["Title"] = "TakeAllDown";
+}
+
+<h1>TakeAllDown</h1>
+
+<p>
+    NOTE: You are the only user that will have access to the application while this setting is active.
+    To undo this situation, then list the maintenance settings and remove the 
+</p>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="TakeAllDown">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Message" class="control-label"></label>
+                <input asp-for="Message" class="form-control" />
+                <span asp-validation-for="Message" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExpectedTimeDownMinutes" class="control-label"></label>
+                <input asp-for="ExpectedTimeDownMinutes" class="form-control" />
+                <span asp-validation-for="ExpectedTimeDownMinutes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Set status to 'all down''" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to statues</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

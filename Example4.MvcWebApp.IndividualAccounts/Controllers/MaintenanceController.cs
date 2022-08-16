@@ -1,12 +1,13 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
+using Example4.MvcWebApp.IndividualAccounts.Middleware;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
-using Example4.ShopCode.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using Net.DistributedFileStoreCache;
 
@@ -34,12 +35,21 @@ public class MaintenanceController : Controller
         return View(downCacheList);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
     [HasPermission(Example4Permissions.MaintenanceAllDown)]
     public IActionResult TakeAllDown()
     {
-        _fsCache.Set(DownForMaintenanceConstants.DownForMaintenanceAllAppDown, User.GetUserIdFromUser());
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Example4Permissions.MaintenanceAllDown)]
+    public IActionResult TakeAllDown(AllAppDownDto data)
+    {
+        data.UserId = User.GetUserIdFromUser();
+        data.StartedUtc = DateTime.UtcNow;
+
+        _fsCache.SetClass(DownForMaintenanceConstants.DownForMaintenanceAllAppDown, data);
         return RedirectToAction("Index", new { });
     }
 
@@ -51,8 +61,9 @@ public class MaintenanceController : Controller
 
     //---------------------------------------------------------------------
 
-    public IActionResult AllUsersDown()
+    public IActionResult ShowAllDownStatus()
     {
-        return View((object)"The site is down for maintenance. Please check back later.");
+        var dto = _fsCache.GetClass<AllAppDownDto>(DownForMaintenanceConstants.DownForMaintenanceAllAppDown);
+        return View(dto);
     }
 }

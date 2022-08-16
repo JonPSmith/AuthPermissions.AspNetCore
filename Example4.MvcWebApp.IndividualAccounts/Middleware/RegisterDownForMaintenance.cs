@@ -1,16 +1,16 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
+using System.Threading.Tasks;
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using System;
-using AuthPermissions.BaseCode.CommonCode;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
-using Microsoft.AspNetCore.Routing;
 
-namespace Example4.ShopCode.Middleware;
+namespace Example4.MvcWebApp.IndividualAccounts.Middleware;
 
 public static class RegisterDownForMaintenance
 {
@@ -18,7 +18,9 @@ public static class RegisterDownForMaintenance
     {
         app.Use(async (HttpContext context, Func<Task> next) =>
         {
+            var all = context.GetRouteData();
             var controllerName = (string)context.GetRouteData().Values["controller"];
+            var action = (string)context.GetRouteData().Values["action"];
             var area = (string)context.GetRouteData().Values["area"];
             if (controllerName == DownForMaintenanceConstants.MaintenanceControllerName
                 || area == DownForMaintenanceConstants.AccountArea)
@@ -30,8 +32,8 @@ public static class RegisterDownForMaintenance
             }
 
             var fsCache = context.RequestServices.GetRequiredService<IDistributedFileStoreCacheClass>();
-            var userIdWhoDowned = fsCache.Get(DownForMaintenanceConstants.DownForMaintenanceAllAppDown);
-            if (userIdWhoDowned == null)
+            var allDownData = fsCache.GetClass<AllAppDownDto>(DownForMaintenanceConstants.DownForMaintenanceAllAppDown);
+            if (allDownData == null)
                 //If the AllAppDown isn't active, then anyone can access the app 
                 await next();
             else
@@ -39,7 +41,7 @@ public static class RegisterDownForMaintenance
                 //There is a "Down For Maintenance" in effect, so only the person that set up this state can still access the app
 
                 var userId = context.User.GetUserIdFromUser();
-                if (userId != userIdWhoDowned)
+                if (userId != allDownData.UserId)
                     //The user isn't allowed to access the application 
                     context.Response.Redirect(DownForMaintenanceConstants.MaintenanceAllAppDownRedirect);
                 else

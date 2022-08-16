@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RunMethodsSequentially;
 using System.Reflection;
-using Example4.ShopCode.Middleware;
+using Example4.MvcWebApp.IndividualAccounts.Middleware;
 using GenericServices.Setup;
 using Net.DistributedFileStoreCache;
 
