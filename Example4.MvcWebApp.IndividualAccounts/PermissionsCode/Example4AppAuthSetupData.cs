@@ -15,7 +15,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
             new("App Admin", "Overall app Admin",
                 "UserRead, UserSync, UserChange, UserRolesChange, UserChangeTenant, UserRemove, " +
                 "RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
-                "TenantList, TenantCreate, TenantUpdate, " +
+                "TenantList, TenantCreate, TenantUpdate, TenantMove, TenantDelete, " +
                 "MaintenanceList, MaintenanceRemove, MaintenanceAllDown"),
             new("Tenant Admin", "Tenant-level admin", "EmployeeRead, UserRead, UserRolesChange, RoleRead"),
             new("Tenant Director", "Company CEO, can see stock/sales and employees", "EmployeeRead, StockRead, SalesRead"),

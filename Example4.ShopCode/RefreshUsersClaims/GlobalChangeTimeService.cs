@@ -4,22 +4,23 @@
 using System;
 using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.AspNetCore.Hosting;
+using Net.DistributedFileStoreCache;
 
 namespace Example4.ShopCode.RefreshUsersClaims;
 
 /// <summary>
 /// This service handles the reading and writing of a DateTime to a place that all instances of the application
-/// Its uses <see cref="GlobalFileStoreManager"/> which uses a File - that works but a common cache like Redis would be perform better
+/// Its uses the FileStore cache to save / return the 
 /// </summary>
 public class GlobalChangeTimeService : IGlobalChangeTimeService
 {
-    private const string ChangedTimeFileName = "GlobalChangedTimeUtc";
+    public const string ChangeAtThisTimeCacheKeyName = "ChangeAtThisTime";
 
-    private readonly GlobalFileStoreManager _globalCache;
+    private readonly IDistributedFileStoreCacheClass _fsCache;
 
-    public GlobalChangeTimeService(IWebHostEnvironment environment)
+    public GlobalChangeTimeService(IDistributedFileStoreCacheClass fsCache)
     {
-        _globalCache = new GlobalFileStoreManager(environment);
+        _fsCache = fsCache;
     }
 
     /// <summary>
@@ -27,7 +28,7 @@ public class GlobalChangeTimeService : IGlobalChangeTimeService
     /// </summary>
     public void SetGlobalChangeTimeToNowUtc()
     {
-        _globalCache.Set(ChangedTimeFileName, DateTime.UtcNow.DateTimeToTicks());
+        _fsCache.Set(ChangeAtThisTimeCacheKeyName, DateTime.UtcNow.DateTimeToTicks());
     }
 
     /// <summary>
@@ -37,13 +38,13 @@ public class GlobalChangeTimeService : IGlobalChangeTimeService
     /// <returns></returns>
     public DateTime GetGlobalChangeTimeUtc()
     {
-        var cachedTime = _globalCache.Get(ChangedTimeFileName);
+        var cachedTime = _fsCache.Get(ChangeAtThisTimeCacheKeyName);
         //If no time, then hasn't had a change yet, so provide DateTime.MinValue
         return cachedTime?.TicksToDateTimeUtc() ?? DateTime.MinValue;
     }
 
     public void DeleteGlobalFile()
     {
-        _globalCache.Remove(ChangedTimeFileName);
+        _fsCache.Remove(ChangeAtThisTimeCacheKeyName);
     }
 }

@@ -1,6 +1,5 @@
 ﻿@using Example4.MvcWebApp.IndividualAccounts.PermissionsCode
 @using AuthPermissions.BaseCode.PermissionsCode
-@using Example4.MvcWebApp.IndividualAccounts.Middleware
 @using Example4.ShopCode.CacheCode
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model List<KeyValuePair<string,string>>
@@ -9,7 +8,7 @@
     ViewData["Title"] = "ListMaintenance";
 }
 
-<h1>List active maintenances</h1>
+<h1>List app statuses</h1>
 
 @if (!string.IsNullOrEmpty(ViewBag.Message))
 {
@@ -17,7 +16,7 @@
 }
 
 @if (User.HasPermission(Example4Permissions.MaintenanceAllDown) 
-    && Model.All(x => x.Key != DownForStatusExtensions.DownForStatusAllAppDown))
+    && Model.All(x => x.Key != AppStatusExtensions.DownForStatusAllAppDown))
 {
     <a asp-action="TakeAllDown" class="btn btn-primary">set status to "all down"</a>
 }

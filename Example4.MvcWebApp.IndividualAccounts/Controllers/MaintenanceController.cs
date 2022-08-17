@@ -28,7 +28,7 @@ public class MaintenanceController : Controller
         ViewBag.Message = message;
 
         var downCacheList = _fsCache.GetAllKeyValues()
-            .Where(x => x.Key.StartsWith(DownForStatusExtensions.DownForStatusPrefix))
+            .Where(x => x.Key.StartsWith(AppStatusExtensions.DownForStatusPrefix))
             .Select(x => new KeyValuePair<string,string>(x.Key, x.Value))
             .ToList();
 
@@ -49,7 +49,7 @@ public class MaintenanceController : Controller
         data.UserId = User.GetUserIdFromUser();
         data.StartedUtc = DateTime.UtcNow;
 
-        _fsCache.SetClass(DownForStatusExtensions.DownForStatusAllAppDown, data);
+        _fsCache.SetClass(AppStatusExtensions.DownForStatusAllAppDown, data);
         return RedirectToAction("Index", new { });
     }
 
@@ -63,11 +63,16 @@ public class MaintenanceController : Controller
 
     public IActionResult ShowAllDownStatus()
     {
-        var dto = _fsCache.GetClass<AllAppDownDto>(DownForStatusExtensions.DownForStatusAllAppDown);
+        var dto = _fsCache.GetClass<AllAppDownDto>(AppStatusExtensions.DownForStatusAllAppDown);
         return View(dto);
     }
 
     public IActionResult ShowTenantDownStatus()
+    {
+        return View();
+    }
+
+    public IActionResult ShowTenantDeleted()
     {
         return View();
     }

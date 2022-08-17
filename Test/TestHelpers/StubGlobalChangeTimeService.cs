@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
+using Example4.ShopCode.RefreshUsersClaims;
 using ExamplesCommonCode.IdentityCookieCode;
 
 namespace Test.TestHelpers;

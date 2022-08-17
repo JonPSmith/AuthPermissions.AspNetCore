@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -15,21 +14,22 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Example4.ShopCode.RefreshUsersClaims;
 
 /// <summary>
-/// This contains the event method that watches a tenant DataKey changing.
-/// If a change is found it will refresh the claims of all the logged-in users
+/// This contains the event method that watches for a change that effects the user's claims.
+/// If a change is found it will compare the time the significant change against the time when
+/// the user's was last updated. If the user's claims are "older" that the change happens, then their claims are updated
 /// </summary>
 public static class TenantChangeCookieEvent
 {
     public const string EntityChangeClaimType = "EntityChangeClaim";
 
     /// <summary>
-    /// This updates the users claims when an the global change time is newer than the time in the user's
+    /// This updates the users claims when a change is registered 
     /// <see cref="PeriodicCookieEvent.TimeToRefreshUserClaimType"/> claim.
     /// Useful for updating the claims if something is changed
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    public static async Task UpdateIfGlobalTimeChangedAsync(CookieValidatePrincipalContext context)
+    public static async Task UpdateClaimsIfSomethingChangesAsync(CookieValidatePrincipalContext context)
     {
         var originalClaims = context.Principal.Claims.ToList();
         var globalTimeService = context.HttpContext.RequestServices.GetRequiredService<IGlobalChangeTimeService>();

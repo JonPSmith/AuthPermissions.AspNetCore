@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ExamplesCommonCode.IdentityCookieCode;
+namespace Example4.ShopCode.RefreshUsersClaims;
 
 public interface IGlobalChangeTimeService
 {

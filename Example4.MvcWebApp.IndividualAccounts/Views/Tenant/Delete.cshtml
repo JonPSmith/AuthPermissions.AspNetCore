@@ -40,6 +40,7 @@
     <form asp-action="Delete">
         @Html.HiddenFor(model => model.TenantId)
         @Html.HiddenFor(model => model.TenantFullName)
+        @Html.HiddenFor(model => model.DataKey)
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

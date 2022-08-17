@@ -22,6 +22,7 @@ public static class RegisterDownForMaintenance
 
     public static readonly string MaintenanceAllAppDownRedirect = $"/{MaintenanceControllerName}/{nameof(MaintenanceController.ShowAllDownStatus)}";
     public static readonly string MaintenanceTenantDownRedirect = $"/{MaintenanceControllerName}/{nameof(MaintenanceController.ShowTenantDownStatus)}";
+    public static readonly string MaintenanceTenantDeletedRedirect = $"/{MaintenanceControllerName}/{nameof(MaintenanceController.ShowTenantDeleted)}";
 
     //Various controller, actions, areas used to allow users to access these while in a down state
     public const string MaintenanceControllerName = "Maintenance";
@@ -47,12 +48,12 @@ public static class RegisterDownForMaintenance
 
             var fsCache = context.RequestServices.GetRequiredService<IDistributedFileStoreCacheClass>();
             var downCacheList = fsCache.GetAllKeyValues()
-                .Where(x => x.Key.StartsWith(DownForStatusExtensions.DownForStatusPrefix))
+                .Where(x => x.Key.StartsWith(AppStatusExtensions.DownForStatusPrefix))
                 .Select(x => new KeyValuePair<string, string>(x.Key, x.Value))
                 .ToList();
 
             var allDownData = fsCache.GetClassFromString<AllAppDownDto>(
-                downCacheList.SingleOrDefault(x => x.Key == DownForStatusExtensions.DownForStatusAllAppDown).Value);
+                downCacheList.SingleOrDefault(x => x.Key == AppStatusExtensions.DownForStatusAllAppDown).Value);
             if (allDownData != null)
             {
                 //There is a "Down For Maintenance" in effect, so only the person that set up this state can still access the app
@@ -66,19 +67,26 @@ public static class RegisterDownForMaintenance
                 }
             }
 
-            var tenantDowns = downCacheList
-                .Where(x => x.Key == DownForStatusExtensions.DownForStatusTenantUpdate)
+            //This will select both the TenantDown (for edit and move) and TenantDeleted 
+            var tenantStatues = downCacheList
+                .Where(x => x.Key == AppStatusExtensions.StatusTenantPrefix)
                 .ToList();
-            if (tenantDowns.Any() && context.User.GetAuthDataKeyFromUser() != null)
+            if (tenantStatues.Any() && context.User.GetAuthDataKeyFromUser() != null)
             {
-                //there are at least one tenant that shouldn't be accessed at this moment, and the current user is linked to a tenant.
+                //there are at least one tenant that shouldn't be accessed, and the current user is linked to a tenant.
                 //Therefore we need to compare all the tenantDowns' Value, which contains the tenant's DataKey, with the user's DataKey
 
                 var usersDataKey = context.User.GetAuthDataKeyFromUser();
-                if (tenantDowns.Any(x => x.Value == usersDataKey))
+                var foundEntry = tenantStatues.FirstOrDefault(x => x.Value == usersDataKey);
+                if (!foundEntry.Equals(new KeyValuePair<string, string>()))
                 {
-                    //This user isn't allowed to access the tenant at this time
-                    context.Response.Redirect(MaintenanceTenantDownRedirect);
+                    if (foundEntry.Key.StartsWith(AppStatusExtensions.DownForStatusTenantUpdate))
+                        //This user isn't allowed to access the tenant while the change is made
+                        context.Response.Redirect(MaintenanceTenantDownRedirect);
+                    else
+                        //This tenant is deleted, so the user is always redirected
+                        context.Response.Redirect(MaintenanceTenantDeletedRedirect);
+
                     return;
                 }
             }

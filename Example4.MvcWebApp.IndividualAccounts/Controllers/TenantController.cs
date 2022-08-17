@@ -5,18 +5,22 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
+using Example4.ShopCode.CacheCode;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Net.DistributedFileStoreCache;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 {
     public class TenantController : Controller
     {
         private readonly IAuthTenantAdminService _authTenantAdmin;
+        private readonly IDistributedFileStoreCacheClass _fsCache;
 
-        public TenantController(IAuthTenantAdminService authTenantAdmin)
+        public TenantController(IAuthTenantAdminService authTenantAdmin, IDistributedFileStoreCacheClass fsCache)
         {
             _authTenantAdmin = authTenantAdmin;
+            _fsCache = fsCache;
         }
 
         [HasPermission(Example4Permissions.TenantList)]
@@ -69,8 +73,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(HierarchicalTenantDto input)
         {
+            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
+            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -95,8 +101,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantMove)]
         public async Task<IActionResult> Move(HierarchicalTenantDto input)
         {
+            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
             var status = await _authTenantAdmin
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId);
+            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -124,6 +132,8 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantDelete)]
         public async Task<IActionResult> Delete(HierarchicalTenantDto input)
         {
+            //This will also 
+            await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(input.DataKey);
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
 
             return status.HasErrors

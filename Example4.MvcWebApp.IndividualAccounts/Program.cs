@@ -41,8 +41,8 @@ builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    //this will cause all the logged-in users to have their claims periodically updated
-    options.Events.OnValidatePrincipal = PeriodicCookieEvent.PeriodicRefreshUsersClaims;
+    //this will cause all the logged-in users to have their claims to be updated if the 
+    options.Events.OnValidatePrincipal = TenantChangeCookieEvent.UpdateClaimsIfSomethingChangesAsync;
 });
 
 
