@@ -1,12 +1,15 @@
-﻿using System;
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
@@ -139,7 +142,6 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
             return RedirectToAction(nameof(Index), new { message = status.Message });
         }
-
 
 
         // GET: AuthUsersController/Delete/5

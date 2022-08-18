@@ -14,9 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Example4.ShopCode.RefreshUsersClaims;
 
 /// <summary>
-/// This contains the event method that watches for a change that effects the user's claims.
+/// This contains the event method that watches for a significant change that effects the user's claims.
 /// If a change is found it will compare the time the significant change against the time when
-/// the user's was last updated. If the user's claims are "older" that the change happens, then their claims are updated
+/// the user's claims were last updated. If the user's claims are "older" that the change happens, then their claims are updated
 /// </summary>
 public static class TenantChangeCookieEvent
 {

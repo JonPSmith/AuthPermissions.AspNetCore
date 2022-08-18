@@ -14,6 +14,7 @@
         <form asp-action="Move">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @Html.HiddenFor(x => x.TenantId)
+            @Html.HiddenFor(x => x.DataKey)
             <div class="form-group">
                 <label class="control-label">Select Parent Tenant</label>
                 @Html.DropDownListFor(model => model.ParentId,

@@ -1,14 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.PermissionsCode;
-using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 {

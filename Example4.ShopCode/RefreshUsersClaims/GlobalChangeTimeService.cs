@@ -4,6 +4,7 @@
 using System;
 using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Distributed;
 using Net.DistributedFileStoreCache;
 
 namespace Example4.ShopCode.RefreshUsersClaims;
@@ -26,14 +27,20 @@ public class GlobalChangeTimeService : IGlobalChangeTimeService
     /// <summary>
     /// This will write a file to a global directory. The file contains the <see cref="DateTime.UtcNow"/> as a string
     /// </summary>
-    public void SetGlobalChangeTimeToNowUtc()
+    /// <param name="minutesToExpiration">Optional: if the parameter > 0 the cache entry will expire after the the given minutes.
+    /// This will very slightly improve performance.</param>
+    public void SetGlobalChangeTimeToNowUtc(int minutesToExpiration = 0)
     {
-        _fsCache.Set(ChangeAtThisTimeCacheKeyName, DateTime.UtcNow.DateTimeToTicks());
+        if (minutesToExpiration > 0)
+            _fsCache.Set(ChangeAtThisTimeCacheKeyName, DateTime.UtcNow.DateTimeToTicks(), 
+                new DistributedCacheEntryOptions{ AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(minutesToExpiration) });
+        else
+            _fsCache.Set(ChangeAtThisTimeCacheKeyName, DateTime.UtcNow.DateTimeToTicks());
     }
 
     /// <summary>
-    /// This reads the File in a global directory and returns the DateTime of the in the file
-    /// If no file is found, then it returns <see cref="DateTime.MinValue"/>, which says no change has happened
+    /// This gets the cache value with the <see cref="ChangeAtThisTimeCacheKeyName"/> key returned as a DateTime
+    /// If the cache value isn't found, then it returns <see cref="DateTime.MinValue"/>, which says no change has happened
     /// </summary>
     /// <returns></returns>
     public DateTime GetGlobalChangeTimeUtc()

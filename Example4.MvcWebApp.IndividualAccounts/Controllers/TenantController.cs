@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
@@ -132,9 +134,11 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantDelete)]
         public async Task<IActionResult> Delete(HierarchicalTenantDto input)
         {
-            //This will also 
+            //This will permanently stop logged-in user from accessing the the delete tenant
             await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(input.DataKey);
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
+            if (status.HasErrors)
+                _fsCache.RemoveDeletedStatusCache(input.DataKey);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

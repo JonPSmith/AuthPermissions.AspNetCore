@@ -50,4 +50,14 @@ public static class AppStatusExtensions
         await Task.Delay(100); //we wait 100 milliseconds to be sure the that current accesses have finished
     }
 
+    /// <summary>
+    /// Removes a "tenant deleted" status to the cache if the delete service returned errors
+    /// </summary>
+    /// <param name="fsCache"></param>
+    /// <param name="dataKey"></param>
+    public static void RemoveDeletedStatusCache(this IDistributedFileStoreCacheClass fsCache, string dataKey)
+    {
+        fsCache.Remove(dataKey.FormTenantDeletedKey());
+    }
+
 }
