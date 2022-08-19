@@ -11,6 +11,7 @@ using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Example4.ShopCode.AppStart;
 using Example4.ShopCode.Dtos;
 using Example4.ShopCode.EfCoreCode;
+using Example4.ShopCode.RefreshUsersClaims;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

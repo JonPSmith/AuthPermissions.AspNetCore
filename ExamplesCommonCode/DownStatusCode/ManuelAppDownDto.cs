@@ -5,7 +5,7 @@ using System;
 
 namespace ExamplesCommonCode.DownStatusCode;
 
-public class AllAppDownDto
+public class ManuelAppDownDto
 {
     /// <summary>
     /// Id of the user that set the "all down" status

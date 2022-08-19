@@ -13,10 +13,12 @@ public static class AppStatusExtensions
     public static readonly string DownForStatusAllAppDown = $"{DownForStatusPrefix}AllAppDown";
     public static readonly string StatusTenantPrefix = $"{DownForStatusPrefix}Tenant";
     public static readonly string DownForStatusTenantUpdate = $"{StatusTenantPrefix}Down-";
+    public static readonly string DownForStatusTenantManuel = $"{StatusTenantPrefix}DownManuel-";
     public static readonly string DeletedTenantStatus = $"{StatusTenantPrefix}Deleted-";
 
-    public static string FormTenantDownKey(this string dataKey) => $"{DownForStatusTenantUpdate}{dataKey}";
-    public static string FormTenantDeletedKey(this string dataKey) => $"{DeletedTenantStatus}{dataKey}";
+    private static string FormTenantDownKey(this string dataKey) => $"{DownForStatusTenantUpdate}{dataKey}";
+    private static string FormManuelTenantDownKey(this string dataKey) => $"{DownForStatusTenantManuel}{dataKey}";
+    private static string FormTenantDeletedKey(this string dataKey) => $"{DeletedTenantStatus}{dataKey}";
 
     /// <summary>
     /// Adds a "tenant down" status to the cache
@@ -37,6 +39,27 @@ public static class AppStatusExtensions
     public static void RemoveTenantDownStatusCache(this IDistributedFileStoreCacheClass fsCache, string dataKey)
     {
         fsCache.Remove(dataKey.FormTenantDownKey());
+    }
+
+    /// <summary>
+    /// Adds a "manuel tenant down" status to the cache
+    /// </summary>
+    /// <param name="fsCache"></param>
+    /// <param name="dataKey"></param>
+    public static async Task AddManualTenantDownStatusCacheAndWaitAsync(this IDistributedFileStoreCacheClass fsCache, string dataKey)
+    {
+        fsCache.Set(dataKey.FormManuelTenantDownKey(), dataKey);
+        await Task.Delay(100); //we wait 100 milliseconds to be sure the that current accesses have finished
+    }
+
+    /// <summary>
+    /// Remove "manuel tenant down" status from the cache
+    /// </summary>
+    /// <param name="fsCache"></param>
+    /// <param name="dataKey"></param>
+    public static void RemoveManualTenantDownStatusCache(this IDistributedFileStoreCacheClass fsCache, string dataKey)
+    {
+        fsCache.Remove(dataKey.FormManuelTenantDownKey());
     }
 
     /// <summary>

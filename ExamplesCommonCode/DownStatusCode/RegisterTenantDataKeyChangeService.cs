@@ -4,10 +4,12 @@
 using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using ExamplesCommonCode.DownStatusCode;
+using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace Example4.ShopCode.RefreshUsersClaims;
 
 public class RegisterTenantDataKeyChangeService : IRegisterStateChangeEvent
 {

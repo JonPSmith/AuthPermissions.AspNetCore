@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Net.DistributedFileStoreCache;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers;
@@ -22,7 +25,6 @@ public class MaintenanceController : Controller
         _fsCache = fsCache;
     }
 
-
     public IActionResult Index(string message)
     {
         ViewBag.Message = message;
@@ -35,7 +37,7 @@ public class MaintenanceController : Controller
         return View(downCacheList);
     }
 
-    [HasPermission(Example4Permissions.MaintenanceAllDown)]
+    [HasPermission(Example4Permissions.AppStatusAllDown)]
     public IActionResult TakeAllDown()
     {
         return View();
@@ -43,8 +45,8 @@ public class MaintenanceController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [HasPermission(Example4Permissions.MaintenanceAllDown)]
-    public IActionResult TakeAllDown(AllAppDownDto data)
+    [HasPermission(Example4Permissions.AppStatusAllDown)]
+    public IActionResult TakeAllDown(ManuelAppDownDto data)
     {
         data.UserId = User.GetUserIdFromUser();
         data.StartedUtc = DateTime.UtcNow;
@@ -52,7 +54,8 @@ public class MaintenanceController : Controller
         _fsCache.SetClass(AppStatusExtensions.DownForStatusAllAppDown, data);
         return RedirectToAction("Index", new { });
     }
-
+    
+    [HasPermission(Example4Permissions.AppStatusRemove)]
     public IActionResult Remove(string key)
     {
         _fsCache.Remove(key);
@@ -63,7 +66,7 @@ public class MaintenanceController : Controller
 
     public IActionResult ShowAllDownStatus()
     {
-        var dto = _fsCache.GetClass<AllAppDownDto>(AppStatusExtensions.DownForStatusAllAppDown);
+        var dto = _fsCache.GetClass<ManuelAppDownDto>(AppStatusExtensions.DownForStatusAllAppDown);
         return View(dto);
     }
 

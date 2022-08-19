@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using Example4.ShopCode.RefreshUsersClaims;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;

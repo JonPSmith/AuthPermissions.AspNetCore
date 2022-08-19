@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.PermissionsCode;
-using Example4.MvcWebApp.IndividualAccounts.Middleware;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +38,7 @@ public class TestRedirectUsersViaStatusData
 
     private void AddAllDownCacheValue(string userId = "67890",  int? expectedTimeDownMinutes = null)
     {
-        var data = new AllAppDownDto
+        var data = new ManuelAppDownDto
         {
             UserId = userId,
             StartedUtc = DateTime.UtcNow,

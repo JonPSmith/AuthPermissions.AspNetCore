@@ -90,12 +90,14 @@ namespace Example4.MvcWebApp.IndividualAccounts.PermissionsCode
         TenantDelete = 42_004,
 
         //43_000
-        [Display(GroupName = "Maintenance", Name = "list active maintenance", Description = "Can list active maintenance", AutoGenerateFilter = true)]
-        MaintenanceList = 43_000,
-        [Display(GroupName = "Maintenance", Name = "Remove an active maintenance", Description = "Can turn off any active maintenance", AutoGenerateFilter = true)]
-        MaintenanceRemove = 43_001,
-        [Display(GroupName = "Maintenance", Name = "Stop all users accessing app", Description = "Stop all users, apart from user who set this", AutoGenerateFilter = true)]
-        MaintenanceAllDown = 43_002,
+        [Display(GroupName = "AppStatus", Name = "list active app statues", Description = "Can list active statues", AutoGenerateFilter = true)]
+        AppStatusList = 43_000,
+        [Display(GroupName = "AppStatus", Name = "Stop all users accessing app", Description = "Stop all users, apart from user who set this", AutoGenerateFilter = true)]
+        AppStatusAllDown = 43_002,
+        [Display(GroupName = "AppStatus", Name = "Stop all tenant users accessing app", Description = "Stop all tenant users accessing app", AutoGenerateFilter = true)]
+        AppStatusTenantDown = 43_003,
+        [Display(GroupName = "AppStatus", Name = "Remove an active app statue", Description = "Can turn off any active statue", AutoGenerateFilter = true)]
+        AppStatusRemove = 43_005,
 
 
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions

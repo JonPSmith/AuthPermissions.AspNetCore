@@ -15,12 +15,13 @@
     <h3 class="text-success">@ViewBag.Message</h3>
 }
 
-@if (User.HasPermission(Example4Permissions.MaintenanceAllDown) 
+@if (User.HasPermission(Example4Permissions.AppStatusAllDown) 
     && Model.All(x => x.Key != AppStatusExtensions.DownForStatusAllAppDown))
 {
     <a asp-action="TakeAllDown" class="btn btn-primary">set status to "all down"</a>
 }
 
+<br/>
 <table class="table">
     <thead>
         <tr>
@@ -44,7 +45,7 @@
                     @item.Value
                 </td>
                 <td>
-                    @if (User.HasPermission(Example4Permissions.MaintenanceList))
+                    @if (User.HasPermission(Example4Permissions.AppStatusRemove))
                     {
                         @Html.ActionLink("Remove", "Remove", new { key = item.Key })
                     }

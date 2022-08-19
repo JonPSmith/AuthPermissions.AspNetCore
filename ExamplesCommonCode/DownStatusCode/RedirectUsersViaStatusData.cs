@@ -19,9 +19,9 @@ namespace ExamplesCommonCode.DownStatusCode;
 /// </summary>
 public class RedirectUsersViaStatusData
 {
-    private const string MaintenanceAllAppDownRedirect = "/{MaintenanceControllerName}/ShowAllDownStatus)";
-    private const string MaintenanceTenantDownRedirect = "/{MaintenanceControllerName}/ShowTenantDownStatus)";
-    private const string MaintenanceTenantDeletedRedirect = "/{MaintenanceControllerName}/ShowTenantDeleted)";
+    private static readonly string MaintenanceAllAppDownRedirect = $"/{MaintenanceControllerName}/ShowAllDownStatus";
+    private static readonly string MaintenanceTenantDownRedirect = $"/{MaintenanceControllerName}/ShowTenantDownStatus";
+    private static readonly string MaintenanceTenantDeletedRedirect = $"/{MaintenanceControllerName}/ShowTenantDeleted";
 
     //Various controller, actions, areas used to allow users to access these while in a down state
     private const string MaintenanceControllerName = "Maintenance";
@@ -57,7 +57,7 @@ public class RedirectUsersViaStatusData
             .Select(x => new KeyValuePair<string, string>(x.Key, x.Value))
             .ToList();
 
-        var allDownData = fsCache.GetClassFromString<AllAppDownDto>(
+        var allDownData = fsCache.GetClassFromString<ManuelAppDownDto>(
             downCacheList.SingleOrDefault(x => x.Key == AppStatusExtensions.DownForStatusAllAppDown).Value);
         if (allDownData != null)
         {
