@@ -11,7 +11,6 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.BaseCode.SetupCode;
-using Example4.ShopCode.RefreshUsersClaims;
 using ExamplesCommonCode.IdentityCookieCode;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;

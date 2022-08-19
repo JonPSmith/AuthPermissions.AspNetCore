@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.PermissionsCode;
 using Example4.MvcWebApp.IndividualAccounts.Middleware;
-using Example4.ShopCode.CacheCode;
+using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;

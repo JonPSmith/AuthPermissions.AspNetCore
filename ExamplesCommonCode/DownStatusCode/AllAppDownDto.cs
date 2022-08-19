@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Example4.ShopCode.CacheCode;
+namespace ExamplesCommonCode.DownStatusCode;
 
 public class AllAppDownDto
 {

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuthPermissions.AspNetCore\AuthPermissions.AspNetCore.csproj" />
+    <ProjectReference Include="..\AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj" />
     <ProjectReference Include="..\AuthPermissions\AuthPermissions.csproj" />
     <ProjectReference Include="..\Example4.ShopCode\Example4.ShopCode.csproj" />
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />

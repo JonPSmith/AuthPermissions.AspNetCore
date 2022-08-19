@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Example4.ShopCode.RefreshUsersClaims;
+namespace ExamplesCommonCode.DownStatusCode;
 
 public interface IGlobalChangeTimeService
 {

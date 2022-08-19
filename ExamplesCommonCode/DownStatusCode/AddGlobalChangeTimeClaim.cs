@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AuthPermissions;
 using ExamplesCommonCode.IdentityCookieCode;
 
-namespace Example4.ShopCode.RefreshUsersClaims;
+namespace ExamplesCommonCode.DownStatusCode;
 
 public class AddGlobalChangeTimeClaim : IClaimsAdder
 {

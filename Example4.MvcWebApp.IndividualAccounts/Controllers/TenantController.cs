@@ -7,7 +7,7 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
-using Example4.ShopCode.CacheCode;
+using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Net.DistributedFileStoreCache;

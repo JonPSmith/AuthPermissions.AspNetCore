@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Net.DistributedFileStoreCache;
 
-namespace Example4.ShopCode.CacheCode;
+namespace ExamplesCommonCode.DownStatusCode;
 
 public static class AppStatusExtensions
 {

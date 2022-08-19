@@ -3,11 +3,10 @@
 
 using System;
 using ExamplesCommonCode.IdentityCookieCode;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Net.DistributedFileStoreCache;
 
-namespace Example4.ShopCode.RefreshUsersClaims;
+namespace ExamplesCommonCode.DownStatusCode;
 
 /// <summary>
 /// This service handles the reading and writing of a DateTime to a place that all instances of the application

@@ -7,14 +7,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
-using Example4.MvcWebApp.IndividualAccounts.Controllers;
-using Example4.ShopCode.CacheCode;
-
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
 
-namespace Example4.MvcWebApp.IndividualAccounts.Middleware;
+namespace ExamplesCommonCode.DownStatusCode;
 
 /// <summary>
 /// This handles the redirection of user based on the down statues held in the FileStore cache.
@@ -22,9 +19,9 @@ namespace Example4.MvcWebApp.IndividualAccounts.Middleware;
 /// </summary>
 public class RedirectUsersViaStatusData
 {
-    private static readonly string MaintenanceAllAppDownRedirect = $"/{MaintenanceControllerName}/{nameof(MaintenanceController.ShowAllDownStatus)}";
-    private static readonly string MaintenanceTenantDownRedirect = $"/{MaintenanceControllerName}/{nameof(MaintenanceController.ShowTenantDownStatus)}";
-    private static readonly string MaintenanceTenantDeletedRedirect = $"/{MaintenanceControllerName}/{nameof(MaintenanceController.ShowTenantDeleted)}";
+    private const string MaintenanceAllAppDownRedirect = "/{MaintenanceControllerName}/ShowAllDownStatus)";
+    private const string MaintenanceTenantDownRedirect = "/{MaintenanceControllerName}/ShowTenantDownStatus)";
+    private const string MaintenanceTenantDeletedRedirect = "/{MaintenanceControllerName}/ShowTenantDeleted)";
 
     //Various controller, actions, areas used to allow users to access these while in a down state
     private const string MaintenanceControllerName = "Maintenance";

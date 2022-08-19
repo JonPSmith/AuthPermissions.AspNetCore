@@ -11,7 +11,7 @@ using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Example4.ShopCode.RefreshUsersClaims;
+namespace ExamplesCommonCode.DownStatusCode;
 
 /// <summary>
 /// This contains the event method that watches for a significant change that effects the user's claims.

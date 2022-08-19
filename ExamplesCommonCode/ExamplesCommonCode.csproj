@@ -4,13 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="UsefulCode\**" />
-    <EmbeddedResource Remove="UsefulCode\**" />
-    <None Remove="UsefulCode\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+	<ItemGroup>
     <PackageReference Include="GenericServices.StatusGeneric" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.3" />
@@ -20,6 +14,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.3" />
+    <PackageReference Include="Net.DistributedFileStoreCache" Version="1.0.0" />
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
 
