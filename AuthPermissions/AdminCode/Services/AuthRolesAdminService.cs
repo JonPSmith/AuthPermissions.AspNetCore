@@ -270,7 +270,7 @@ namespace AuthPermissions.AdminCode.Services
             var tenantId = _context.AuthUsers
                 .Where(x => x.UserId == currentUserId)
                 .Select(x => x.TenantId)
-                .Single();
+                .SingleOrDefault();
             return tenantId;
         }
     }

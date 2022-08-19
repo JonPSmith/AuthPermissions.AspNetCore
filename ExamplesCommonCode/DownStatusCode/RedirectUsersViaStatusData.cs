@@ -22,6 +22,7 @@ public class RedirectUsersViaStatusData
     private static readonly string MaintenanceAllAppDownRedirect = $"/{MaintenanceControllerName}/ShowAllDownStatus";
     private static readonly string MaintenanceTenantDownRedirect = $"/{MaintenanceControllerName}/ShowTenantDownStatus";
     private static readonly string MaintenanceTenantDeletedRedirect = $"/{MaintenanceControllerName}/ShowTenantDeleted";
+    private static readonly string MaintenanceTenantManualDownRedirect = $"/{MaintenanceControllerName}/ShowTenantManuallyDown";
 
     //Various controller, actions, areas used to allow users to access these while in a down state
     private const string MaintenanceControllerName = "Maintenance";
@@ -93,9 +94,12 @@ public class RedirectUsersViaStatusData
                     if (foundEntry.Key.StartsWith(AppStatusExtensions.DownForStatusTenantUpdate))
                         //This user isn't allowed to access the tenant while the change is made
                         redirect(MaintenanceTenantDownRedirect);
-                    else
+                    else if (foundEntry.Key.StartsWith(AppStatusExtensions.DownForStatusTenantManuel))
                         //This tenant is deleted, so the user is always redirected
+                        redirect(MaintenanceTenantManualDownRedirect);
+                    else //This tenant is deleted, so the user is always redirected
                         redirect(MaintenanceTenantDeletedRedirect);
+
 
                     return;
                 }

@@ -54,7 +54,28 @@ public class MaintenanceController : Controller
         _fsCache.SetClass(AppStatusExtensions.DownForStatusAllAppDown, data);
         return RedirectToAction("Index", new { });
     }
-    
+
+
+    [HasPermission(Example4Permissions.AppStatusTenantDown)]
+    public async Task<IActionResult> TakeTenantDown([FromServices] IAuthTenantAdminService tenantAdminService)
+    {
+        return View(await ManuelTenantDownDto.SetupListOfTenantsAsync(tenantAdminService));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Example4Permissions.AppStatusTenantDown)]
+    public async Task<IActionResult> TakeTenantDown(ManuelTenantDownDto data)
+    {
+        await _fsCache.AddManualTenantDownStatusCacheAndWaitAsync(data.DataKey);
+        return RedirectToAction("Index", new { });
+    }
+
+    /// <summary>
+    /// This can remove ANY down status from the list
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
     [HasPermission(Example4Permissions.AppStatusRemove)]
     public IActionResult Remove(string key)
     {
@@ -76,6 +97,11 @@ public class MaintenanceController : Controller
     }
 
     public IActionResult ShowTenantDeleted()
+    {
+        return View();
+    }
+
+    public IActionResult ShowTenantManuallyDown()
     {
         return View();
     }

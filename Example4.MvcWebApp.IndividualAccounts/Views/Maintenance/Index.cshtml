@@ -20,8 +20,14 @@
 {
     <a asp-action="TakeAllDown" class="btn btn-primary">set status to "all down"</a>
 }
+@if (User.HasPermission(Example4Permissions.AppStatusTenantDown) 
+     && Model.All(x => x.Key != AppStatusExtensions.DownForStatusAllAppDown))
+{
+    <a asp-action="TakeTenantDown" class="btn btn-primary">set tenant status to "down"</a>
+}
 
 <br/>
+
 <table class="table">
     <thead>
         <tr>
