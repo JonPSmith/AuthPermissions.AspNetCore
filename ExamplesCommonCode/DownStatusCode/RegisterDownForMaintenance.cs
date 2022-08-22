@@ -3,20 +3,19 @@
 
 using System;
 using System.Threading.Tasks;
-using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Example4.MvcWebApp.IndividualAccounts.Middleware;
+namespace ExamplesCommonCode.DownStatusCode;
 
 public static class RegisterDownForMaintenance
 {
-    public static void AddDownForMaintenance(this WebApplication app)
+    public static void AddDownForMaintenance(this WebApplication app, bool hierarchical)
     {
         app.Use(async (HttpContext context, Func<Task> next) =>
         {
-            var handler = new RedirectUsersViaStatusData(context.GetRouteData(), context.RequestServices, true);
+            var handler = new RedirectUsersViaStatusData(context.GetRouteData(), context.RequestServices, hierarchical);
 
             await handler.RedirectUserOnStatusesAsync(context.User, context.Response.Redirect, next);
         });

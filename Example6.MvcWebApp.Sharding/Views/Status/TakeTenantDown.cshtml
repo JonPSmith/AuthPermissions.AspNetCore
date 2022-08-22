@@ -1,0 +1,33 @@
+﻿@model ExamplesCommonCode.DownStatusCode.ManuelTenantDownDto
+
+@{
+    ViewData["Title"] = "TakeAllDown";
+}
+
+<h1>Take down a tenant</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="TakeTenantDown">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">Select tenant to take down</label>
+                @Html.DropDownListFor(model => model.DataKey,
+                new SelectList(Model.ListOfTenants, "Key", "Value"),
+                    new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Set status to 'all down''" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to statues</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

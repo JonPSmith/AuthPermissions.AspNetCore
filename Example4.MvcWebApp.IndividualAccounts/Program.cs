@@ -20,7 +20,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RunMethodsSequentially;
 using System.Reflection;
-using Example4.MvcWebApp.IndividualAccounts.Middleware;
 using ExamplesCommonCode.DownStatusCode;
 using GenericServices.Setup;
 using Net.DistributedFileStoreCache;
@@ -74,6 +73,8 @@ builder.Services.RegisterAuthPermissions<Example4Permissions>(options =>
         options.RegisterServiceToRunInJob<StartupServiceServiceSeedRetailDatabase>();
     });
 
+//This is used to set app statue as "Down" and tenant as "Down",
+//plus handling a tenant DataKey change that requires an update of the user's claims
 builder.Services.AddDistributedFileStoreCache(options =>
 {
     options.WhichVersion = FileStoreCacheVersions.Class;
@@ -110,7 +111,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.AddDownForMaintenance();
+app.AddDownForMaintenance(true);
 
 app.MapControllerRoute(
     name: "default",

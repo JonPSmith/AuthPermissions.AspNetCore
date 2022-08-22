@@ -5,20 +5,25 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
 using Example6.MvcWebApp.Sharding.Models;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
+using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Net.DistributedFileStoreCache;
 
 namespace Example6.MvcWebApp.Sharding.Controllers
 {
     public class TenantController : Controller
     {
         private readonly IAuthTenantAdminService _authTenantAdmin;
+        private readonly IDistributedFileStoreCacheClass _fsCache;
 
-        public TenantController(IAuthTenantAdminService authTenantAdmin)
+        public TenantController(IAuthTenantAdminService authTenantAdmin, IDistributedFileStoreCacheClass fsCache)
         {
             _authTenantAdmin = authTenantAdmin;
+            _fsCache = fsCache;
         }
 
         [HasPermission(Example6Permissions.TenantList)]
@@ -75,8 +80,10 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(ShardingSingleLevelTenantDto input)
         {
+            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
+            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -96,7 +103,8 @@ namespace Example6.MvcWebApp.Sharding.Controllers
             return View(new ShardingSingleLevelTenantDto
             {
                 TenantId = id,
-                TenantName = status.Result.TenantFullName
+                TenantName = status.Result.TenantFullName,
+                DataKey = status.Result.GetTenantDataKey()
             });
         }
 
@@ -136,8 +144,10 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.MoveTenantDatabase)]
         public async Task<IActionResult> MoveDatabase(ShardingSingleLevelTenantDto input)
         {
+            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
             var status = await _authTenantAdmin.MoveToDifferentDatabaseAsync(
                 input.TenantId, input.HasOwnDb, input.ConnectionName);
+            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

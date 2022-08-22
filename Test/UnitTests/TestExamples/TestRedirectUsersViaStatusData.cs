@@ -66,7 +66,7 @@ public class TestRedirectUsersViaStatusData
     }
 
     [Theory]
-    [InlineData("controller", "Maintenance", false)]
+    [InlineData("controller", "Status", false)]
     [InlineData("area", "Identity", false)]
     [InlineData("controller", "home", true)]
     public async Task TestCheckNotDivertedRoutes(string key, string value, bool diverted)
@@ -88,7 +88,7 @@ public class TestRedirectUsersViaStatusData
         _output.WriteLine($"Diverted = {diverted}, redirect = {redirect}, nextCalled = {nextCalled}");
         if (diverted)
         {
-            redirect.ShouldEqual("/Maintenance/ShowAllDownStatus");
+            redirect.ShouldEqual("/Status/ShowAllDownStatus");
             nextCalled.ShouldBeFalse();
         }
         else
@@ -143,7 +143,7 @@ public class TestRedirectUsersViaStatusData
         _output.WriteLine($"Diverted = {diverted}, redirect = {redirect}, nextCalled = {nextCalled}");
         if (diverted)
         {
-            redirect.ShouldEqual("/Maintenance/ShowTenantDownStatus");
+            redirect.ShouldEqual("/Status/ShowTenantDownStatus");
             nextCalled.ShouldBeFalse();
         }
         else
@@ -177,7 +177,7 @@ public class TestRedirectUsersViaStatusData
         _output.WriteLine($"Diverted = {diverted}, redirect = {redirect}, nextCalled = {nextCalled}");
         if (diverted)
         {
-            redirect.ShouldEqual("/Maintenance/ShowTenantDeleted");
+            redirect.ShouldEqual("/Status/ShowTenantDeleted");
             nextCalled.ShouldBeFalse();
         }
         else

@@ -24,21 +24,28 @@ public static class AppStatusExtensions
     /// Adds a "tenant down" status to the cache
     /// </summary>
     /// <param name="fsCache"></param>
-    /// <param name="dataKey"></param>
-    public static async Task AddTenantDownStatusCacheAndWaitAsync(this IDistributedFileStoreCacheClass fsCache, string dataKey)
+    /// <param name="dataKey">DataKey of tenant to "down"</param>
+    /// <param name="movedToDataKey">optional: If hierarchical move then we "down" the moved-to tenant</param>
+    public static async Task AddTenantDownStatusCacheAndWaitAsync(this IDistributedFileStoreCacheClass fsCache, 
+        string dataKey, string movedToDataKey = null)
     {
         fsCache.Set(dataKey.FormTenantDownKey(), dataKey);
+        if (movedToDataKey != null)
+            fsCache.Set(movedToDataKey.FormManuelTenantDownKey(), movedToDataKey);
         await Task.Delay(100); //we wait 100 milliseconds to be sure the that current accesses have finished
     }
 
     /// <summary>
     /// Remove "tenant down" status from the cache
     /// </summary>
-    /// <param name="fsCache"></param>
-    /// <param name="dataKey"></param>
-    public static void RemoveTenantDownStatusCache(this IDistributedFileStoreCacheClass fsCache, string dataKey)
+    /// <param name="dataKey">DataKey of tenant stop "down"</param>
+    /// <param name="movedToDataKey">optional: If hierarchical move then we stop "down" on the moved-to tenant</param>
+    public static void RemoveTenantDownStatusCache(this IDistributedFileStoreCacheClass fsCache, 
+        string dataKey, string movedToDataKey = null)
     {
         fsCache.Remove(dataKey.FormTenantDownKey());
+        if (movedToDataKey != null)
+            fsCache.Remove(movedToDataKey.FormManuelTenantDownKey());
     }
 
     /// <summary>

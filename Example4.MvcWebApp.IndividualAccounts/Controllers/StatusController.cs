@@ -11,16 +11,15 @@ using AuthPermissions.BaseCode.CommonCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Net.DistributedFileStoreCache;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers;
 
-public class MaintenanceController : Controller
+public class StatusController : Controller
 {
     private readonly IDistributedFileStoreCacheClass _fsCache;
 
-    public MaintenanceController(IDistributedFileStoreCacheClass fsCache)
+    public StatusController(IDistributedFileStoreCacheClass fsCache)
     {
         _fsCache = fsCache;
     }

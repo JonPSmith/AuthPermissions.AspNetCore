@@ -14,8 +14,10 @@ using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Example6.SingleLevelSharding.AppStart;
 using Example6.SingleLevelSharding.EfCoreCode;
 using Example6.SingleLevelSharding.Services;
+using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Net.DistributedFileStoreCache;
 using RunMethodsSequentially;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,6 +65,14 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
                     options.RegisterServiceToRunInJob<StartupServiceSeedShardingDbContext>();
     });
 
+//This is used to set a tenant as "Down",
+builder.Services.AddDistributedFileStoreCache(options =>
+{
+    options.WhichVersion = FileStoreCacheVersions.Class;
+    //I override the the default first part of the FileStore cache file because there are many example apps in this repo
+    options.FirstPartOfCacheFileName = "Example6CacheFileStore";
+}, builder.Environment);
+
 //manually add services from the AuthPermissions.SupportCode project
 builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
 
@@ -89,6 +99,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.AddDownForMaintenance(false);
 
 app.MapControllerRoute(
     name: "default",

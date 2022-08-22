@@ -1,14 +1,18 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.SupportCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.ShardingServices;
+using Test.Helpers;
 using Test.TestHelpers;
+using TestSupport.EfHelpers;
 using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
@@ -47,9 +51,11 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
         //ATTEMPT
         var databaseInfo = service.ReadShardingSettingsFile();
@@ -70,9 +76,11 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
         //ATTEMPT
         var databaseInfo = service.ReadShardingSettingsFile();
@@ -93,9 +101,11 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
         //ATTEMPT
         var databaseInfo = new DatabaseInformation { Name = name, ConnectionName = "UnitTestConnection" };
@@ -114,9 +124,11 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
         var stubCon = new StubConnectionsService(this, !isValid);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
         //ATTEMPT
         var databaseInfo = new DatabaseInformation { Name = "Default Database", ConnectionName = connectionName };
@@ -134,9 +146,11 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
         //ATTEMPT
         var status = await service.RemoveDatabaseInfoToJsonFileAsync(name);
@@ -144,5 +158,69 @@ public class TestAccessDatabaseInformation
         //VERIFY
         _output.WriteLine(status.IsValid ? status.Message : status.GetAllErrors());
         status.IsValid.ShouldEqual(isValid);
+    }
+
+    //------------------------------------------------------------------
+    //Check DistributedLock
+
+    [Fact]
+    public void TestAddDatabaseInfoToJsonFile_SqlServerLock()
+    {
+        //SETUP
+        ResetShardingSettingsFile();
+        var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubCon = new StubConnectionsService(this);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
+
+        //ATTEMPT
+        Parallel.ForEach(new string[] {"Name1", "Name2", "Name3"}, 
+            name =>
+            {
+                var databaseInfo = new DatabaseInformation { Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection" };
+                var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
+                status.IsValid.ShouldBeTrue();
+            });
+
+
+        //VERIFY
+        var databaseInfo = service.ReadShardingSettingsFile();
+        foreach (var databaseInformation in databaseInfo)
+        {
+            _output.WriteLine(databaseInformation.ToString());
+        }
+        service.ReadShardingSettingsFile().Count.ShouldEqual(6);
+    }
+
+    [Fact]
+    public void TestAddDatabaseInfoToJsonFile_PostgresLock()
+    {
+        //SETUP
+        ResetShardingSettingsFile();
+        var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubCon = new StubConnectionsService(this);
+        var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
+
+        //ATTEMPT
+        Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },
+            name =>
+            {
+                var databaseInfo = new DatabaseInformation { Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection" };
+                var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
+                status.IsValid.ShouldBeTrue();
+            });
+
+        //VERIFY
+        var databaseInfo = service.ReadShardingSettingsFile();
+        foreach (var databaseInformation in databaseInfo)
+        {
+            _output.WriteLine(databaseInformation.ToString());
+        }
+        service.ReadShardingSettingsFile().Count.ShouldEqual(6);
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.BaseCode.CommonCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.DownStatusCode;
@@ -103,10 +104,15 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantMove)]
         public async Task<IActionResult> Move(HierarchicalTenantDto input)
         {
-            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
+            //A hierarchical Move requires both the tenant being moved and the tenant receiving the moved tenant 
+            //So we provide two DataKeys
+            var moveToDataKey = input.ParentId == 0
+                ? null
+                : (await _authTenantAdmin.GetTenantViaIdAsync(input.ParentId)).Result?.GetTenantDataKey();
+            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey, moveToDataKey);
             var status = await _authTenantAdmin
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId);
-            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
+            _fsCache.RemoveTenantDownStatusCache(input.DataKey, moveToDataKey);
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),

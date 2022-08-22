@@ -1,0 +1,21 @@
+﻿@model ExamplesCommonCode.DownStatusCode.ManuelAppDownDto
+@{
+    ViewData["Title"] = "ShowAllDownStatus";
+}
+
+<h2>The application's status is "down to all users"</h2>
+
+<h4>@Model.Message</h4>
+
+@if (Model.ExpectedTimeDownMinutes != null)
+{
+    var minutesLeft = Model.StartedUtc.AddMinutes((double)Model.ExpectedTimeDownMinutes!).Subtract(DateTime.UtcNow).TotalMinutes;
+    if (minutesLeft > 0)
+    {
+        <p>We expect the application will be available in @(minutesLeft.ToString("N0")) minutes.</p>
+    }
+    else
+    {
+        <p>Sorry, we are running behind on the maintenance - we will be quick as we can.</p>
+    }
+}

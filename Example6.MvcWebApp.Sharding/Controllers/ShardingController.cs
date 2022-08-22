@@ -1,6 +1,5 @@
 ﻿using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.SupportCode;
 using AuthPermissions.SupportCode.ShardingServices;
 using Example6.MvcWebApp.Sharding.Models;
 using Example6.MvcWebApp.Sharding.PermissionsCode;

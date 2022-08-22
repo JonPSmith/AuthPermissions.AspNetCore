@@ -3,7 +3,12 @@
 
 using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
+using Medallion.Threading.Postgres;
+using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode.ShardingServices;
@@ -20,16 +25,18 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
 
     private readonly string _settingsFilePath;
     private readonly IShardingConnections _connectionsService;
+    private readonly AuthPermissionsDbContext _authDbContext;
 
     /// <summary>
     /// Ctor
     /// </summary>
     /// <param name="env"></param>
     /// <param name="connectionsService"></param>
-    public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService)
+    public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, AuthPermissionsDbContext authDbContext)
     {
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
+        _authDbContext = authDbContext;
     }
 
     /// <summary>
@@ -66,9 +73,12 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
-        var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
-        fileContent.Add(databaseInfo);
-        return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
+        return ApplyChangeWithinDistributedLock(() =>
+        {
+            var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
+            fileContent.Add(databaseInfo);
+            return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
+        });
     }
 
     /// <summary>
@@ -80,15 +90,18 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric UpdateDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
-        var status = new StatusGenericHandler();
-        var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
-        var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
-        if (foundIndex == -1)
-            return status.AddError("Could not find a database info entry with the " +
-                                   $"{nameof(DatabaseInformation.Name)} of '{databaseInfo.Name ?? "< null >"}'");
+        return ApplyChangeWithinDistributedLock(() =>
+        {
+            var status = new StatusGenericHandler();
+            var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
+            var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
+            if (foundIndex == -1)
+                return status.AddError("Could not find a database info entry with the " +
+                                       $"{nameof(DatabaseInformation.Name)} of '{databaseInfo.Name ?? "< null >"}'");
 
-        fileContent[foundIndex] = databaseInfo;
-        return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
+            fileContent[foundIndex] = databaseInfo;
+            return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
+        });
     }
 
     /// <summary>
@@ -99,21 +112,24 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <returns>status containing a success message, or errors</returns>
     public async Task<IStatusGeneric> RemoveDatabaseInfoToJsonFileAsync(string databaseInfoName)
     {
-        var status = new StatusGenericHandler();
-        var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
-        var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
-        if (foundIndex == -1)
-            return status.AddError("Could not find a database info entry with the " +
-                                   $"{nameof(DatabaseInformation.Name)} of '{databaseInfoName ?? "< null >"}'");
+        return await ApplyChangeWithinDistributedLockAsync(async () =>
+        {
+            var status = new StatusGenericHandler();
+            var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
+            var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
+            if (foundIndex == -1)
+                return status.AddError("Could not find a database info entry with the " +
+                                       $"{nameof(DatabaseInformation.Name)} of '{databaseInfoName ?? "< null >"}'");
 
-        var tenantsUsingThis = (await _connectionsService.GetDatabaseInfoNamesWithTenantNamesAsync())
-            .SingleOrDefault(x => x.databaseInfoName == databaseInfoName).tenantNames;
-        if (tenantsUsingThis.Count > 0)
-            return status.AddError("You can't delete the database information with the " +
-                                   $"{nameof(DatabaseInformation.Name)} of {databaseInfoName} because {tenantsUsingThis.Count} tenant(s) uses this database.");
+            var tenantsUsingThis = (await _connectionsService.GetDatabaseInfoNamesWithTenantNamesAsync())
+                .SingleOrDefault(x => x.databaseInfoName == databaseInfoName).tenantNames;
+            if (tenantsUsingThis.Count > 0)
+                return status.AddError("You can't delete the database information with the " +
+                                       $"{nameof(DatabaseInformation.Name)} of {databaseInfoName} because {tenantsUsingThis.Count} tenant(s) uses this database.");
 
-        fileContent.RemoveAt(foundIndex);
-        return CheckDatabasesInfoAndSaveIfValid(fileContent, null);
+            fileContent.RemoveAt(foundIndex);
+            return CheckDatabasesInfoAndSaveIfValid(fileContent, null);
+        });
     }
 
     //-----------------------------------------------
@@ -146,5 +162,55 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
         File.WriteAllText(_settingsFilePath, jsonString);
 
         return status;
+    }
+
+    private IStatusGeneric ApplyChangeWithinDistributedLock(Func<IStatusGeneric> runInLock)
+    {
+        if (_authDbContext.Database.IsSqlServer())
+        {
+            var myDistributedLock = new SqlDistributedLock("Sharding!", _authDbContext.Database.GetConnectionString()!);
+            using (myDistributedLock.Acquire())
+            {
+                return runInLock();
+            }
+        }
+        
+        if (_authDbContext.Database.IsNpgsql())
+        {
+            //See this as to why the name is 9 digits long https://github.com/madelson/DistributedLock/blob/master/docs/DistributedLock.Postgres.md#implementation-notes
+            var myDistributedLock = new PostgresDistributedLock(new PostgresAdvisoryLockKey("Sharding!", allowHashing: true), _authDbContext.Database.GetConnectionString()!); // e. g. if we are using SQL Server
+            using (myDistributedLock.Acquire())
+            {
+                return runInLock();
+            }
+        }
+
+        //its using some form of in-memory database so don't bother with a lock 
+        return runInLock();
+    }
+
+    private async Task<IStatusGeneric> ApplyChangeWithinDistributedLockAsync(Func<Task<IStatusGeneric>> runInLockAsync)
+    {
+        if (_authDbContext.Database.IsSqlServer())
+        {
+            var myDistributedLock = new SqlDistributedLock("Sharding!", _authDbContext.Database.GetConnectionString()!);
+            using (await myDistributedLock.AcquireAsync())
+            {
+                return await runInLockAsync();
+            }
+        }
+
+        if (_authDbContext.Database.IsNpgsql())
+        {
+            //See this as to why the name is 9 digits long https://github.com/madelson/DistributedLock/blob/master/docs/DistributedLock.Postgres.md#implementation-notes
+            var myDistributedLock = new PostgresDistributedLock(new PostgresAdvisoryLockKey("Sharding!", allowHashing: true), _authDbContext.Database.GetConnectionString()!); // e. g. if we are using SQL Server
+            using (await myDistributedLock.AcquireAsync())
+            {
+                return await runInLockAsync();
+            }
+        }
+
+        //its using some form of in-memory database so don't bother with a lock 
+        return await runInLockAsync();
     }
 }

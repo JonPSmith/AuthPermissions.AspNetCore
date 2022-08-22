@@ -27,7 +27,7 @@ namespace AuthPermissions.AspNetCore.StartupServices
         public int OrderNum { get; } //The order of this startup services is defined by the order it registered
 
         /// <summary>
-        /// This takes data from the bulk load extention methods and and if there is no data for a
+        /// This takes data from the bulk load extension methods and and if there is no data for a
         /// each type of bulk load (i.e. roles, tenants, and users), then it will write the bulk load
         /// data to the AuthP's database
         /// </summary>

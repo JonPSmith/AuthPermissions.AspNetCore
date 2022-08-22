@@ -19,24 +19,33 @@ namespace ExamplesCommonCode.DownStatusCode;
 /// </summary>
 public class RedirectUsersViaStatusData
 {
-    private static readonly string MaintenanceAllAppDownRedirect = $"/{MaintenanceControllerName}/ShowAllDownStatus";
-    private static readonly string MaintenanceTenantDownRedirect = $"/{MaintenanceControllerName}/ShowTenantDownStatus";
-    private static readonly string MaintenanceTenantDeletedRedirect = $"/{MaintenanceControllerName}/ShowTenantDeleted";
-    private static readonly string MaintenanceTenantManualDownRedirect = $"/{MaintenanceControllerName}/ShowTenantManuallyDown";
+    private string StatusAllAppDownRedirect => $"/{_StatusControllerName}/ShowAllDownStatus";
+    private string StatusTenantDownRedirect => $"/{_StatusControllerName}/ShowTenantDownStatus";
+    private string StatusTenantDeletedRedirect => $"/{_StatusControllerName}/ShowTenantDeleted";
+    private string StatusTenantManualDownRedirect => $"/{_StatusControllerName}/ShowTenantManuallyDown";
 
     //Various controller, actions, areas used to allow users to access these while in a down state
-    private const string MaintenanceControllerName = "Maintenance";
     private const string AccountArea = "Identity";
 
     private readonly RouteData _routeData;
     private readonly IServiceProvider _serviceProvider;
     private readonly bool _hierarchical;
+    private readonly string _StatusControllerName;
 
-    public RedirectUsersViaStatusData(RouteData routeData, IServiceProvider serviceProvider, bool hierarchical)
+    /// <summary>
+    /// This 
+    /// </summary>
+    /// <param name="routeData">This should contain the HttpContext's GetRouteData()</param>
+    /// <param name="serviceProvider">The service provider from the HttpContext</param>
+    /// <param name="hierarchical">true if hierarchical, false if single-level</param>
+    /// <param name="statusControllerName">This defines the name of the controller where the status </param>
+    public RedirectUsersViaStatusData(RouteData routeData, IServiceProvider serviceProvider, 
+        bool hierarchical, string statusControllerName = "Status")
     {
         _routeData = routeData;
         _serviceProvider = serviceProvider;
         _hierarchical = hierarchical;
+        _StatusControllerName = statusControllerName;
     }
 
     public async Task RedirectUserOnStatusesAsync(ClaimsPrincipal user, Action<string> redirect, Func<Task> next)
@@ -44,10 +53,10 @@ public class RedirectUsersViaStatusData
         var controllerName = (string)_routeData.Values["controller"];
         var action = (string)_routeData.Values["action"];
         var area = (string)_routeData.Values["area"];
-        if (controllerName == MaintenanceControllerName || area == AccountArea)
+        if (controllerName == _StatusControllerName || area == AccountArea)
         {
-            // This allows the Maintenance controller to show the banner and users to log in/out
-            // The log in/out is there because if the user that set up the maintenance status logged out they wouldn't be able to log in again! 
+            // This allows the Status controller to show the banner and users to log in/out
+            // The log in/out is there because if the user that set up the Status status logged out they wouldn't be able to log in again! 
             await next();
             return;
         }
@@ -62,13 +71,13 @@ public class RedirectUsersViaStatusData
             downCacheList.SingleOrDefault(x => x.Key == AppStatusExtensions.DownForStatusAllAppDown).Value);
         if (allDownData != null)
         {
-            //There is a "Down For Maintenance" in effect, so only the person that set up this state can still access the app
+            //There is a "Down For Status" in effect, so only the person that set up this state can still access the app
 
             var userId = user.GetUserIdFromUser();
             if (userId != allDownData.UserId)
             {
                 //The user isn't allowed to access the application 
-                redirect(MaintenanceAllAppDownRedirect);
+                redirect(StatusAllAppDownRedirect);
                 return;
             }
         }
@@ -93,12 +102,12 @@ public class RedirectUsersViaStatusData
                 {
                     if (foundEntry.Key.StartsWith(AppStatusExtensions.DownForStatusTenantUpdate))
                         //This user isn't allowed to access the tenant while the change is made
-                        redirect(MaintenanceTenantDownRedirect);
+                        redirect(StatusTenantDownRedirect);
                     else if (foundEntry.Key.StartsWith(AppStatusExtensions.DownForStatusTenantManuel))
                         //This tenant is deleted, so the user is always redirected
-                        redirect(MaintenanceTenantManualDownRedirect);
+                        redirect(StatusTenantManualDownRedirect);
                     else //This tenant is deleted, so the user is always redirected
-                        redirect(MaintenanceTenantDeletedRedirect);
+                        redirect(StatusTenantDeletedRedirect);
 
 
                     return;
