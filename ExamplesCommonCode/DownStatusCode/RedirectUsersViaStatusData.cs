@@ -19,10 +19,10 @@ namespace ExamplesCommonCode.DownStatusCode;
 /// </summary>
 public class RedirectUsersViaStatusData
 {
-    private string StatusAllAppDownRedirect => $"/{_StatusControllerName}/ShowAllDownStatus";
-    private string StatusTenantDownRedirect => $"/{_StatusControllerName}/ShowTenantDownStatus";
-    private string StatusTenantDeletedRedirect => $"/{_StatusControllerName}/ShowTenantDeleted";
-    private string StatusTenantManualDownRedirect => $"/{_StatusControllerName}/ShowTenantManuallyDown";
+    private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAllDownStatus";
+    private string StatusTenantDownRedirect => $"/{_statusControllerName}/ShowTenantDownStatus";
+    private string StatusTenantDeletedRedirect => $"/{_statusControllerName}/ShowTenantDeleted";
+    private string StatusTenantManualDownRedirect => $"/{_statusControllerName}/ShowTenantManuallyDown";
 
     //Various controller, actions, areas used to allow users to access these while in a down state
     private const string AccountArea = "Identity";
@@ -30,7 +30,7 @@ public class RedirectUsersViaStatusData
     private readonly RouteData _routeData;
     private readonly IServiceProvider _serviceProvider;
     private readonly bool _hierarchical;
-    private readonly string _StatusControllerName;
+    private readonly string _statusControllerName;
 
     /// <summary>
     /// This 
@@ -45,15 +45,22 @@ public class RedirectUsersViaStatusData
         _routeData = routeData;
         _serviceProvider = serviceProvider;
         _hierarchical = hierarchical;
-        _StatusControllerName = statusControllerName;
+        _statusControllerName = statusControllerName;
     }
 
     public async Task RedirectUserOnStatusesAsync(ClaimsPrincipal user, Action<string> redirect, Func<Task> next)
     {
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            //Let non-logged in user to access any 
+            await next();
+            return;
+        }
+
         var controllerName = (string)_routeData.Values["controller"];
         var action = (string)_routeData.Values["action"];
         var area = (string)_routeData.Values["area"];
-        if (controllerName == _StatusControllerName || area == AccountArea)
+        if (controllerName == _statusControllerName || area == AccountArea)
         {
             // This allows the Status controller to show the banner and users to log in/out
             // The log in/out is there because if the user that set up the Status status logged out they wouldn't be able to log in again! 

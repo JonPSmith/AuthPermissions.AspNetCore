@@ -14,6 +14,7 @@ using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Test.UnitTests.TestExamples;
 
@@ -33,7 +34,7 @@ public class TestRedirectUsersViaStatusData
         return new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
             new Claim(ClaimTypes.NameIdentifier, "12345"),
             new Claim(PermissionConstants.DataKeyClaimType, "0.1.2"),
-        }));
+        }, "test"));
     }
 
     private void AddAllDownCacheValue(string userId = "67890",  int? expectedTimeDownMinutes = null)
@@ -63,6 +64,27 @@ public class TestRedirectUsersViaStatusData
         services.AddSingleton(_fsCache);
 
         return new RedirectUsersViaStatusData(new RouteData(routeDict), services.BuildServiceProvider(), hierarchical);
+    }
+
+    [Fact]
+    public async Task TestCheckNotDivertedRoutes_NotLoggedInUser()
+    {
+        //SETUP
+        var handler = SetupHandler();
+        string redirect = null;
+        bool nextCalled = false;
+
+        AddAllDownCacheValue();
+
+        //ATTEMPT
+        await handler.RedirectUserOnStatusesAsync(new ClaimsPrincipal(new ClaimsIdentity()),
+            x => { redirect = x; },
+            () => { nextCalled = true; return Task.CompletedTask; }
+        );
+
+        //VERIFY
+        redirect.ShouldBeNull();
+        nextCalled.ShouldBeTrue();
     }
 
     [Theory]

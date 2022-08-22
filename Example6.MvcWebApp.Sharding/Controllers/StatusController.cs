@@ -6,11 +6,14 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using ExamplesCommonCode.DownStatusCode;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net.DistributedFileStoreCache;
 
 namespace Example6.MvcWebApp.Sharding.Controllers;
 
+//Stop non-logged in user getting to StatusController
+[Authorize]
 public class StatusController : Controller
 {
     private readonly IDistributedFileStoreCacheClass _fsCache;
