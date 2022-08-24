@@ -16,12 +16,12 @@
 }
 
 @if (User.HasPermission(Example4Permissions.AppStatusAllDown) 
-    && Model.All(x => x.Key != AppStatusExtensions.DownForStatusAllAppDown))
+   && Model.All(x => x.Key != RedirectUsersViaStatusData.DownForStatusAllAppDown))
 {
     <a asp-action="TakeAllDown" class="btn btn-primary">set status to "all down"</a>
 }
 @if (User.HasPermission(Example4Permissions.AppStatusTenantDown) 
-     && Model.All(x => x.Key != AppStatusExtensions.DownForStatusAllAppDown))
+    && Model.All(x => x.Key != RedirectUsersViaStatusData.DownForStatusAllAppDown))
 {
     <a asp-action="TakeTenantDown" class="btn btn-primary">set tenant status to "down"</a>
 }

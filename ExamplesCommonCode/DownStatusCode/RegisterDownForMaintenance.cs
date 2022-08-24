@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -11,11 +12,11 @@ namespace ExamplesCommonCode.DownStatusCode;
 
 public static class RegisterDownForMaintenance
 {
-    public static void AddDownForMaintenance(this WebApplication app, bool hierarchical)
+    public static void AddDownForMaintenance(this WebApplication app, TenantTypes tenantTypes)
     {
         app.Use(async (HttpContext context, Func<Task> next) =>
         {
-            var handler = new RedirectUsersViaStatusData(context.GetRouteData(), context.RequestServices, hierarchical);
+            var handler = new RedirectUsersViaStatusData(context.GetRouteData(), context.RequestServices, tenantTypes);
 
             await handler.RedirectUserOnStatusesAsync(context.User, context.Response.Redirect, next);
         });

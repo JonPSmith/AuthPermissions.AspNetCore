@@ -4,7 +4,6 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions;
-using Example4.ShopCode.RefreshUsersClaims;
 using ExamplesCommonCode.IdentityCookieCode;
 
 namespace ExamplesCommonCode.DownStatusCode;

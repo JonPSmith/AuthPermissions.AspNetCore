@@ -18,12 +18,12 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
     public class TenantController : Controller
     {
         private readonly IAuthTenantAdminService _authTenantAdmin;
-        private readonly IDistributedFileStoreCacheClass _fsCache;
+        private readonly ISetRemoveStatusService _downService;
 
-        public TenantController(IAuthTenantAdminService authTenantAdmin, IDistributedFileStoreCacheClass fsCache)
+        public TenantController(IAuthTenantAdminService authTenantAdmin, ISetRemoveStatusService downService)
         {
             _authTenantAdmin = authTenantAdmin;
-            _fsCache = fsCache;
+            _downService = downService;
         }
 
         [HasPermission(Example4Permissions.TenantList)]
@@ -76,10 +76,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(HierarchicalTenantDto input)
         {
-            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
+            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
-            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
+            await removeDown();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -105,14 +105,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Move(HierarchicalTenantDto input)
         {
             //A hierarchical Move requires both the tenant being moved and the tenant receiving the moved tenant 
-            //So we provide two DataKeys
-            var moveToDataKey = input.ParentId == 0
-                ? null
-                : (await _authTenantAdmin.GetTenantViaIdAsync(input.ParentId)).Result?.GetTenantDataKey();
-            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey, moveToDataKey);
+            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId, input.ParentId);
             var status = await _authTenantAdmin
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId);
-            _fsCache.RemoveTenantDownStatusCache(input.DataKey, moveToDataKey);
+            await removeDown();
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -141,10 +137,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Delete(HierarchicalTenantDto input)
         {
             //This will permanently stop logged-in user from accessing the the delete tenant
-            await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(input.DataKey);
+            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Deleted, input.TenantId);
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
             if (status.HasErrors)
-                _fsCache.RemoveDeletedStatusCache(input.DataKey);
+                await removeDown();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

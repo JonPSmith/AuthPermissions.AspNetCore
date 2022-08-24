@@ -99,7 +99,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.AddDownForMaintenance(false);
+app.AddDownForMaintenance(TenantTypes.SingleLevel | TenantTypes.AddSharding);
 
 app.MapControllerRoute(
     name: "default",

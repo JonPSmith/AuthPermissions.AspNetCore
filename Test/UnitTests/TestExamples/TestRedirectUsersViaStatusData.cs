@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.PermissionsCode;
+using AuthPermissions.BaseCode.SetupCode;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,6 @@ using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Test.UnitTests.TestExamples;
 
@@ -46,10 +46,11 @@ public class TestRedirectUsersViaStatusData
             Message = "Down",
             ExpectedTimeDownMinutes = expectedTimeDownMinutes
         };
-        _fsCache.SetClass(AppStatusExtensions.DownForStatusAllAppDown, data);
+        _fsCache.SetClass(RedirectUsersViaStatusData.DownForStatusAllAppDown, data);
     }
 
-    private RedirectUsersViaStatusData SetupHandler(KeyValuePair<string,string> overrideRoutes = new (), bool hierarchical = true)
+    private RedirectUsersViaStatusData SetupHandler(KeyValuePair<string,string> overrideRoutes = new (), 
+        TenantTypes tenantTypes = TenantTypes.HierarchicalTenant)
     {
         var routeDict = new RouteValueDictionary();
         if (overrideRoutes.Equals(new KeyValuePair<string, string>()))
@@ -63,7 +64,7 @@ public class TestRedirectUsersViaStatusData
         var services = new ServiceCollection();
         services.AddSingleton(_fsCache);
 
-        return new RedirectUsersViaStatusData(new RouteData(routeDict), services.BuildServiceProvider(), hierarchical);
+        return new RedirectUsersViaStatusData(new RouteData(routeDict), services.BuildServiceProvider(), tenantTypes);
     }
 
     [Fact]

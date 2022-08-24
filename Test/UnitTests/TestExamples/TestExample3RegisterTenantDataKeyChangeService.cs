@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
-using Example4.ShopCode.RefreshUsersClaims;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.EntityFrameworkCore;
 using Test.TestHelpers;
@@ -23,7 +22,7 @@ public class TestExample3RegisterTenantDataKeyChangeService
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
-        var service = new RegisterTenantDataKeyChangeService(globalAccessor);
+        var service = new RegisterTenantKeyOrShardChangeService(globalAccessor);
         var context = new AuthPermissionsDbContext(options, service);
         
         context.Database.EnsureCreated();
@@ -43,7 +42,7 @@ public class TestExample3RegisterTenantDataKeyChangeService
 
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
-        var service = new RegisterTenantDataKeyChangeService(globalAccessor);
+        var service = new RegisterTenantKeyOrShardChangeService(globalAccessor);
         var context = new AuthPermissionsDbContext(options, service);
         context.Database.EnsureCreated();
 

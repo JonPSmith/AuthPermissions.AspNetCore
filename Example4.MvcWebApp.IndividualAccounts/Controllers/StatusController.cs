@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
@@ -12,7 +11,6 @@ using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Net.DistributedFileStoreCache;
 
 namespace Example4.MvcWebApp.IndividualAccounts.Controllers;
 
@@ -20,21 +18,18 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers;
 [Authorize]
 public class StatusController : Controller
 {
-    private readonly IDistributedFileStoreCacheClass _fsCache;
+    private readonly ISetRemoveStatusService _downService;
 
-    public StatusController(IDistributedFileStoreCacheClass fsCache)
+    public StatusController(ISetRemoveStatusService downService)
     {
-        _fsCache = fsCache;
+        _downService = downService;
     }
 
     public IActionResult Index(string message)
     {
         ViewBag.Message = message;
 
-        var downCacheList = _fsCache.GetAllKeyValues()
-            .Where(x => x.Key.StartsWith(AppStatusExtensions.DownForStatusPrefix))
-            .Select(x => new KeyValuePair<string,string>(x.Key, x.Value))
-            .ToList();
+        var downCacheList = _downService.GetAllDownKeyValues();
 
         return View(downCacheList);
     }
@@ -53,7 +48,7 @@ public class StatusController : Controller
         data.UserId = User.GetUserIdFromUser();
         data.StartedUtc = DateTime.UtcNow;
 
-        _fsCache.SetClass(AppStatusExtensions.DownForStatusAllAppDown, data);
+        _downService.SetAppDown(data);
         return RedirectToAction("Index", new { });
     }
 
@@ -69,7 +64,7 @@ public class StatusController : Controller
     [HasPermission(Example4Permissions.AppStatusTenantDown)]
     public async Task<IActionResult> TakeTenantDown(ManuelTenantDownDto data)
     {
-        await _fsCache.AddManualTenantDownStatusCacheAndWaitAsync(data.DataKey);
+        await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.ManualDown, data.TenantId);
         return RedirectToAction("Index", new { });
     }
 
@@ -81,7 +76,7 @@ public class StatusController : Controller
     [HasPermission(Example4Permissions.AppStatusRemove)]
     public IActionResult Remove(string key)
     {
-        _fsCache.Remove(key);
+        _downService.RemoveAnyDown(key);
         return RedirectToAction("Index", new { });
     }
 
@@ -89,8 +84,7 @@ public class StatusController : Controller
 
     public IActionResult ShowAllDownStatus()
     {
-        var dto = _fsCache.GetClass<ManuelAppDownDto>(AppStatusExtensions.DownForStatusAllAppDown);
-        return View(dto);
+        return View(_downService.GetAppDownMessage());
     }
 
     public IActionResult ShowTenantDownStatus()

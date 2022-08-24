@@ -28,7 +28,7 @@ public class StatusController : Controller
         ViewBag.Message = message;
 
         var downCacheList = _fsCache.GetAllKeyValues()
-            .Where(x => x.Key.StartsWith(AppStatusExtensions.DownForStatusPrefix))
+            .Where(x => x.Key.StartsWith(RedirectUsersViaStatusData.DownForStatusPrefix))
             .Select(x => new KeyValuePair<string,string>(x.Key, x.Value))
             .ToList();
 
@@ -49,7 +49,7 @@ public class StatusController : Controller
         data.UserId = User.GetUserIdFromUser();
         data.StartedUtc = DateTime.UtcNow;
 
-        _fsCache.SetClass(AppStatusExtensions.DownForStatusAllAppDown, data);
+        _fsCache.SetClass(RedirectUsersViaStatusData.DownForStatusAllAppDown, data);
         return RedirectToAction("Index", new { });
     }
 
@@ -85,7 +85,7 @@ public class StatusController : Controller
 
     public IActionResult ShowAllDownStatus()
     {
-        var dto = _fsCache.GetClass<ManuelAppDownDto>(AppStatusExtensions.DownForStatusAllAppDown);
+        var dto = _fsCache.GetClass<ManuelAppDownDto>(RedirectUsersViaStatusData.DownForStatusAllAppDown);
         return View(dto);
     }
 

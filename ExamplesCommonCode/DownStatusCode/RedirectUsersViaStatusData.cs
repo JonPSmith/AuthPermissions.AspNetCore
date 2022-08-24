@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
@@ -19,6 +20,14 @@ namespace ExamplesCommonCode.DownStatusCode;
 /// </summary>
 public class RedirectUsersViaStatusData
 {
+    //Cache key constants
+    public const string DownForStatusPrefix = "AppStatus-";
+    public static readonly string DownForStatusAllAppDown = $"{DownForStatusPrefix}AllAppDown";
+    public static readonly string StatusTenantPrefix = $"{DownForStatusPrefix}Tenant";
+    public static readonly string DownForStatusTenantUpdate = $"{StatusTenantPrefix}Down-";
+    public static readonly string DownForStatusTenantManuel = $"{StatusTenantPrefix}DownManuel-";
+    public static readonly string DeletedTenantStatus = $"{StatusTenantPrefix}Deleted-";
+
     private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAllDownStatus";
     private string StatusTenantDownRedirect => $"/{_statusControllerName}/ShowTenantDownStatus";
     private string StatusTenantDeletedRedirect => $"/{_statusControllerName}/ShowTenantDeleted";
@@ -29,7 +38,7 @@ public class RedirectUsersViaStatusData
 
     private readonly RouteData _routeData;
     private readonly IServiceProvider _serviceProvider;
-    private readonly bool _hierarchical;
+    private readonly TenantTypes _tenantTypes;
     private readonly string _statusControllerName;
 
     /// <summary>
@@ -37,14 +46,14 @@ public class RedirectUsersViaStatusData
     /// </summary>
     /// <param name="routeData">This should contain the HttpContext's GetRouteData()</param>
     /// <param name="serviceProvider">The service provider from the HttpContext</param>
-    /// <param name="hierarchical">true if hierarchical, false if single-level</param>
+    /// <param name="tenantTypes">Defines what </param>
     /// <param name="statusControllerName">This defines the name of the controller where the status </param>
-    public RedirectUsersViaStatusData(RouteData routeData, IServiceProvider serviceProvider, 
-        bool hierarchical, string statusControllerName = "Status")
+    public RedirectUsersViaStatusData(RouteData routeData, IServiceProvider serviceProvider,
+        TenantTypes tenantTypes, string statusControllerName = "Status")
     {
         _routeData = routeData;
         _serviceProvider = serviceProvider;
-        _hierarchical = hierarchical;
+        _tenantTypes = tenantTypes;
         _statusControllerName = statusControllerName;
     }
 
@@ -70,12 +79,12 @@ public class RedirectUsersViaStatusData
 
         var fsCache = _serviceProvider.GetRequiredService<IDistributedFileStoreCacheClass>();
         var downCacheList = fsCache.GetAllKeyValues()
-            .Where(x => x.Key.StartsWith(AppStatusExtensions.DownForStatusPrefix))
+            .Where(x => x.Key.StartsWith(DownForStatusPrefix))
             .Select(x => new KeyValuePair<string, string>(x.Key, x.Value))
             .ToList();
 
         var allDownData = fsCache.GetClassFromString<ManuelAppDownDto>(
-            downCacheList.SingleOrDefault(x => x.Key == AppStatusExtensions.DownForStatusAllAppDown).Value);
+            downCacheList.SingleOrDefault(x => x.Key == DownForStatusAllAppDown).Value);
         if (allDownData != null)
         {
             //There is a "Down For Status" in effect, so only the person that set up this state can still access the app
@@ -93,8 +102,10 @@ public class RedirectUsersViaStatusData
         var userDataKey = user.GetAuthDataKeyFromUser();
         if (userDataKey != null)
         {
+            var userTnCombinedKey = _tenantTypes.FormedTenantCombinedKey(user);
+
             var tenantStatues = downCacheList
-                .Where(x => x.Key.StartsWith(AppStatusExtensions.StatusTenantPrefix))
+                .Where(x => x.Key.StartsWith(StatusTenantPrefix))
                 .ToList();
             if (tenantStatues.Any())
             {
@@ -102,15 +113,15 @@ public class RedirectUsersViaStatusData
                 //Therefore we need to compare all the tenantDowns' Value, which contains the tenant's DataKey, with the user's DataKey
 
                 //because we are in a hierarchical multi-tenant app we check user's DataKey starts with the downed tenant datakey
-                var foundEntry = _hierarchical
-                 ? tenantStatues.FirstOrDefault(x => x.Value.StartsWith(userDataKey))
-                 : tenantStatues.FirstOrDefault(x => x.Value == userDataKey);
+                var foundEntry = _tenantTypes.HasFlag(TenantTypes.HierarchicalTenant)
+                    ? tenantStatues.FirstOrDefault(x => x.Value.StartsWith(userTnCombinedKey))
+                    : tenantStatues.FirstOrDefault(x => x.Value == userTnCombinedKey);
                 if (!foundEntry.Equals(new KeyValuePair<string, string>()))
                 {
-                    if (foundEntry.Key.StartsWith(AppStatusExtensions.DownForStatusTenantUpdate))
+                    if (foundEntry.Key.StartsWith(DownForStatusTenantUpdate))
                         //This user isn't allowed to access the tenant while the change is made
                         redirect(StatusTenantDownRedirect);
-                    else if (foundEntry.Key.StartsWith(AppStatusExtensions.DownForStatusTenantManuel))
+                    else if (foundEntry.Key.StartsWith(DownForStatusTenantManuel))
                         //This tenant is deleted, so the user is always redirected
                         redirect(StatusTenantManualDownRedirect);
                     else //This tenant is deleted, so the user is always redirected

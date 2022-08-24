@@ -65,7 +65,6 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
                 TenantId = tenant.TenantId,
                 TenantFullName = tenant.TenantFullName,
                 TenantName = tenant.GetTenantName(),
-                DataKey = tenant.GetTenantDataKey(),
 
                 ListOfTenants = await tenantAdminService.QueryTenants()
                     .Select(x => new KeyValuePair<int, string>(x.TenantId, x.TenantFullName))
@@ -83,8 +82,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Models
             {
                 TenantId = tenant.TenantId,
                 TenantFullName = tenant.TenantFullName,
-                TenantName = tenant.GetTenantName(),
-                DataKey = tenant.GetTenantDataKey()
+                TenantName = tenant.GetTenantName()
             };
         }
 
