@@ -6,7 +6,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 
-namespace Test.TestHelpers
+namespace Test.StubClasses
 {
 
     public class StubIFindUserInfoFactory : IAuthPServiceFactory<IFindUserInfoService>

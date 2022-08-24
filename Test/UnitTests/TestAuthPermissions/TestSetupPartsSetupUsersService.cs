@@ -11,6 +11,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

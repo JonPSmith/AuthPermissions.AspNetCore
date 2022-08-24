@@ -9,6 +9,7 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

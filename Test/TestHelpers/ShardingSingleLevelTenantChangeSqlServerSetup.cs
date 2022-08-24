@@ -10,6 +10,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example6.SingleLevelSharding.AppStart;
 using Example6.SingleLevelSharding.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;
 

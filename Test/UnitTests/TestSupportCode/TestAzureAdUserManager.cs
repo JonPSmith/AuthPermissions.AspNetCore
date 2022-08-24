@@ -12,6 +12,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Microsoft.Extensions.Options;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

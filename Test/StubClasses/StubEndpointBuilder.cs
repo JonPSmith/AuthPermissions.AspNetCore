@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Test.TestHelpers
+namespace Test.StubClasses
 {
     public class StubEndpointBuilder : EndpointBuilder
     {

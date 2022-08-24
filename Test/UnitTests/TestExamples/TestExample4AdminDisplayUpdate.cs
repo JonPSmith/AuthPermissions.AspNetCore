@@ -14,7 +14,7 @@ using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.Extensions.DependencyInjection;
-using Test.TestHelpers;
+using Test.StubClasses;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;

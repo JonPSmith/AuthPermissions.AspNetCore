@@ -11,22 +11,25 @@ using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
+using Test.StubClasses;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestExamples;
+namespace Test.UnitTests.TestExamplesCommonCode;
 
 public class TestRedirectUsersViaStatusData
 {
     private readonly ITestOutputHelper _output;
     private readonly IDistributedFileStoreCacheClass _fsCache;
+    //private readonly ISetRemoveStatusService _removeService;
 
     public TestRedirectUsersViaStatusData(ITestOutputHelper output)
     {
         _output = output;
         _fsCache = new StubFileStoreCacheClass(); //this clears the cache fro each test
+        //_removeService = new SetRemoveStatusService(_fsCache, );
     }
 
     private ClaimsPrincipal DefaultUser()
@@ -37,7 +40,7 @@ public class TestRedirectUsersViaStatusData
         }, "test"));
     }
 
-    private void AddAllDownCacheValue(string userId = "67890",  int? expectedTimeDownMinutes = null)
+    private void AddAllDownCacheValue(string userId = "67890", int? expectedTimeDownMinutes = null)
     {
         var data = new ManuelAppDownDto
         {
@@ -49,7 +52,7 @@ public class TestRedirectUsersViaStatusData
         _fsCache.SetClass(RedirectUsersViaStatusData.DownForStatusAllAppDown, data);
     }
 
-    private RedirectUsersViaStatusData SetupHandler(KeyValuePair<string,string> overrideRoutes = new (), 
+    private RedirectUsersViaStatusData SetupHandler(KeyValuePair<string, string> overrideRoutes = new(),
         TenantTypes tenantTypes = TenantTypes.HierarchicalTenant)
     {
         var routeDict = new RouteValueDictionary();
@@ -102,9 +105,9 @@ public class TestRedirectUsersViaStatusData
         AddAllDownCacheValue();
 
         //ATTEMPT
-        await handler.RedirectUserOnStatusesAsync(DefaultUser(), 
+        await handler.RedirectUserOnStatusesAsync(DefaultUser(),
             x => { redirect = x; },
-            () => { nextCalled = true; return Task.CompletedTask;}
+            () => { nextCalled = true; return Task.CompletedTask; }
             );
 
         //VERIFY
@@ -154,7 +157,7 @@ public class TestRedirectUsersViaStatusData
         string redirect = null;
         bool nextCalled = false;
 
-        await _fsCache.AddTenantDownStatusCacheAndWaitAsync(dataKeyDown);
+        //await _fsCache.AddTenantDownStatusCacheAndWaitAsync(dataKeyDown);
 
         //ATTEMPT
         await handler.RedirectUserOnStatusesAsync(DefaultUser(),
@@ -188,7 +191,7 @@ public class TestRedirectUsersViaStatusData
         string redirect = null;
         bool nextCalled = false;
 
-        await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(dataKeyDown);
+        //await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(dataKeyDown);
 
         //ATTEMPT
         await handler.RedirectUserOnStatusesAsync(DefaultUser(),

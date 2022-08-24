@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubWebHostEnvironment : IWebHostEnvironment
 {

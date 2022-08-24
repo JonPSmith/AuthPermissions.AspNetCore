@@ -9,6 +9,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Example6.SingleLevelSharding.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;

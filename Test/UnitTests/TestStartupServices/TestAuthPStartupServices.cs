@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
 using Test.DiTestHelpers;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.Helpers;
 using Xunit;

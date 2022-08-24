@@ -5,6 +5,7 @@ using System.Linq;
 using Example4.ShopCode.EfCoreClasses;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.Attributes;
 using TestSupport.EfHelpers;

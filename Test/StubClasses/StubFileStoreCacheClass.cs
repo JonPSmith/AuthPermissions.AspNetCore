@@ -8,7 +8,7 @@ using System.Threading;
 using Microsoft.Extensions.Caching.Distributed;
 using Net.DistributedFileStoreCache;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubFileStoreCacheClass : StubFileStoreCacheString, IDistributedFileStoreCacheClass
 {
@@ -24,7 +24,7 @@ public class StubFileStoreCacheClass : StubFileStoreCacheString, IDistributedFil
     /// <typeparam name="T">A class which can be created</typeparam>
     /// <param name="jsonString"></param>
     /// <returns>The deserialize class or null.</returns>
-    public T? GetClassFromString<T>(string? jsonString) where T : class, new()
+    public T GetClassFromString<T>(string jsonString) where T : class, new()
     {
         return jsonString == null ? null : JsonSerializer.Deserialize<T>(jsonString);
     }
@@ -33,7 +33,7 @@ public class StubFileStoreCacheClass : StubFileStoreCacheString, IDistributedFil
     /// <param name="key">A string identifying the requested stored class.</param>
     /// <typeparam name="T">A class which can be created</typeparam>
     /// <returns>The deserialize class or null.</returns>
-    public T? GetClass<T>(string key) where T : class, new()
+    public T GetClass<T>(string key) where T : class, new()
     {
         var stringValue = Get(key);
         return stringValue == null ? null : JsonSerializer.Deserialize<T>(stringValue);
@@ -44,7 +44,7 @@ public class StubFileStoreCacheClass : StubFileStoreCacheString, IDistributedFil
     /// <param name="token">Optional. The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <typeparam name="T">A class which can be created</typeparam>
     /// <returns>The located class or null withing a Task result.</returns>
-    public async Task<T?> GetClassAsync<T>(string key, CancellationToken token = new CancellationToken()) where T : class, new()
+    public async Task<T> GetClassAsync<T>(string key, CancellationToken token = new CancellationToken()) where T : class, new()
     {
         var stringValue = await GetAsync(key, token);
         return stringValue == null ? null : JsonSerializer.Deserialize<T>(stringValue);
@@ -55,7 +55,7 @@ public class StubFileStoreCacheClass : StubFileStoreCacheString, IDistributedFil
     /// <param name="yourClass">The class that you wanted to be stored in the cache.</param>
     /// <param name="options">The cache options for the value.</param>
     /// <typeparam name="T">A class which can be created</typeparam>
-    public void SetClass<T>(string key, T yourClass, DistributedCacheEntryOptions? options = null) where T : class, new()
+    public void SetClass<T>(string key, T yourClass, DistributedCacheEntryOptions options = null) where T : class, new()
     {
         var jsonString = JsonSerializer.Serialize(yourClass, _jsonOptions);
         Set(key, jsonString, options);
@@ -67,7 +67,7 @@ public class StubFileStoreCacheClass : StubFileStoreCacheString, IDistributedFil
     /// <param name="options">The cache options for the value.</param>
     /// <param name="token">Optional. The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <typeparam name="T">A class which can be created</typeparam>
-    public async Task SetClassAsync<T>(string key, T yourClass, DistributedCacheEntryOptions? options = null,
+    public async Task SetClassAsync<T>(string key, T yourClass, DistributedCacheEntryOptions options = null,
         CancellationToken token = new CancellationToken()) where T : class, new()
     {
         var jsonString = JsonSerializer.Serialize(yourClass, _jsonOptions);

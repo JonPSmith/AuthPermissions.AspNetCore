@@ -11,6 +11,7 @@ using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.Extensions.Logging;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

@@ -13,7 +13,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label class="control-label">Select tenant to take down</label>
-                @Html.DropDownListFor(model => model.DataKey,
+                @Html.DropDownListFor(model => model.TenantId,
                 new SelectList(Model.ListOfTenants, "Key", "Value"),
                     new { @class = "form-control" })
             </div>

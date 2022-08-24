@@ -3,7 +3,7 @@
 
 using AuthPermissions.AspNetCore.AccessTenantData;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubIAccessTenantDataCookie : IAccessTenantDataCookie
 {

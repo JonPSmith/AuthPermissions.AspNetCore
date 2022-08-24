@@ -4,7 +4,7 @@
 using System;
 using ExamplesCommonCode.DownStatusCode;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubGlobalChangeTimeService : IGlobalChangeTimeService
 {

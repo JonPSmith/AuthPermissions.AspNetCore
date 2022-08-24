@@ -4,7 +4,7 @@
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.Services;
 
-namespace Test.TestHelpers
+namespace Test.StubClasses
 {
     public class StubGetDataKeyFilter : IGetDataKeyFromUser
     {

@@ -9,10 +9,11 @@ using Example3.InvoiceCode.EfCoreCode;
 using Example6.SingleLevelSharding.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubChangeChangeServiceFactory : IAuthPServiceFactory<ITenantChangeService>
 {

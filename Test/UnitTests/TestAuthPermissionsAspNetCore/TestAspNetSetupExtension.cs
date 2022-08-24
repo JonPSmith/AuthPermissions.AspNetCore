@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RunMethodsSequentially;
 using Test.DiTestHelpers;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.Helpers;
 using Xunit;

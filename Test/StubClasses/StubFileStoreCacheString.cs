@@ -9,7 +9,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Net.DistributedFileStoreCache;
 using Net.DistributedFileStoreCache.SupportCode;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubFileStoreCacheString : IDistributedFileStoreCacheString
 {
@@ -18,25 +18,25 @@ public class StubFileStoreCacheString : IDistributedFileStoreCacheString
     /// <summary>Gets a value with the given key.</summary>
     /// <param name="key">A string identifying the requested value.</param>
     /// <returns>The located value or null.</returns>
-    public string? Get(string key)
+    public string Get(string key)
     {
-        return StaticCachePart.CacheContent.Cache.TryGetValue(key, out string? value) ? value : null;
+        return StaticCachePart.CacheContent.Cache.TryGetValue(key, out string value) ? value : null;
     }
 
     /// <summary>Gets a value with the given key.</summary>
     /// <param name="key">A string identifying the requested value.</param>
     /// <param name="token">Optional. The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the located value or null.</returns>
-    public Task<string?> GetAsync(string key, CancellationToken token = new CancellationToken())
+    public Task<string> GetAsync(string key, CancellationToken token = new CancellationToken())
     {
-        return Task.FromResult(StaticCachePart.CacheContent.Cache.TryGetValue(key, out string? value) ? value : null);
+        return Task.FromResult(StaticCachePart.CacheContent.Cache.TryGetValue(key, out string value) ? value : null);
     }
 
     /// <summary>Sets a value with the given key.</summary>
     /// <param name="key">A string identifying the requested value.</param>
     /// <param name="value">The value to set in the cache.</param>
     /// <param name="options">The cache options for the value.</param>
-    public void Set(string key, string value, DistributedCacheEntryOptions? options = null)
+    public void Set(string key, string value, DistributedCacheEntryOptions options = null)
     {
         _cache[key] = value;
     }
@@ -47,7 +47,7 @@ public class StubFileStoreCacheString : IDistributedFileStoreCacheString
     /// <param name="options">The cache options for the value.</param>
     /// <param name="token">Optional. The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public Task SetAsync(string key, string value, DistributedCacheEntryOptions? options = null,
+    public Task SetAsync(string key, string value, DistributedCacheEntryOptions options = null,
         CancellationToken token = new CancellationToken())
     {
         _cache[key] = value;

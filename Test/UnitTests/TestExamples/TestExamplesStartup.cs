@@ -18,10 +18,10 @@ using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.SetupCode;
-using Test.TestHelpers;
 using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
+using Test.StubClasses;
 
 namespace Test.UnitTests.TestExamples
 {

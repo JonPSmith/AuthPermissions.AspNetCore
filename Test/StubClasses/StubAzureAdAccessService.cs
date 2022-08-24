@@ -7,7 +7,7 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.SupportCode.AzureAdServices;
 using StatusGeneric;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubAzureAdAccessService : IAzureAdAccessService
 {

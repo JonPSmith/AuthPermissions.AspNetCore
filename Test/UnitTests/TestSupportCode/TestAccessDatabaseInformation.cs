@@ -11,6 +11,7 @@ using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.ShardingServices;
 using Test.Helpers;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;

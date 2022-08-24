@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.BaseCode.DataLayer.Classes;
 using Net.DistributedFileStoreCache;
 
 namespace ExamplesCommonCode.DownStatusCode;
@@ -96,7 +95,7 @@ public class SetRemoveStatusService : ISetRemoveStatusService
         }
 
         await Task.Delay(delayMs);
-        return RemoveTenantDownAsync(downType, mainKey, secondaryKey);
+        return () =>  RemoveTenantDownAsync(downType, mainKey, secondaryKey);
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ using Example4.ShopCode.EfCoreCode;
 using Microsoft.Extensions.Logging;
 using TestSupport.EfHelpers;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubRetailChangeServiceFactory : IAuthPServiceFactory<ITenantChangeService>
 {

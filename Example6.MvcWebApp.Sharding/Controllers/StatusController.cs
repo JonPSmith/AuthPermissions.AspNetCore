@@ -16,21 +16,18 @@ namespace Example6.MvcWebApp.Sharding.Controllers;
 [Authorize]
 public class StatusController : Controller
 {
-    private readonly IDistributedFileStoreCacheClass _fsCache;
+    private readonly ISetRemoveStatusService _downService;
 
-    public StatusController(IDistributedFileStoreCacheClass fsCache)
+    public StatusController(ISetRemoveStatusService downService)
     {
-        _fsCache = fsCache;
+        _downService = downService;
     }
 
     public IActionResult Index(string message)
     {
         ViewBag.Message = message;
 
-        var downCacheList = _fsCache.GetAllKeyValues()
-            .Where(x => x.Key.StartsWith(RedirectUsersViaStatusData.DownForStatusPrefix))
-            .Select(x => new KeyValuePair<string,string>(x.Key, x.Value))
-            .ToList();
+        var downCacheList = _downService.GetAllDownKeyValues();
 
         return View(downCacheList);
     }
@@ -49,10 +46,9 @@ public class StatusController : Controller
         data.UserId = User.GetUserIdFromUser();
         data.StartedUtc = DateTime.UtcNow;
 
-        _fsCache.SetClass(RedirectUsersViaStatusData.DownForStatusAllAppDown, data);
+        _downService.SetAppDown(data);
         return RedirectToAction("Index", new { });
     }
-
 
     [HasPermission(Example6Permissions.AppStatusTenantDown)]
     public async Task<IActionResult> TakeTenantDown([FromServices] IAuthTenantAdminService tenantAdminService)
@@ -65,7 +61,7 @@ public class StatusController : Controller
     [HasPermission(Example6Permissions.AppStatusTenantDown)]
     public async Task<IActionResult> TakeTenantDown(ManuelTenantDownDto data)
     {
-        await _fsCache.AddManualTenantDownStatusCacheAndWaitAsync(data.DataKey);
+        await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.ManualDown, data.TenantId);
         return RedirectToAction("Index", new { });
     }
 
@@ -77,7 +73,7 @@ public class StatusController : Controller
     [HasPermission(Example6Permissions.AppStatusRemove)]
     public IActionResult Remove(string key)
     {
-        _fsCache.Remove(key);
+        _downService.RemoveAnyDown(key);
         return RedirectToAction("Index", new { });
     }
 
@@ -85,8 +81,7 @@ public class StatusController : Controller
 
     public IActionResult ShowAllDownStatus()
     {
-        var dto = _fsCache.GetClass<ManuelAppDownDto>(RedirectUsersViaStatusData.DownForStatusAllAppDown);
-        return View(dto);
+        return View(_downService.GetAppDownMessage());
     }
 
     public IActionResult ShowTenantDownStatus()

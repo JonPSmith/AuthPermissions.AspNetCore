@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthPermissions;
 
-namespace Test.TestHelpers
+namespace Test.StubClasses
 {
     public class StubClaimsCalculator : IClaimsCalculator
     {
@@ -23,7 +23,7 @@ namespace Test.TestHelpers
 
         public Task<List<Claim>> GetClaimsForAuthUserAsync(string userId)
         {
-            return Task.FromResult(Claims) ;
+            return Task.FromResult(Claims);
         }
     }
 }

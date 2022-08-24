@@ -15,6 +15,7 @@ using AuthPermissions.BaseCode.PermissionsCode;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Moq;
+using Test.StubClasses;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;

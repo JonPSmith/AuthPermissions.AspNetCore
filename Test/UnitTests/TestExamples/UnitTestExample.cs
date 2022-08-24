@@ -13,7 +13,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.Extensions.DependencyInjection;
-using Test.TestHelpers;
+using Test.StubClasses;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 

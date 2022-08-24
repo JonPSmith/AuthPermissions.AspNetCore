@@ -6,7 +6,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.ShardingServices;
 using StatusGeneric;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubIGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {

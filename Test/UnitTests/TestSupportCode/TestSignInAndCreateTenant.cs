@@ -13,6 +13,7 @@ using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.SupportCode.AddUsersServices;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

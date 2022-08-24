@@ -10,6 +10,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.SetupCode.Factories;
 
-namespace Test.TestHelpers
+namespace Test.StubClasses
 {
     public class StubSyncAuthenticationUsersFactory : IAuthPServiceFactory<ISyncAuthenticationUsers>
     {

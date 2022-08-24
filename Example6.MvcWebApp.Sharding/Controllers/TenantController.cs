@@ -11,19 +11,18 @@ using Example6.MvcWebApp.Sharding.PermissionsCode;
 using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Net.DistributedFileStoreCache;
 
 namespace Example6.MvcWebApp.Sharding.Controllers
 {
     public class TenantController : Controller
     {
         private readonly IAuthTenantAdminService _authTenantAdmin;
-        private readonly IDistributedFileStoreCacheClass _fsCache;
+        private readonly ISetRemoveStatusService _downService;
 
-        public TenantController(IAuthTenantAdminService authTenantAdmin, IDistributedFileStoreCacheClass fsCache)
+        public TenantController(IAuthTenantAdminService authTenantAdmin, ISetRemoveStatusService downService)
         {
             _authTenantAdmin = authTenantAdmin;
-            _fsCache = fsCache;
+            _downService = downService;
         }
 
         [HasPermission(Example6Permissions.TenantList)]
@@ -80,10 +79,10 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(ShardingSingleLevelTenantDto input)
         {
-            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
+            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
-            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
+            await removeDown();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -144,10 +143,10 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.MoveTenantDatabase)]
         public async Task<IActionResult> MoveDatabase(ShardingSingleLevelTenantDto input)
         {
-            await _fsCache.AddTenantDownStatusCacheAndWaitAsync(input.DataKey);
+            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin.MoveToDifferentDatabaseAsync(
                 input.TenantId, input.HasOwnDb, input.ConnectionName);
-            _fsCache.RemoveTenantDownStatusCache(input.DataKey);
+            await removeDown();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

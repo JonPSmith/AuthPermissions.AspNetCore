@@ -9,7 +9,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.SetupCode.Factories;
 
-namespace Test.TestHelpers
+namespace Test.StubClasses
 {
 
     public class StubITenantChangeServiceFactory : IAuthPServiceFactory<ITenantChangeService>
@@ -18,7 +18,7 @@ namespace Test.TestHelpers
 
         public string NewTenantName { get; set; }
 
-        public List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> MoveReturnedTuples = new ();
+        public List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> MoveReturnedTuples = new();
 
 
         public StubITenantChangeServiceFactory(string errorMessage = null)
@@ -37,7 +37,7 @@ namespace Test.TestHelpers
             private readonly StubITenantChangeServiceFactory _factory;
             private readonly string _errorMessage;
 
-            public List<(string dataKey, string fullTenantName)> DeleteReturnedTuples { get; } = new ();
+            public List<(string dataKey, string fullTenantName)> DeleteReturnedTuples { get; } = new();
 
             public StubITenantChangeService(StubITenantChangeServiceFactory factory, string errorMessage)
             {
@@ -79,7 +79,7 @@ namespace Test.TestHelpers
 
             public Task<string> HierarchicalTenantDeleteAsync(List<Tenant> tenantsInOrder)
             {
-                DeleteReturnedTuples.AddRange( tenantsInOrder.Select(x => (x.TenantFullName, x.GetTenantDataKey())));
+                DeleteReturnedTuples.AddRange(tenantsInOrder.Select(x => (x.TenantFullName, x.GetTenantDataKey())));
 
                 return Task.FromResult(_errorMessage);
             }

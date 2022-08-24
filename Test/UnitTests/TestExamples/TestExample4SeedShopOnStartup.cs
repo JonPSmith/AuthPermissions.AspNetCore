@@ -11,6 +11,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Example4.ShopCode.AppStart;
 using Example4.ShopCode.EfCoreCode;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

@@ -11,6 +11,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;

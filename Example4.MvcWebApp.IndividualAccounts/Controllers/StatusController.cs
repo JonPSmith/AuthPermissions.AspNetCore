@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
@@ -51,7 +50,6 @@ public class StatusController : Controller
         _downService.SetAppDown(data);
         return RedirectToAction("Index", new { });
     }
-
 
     [HasPermission(Example4Permissions.AppStatusTenantDown)]
     public async Task<IActionResult> TakeTenantDown([FromServices] IAuthTenantAdminService tenantAdminService)

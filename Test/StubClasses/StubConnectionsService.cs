@@ -8,7 +8,7 @@ using Npgsql.PostgresTypes;
 using StatusGeneric;
 using TestSupport.Helpers;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubConnectionsService : IShardingConnections
 {
@@ -62,7 +62,7 @@ public class StubConnectionsService : IShardingConnections
 
     public Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
-        return Task.FromResult( new List<(string key, bool? hasOwnDb, List<string> tenantNames)>
+        return Task.FromResult(new List<(string key, bool? hasOwnDb, List<string> tenantNames)>
         {
             ("Default Database", false, new List<string>{ "Tenant1","Tenant3"}),
             ("Other Database", true, new List<string>{ "Tenant2"}),

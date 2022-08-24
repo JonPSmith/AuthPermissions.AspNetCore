@@ -8,7 +8,7 @@ using AuthPermissions.SupportCode.AddUsersServices;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using StatusGeneric;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubAddNewUserManager : IAddNewUserManager
 {
@@ -39,6 +39,6 @@ public class StubAddNewUserManager : IAddNewUserManager
             newUser.Email, newUser.UserName, newUser.Roles, tenantName);
     }
 
-    public Task<IStatusGeneric<AddNewUserDto>> LoginAsync() => 
+    public Task<IStatusGeneric<AddNewUserDto>> LoginAsync() =>
         Task.FromResult<IStatusGeneric<AddNewUserDto>>(new StatusGenericHandler<AddNewUserDto>());
 }

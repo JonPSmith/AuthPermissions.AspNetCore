@@ -8,7 +8,7 @@ using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.Extensions.Logging;
 using TestSupport.EfHelpers;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubInvoiceChangeServiceFactory : IAuthPServiceFactory<ITenantChangeService>
 {
