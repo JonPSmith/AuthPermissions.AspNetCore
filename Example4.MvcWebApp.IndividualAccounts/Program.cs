@@ -84,8 +84,11 @@ builder.Services.AddDistributedFileStoreCache(options =>
 //This registers all the code to handle the shop part of the demo
 //Register RetailDbContext database and some services (included hosted services)
 builder.Services.RegisterExample4ShopCode(builder.Configuration);
+
 //Have to manually register this as its in the ExampleCommonCode project
 builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>();
+builder.Services.AddTransient<ISetRemoveStatusService, SetRemoveStatusService>();
+
 //Add GenericServices (after registering the RetailDbContext context
 builder.Services.GenericServicesSimpleSetup<RetailDbContext>(Assembly.GetAssembly(typeof(ListSalesDto)));
 

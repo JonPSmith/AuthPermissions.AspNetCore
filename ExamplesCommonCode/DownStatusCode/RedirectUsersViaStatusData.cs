@@ -24,9 +24,9 @@ public class RedirectUsersViaStatusData
     public const string DownForStatusPrefix = "AppStatus-";
     public static readonly string DownForStatusAllAppDown = $"{DownForStatusPrefix}AllAppDown";
     public static readonly string StatusTenantPrefix = $"{DownForStatusPrefix}Tenant";
-    public static readonly string DownForStatusTenantUpdate = $"{StatusTenantPrefix}Down-";
-    public static readonly string DownForStatusTenantManuel = $"{StatusTenantPrefix}DownManuel-";
-    public static readonly string DeletedTenantStatus = $"{StatusTenantPrefix}Deleted-";
+    public static readonly string DownForStatusTenantUpdate = $"{StatusTenantPrefix}{nameof(TenantDownVersions.Update)}-";
+    public static readonly string DownForStatusTenantManuel = $"{StatusTenantPrefix}{nameof(TenantDownVersions.ManualDown)}-";
+    public static readonly string DeletedTenantStatus = $"{StatusTenantPrefix}{nameof(TenantDownVersions.Deleted)}-";
 
     private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAllDownStatus";
     private string StatusTenantDownRedirect => $"/{_statusControllerName}/ShowTenantDownStatus";

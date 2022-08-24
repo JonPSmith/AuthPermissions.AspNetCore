@@ -47,12 +47,12 @@ public interface ISetRemoveStatusService
     Task<Func<Task>> SetTenantDownWithDelayAsync(TenantDownVersions downType, int tenantId, int parentId = default,
         int delayMs = 100);
 
-    /// <summary>
-    /// This removes the cache entry that was "downing" the tenant
-    /// </summary>
-    /// <param name="downType">The type of the tenant down. Its needed to create the correct key</param>
-    /// <param name="tenantId">TenantId of the tenant you want to remove from down</param>
-    /// <param name="parentId">Optional: When executing a hierarchical Move you need to provide the new parent to be downed too</param>
-    /// <exception cref="AuthPermissionsException"></exception>
-    Task RemoveTenantDownAsync(TenantDownVersions downType, int tenantId, int parentId = default);
+    ///// <summary>
+    ///// This removes the cache entry that was "downing" the tenant
+    ///// </summary>
+    ///// <param name="downType">The type of the tenant down. Its needed to create the correct key</param>
+    ///// <param name="tenantId">TenantId of the tenant you want to remove from down</param>
+    ///// <param name="parentId">Optional: When executing a hierarchical Move you need to provide the new parent to be downed too</param>
+    ///// <exception cref="AuthPermissionsException"></exception>
+    //Task RemoveTenantDownAsync(TenantDownVersions downType, int tenantId, int parentId = default);
 }

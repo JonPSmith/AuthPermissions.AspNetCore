@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.BaseCode.SetupCode;
 using ExamplesCommonCode.DownStatusCode;
@@ -12,7 +14,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
 using Test.StubClasses;
-using Test.TestHelpers;
+using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -30,6 +32,18 @@ public class TestRedirectUsersViaStatusData
         _output = output;
         _fsCache = new StubFileStoreCacheClass(); //this clears the cache fro each test
         //_removeService = new SetRemoveStatusService(_fsCache, );
+    }
+
+    private static AuthPermissionsDbContext SaveTenantToDatabase(Tenant testTenant)
+    {
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        options.StopNextDispose();
+        var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+        context.Add(testTenant);
+
+        context.SaveChanges();
+        return context;
     }
 
     private ClaimsPrincipal DefaultUser()
@@ -157,7 +171,8 @@ public class TestRedirectUsersViaStatusData
         string redirect = null;
         bool nextCalled = false;
 
-        //await _fsCache.AddTenantDownStatusCacheAndWaitAsync(dataKeyDown);
+        var combinedKey = dataKeyDown.FormedTenantCombinedKey();
+        _fsCache.Set(RedirectUsersViaStatusData.DownForStatusTenantManuel + combinedKey, combinedKey);
 
         //ATTEMPT
         await handler.RedirectUserOnStatusesAsync(DefaultUser(),
@@ -169,7 +184,7 @@ public class TestRedirectUsersViaStatusData
         _output.WriteLine($"Diverted = {diverted}, redirect = {redirect}, nextCalled = {nextCalled}");
         if (diverted)
         {
-            redirect.ShouldEqual("/Status/ShowTenantDownStatus");
+            redirect.ShouldEqual("/Status/ShowTenantManuallyDown");
             nextCalled.ShouldBeFalse();
         }
         else
@@ -192,6 +207,8 @@ public class TestRedirectUsersViaStatusData
         bool nextCalled = false;
 
         //await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(dataKeyDown);
+        var combinedKey = dataKeyDown.FormedTenantCombinedKey();
+        _fsCache.Set(RedirectUsersViaStatusData.DeletedTenantStatus + combinedKey, combinedKey);
 
         //ATTEMPT
         await handler.RedirectUserOnStatusesAsync(DefaultUser(),

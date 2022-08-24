@@ -76,6 +76,10 @@ builder.Services.AddDistributedFileStoreCache(options =>
 //manually add services from the AuthPermissions.SupportCode project
 builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
 
+//Have to manually register this as its in the ExampleCommonCode project
+builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>();
+builder.Services.AddTransient<ISetRemoveStatusService, SetRemoveStatusService>();
+
 builder.Services.RegisterExample6Invoices(builder.Configuration);
 
 var app = builder.Build();

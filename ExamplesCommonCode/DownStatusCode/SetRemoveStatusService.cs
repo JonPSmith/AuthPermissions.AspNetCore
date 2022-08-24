@@ -11,7 +11,7 @@ using Net.DistributedFileStoreCache;
 
 namespace ExamplesCommonCode.DownStatusCode;
 
-public enum TenantDownVersions { Update, ManualDown, Deleted}
+public enum TenantDownVersions { Update, ManualDown, Deleted }
 
 public class SetRemoveStatusService : ISetRemoveStatusService
 {
@@ -63,7 +63,7 @@ public class SetRemoveStatusService : ISetRemoveStatusService
     /// <param name="cacheDownKey"></param>
     public void RemoveAnyDown(string cacheDownKey)
     {
-        if (cacheDownKey.StartsWith(RedirectUsersViaStatusData.DownForStatusPrefix))
+        if (RedirectUsersViaStatusData.DownForStatusPrefix.StartsWith(cacheDownKey))
             throw new AuthPermissionsException("The key wasn't a status type");
 
         _fsCache.Remove(cacheDownKey);
@@ -98,25 +98,25 @@ public class SetRemoveStatusService : ISetRemoveStatusService
         return () =>  RemoveTenantDownAsync(downType, mainKey, secondaryKey);
     }
 
-    /// <summary>
-    /// This removes the cache entry that was "downing" the tenant
-    /// </summary>
-    /// <param name="downType">The type of the tenant down. Its needed to create the correct key</param>
-    /// <param name="tenantId">TenantId of the tenant you want to remove from down</param>
-    /// <param name="parentId">Optional: When executing a hierarchical Move you need to provide the new parent to be downed too</param>
-    /// <exception cref="AuthPermissionsException"></exception>
-    public async Task RemoveTenantDownAsync(TenantDownVersions downType, int tenantId, int parentId = default)
-    {
-        if (tenantId == 0)
-            throw new AuthPermissionsException(
-                "You must provide the tenant's id.");
+    ///// <summary>
+    ///// This removes the cache entry that was "downing" the tenant
+    ///// </summary>
+    ///// <param name="downType">The type of the tenant down. Its needed to create the correct key</param>
+    ///// <param name="tenantId">TenantId of the tenant you want to remove from down</param>
+    ///// <param name="parentId">Optional: When executing a hierarchical Move you need to provide the new parent to be downed too</param>
+    ///// <exception cref="AuthPermissionsException"></exception>
+    //public async Task RemoveTenantDownAsync(TenantDownVersions downType, int tenantId, int parentId = default)
+    //{
+    //    if (tenantId == 0)
+    //        throw new AuthPermissionsException(
+    //            "You must provide the tenant's id.");
 
-        var mainKey = await _authTenantAdmin.FormedTenantCombinedKeyAsync(tenantId);
-        var secondaryKey = parentId != default
-            ? await _authTenantAdmin.FormedTenantCombinedKeyAsync(parentId)
-            : null;
-        await RemoveTenantDownAsync(downType, mainKey, secondaryKey);
-    }
+    //    var mainKey = await _authTenantAdmin.FormedTenantCombinedKeyAsync(tenantId);
+    //    var secondaryKey = parentId != default
+    //        ? await _authTenantAdmin.FormedTenantCombinedKeyAsync(parentId)
+    //        : null;
+    //    await RemoveTenantDownAsync(downType, mainKey, secondaryKey);
+    //}
 
     //-------------------------------------------------------
     // private methods
