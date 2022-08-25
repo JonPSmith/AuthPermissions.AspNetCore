@@ -1,10 +1,12 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
-namespace ExamplesCommonCode.DownStatusCode;
-
+/// <summary>
+/// This is used in the "app down" and contains information to show to users
+/// while the application is "down for maintenance" 
+/// </summary>
 public class ManuelAppDownDto
 {
     /// <summary>

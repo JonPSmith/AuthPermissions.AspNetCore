@@ -2,13 +2,13 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
+/// <summary>
+/// This is used to select a tenant to manually "down" a tenant 
+/// </summary>
 public class ManuelTenantDownDto
 {
     /// <summary>
@@ -21,6 +21,11 @@ public class ManuelTenantDownDto
     /// </summary>
     public List<KeyValuePair<int, string>> ListOfTenants { get; private set; }
 
+    /// <summary>
+    /// this will set up the list of tenants to select from
+    /// </summary>
+    /// <param name="tenantAdminService"></param>
+    /// <returns></returns>
     public static async Task<ManuelTenantDownDto> SetupListOfTenantsAsync(IAuthTenantAdminService tenantAdminService)
     {
         return new ManuelTenantDownDto

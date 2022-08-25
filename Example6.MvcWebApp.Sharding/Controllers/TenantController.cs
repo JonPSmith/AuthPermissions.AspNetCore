@@ -6,9 +6,9 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.SupportCode.DownStatusCode;
 using Example6.MvcWebApp.Sharding.Models;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
-using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

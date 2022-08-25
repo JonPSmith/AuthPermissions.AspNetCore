@@ -2,12 +2,12 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Security.Claims;
-using System.Threading.Tasks;
-using AuthPermissions;
-using ExamplesCommonCode.IdentityCookieCode;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
+/// <summary>
+/// This adds a claim used with the "update claims on change" feature
+/// </summary>
 public class AddGlobalChangeTimeClaim : IClaimsAdder
 {
     /// <summary>

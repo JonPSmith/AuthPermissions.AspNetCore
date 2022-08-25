@@ -7,16 +7,32 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
+/// <summary>
+/// This will register a service that will be added to the AuthPermissionsDbContext
+/// which will sets an entry in the FileStore cache containing the last time that
+/// the DataKey or DatabaseInfoName where changed in the tenant
+/// </summary>
 public class RegisterTenantKeyOrShardChangeService : IRegisterStateChangeEvent
 {
     private readonly IGlobalChangeTimeService _globalAccessor;
+
+    /// <summary>
+    /// ctor
+    /// </summary>
+    /// <param name="globalAccessor"></param>
     public RegisterTenantKeyOrShardChangeService(IGlobalChangeTimeService globalAccessor)
     {
         _globalAccessor = globalAccessor;
     }
 
+    /// <summary>
+    /// This will register a method to the EF Core StateChanged event.
+    /// If the registered method detects a change to the DataKey or DatabaseInfoName,
+    /// then it sets the global change setting to the time of the last change.
+    /// </summary>
+    /// <param name="context"></param>
     public void RegisterEventHandlers(AuthPermissionsDbContext context)
     {
         context.ChangeTracker.StateChanged += RegisterKeyOrShardChange;

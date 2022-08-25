@@ -1,17 +1,12 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using AuthPermissions;
 using AuthPermissions.BaseCode.CommonCode;
-using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
 /// <summary>
 /// This contains the event method that watches for a significant change that effects the user's claims.
@@ -20,11 +15,13 @@ namespace ExamplesCommonCode.DownStatusCode;
 /// </summary>
 public static class TenantChangeCookieEvent
 {
+    /// <summary>
+    /// This is the name of the claim type for a change
+    /// </summary>
     public const string EntityChangeClaimType = "EntityChangeClaim";
 
     /// <summary>
-    /// This updates the users claims when a change is registered 
-    /// <see cref="PeriodicCookieEvent.TimeToRefreshUserClaimType"/> claim.
+    /// This updates the users claims when a change is registered.
     /// Useful for updating the claims if something is changed
     /// </summary>
     /// <param name="context"></param>

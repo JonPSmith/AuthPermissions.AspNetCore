@@ -16,6 +16,7 @@ namespace Example6.MvcWebApp.Sharding.Models
 
         [Required(AllowEmptyStrings = false)]
         [MaxLength(AuthDbConstants.TenantFullNameSize)]
+
         public string TenantName { get; set; }
 
         public string DataKey { get; set; }

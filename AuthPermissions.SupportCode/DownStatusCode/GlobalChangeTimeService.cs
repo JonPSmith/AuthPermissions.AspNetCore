@@ -1,12 +1,10 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using ExamplesCommonCode.IdentityCookieCode;
 using Microsoft.Extensions.Caching.Distributed;
 using Net.DistributedFileStoreCache;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
 /// <summary>
 /// This service handles the reading and writing of a DateTime to a place that all instances of the application
@@ -14,10 +12,17 @@ namespace ExamplesCommonCode.DownStatusCode;
 /// </summary>
 public class GlobalChangeTimeService : IGlobalChangeTimeService
 {
+    /// <summary>
+    /// This is the key for the "last changed" time
+    /// </summary>
     public const string ChangeAtThisTimeCacheKeyName = "ChangeAtThisTime";
 
     private readonly IDistributedFileStoreCacheClass _fsCache;
 
+    /// <summary>
+    /// ctor
+    /// </summary>
+    /// <param name="fsCache"></param>
     public GlobalChangeTimeService(IDistributedFileStoreCacheClass fsCache)
     {
         _fsCache = fsCache;
@@ -49,6 +54,9 @@ public class GlobalChangeTimeService : IGlobalChangeTimeService
         return cachedTime?.TicksToDateTimeUtc() ?? DateTime.MinValue;
     }
 
+    /// <summary>
+    /// Remove the global change entry (not in the interface)
+    /// </summary>
     public void DeleteGlobalFile()
     {
         _fsCache.Remove(ChangeAtThisTimeCacheKeyName);

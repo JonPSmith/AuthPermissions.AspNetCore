@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
-using ExamplesCommonCode.DownStatusCode;
+using AuthPermissions.SupportCode.DownStatusCode;
 using Microsoft.EntityFrameworkCore;
 using Test.StubClasses;
 using Test.TestHelpers;

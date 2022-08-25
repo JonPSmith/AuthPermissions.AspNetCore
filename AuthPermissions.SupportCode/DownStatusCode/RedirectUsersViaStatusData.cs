@@ -1,18 +1,14 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
 /// <summary>
 /// This handles the redirection of user based on the down statues held in the FileStore cache.
@@ -21,11 +17,29 @@ namespace ExamplesCommonCode.DownStatusCode;
 public class RedirectUsersViaStatusData
 {
     //Cache key constants
+    /// <summary>
+    /// This is the prefix on all the app and tenant "down" keys
+    /// </summary>
     public const string DownForStatusPrefix = "AppStatus-";
+    /// <summary>
+    /// This is the key for the "app down" entry
+    /// </summary>
     public static readonly string DownForStatusAllAppDown = $"{DownForStatusPrefix}AllAppDown";
+    /// <summary>
+    /// This is the prefix on all the tenant "down" keys
+    /// </summary>
     public static readonly string StatusTenantPrefix = $"{DownForStatusPrefix}Tenant";
+    /// <summary>
+    /// This is the prefix on tenant "down for update" keys (temporary, while change)
+    /// </summary>
     public static readonly string DownForStatusTenantUpdate = $"{StatusTenantPrefix}{nameof(TenantDownVersions.Update)}-";
+    /// <summary>
+    /// This is the prefix on tenant "manual down" keys (controlled by admin user)
+    /// </summary>
     public static readonly string DownForStatusTenantManuel = $"{StatusTenantPrefix}{nameof(TenantDownVersions.ManualDown)}-";
+    /// <summary>
+    /// This is the prefix on tenants that have been deleted (permanent)
+    /// </summary>
     public static readonly string DeletedTenantStatus = $"{StatusTenantPrefix}{nameof(TenantDownVersions.Deleted)}-";
 
     private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAllDownStatus";
@@ -42,7 +56,7 @@ public class RedirectUsersViaStatusData
     private readonly string _statusControllerName;
 
     /// <summary>
-    /// This 
+    /// ctor
     /// </summary>
     /// <param name="routeData">This should contain the HttpContext's GetRouteData()</param>
     /// <param name="serviceProvider">The service provider from the HttpContext</param>
@@ -57,6 +71,15 @@ public class RedirectUsersViaStatusData
         _statusControllerName = statusControllerName;
     }
 
+    /// <summary>
+    /// This checks if there are any "down" status entries in the FileStore cache, and if the user meets a "down" status.
+    /// The "app down" effects everybody but the user that took the app down, while the "tenant downs" only effects users
+    /// that have the same tenant key and the downed tenant
+    /// </summary>
+    /// <param name="user">The user, after the authorization has created it, with its claims</param>
+    /// <param name="redirect">This allows a user to be diverted to "down" message</param>
+    /// <param name="next">You call this if the user is allowed to go to the url they asked for</param>
+    /// <returns></returns>
     public async Task RedirectUserOnStatusesAsync(ClaimsPrincipal user, Action<string> redirect, Func<Task> next)
     {
         if (user.Identity?.IsAuthenticated != true)
@@ -102,7 +125,7 @@ public class RedirectUsersViaStatusData
         var userDataKey = user.GetAuthDataKeyFromUser();
         if (userDataKey != null)
         {
-            var userTnCombinedKey = _tenantTypes.FormedTenantCombinedKey(user);
+            var userTnCombinedKey = _tenantTypes.FormUniqueTenantValue(user);
 
             var tenantStatues = downCacheList
                 .Where(x => x.Key.StartsWith(StatusTenantPrefix))

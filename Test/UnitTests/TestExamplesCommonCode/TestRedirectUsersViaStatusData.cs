@@ -9,7 +9,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.BaseCode.SetupCode;
-using ExamplesCommonCode.DownStatusCode;
+using AuthPermissions.SupportCode.DownStatusCode;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
@@ -171,7 +171,7 @@ public class TestRedirectUsersViaStatusData
         string redirect = null;
         bool nextCalled = false;
 
-        var combinedKey = dataKeyDown.FormedTenantCombinedKey();
+        var combinedKey = dataKeyDown.FormUniqueTenantValue();
         _fsCache.Set(RedirectUsersViaStatusData.DownForStatusTenantManuel + combinedKey, combinedKey);
 
         //ATTEMPT
@@ -207,7 +207,7 @@ public class TestRedirectUsersViaStatusData
         bool nextCalled = false;
 
         //await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(dataKeyDown);
-        var combinedKey = dataKeyDown.FormedTenantCombinedKey();
+        var combinedKey = dataKeyDown.FormUniqueTenantValue();
         _fsCache.Set(RedirectUsersViaStatusData.DeletedTenantStatus + combinedKey, combinedKey);
 
         //ATTEMPT

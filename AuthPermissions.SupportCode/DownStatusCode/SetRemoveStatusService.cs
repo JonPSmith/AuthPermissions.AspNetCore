@@ -1,23 +1,44 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
 using Net.DistributedFileStoreCache;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
-public enum TenantDownVersions { Update, ManualDown, Deleted }
+/// <summary>
+/// This defines the three types of tenant "downs"
+/// </summary>
+public enum TenantDownVersions
+{
+    /// <summary>
+    /// Tenant "down for update" (temporary, while change)
+    /// </summary>
+    Update,
+    /// <summary>
+    /// Manual "down" a tenant (controlled by admin user)
+    /// </summary>
+    ManualDown,
+    /// <summary>
+    /// The tenant was deleted, so you don't logged-in user to try to access it (permanent)
+    /// </summary>
+    Deleted
+}
 
+/// <summary>
+/// This service provides methods to read, set and remove app and tenant "downs"
+/// </summary>
 public class SetRemoveStatusService : ISetRemoveStatusService
 {
     private readonly IDistributedFileStoreCacheClass _fsCache;
     private readonly IAuthTenantAdminService _authTenantAdmin;
 
+    /// <summary>
+    /// ctor
+    /// </summary>
+    /// <param name="fsCache"></param>
+    /// <param name="authTenantAdmin"></param>
     public SetRemoveStatusService(IDistributedFileStoreCacheClass fsCache, IAuthTenantAdminService authTenantAdmin)
     {
         _fsCache = fsCache;

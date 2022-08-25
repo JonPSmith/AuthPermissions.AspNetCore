@@ -1,13 +1,13 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
 
-namespace ExamplesCommonCode.DownStatusCode;
+namespace AuthPermissions.SupportCode.DownStatusCode;
 
+/// <summary>
+/// This interface contains the methods you can use to take an app and / or tenant "down"
+/// </summary>
 public interface ISetRemoveStatusService
 {
     /// <summary>

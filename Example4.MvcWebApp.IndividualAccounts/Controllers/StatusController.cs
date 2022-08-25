@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.SupportCode.DownStatusCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
-using ExamplesCommonCode.DownStatusCode;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
