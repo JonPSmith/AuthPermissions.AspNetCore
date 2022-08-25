@@ -1,0 +1,22 @@
+{
+  "ShardingDatabases": [
+    {
+      "Name": "Default Database",
+      "DatabaseName": null,
+      "ConnectionName": "UnitTestConnection",
+      "DatabaseType": "SqlServer"
+    },
+    {
+      "Name": "Other Database",
+      "DatabaseName": "MyDatabase1",
+      "ConnectionName": "UnitTestConnection",
+      "DatabaseType": "SqlServer"
+    },
+    {
+      "Name": "PostgreSql1",
+      "DatabaseName": "StubTest",
+      "ConnectionName": "PostgreSqlConnection",
+      "DatabaseType": "Postgres"
+    }
+  ]
+}

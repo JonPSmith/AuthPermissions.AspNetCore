@@ -1,10 +1,8 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.Services;
@@ -12,7 +10,6 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.ShardingServices;
 using Test.Helpers;
 using Test.StubClasses;
-using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;
 using Xunit;
@@ -42,7 +39,7 @@ public class TestAccessDatabaseInformation
             }
         };
         var jsonString = JsonSerializer.Serialize(testData, new JsonSerializerOptions{ WriteIndented = true });
-        var filepath = Path.Combine(TestData.GetTestDataDir(), AccessDatabaseInformation.ShardingSettingFilename);
+        var filepath = Path.Combine(TestData.GetTestDataDir(), "shardingsettings.Test.json");
         File.WriteAllText(filepath, jsonString);
     }
                
@@ -54,7 +51,7 @@ public class TestAccessDatabaseInformation
         ResetShardingSettingsFile();
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test"};
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
@@ -79,7 +76,7 @@ public class TestAccessDatabaseInformation
         ResetShardingSettingsFile();
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\" };
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\", EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
@@ -104,7 +101,7 @@ public class TestAccessDatabaseInformation
         ResetShardingSettingsFile();
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
@@ -127,7 +124,7 @@ public class TestAccessDatabaseInformation
         ResetShardingSettingsFile();
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this, !isValid);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
@@ -149,7 +146,7 @@ public class TestAccessDatabaseInformation
         ResetShardingSettingsFile();
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
@@ -172,7 +169,7 @@ public class TestAccessDatabaseInformation
         var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
@@ -203,7 +200,7 @@ public class TestAccessDatabaseInformation
         var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() };
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context);
 
