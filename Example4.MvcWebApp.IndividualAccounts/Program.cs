@@ -81,15 +81,14 @@ builder.Services.AddDistributedFileStoreCache(options =>
     options.FirstPartOfCacheFileName = "Example4CacheFileStore";
 }, builder.Environment);
 
+//Have to manually register this as its in the SupportCode project
+builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>(); //used for "update claims on a change" feature
+builder.Services.AddTransient<ISetRemoveStatusService, SetRemoveStatusService>(); //Used for "down for maintenance" feature  
+
 //This registers all the code to handle the shop part of the demo
 //Register RetailDbContext database and some services (included hosted services)
 builder.Services.RegisterExample4ShopCode(builder.Configuration);
-
-//Have to manually register this as its in the ExampleCommonCode project
-builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>();
-builder.Services.AddTransient<ISetRemoveStatusService, SetRemoveStatusService>();
-
-//Add GenericServices (after registering the RetailDbContext context
+//Add GenericServices (after registering the RetailDbContext context)
 builder.Services.GenericServicesSimpleSetup<RetailDbContext>(Assembly.GetAssembly(typeof(ListSalesDto)));
 
 var app = builder.Build();
@@ -113,7 +112,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.AddDownForMaintenance(TenantTypes.HierarchicalTenant);
+app.UseDownForMaintenance(TenantTypes.HierarchicalTenant);
 
 app.MapControllerRoute(
     name: "default",

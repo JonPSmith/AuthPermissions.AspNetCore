@@ -80,7 +80,7 @@ public class StatusController : Controller
 
     //---------------------------------------------------------------------
 
-    public IActionResult ShowAllDownStatus()
+    public IActionResult ShowAppDownStatus()
     {
         return View(_downService.GetAppDownMessage());
     }

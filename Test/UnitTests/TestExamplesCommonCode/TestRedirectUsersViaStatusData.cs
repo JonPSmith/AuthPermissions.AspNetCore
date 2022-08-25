@@ -128,7 +128,7 @@ public class TestRedirectUsersViaStatusData
         _output.WriteLine($"Diverted = {diverted}, redirect = {redirect}, nextCalled = {nextCalled}");
         if (diverted)
         {
-            redirect.ShouldEqual("/Status/ShowAllDownStatus");
+            redirect.ShouldEqual("/Status/ShowAppDownStatus");
             nextCalled.ShouldBeFalse();
         }
         else

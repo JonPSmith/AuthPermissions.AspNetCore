@@ -42,7 +42,7 @@ public class RedirectUsersViaStatusData
     /// </summary>
     public static readonly string DeletedTenantStatus = $"{StatusTenantPrefix}{nameof(TenantDownVersions.Deleted)}-";
 
-    private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAllDownStatus";
+    private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAppDownStatus";
     private string StatusTenantDownRedirect => $"/{_statusControllerName}/ShowTenantDownStatus";
     private string StatusTenantDeletedRedirect => $"/{_statusControllerName}/ShowTenantDeleted";
     private string StatusTenantManualDownRedirect => $"/{_statusControllerName}/ShowTenantManuallyDown";

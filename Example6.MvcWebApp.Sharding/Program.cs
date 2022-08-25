@@ -7,7 +7,6 @@ using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SupportCode;
 using AuthPermissions.SupportCode.DownStatusCode;
 using AuthPermissions.SupportCode.ShardingServices;
 using Example6.MvcWebApp.Sharding.Data;
@@ -75,9 +74,6 @@ builder.Services.AddDistributedFileStoreCache(options =>
 
 //manually add services from the AuthPermissions.SupportCode project
 builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
-
-//Have to manually register this as its in the ExampleCommonCode project
-builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>();
 builder.Services.AddTransient<ISetRemoveStatusService, SetRemoveStatusService>();
 
 builder.Services.RegisterExample6Invoices(builder.Configuration);
@@ -103,7 +99,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.AddDownForMaintenance(TenantTypes.SingleLevel | TenantTypes.AddSharding);
+app.UseDownForMaintenance(TenantTypes.SingleLevel | TenantTypes.AddSharding);
 
 app.MapControllerRoute(
     name: "default",

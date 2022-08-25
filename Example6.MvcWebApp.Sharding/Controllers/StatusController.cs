@@ -8,7 +8,6 @@ using AuthPermissions.SupportCode.DownStatusCode;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Net.DistributedFileStoreCache;
 
 namespace Example6.MvcWebApp.Sharding.Controllers;
 
@@ -78,8 +77,9 @@ public class StatusController : Controller
     }
 
     //---------------------------------------------------------------------
+    //divert pages to tell the user why they are diverted
 
-    public IActionResult ShowAllDownStatus()
+    public IActionResult ShowAppDownStatus()
     {
         return View(_downService.GetAppDownMessage());
     }
