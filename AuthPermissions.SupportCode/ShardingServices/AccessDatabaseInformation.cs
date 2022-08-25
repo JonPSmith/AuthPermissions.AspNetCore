@@ -3,7 +3,6 @@
 
 using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Medallion.Threading.Postgres;
 using Medallion.Threading.SqlServer;
@@ -18,10 +17,12 @@ namespace AuthPermissions.SupportCode.ShardingServices;
 /// </summary>
 public class AccessDatabaseInformation : IAccessDatabaseInformation
 {
+    private const string ShardingFileFirstPart = "shardingsettings";
+
     /// <summary>
-    /// Name of the file
+    /// Name of the sharding file
     /// </summary>
-    public const string ShardingSettingFilename = "shardingsettings.json";
+    public readonly string ShardingSettingFilename;
 
     private readonly string _settingsFilePath;
     private readonly IShardingConnections _connectionsService;
@@ -32,8 +33,11 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// </summary>
     /// <param name="env"></param>
     /// <param name="connectionsService"></param>
+    /// <param name="authDbContext"></param>
     public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, AuthPermissionsDbContext authDbContext)
     {
+        ShardingSettingFilename = $"{ShardingFileFirstPart}.{env.EnvironmentName}.json";
+
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
         _authDbContext = authDbContext;

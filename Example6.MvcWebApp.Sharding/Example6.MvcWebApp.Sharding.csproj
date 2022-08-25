@@ -7,17 +7,7 @@
     <UserSecretsId>aspnet-Example6.MvcWebApp.Sharding-552573C0-E041-41D7-BEDF-5C733A26CB99</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="shardingsettings.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="shardingsettings.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
+	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.3" />
@@ -42,6 +32,11 @@
 
 	<ItemGroup>
 		<Content Update="Example6CacheFileStore.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Update="shardingsettings.Production.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

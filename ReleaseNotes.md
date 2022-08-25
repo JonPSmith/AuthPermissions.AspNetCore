@@ -11,6 +11,7 @@
 
 ## 4.0.0
 
+- BREAKING CHANGE: The name of the sharding file is changed from "shardingsettings.json" to "shardingsettings.{EnviromentName}.json"
 - Improved feature: Sharding now has distributed lock on changes to the shardingsettings.json file
 - Improved feature: Refresh users claims now uses Net.DistributedFileStoreCache - see Example4
 - New feature: Stop users linked to a tenant from accessing the the tenant while its being changed - see Example4 and Example6
