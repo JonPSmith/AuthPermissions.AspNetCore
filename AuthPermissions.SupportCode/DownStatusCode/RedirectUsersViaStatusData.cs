@@ -18,29 +18,29 @@ public class RedirectUsersViaStatusData
 {
     //Cache key constants
     /// <summary>
-    /// This is the prefix on all the app and tenant "down" keys
+    /// This is the prefix on all diverts of users
     /// </summary>
-    public const string DownForStatusPrefix = "AppStatus-";
+    public const string DownForStatusPrefix = "Divert";
     /// <summary>
     /// This is the key for the "app down" entry
     /// </summary>
-    public static readonly string DownForStatusAllAppDown = $"{DownForStatusPrefix}AllAppDown";
+    public static readonly string DivertAppDown = $"{DownForStatusPrefix}AppDown";
     /// <summary>
     /// This is the prefix on all the tenant "down" keys
     /// </summary>
-    public static readonly string StatusTenantPrefix = $"{DownForStatusPrefix}Tenant";
+    public static readonly string DivertTenantPrefix = $"{DownForStatusPrefix}Tenant";
     /// <summary>
     /// This is the prefix on tenant "down for update" keys (temporary, while change)
     /// </summary>
-    public static readonly string DownForStatusTenantUpdate = $"{StatusTenantPrefix}{nameof(TenantDownVersions.Update)}-";
+    public static readonly string DivertTenantUpdate = $"{DivertTenantPrefix}{nameof(TenantDownVersions.Update)}-";
     /// <summary>
     /// This is the prefix on tenant "manual down" keys (controlled by admin user)
     /// </summary>
-    public static readonly string DownForStatusTenantManuel = $"{StatusTenantPrefix}{nameof(TenantDownVersions.ManualDown)}-";
+    public static readonly string DivertTenantManuel = $"{DivertTenantPrefix}{nameof(TenantDownVersions.ManualDown)}-";
     /// <summary>
     /// This is the prefix on tenants that have been deleted (permanent)
     /// </summary>
-    public static readonly string DeletedTenantStatus = $"{StatusTenantPrefix}{nameof(TenantDownVersions.Deleted)}-";
+    public static readonly string DivertTenantDeleted = $"{DivertTenantPrefix}{nameof(TenantDownVersions.Deleted)}-";
 
     private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAppDownStatus";
     private string StatusTenantDownRedirect => $"/{_statusControllerName}/ShowTenantDownStatus";
@@ -101,13 +101,9 @@ public class RedirectUsersViaStatusData
         }
 
         var fsCache = _serviceProvider.GetRequiredService<IDistributedFileStoreCacheClass>();
-        var downCacheList = fsCache.GetAllKeyValues()
-            .Where(x => x.Key.StartsWith(DownForStatusPrefix))
-            .Select(x => new KeyValuePair<string, string>(x.Key, x.Value))
-            .ToList();
 
-        var allDownData = fsCache.GetClassFromString<ManuelAppDownDto>(
-            downCacheList.SingleOrDefault(x => x.Key == DownForStatusAllAppDown).Value);
+
+        var allDownData = fsCache.GetClass<ManuelAppDownDto>(DivertAppDown);
         if (allDownData != null)
         {
             //There is a "Down For Status" in effect, so only the person that set up this state can still access the app
@@ -126,33 +122,30 @@ public class RedirectUsersViaStatusData
         if (userDataKey != null)
         {
             var userTnCombinedKey = _tenantTypes.FormUniqueTenantValue(user);
-
-            var tenantStatues = downCacheList
-                .Where(x => x.Key.StartsWith(StatusTenantPrefix))
-                .ToList();
-            if (tenantStatues.Any())
+            var tenantCacheKey = fsCache.GetAllKeyValues()
+                    .Where(x =>
+                        //The key check depends on the whether the tenant is a hierarchical or nor
+                        (_tenantTypes.HasFlag(TenantTypes.HierarchicalTenant)
+                            ? x.Value.StartsWith(userTnCombinedKey)
+                            : x.Value == userTnCombinedKey)
+                        && x.Key.StartsWith(DivertTenantPrefix))
+                    .Select(x => x.Key)
+                    .FirstOrDefault();
+            if (tenantCacheKey != null)
             {
-                //the current user is linked to a tenant and there are at least one tenant that shouldn't be accessed
-                //Therefore we need to compare all the tenantDowns' Value, which contains the tenant's DataKey, with the user's DataKey
+                //the current user is linked to a tenant that has have a divert
 
-                //because we are in a hierarchical multi-tenant app we check user's DataKey starts with the downed tenant datakey
-                var foundEntry = _tenantTypes.HasFlag(TenantTypes.HierarchicalTenant)
-                    ? tenantStatues.FirstOrDefault(x => x.Value.StartsWith(userTnCombinedKey))
-                    : tenantStatues.FirstOrDefault(x => x.Value == userTnCombinedKey);
-                if (!foundEntry.Equals(new KeyValuePair<string, string>()))
-                {
-                    if (foundEntry.Key.StartsWith(DownForStatusTenantUpdate))
-                        //This user isn't allowed to access the tenant while the change is made
-                        redirect(StatusTenantDownRedirect);
-                    else if (foundEntry.Key.StartsWith(DownForStatusTenantManuel))
-                        //This tenant is deleted, so the user is always redirected
-                        redirect(StatusTenantManualDownRedirect);
-                    else //This tenant is deleted, so the user is always redirected
-                        redirect(StatusTenantDeletedRedirect);
+                if (tenantCacheKey.StartsWith(DivertTenantUpdate))
+                    //This user isn't allowed to access the tenant while the change is made
+                    redirect(StatusTenantDownRedirect);
+                else if (tenantCacheKey.StartsWith(DivertTenantManuel))
+                    //This tenant is deleted, so the user is always redirected
+                    redirect(StatusTenantManualDownRedirect);
+                else //This tenant is deleted, so the user is always redirected
+                    redirect(StatusTenantDeletedRedirect);
 
 
-                    return;
-                }
+                return;
             }
         }
 

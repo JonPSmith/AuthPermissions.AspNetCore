@@ -79,10 +79,10 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(ShardingSingleLevelTenantDto input)
         {
-            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
+            var removeDownAsync = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
-            await removeDown();
+            await removeDownAsync();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -143,10 +143,10 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.MoveTenantDatabase)]
         public async Task<IActionResult> MoveDatabase(ShardingSingleLevelTenantDto input)
         {
-            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
+            var removeDownAsync = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin.MoveToDifferentDatabaseAsync(
                 input.TenantId, input.HasOwnDb, input.ConnectionName);
-            await removeDown();
+            await removeDownAsync();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

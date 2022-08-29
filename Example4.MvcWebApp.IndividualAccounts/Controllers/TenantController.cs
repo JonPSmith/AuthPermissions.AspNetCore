@@ -74,10 +74,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(HierarchicalTenantDto input)
         {
-            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
+            var removeDownAsync = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
-            await removeDown();
+            await removeDownAsync();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -103,10 +103,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Move(HierarchicalTenantDto input)
         {
             //A hierarchical Move requires both the tenant being moved and the tenant receiving the moved tenant 
-            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId, input.ParentId);
+            var removeDownAsync = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId, input.ParentId);
             var status = await _authTenantAdmin
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId);
-            await removeDown();
+            await removeDownAsync();
 
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
@@ -135,10 +135,10 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Delete(HierarchicalTenantDto input)
         {
             //This will permanently stop logged-in user from accessing the the delete tenant
-            var removeDown = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Deleted, input.TenantId);
+            var removeDownAsync = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Deleted, input.TenantId);
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
             if (status.HasErrors)
-                await removeDown();
+                await removeDownAsync();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

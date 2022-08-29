@@ -46,11 +46,11 @@ public class TestRedirectUsersViaStatusData
         return context;
     }
 
-    private ClaimsPrincipal DefaultUser()
+    private ClaimsPrincipal DefaultUser(string dataKey = "0.1.2")
     {
         return new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
             new Claim(ClaimTypes.NameIdentifier, "12345"),
-            new Claim(PermissionConstants.DataKeyClaimType, "0.1.2"),
+            new Claim(PermissionConstants.DataKeyClaimType, dataKey),
         }, "test"));
     }
 
@@ -63,7 +63,7 @@ public class TestRedirectUsersViaStatusData
             Message = "Down",
             ExpectedTimeDownMinutes = expectedTimeDownMinutes
         };
-        _fsCache.SetClass(RedirectUsersViaStatusData.DownForStatusAllAppDown, data);
+        _fsCache.SetClass(RedirectUsersViaStatusData.DivertAppDown, data);
     }
 
     private RedirectUsersViaStatusData SetupHandler(KeyValuePair<string, string> overrideRoutes = new(),
@@ -109,7 +109,7 @@ public class TestRedirectUsersViaStatusData
     [InlineData("controller", "Status", false)]
     [InlineData("area", "Identity", false)]
     [InlineData("controller", "home", true)]
-    public async Task TestCheckNotDivertedRoutes(string key, string value, bool diverted)
+    public async Task TestCheckNotDivertedRoutes_LoggedIn(string key, string value, bool diverted)
     {
         //SETUP
         var handler = SetupHandler(new KeyValuePair<string, string>(key, value));
@@ -164,7 +164,7 @@ public class TestRedirectUsersViaStatusData
     [InlineData("0.1.2.3", true)]
     [InlineData("0.1", false)]
     [InlineData("9.10", false)]
-    public async Task TestTenantUserDown(string dataKeyDown, bool diverted)
+    public async Task TestTenantUserDown_Hierarchical(string dataKeyDown, bool diverted)
     {
         //SETUP
         var handler = SetupHandler();
@@ -172,10 +172,44 @@ public class TestRedirectUsersViaStatusData
         bool nextCalled = false;
 
         var combinedKey = dataKeyDown.FormUniqueTenantValue();
-        _fsCache.Set(RedirectUsersViaStatusData.DownForStatusTenantManuel + combinedKey, combinedKey);
+        _fsCache.Set(RedirectUsersViaStatusData.DivertTenantManuel + combinedKey, combinedKey);
 
         //ATTEMPT
         await handler.RedirectUserOnStatusesAsync(DefaultUser(),
+            x => { redirect = x; },
+            () => { nextCalled = true; return Task.CompletedTask; }
+        );
+
+        //VERIFY
+        _output.WriteLine($"Diverted = {diverted}, redirect = {redirect}, nextCalled = {nextCalled}");
+        if (diverted)
+        {
+            redirect.ShouldEqual("/Status/ShowTenantManuallyDown");
+            nextCalled.ShouldBeFalse();
+        }
+        else
+        {
+            redirect.ShouldBeNull();
+            nextCalled.ShouldBeTrue();
+        }
+    }
+
+    [Theory]
+    [InlineData("1.", true)]
+    [InlineData("2.", false)]
+
+    public async Task TestTenantUserDown_SingleLevel(string dataKeyDown, bool diverted)
+    {
+        //SETUP
+        var handler = SetupHandler(tenantTypes:TenantTypes.SingleLevel);
+        string redirect = null;
+        bool nextCalled = false;
+
+        var combinedKey = dataKeyDown.FormUniqueTenantValue();
+        _fsCache.Set(RedirectUsersViaStatusData.DivertTenantManuel + combinedKey, combinedKey);
+
+        //ATTEMPT
+        await handler.RedirectUserOnStatusesAsync(DefaultUser("1."),
             x => { redirect = x; },
             () => { nextCalled = true; return Task.CompletedTask; }
         );
@@ -199,7 +233,7 @@ public class TestRedirectUsersViaStatusData
     [InlineData("0.1.2.3", true)]
     [InlineData("0.1", false)]
     [InlineData("9.10", false)]
-    public async Task TestTenantUserDeleted(string dataKeyDown, bool diverted)
+    public async Task TestTenantUserDeleted_Hierarchical(string dataKeyDown, bool diverted)
     {
         //SETUP
         var handler = SetupHandler();
@@ -208,7 +242,7 @@ public class TestRedirectUsersViaStatusData
 
         //await _fsCache.AddTenantDeletedStatusCacheAndWaitAsync(dataKeyDown);
         var combinedKey = dataKeyDown.FormUniqueTenantValue();
-        _fsCache.Set(RedirectUsersViaStatusData.DeletedTenantStatus + combinedKey, combinedKey);
+        _fsCache.Set(RedirectUsersViaStatusData.DivertTenantDeleted + combinedKey, combinedKey);
 
         //ATTEMPT
         await handler.RedirectUserOnStatusesAsync(DefaultUser(),

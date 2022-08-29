@@ -63,7 +63,7 @@ public class SetRemoveStatusService : ISetRemoveStatusService
     /// <returns></returns>
     public ManuelAppDownDto GetAppDownMessage()
     {
-        return _fsCache.GetClass<ManuelAppDownDto>(RedirectUsersViaStatusData.DownForStatusAllAppDown);
+        return _fsCache.GetClass<ManuelAppDownDto>(RedirectUsersViaStatusData.DivertAppDown);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public class SetRemoveStatusService : ISetRemoveStatusService
         if (data.UserId == null)
             throw new AuthPermissionsException(
                 "You must set the userId of the user who took the app down, otherwise they can't up the app");
-        _fsCache.SetClass(RedirectUsersViaStatusData.DownForStatusAllAppDown, data);
+        _fsCache.SetClass(RedirectUsersViaStatusData.DivertAppDown, data);
     }
 
     /// <summary>
@@ -156,11 +156,11 @@ public class SetRemoveStatusService : ISetRemoveStatusService
         switch (downType)
         {
             case TenantDownVersions.Update:
-                return $"{RedirectUsersViaStatusData.DownForStatusTenantUpdate}{combinedKey}";
+                return $"{RedirectUsersViaStatusData.DivertTenantUpdate}{combinedKey}";
             case TenantDownVersions.ManualDown:
-                return $"{RedirectUsersViaStatusData.DownForStatusTenantManuel}{combinedKey}";
+                return $"{RedirectUsersViaStatusData.DivertTenantManuel}{combinedKey}";
             case TenantDownVersions.Deleted:
-                return $"{RedirectUsersViaStatusData.DeletedTenantStatus}{combinedKey}";
+                return $"{RedirectUsersViaStatusData.DivertTenantDeleted}{combinedKey}";
             default:
                 throw new ArgumentOutOfRangeException(nameof(downType), downType, null);
         }

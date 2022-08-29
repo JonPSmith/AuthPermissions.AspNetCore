@@ -101,7 +101,7 @@ public class TestSetRemoveStatusService
 
         //VERIFY
         var downCacheEntry = removeService.GetAllDownKeyValues().Single();
-        downCacheEntry.Key.ShouldStartWith(RedirectUsersViaStatusData.StatusTenantPrefix + downVersion);
+        downCacheEntry.Key.ShouldStartWith(RedirectUsersViaStatusData.DivertTenantPrefix + downVersion);
         downCacheEntry.Value.ShouldEqual("1.");
     }
 
@@ -140,7 +140,7 @@ public class TestSetRemoveStatusService
 
         //VERIFY
         var downCacheEntry = removeService.GetAllDownKeyValues().Single();
-        downCacheEntry.Key.ShouldStartWith(RedirectUsersViaStatusData.StatusTenantPrefix + TenantDownVersions.Update);
+        downCacheEntry.Key.ShouldStartWith(RedirectUsersViaStatusData.DivertTenantPrefix + TenantDownVersions.Update);
         downCacheEntry.Value.ShouldEqual("1.");
     }
 
@@ -182,7 +182,7 @@ public class TestSetRemoveStatusService
 
         //VERIFY
         var downCacheEntry = removeService.GetAllDownKeyValues().Single();
-        downCacheEntry.Key.ShouldStartWith(RedirectUsersViaStatusData.StatusTenantPrefix + TenantDownVersions.Update);
+        downCacheEntry.Key.ShouldStartWith(RedirectUsersViaStatusData.DivertTenantPrefix + TenantDownVersions.Update);
 
         downCacheEntry.Value.ShouldEqual(hasOwnDb ? "DatabaseInfoName|NoQueryFilter" :  "DatabaseInfoName|1.");
     }
