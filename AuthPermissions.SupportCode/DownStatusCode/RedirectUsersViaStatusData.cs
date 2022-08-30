@@ -84,24 +84,22 @@ public class RedirectUsersViaStatusData
     {
         if (user.Identity?.IsAuthenticated != true)
         {
-            //Let non-logged in user to access any 
+            //Let non-logged in user to access public pages 
             await next();
             return;
         }
 
         var controllerName = (string)_routeData.Values["controller"];
-        var action = (string)_routeData.Values["action"];
         var area = (string)_routeData.Values["area"];
         if (controllerName == _statusControllerName || area == AccountArea)
         {
-            // This allows the Status controller to show the banner and users to log in/out
-            // The log in/out is there because if the user that set up the Status status logged out they wouldn't be able to log in again! 
+            // Access Status controller, allowing admin to stop a divert.
+            // Access log in / log out. Need that in case admin logs out while AppDown divert is on.
             await next();
             return;
         }
 
         var fsCache = _serviceProvider.GetRequiredService<IDistributedFileStoreCacheClass>();
-
 
         var allDownData = fsCache.GetClass<ManuelAppDownDto>(DivertAppDown);
         if (allDownData != null)
@@ -133,7 +131,7 @@ public class RedirectUsersViaStatusData
                     .FirstOrDefault();
             if (tenantCacheKey != null)
             {
-                //the current user is linked to a tenant that has have a divert
+                //the current user is linked to a tenant that has a divert
 
                 if (tenantCacheKey.StartsWith(DivertTenantUpdate))
                     //This user isn't allowed to access the tenant while the change is made

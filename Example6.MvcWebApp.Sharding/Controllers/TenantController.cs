@@ -17,12 +17,12 @@ namespace Example6.MvcWebApp.Sharding.Controllers
     public class TenantController : Controller
     {
         private readonly IAuthTenantAdminService _authTenantAdmin;
-        private readonly ISetRemoveStatusService _downService;
+        private readonly ISetRemoveStatusService _statusService;
 
-        public TenantController(IAuthTenantAdminService authTenantAdmin, ISetRemoveStatusService downService)
+        public TenantController(IAuthTenantAdminService authTenantAdmin, ISetRemoveStatusService statusService)
         {
             _authTenantAdmin = authTenantAdmin;
-            _downService = downService;
+            _statusService = statusService;
         }
 
         [HasPermission(Example6Permissions.TenantList)]
@@ -79,7 +79,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(ShardingSingleLevelTenantDto input)
         {
-            var removeDownAsync = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
+            var removeDownAsync = await _statusService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
             await removeDownAsync();
@@ -143,7 +143,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.MoveTenantDatabase)]
         public async Task<IActionResult> MoveDatabase(ShardingSingleLevelTenantDto input)
         {
-            var removeDownAsync = await _downService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
+            var removeDownAsync = await _statusService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin.MoveToDifferentDatabaseAsync(
                 input.TenantId, input.HasOwnDb, input.ConnectionName);
             await removeDownAsync();
