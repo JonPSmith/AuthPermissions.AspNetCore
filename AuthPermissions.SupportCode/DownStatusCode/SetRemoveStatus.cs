@@ -29,7 +29,7 @@ public enum TenantDownVersions
 /// <summary>
 /// This service provides methods to read, set and remove app and tenant "downs"
 /// </summary>
-public class SetRemoveStatusService : ISetRemoveStatusService
+public class SetRemoveStatus : ISetRemoveStatus
 {
     private readonly IDistributedFileStoreCacheClass _fsCache;
     private readonly IAuthTenantAdminService _authTenantAdmin;
@@ -39,7 +39,7 @@ public class SetRemoveStatusService : ISetRemoveStatusService
     /// </summary>
     /// <param name="fsCache"></param>
     /// <param name="authTenantAdmin"></param>
-    public SetRemoveStatusService(IDistributedFileStoreCacheClass fsCache, IAuthTenantAdminService authTenantAdmin)
+    public SetRemoveStatus(IDistributedFileStoreCacheClass fsCache, IAuthTenantAdminService authTenantAdmin)
     {
         _fsCache = fsCache;
         _authTenantAdmin = authTenantAdmin;

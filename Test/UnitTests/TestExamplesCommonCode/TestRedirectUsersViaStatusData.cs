@@ -25,13 +25,13 @@ public class TestRedirectUsersViaStatusData
 {
     private readonly ITestOutputHelper _output;
     private readonly IDistributedFileStoreCacheClass _fsCache;
-    //private readonly ISetRemoveStatusService _removeService;
+    //private readonly ISetRemoveStatus _removeService;
 
     public TestRedirectUsersViaStatusData(ITestOutputHelper output)
     {
         _output = output;
         _fsCache = new StubFileStoreCacheClass(); //this clears the cache fro each test
-        //_removeService = new SetRemoveStatusService(_fsCache, );
+        //_removeService = new SetRemoveStatus(_fsCache, );
     }
 
     private static AuthPermissionsDbContext SaveTenantToDatabase(Tenant testTenant)
@@ -84,15 +84,18 @@ public class TestRedirectUsersViaStatusData
         return new RedirectUsersViaStatusData(new RouteData(routeDict), services.BuildServiceProvider(), tenantTypes);
     }
 
-    [Fact]
-    public async Task TestCheckNotDivertedRoutes_NotLoggedInUser()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TestCheckNotDivertedRoutes_NotLoggedInUser(bool appDown)
     {
         //SETUP
         var handler = SetupHandler();
         string redirect = null;
         bool nextCalled = false;
 
-        AddAllDownCacheValue();
+        if (appDown)
+            AddAllDownCacheValue();
 
         //ATTEMPT
         await handler.RedirectUserOnStatusesAsync(new ClaimsPrincipal(new ClaimsIdentity()),
@@ -101,8 +104,16 @@ public class TestRedirectUsersViaStatusData
         );
 
         //VERIFY
-        redirect.ShouldBeNull();
-        nextCalled.ShouldBeTrue();
+        if (appDown)
+        {
+            redirect.ShouldEqual("/Status/ShowAppDownStatus");
+            nextCalled.ShouldBeFalse();
+        }
+        else
+        {
+            redirect.ShouldBeNull();
+            nextCalled.ShouldBeTrue();
+        }
     }
 
     [Theory]

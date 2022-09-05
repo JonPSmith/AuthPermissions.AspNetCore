@@ -17,18 +17,18 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers;
 [Authorize]
 public class StatusController : Controller
 {
-    private readonly ISetRemoveStatusService _statusService;
+    private readonly ISetRemoveStatus _status;
 
-    public StatusController(ISetRemoveStatusService statusService)
+    public StatusController(ISetRemoveStatus status)
     {
-        _statusService = statusService;
+        _status = status;
     }
 
     public IActionResult Index(string message)
     {
         ViewBag.Message = message;
 
-        var downCacheList = _statusService.GetAllDownKeyValues();
+        var downCacheList = _status.GetAllDownKeyValues();
 
         return View(downCacheList);
     }
@@ -47,7 +47,7 @@ public class StatusController : Controller
         data.UserId = User.GetUserIdFromUser();
         data.StartedUtc = DateTime.UtcNow;
 
-        _statusService.SetAppDown(data);
+        _status.SetAppDown(data);
         return RedirectToAction("Index", new { });
     }
 
@@ -62,7 +62,7 @@ public class StatusController : Controller
     [HasPermission(Example4Permissions.AppStatusTenantDown)]
     public async Task<IActionResult> TakeTenantDown(ManuelTenantDownDto data)
     {
-        await _statusService.SetTenantDownWithDelayAsync(TenantDownVersions.ManualDown, data.TenantId);
+        await _status.SetTenantDownWithDelayAsync(TenantDownVersions.ManualDown, data.TenantId);
         return RedirectToAction("Index", new { });
     }
 
@@ -74,7 +74,7 @@ public class StatusController : Controller
     [HasPermission(Example4Permissions.AppStatusRemove)]
     public IActionResult Remove(string key)
     {
-        _statusService.RemoveAnyDown(key);
+        _status.RemoveAnyDown(key);
         return RedirectToAction("Index", new { });
     }
 
@@ -82,7 +82,7 @@ public class StatusController : Controller
 
     public IActionResult ShowAppDownStatus()
     {
-        return View(_statusService.GetAppDownMessage());
+        return View(_status.GetAppDownMessage());
     }
 
     public IActionResult ShowTenantDownStatus()

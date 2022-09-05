@@ -8,7 +8,7 @@ namespace AuthPermissions.SupportCode.DownStatusCode;
 /// <summary>
 /// This interface contains the methods you can use to take an app and / or tenant "down"
 /// </summary>
-public interface ISetRemoveStatusService
+public interface ISetRemoveStatus
 {
     /// <summary>
     /// This returns a list of key/values that start with the down status 

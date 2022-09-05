@@ -83,7 +83,7 @@ builder.Services.AddDistributedFileStoreCache(options =>
 
 //Have to manually register this as its in the SupportCode project
 builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>(); //used for "update claims on a change" feature
-builder.Services.AddTransient<ISetRemoveStatusService, SetRemoveStatusService>(); //Used for "down for maintenance" feature  
+builder.Services.AddTransient<ISetRemoveStatus, SetRemoveStatus>(); //Used for "down for maintenance" feature  
 
 //This registers all the code to handle the shop part of the demo
 //Register RetailDbContext database and some services (included hosted services)

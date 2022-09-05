@@ -82,14 +82,8 @@ public class RedirectUsersViaStatusData
     /// <returns></returns>
     public async Task RedirectUserOnStatusesAsync(ClaimsPrincipal user, Action<string> redirect, Func<Task> next)
     {
-        if (user.Identity?.IsAuthenticated != true)
-        {
-            //Let non-logged in user to access public pages 
-            await next();
-            return;
-        }
-
         var controllerName = (string)_routeData.Values["controller"];
+        var action = (string)_routeData.Values["action"];
         var area = (string)_routeData.Values["area"];
         if (controllerName == _statusControllerName || area == AccountArea)
         {

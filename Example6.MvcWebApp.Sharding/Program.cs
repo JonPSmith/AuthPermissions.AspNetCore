@@ -74,7 +74,7 @@ builder.Services.AddDistributedFileStoreCache(options =>
 
 //manually add services from the AuthPermissions.SupportCode project
 builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
-builder.Services.AddTransient<ISetRemoveStatusService, SetRemoveStatusService>();
+builder.Services.AddTransient<ISetRemoveStatus, SetRemoveStatus>();
 
 builder.Services.RegisterExample6Invoices(builder.Configuration);
 

@@ -42,7 +42,7 @@ public class TestSetRemoveStatusService
     public void TestSetAppDown()
     {
         //SETUP
-        var removeService = new SetRemoveStatusService(_fsCache, null);
+        var removeService = new SetRemoveStatus(_fsCache, null);
 
         var dto = new ManuelAppDownDto
         {
@@ -65,7 +65,7 @@ public class TestSetRemoveStatusService
     public void TestRemoveAnyDown()
     {
         //SETUP
-        var removeService = new SetRemoveStatusService(_fsCache, null);
+        var removeService = new SetRemoveStatus(_fsCache, null);
 
         var dto = new ManuelAppDownDto
         {
@@ -94,7 +94,7 @@ public class TestSetRemoveStatusService
         var testTenant = Tenant.CreateSingleTenant("TestTenant").Result;
         SaveTenantToDatabase(testTenant);
 
-        var removeService = new SetRemoveStatusService(_fsCache, new StubAuthTenantAdminService(testTenant));
+        var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(testTenant));
 
         //ATTEMPT
         await removeService.SetTenantDownWithDelayAsync(downVersion, 1, 0, 1);
@@ -115,7 +115,7 @@ public class TestSetRemoveStatusService
         var testTenant = Tenant.CreateSingleTenant("TestTenant").Result;
         SaveTenantToDatabase(testTenant);
 
-        var removeService = new SetRemoveStatusService(_fsCache, new StubAuthTenantAdminService(testTenant));
+        var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(testTenant));
         var removeFunc = await removeService.SetTenantDownWithDelayAsync(downVersion, 1, 0, 1);
         removeService.GetAllDownKeyValues().Count.ShouldEqual(1);
 
@@ -133,7 +133,7 @@ public class TestSetRemoveStatusService
         var testTenant = Tenant.CreateHierarchicalTenant("TestTenant", null).Result;
         SaveTenantToDatabase(testTenant);
 
-        var removeService = new SetRemoveStatusService(_fsCache, new StubAuthTenantAdminService(testTenant));
+        var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(testTenant));
 
         //ATTEMPT
         await removeService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, 1, 0, 1);
@@ -153,7 +153,7 @@ public class TestSetRemoveStatusService
         var childTenant = Tenant.CreateHierarchicalTenant("Child", parentTenant).Result;
         SaveTenantToDatabase(childTenant);
 
-        var removeService = new SetRemoveStatusService(_fsCache, new StubAuthTenantAdminService(parentTenant, childTenant));
+        var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(parentTenant, childTenant));
 
         //ATTEMPT
         await removeService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, childTenant.TenantId, parentTenant.TenantId, 1);
@@ -175,7 +175,7 @@ public class TestSetRemoveStatusService
         testTenant.UpdateShardingState("DatabaseInfoName", hasOwnDb);
         context.SaveChanges();
 
-        var removeService = new SetRemoveStatusService(_fsCache, new StubAuthTenantAdminService(testTenant));
+        var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(testTenant));
 
         //ATTEMPT
         await removeService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, 1, 0, 1);
