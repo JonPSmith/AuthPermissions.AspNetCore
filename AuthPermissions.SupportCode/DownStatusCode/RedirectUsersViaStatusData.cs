@@ -82,8 +82,9 @@ public class RedirectUsersViaStatusData
     /// <returns></returns>
     public async Task RedirectUserOnStatusesAsync(ClaimsPrincipal user, Action<string> redirect, Func<Task> next)
     {
+        //STAGE 1: certain urls always let though, e.g. login/logout
         var controllerName = (string)_routeData.Values["controller"];
-        var action = (string)_routeData.Values["action"];
+        //var action = (string)_routeData.Values["action"];
         var area = (string)_routeData.Values["area"];
         if (controllerName == _statusControllerName || area == AccountArea)
         {
@@ -95,6 +96,7 @@ public class RedirectUsersViaStatusData
 
         var fsCache = _serviceProvider.GetRequiredService<IDistributedFileStoreCacheClass>();
 
+        //STAGE 2: If AppDown, then only allow the admin user who “downed” the App
         var allDownData = fsCache.GetClass<ManuelAppDownDto>(DivertAppDown);
         if (allDownData != null)
         {
@@ -109,6 +111,7 @@ public class RedirectUsersViaStatusData
             }
         }
 
+        //STAGE 3: If user is linked to a “down” tenant, then divert to the correct url
         //This will select both the TenantDown (for edit, move and manuel) and TenantDeleted 
         var userDataKey = user.GetAuthDataKeyFromUser();
         if (userDataKey != null)

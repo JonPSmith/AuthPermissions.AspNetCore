@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Medallion.Threading.Postgres;
 using Medallion.Threading.SqlServer;
@@ -13,12 +14,10 @@ using StatusGeneric;
 namespace AuthPermissions.SupportCode.ShardingServices;
 
 /// <summary>
-/// This class contains CRUD methods to the shardingsettings.json which contains a list of <see cref="DatabaseInformation"/> 
+/// This class contains CRUD methods to the sharding settings which contains a list of <see cref="DatabaseInformation"/> 
 /// </summary>
 public class AccessDatabaseInformation : IAccessDatabaseInformation
 {
-    private const string ShardingFileFirstPart = "shardingsettings";
-
     /// <summary>
     /// Name of the sharding file
     /// </summary>
@@ -34,17 +33,18 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <param name="env"></param>
     /// <param name="connectionsService"></param>
     /// <param name="authDbContext"></param>
-    public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, AuthPermissionsDbContext authDbContext)
+    /// <param name="options"></param>
+    public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, 
+        AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options)
     {
-        ShardingSettingFilename = $"{ShardingFileFirstPart}.{env.EnvironmentName}.json";
-
+        ShardingSettingFilename = AuthPermissionsOptions.FormShardingSettingsFileName(options.SecondPartOfShardingFile);
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
         _authDbContext = authDbContext;
     }
 
     /// <summary>
-    /// This will return a list of <see cref="DatabaseInformation"/> in the shardingsettings.json file in the application
+    /// This will return a list of <see cref="DatabaseInformation"/> in the sharding settings file in the application
     /// </summary>
     /// <returns>If no file, then returns an empty list</returns>
     public List<DatabaseInformation> ReadShardingSettingsFile()
@@ -70,8 +70,8 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     }
 
     /// <summary>
-    /// This adds a new <see cref="DatabaseInformation"/> to the list in the current shardingsettings.json file.
-    /// If there are no errors it will update the shardingsettings.json file in the application.
+    /// This adds a new <see cref="DatabaseInformation"/> to the list in the current sharding settings file.
+    /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
     /// <param databaseInfoName="databaseInfo"></param>
     /// <returns>status containing a success message, or errors</returns>
@@ -86,9 +86,9 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     }
 
     /// <summary>
-    /// This updates a <see cref="DatabaseInformation"/> already in the shardingsettings.json file.
+    /// This updates a <see cref="DatabaseInformation"/> already in the sharding settings file.
     /// It uses the <see cref="DatabaseInformation.Name"/> in the provided in the <see cref="DatabaseInformation"/> parameter.
-    /// If there are no errors it will update the shardingsettings.json file in the application.
+    /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
     /// <param databaseInfoName="databaseInfo"></param>
     /// <returns>status containing a success message, or errors</returns>
@@ -110,7 +110,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
 
     /// <summary>
     /// This removes a <see cref="DatabaseInformation"/> with the same <see cref="DatabaseInformation.Name"/> as the databaseInfoName.
-    /// If there are no errors it will update the shardingsettings.json file in the application
+    /// If there are no errors it will update the sharding settings file in the application
     /// </summary>
     /// <param databaseInfoName="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> </param>
     /// <returns>status containing a success message, or errors</returns>

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace AuthPermissions.AspNetCore.Services;
 
 /// <summary>
-/// This contains the data in the shardingsettings.json file
+/// This contains the data in the sharding settings file
 /// </summary>
 public class ShardingSettingsOption
 {

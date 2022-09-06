@@ -26,7 +26,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// <param name="options"></param>
         /// <param name="eventSetup">OPTIONAL: If provided, then a method will be run within the ctor</param>
         public AuthPermissionsDbContext(DbContextOptions<AuthPermissionsDbContext> options,
-            IRegisterStateChangeEvent eventSetup = null)
+            IDatabaseStateChangeEvent eventSetup = null)
             : base(options)
         {
             eventSetup?.RegisterEventHandlers(this);

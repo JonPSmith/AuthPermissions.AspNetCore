@@ -4,6 +4,7 @@
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace AuthPermissions.BaseCode
 {
@@ -50,7 +51,7 @@ namespace AuthPermissions.BaseCode
 
         /// <summary>
         /// This will use the Net.RunMethodsSequentially library to safely update / seed a database 
-        /// on applications that have mutiple instances using a global lock
+        /// on applications that have multiple instances using a global lock
         /// </summary>
         public bool UseLocksToUpdateGlobalResources { get; set; } = true;
 
@@ -62,12 +63,34 @@ namespace AuthPermissions.BaseCode
         public string PathToFolderToLock { get; set; }
 
         /// <summary>
+        /// This holds the second part of the sharding settings filename and MUST NOT BE NULL
+        /// You should set this to <see cref="Environment"/>.<see cref="EnvironmentName"/>,
+        /// but you can override this if you need to
+        /// </summary>
+        public string SecondPartOfShardingFile { get; set; }
+
+        /// <summary>
         /// This is where you configure the JwtToken
         /// </summary>
         public AuthPJwtConfiguration ConfigureAuthPJwtToken { get; set; }
 
+        /// <summary>
+        /// This will form the name of the sharding settings file
+        /// </summary>
+        /// <param name="secondPartOfFileName">This should be the <see cref="SecondPartOfShardingFile"/> and must not be null</param>
+        /// <returns></returns>
+        public static string FormShardingSettingsFileName(string secondPartOfFileName)
+        {
+            if (secondPartOfFileName == null) 
+                throw new ArgumentNullException(nameof(secondPartOfFileName), 
+                    $"You must set the {nameof(SecondPartOfShardingFile)} property in the {nameof(AuthPermissionsOptions)}");
+            return $"shardingsettings.{secondPartOfFileName}.json";
+        }
+
         //-------------------------------------------------
         //internal set properties/handles
+
+
 
         /// <summary>
         /// This holds data that is set up during the 

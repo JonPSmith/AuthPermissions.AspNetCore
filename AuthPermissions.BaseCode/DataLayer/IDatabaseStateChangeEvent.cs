@@ -9,7 +9,7 @@ namespace AuthPermissions.BaseCode.DataLayer;
 /// This is an optional service for the <see cref="AuthPermissionsDbContext"/> which
 /// allows you register event handlers 
 /// </summary>
-public interface IRegisterStateChangeEvent
+public interface IDatabaseStateChangeEvent
 {
     /// <summary>
     /// This is called within the <see cref="AuthPermissionsDbContext"/> constructor.

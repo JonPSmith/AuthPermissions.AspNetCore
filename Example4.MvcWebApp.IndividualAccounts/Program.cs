@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RunMethodsSequentially;
 using System.Reflection;
+using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.SupportCode.DownStatusCode;
 using GenericServices.Setup;
 using Net.DistributedFileStoreCache;
@@ -83,6 +84,7 @@ builder.Services.AddDistributedFileStoreCache(options =>
 
 //Have to manually register this as its in the SupportCode project
 builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>(); //used for "update claims on a change" feature
+builder.Services.AddSingleton<IDatabaseStateChangeEvent, TenantKeyOrShardChangeService>(); //triggers the "update claims on a change" feature
 builder.Services.AddTransient<ISetRemoveStatus, SetRemoveStatus>(); //Used for "down for maintenance" feature  
 
 //This registers all the code to handle the shop part of the demo

@@ -6,6 +6,7 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.DownStatusCode;
 using AuthPermissions.SupportCode.ShardingServices;
@@ -38,12 +39,14 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
     options.TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding;
     options.EncryptionKey = builder.Configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
     options.PathToFolderToLock = builder.Environment.WebRootPath;
+    options.SecondPartOfShardingFile = builder.Environment.EnvironmentName;
     options.Configuration = builder.Configuration;
 })
     //NOTE: This uses the same database as the individual accounts DB
     .UsingEfCoreSqlServer(connectionString)
     .IndividualAccountsAuthentication()
     .RegisterAddClaimToUser<AddTenantNameClaim>()
+    .RegisterAddClaimToUser<AddGlobalChangeTimeClaim>()
     .RegisterTenantChangeService<ShardingTenantChangeService>()
     .AddRolesPermissionsIfEmpty(Example6AppAuthSetupData.RolesDefinition)
     .AddTenantsIfEmpty(Example6AppAuthSetupData.TenantDefinition)
@@ -53,15 +56,15 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
     .AddSuperUserToIndividualAccounts()
     .SetupAspNetCoreAndDatabase(options =>
     {
-                    //Migrate individual account database
-                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
-                    //Add demo users to the database (if no individual account exist)
-                    options.RegisterServiceToRunInJob<StartupServicesIndividualAccountsAddDemoUsers>();
+        //Migrate individual account database
+        options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ApplicationDbContext>>();
+        //Add demo users to the database (if no individual account exist)
+        options.RegisterServiceToRunInJob<StartupServicesIndividualAccountsAddDemoUsers>();
 
-                    //Migrate the application part of the database
-                    options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ShardingSingleDbContext>>();
-                    //This seeds the invoice database (if empty)
-                    options.RegisterServiceToRunInJob<StartupServiceSeedShardingDbContext>();
+        //Migrate the application part of the database
+        options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ShardingSingleDbContext>>();
+        //This seeds the invoice database (if empty)
+        options.RegisterServiceToRunInJob<StartupServiceSeedShardingDbContext>();
     });
 
 //This is used to set a tenant as "Down",
@@ -73,6 +76,8 @@ builder.Services.AddDistributedFileStoreCache(options =>
 }, builder.Environment);
 
 //manually add services from the AuthPermissions.SupportCode project
+builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>(); //used for "update claims on a change" feature
+builder.Services.AddSingleton<IDatabaseStateChangeEvent, TenantKeyOrShardChangeService>(); //triggers the "update claims on a change" feature
 builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
 builder.Services.AddTransient<ISetRemoveStatus, SetRemoveStatus>();
 

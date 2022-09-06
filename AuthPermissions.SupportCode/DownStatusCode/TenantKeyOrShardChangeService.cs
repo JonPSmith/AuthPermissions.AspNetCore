@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace AuthPermissions.SupportCode.DownStatusCode;
 
 /// <summary>
-/// This will register a service that will be added to the AuthPermissionsDbContext
+/// This service that will be added to the AuthPermissionsDbContext
 /// which will sets an entry in the FileStore cache containing the last time that
 /// the DataKey or DatabaseInfoName where changed in the tenant
 /// </summary>
-public class RegisterTenantKeyOrShardChangeService : IRegisterStateChangeEvent
+public class TenantKeyOrShardChangeService : IDatabaseStateChangeEvent
 {
     private readonly IGlobalChangeTimeService _globalAccessor;
 
@@ -22,7 +22,7 @@ public class RegisterTenantKeyOrShardChangeService : IRegisterStateChangeEvent
     /// ctor
     /// </summary>
     /// <param name="globalAccessor"></param>
-    public RegisterTenantKeyOrShardChangeService(IGlobalChangeTimeService globalAccessor)
+    public TenantKeyOrShardChangeService(IGlobalChangeTimeService globalAccessor)
     {
         _globalAccessor = globalAccessor;
     }

@@ -13,9 +13,9 @@ using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestExamples;
+namespace Test.UnitTests.TestSupportCode;
 
-public class TestExample3RegisterTenantDataKeyChangeService
+public class TestTenantKeyOrShardChangeService
 {
     [Fact]
     public void TestDetectTenantDataKeyChangeService_NoChange()
@@ -23,9 +23,9 @@ public class TestExample3RegisterTenantDataKeyChangeService
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
-        var service = new RegisterTenantKeyOrShardChangeService(globalAccessor);
+        var service = new TenantKeyOrShardChangeService(globalAccessor);
         var context = new AuthPermissionsDbContext(options, service);
-        
+
         context.Database.EnsureCreated();
 
         //ATTEMPT
@@ -43,7 +43,7 @@ public class TestExample3RegisterTenantDataKeyChangeService
 
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
-        var service = new RegisterTenantKeyOrShardChangeService(globalAccessor);
+        var service = new TenantKeyOrShardChangeService(globalAccessor);
         var context = new AuthPermissionsDbContext(options, service);
         context.Database.EnsureCreated();
 
@@ -56,6 +56,31 @@ public class TestExample3RegisterTenantDataKeyChangeService
             .Single(x => x.TenantFullName.EndsWith("Shop1"));
         var newYork = context.Tenants.Single(x => x.TenantFullName.EndsWith("New York"));
         shop1.MoveTenantToNewParent(newYork, x => { });
+        context.SaveChanges();
+
+        //VERIFY
+        globalAccessor.NumTimesCalled.ShouldEqual(1);
+    }
+
+
+    [Fact]
+    public async Task TestDetectTenantDataKeyChangeService_ShardingChanges()
+    {
+        //SETUP
+
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var globalAccessor = new StubGlobalChangeTimeService();
+        var service = new TenantKeyOrShardChangeService(globalAccessor);
+        var context = new AuthPermissionsDbContext(options, service);
+        context.Database.EnsureCreated();
+
+        await context.SetupSingleShardingTenantsInDbAsync();
+        globalAccessor.NumTimesCalled.ShouldEqual(0);
+
+        //ATTEMPT
+        var tenant = context.Tenants
+            .Single(x => x.TenantFullName == "Tenant2");
+        tenant.UpdateShardingState("NewDatabase", true);
         context.SaveChanges();
 
         //VERIFY

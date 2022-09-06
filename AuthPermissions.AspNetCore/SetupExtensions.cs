@@ -125,7 +125,7 @@ namespace AuthPermissions.AspNetCore
         /// <summary>
         /// This allows you to replace the default <see cref="ShardingConnections"/> code with you own code.
         /// This allows you to add you own approach to managing sharding databases
-        /// NOTE: The <see cref="IOptionsSnapshot{TOptions}"/> of the connection strings and the shardingsettings.json file are still registered
+        /// NOTE: The <see cref="IOptionsSnapshot{TOptions}"/> of the connection strings and the sharding settings file are still registered
         /// </summary>
         /// <typeparam name="TYourShardingCode">Your class that implements the <see cref="IShardingConnections"/> interface.</typeparam>
         /// <param name="setupData"></param>
@@ -230,7 +230,6 @@ namespace AuthPermissions.AspNetCore
             return serviceProvider;
         }
 
-
         //------------------------------------------------
         // private methods
 
@@ -298,10 +297,11 @@ namespace AuthPermissions.AspNetCore
 
                 //This gets access to the ConnectionStrings
                 setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
-                //This gets access to the ShardingData in the separate shardingsettings.json file
+                //This gets access to the ShardingData in the separate sharding settings file
                 setupData.Services.Configure<ShardingSettingsOption>(setupData.Options.Configuration);
-                //This adds the shardingsettings.json to the configuration
-                setupData.Options.Configuration.AddJsonFile("shardingsettings.json", optional: true, reloadOnChange: true);
+                //This adds the sharding settings file to the configuration
+                var shardingFileName = AuthPermissionsOptions.FormShardingSettingsFileName(setupData.Options.SecondPartOfShardingFile);
+                setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
 
                 if (!setupData.Options.InternalData.OverrideShardingConnections)
                     //Don't add the default service if the developer has added their own service

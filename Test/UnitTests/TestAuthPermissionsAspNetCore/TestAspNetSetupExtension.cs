@@ -11,7 +11,6 @@ using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,6 +74,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
                         {
                             options.TenantType = tenantType;
                             options.Configuration = new ConfigurationManager();
+                            options.SecondPartOfShardingFile = "Test";
                         })
                     .UsingInMemoryDatabase()
                     .SetupForUnitTestingAsync();
