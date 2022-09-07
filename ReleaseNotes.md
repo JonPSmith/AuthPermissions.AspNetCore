@@ -12,6 +12,7 @@
 ## 4.0.0
 
 - BREAKING CHANGE: The name of the sharding file is changed from "shardingsettings.json" to "shardingsettings.{SecondPartOfShardingFile}.json"
+- BREAKING CHANGE: The RefreshUsersClaims classes have been moved to SupportCode project and a few classes have been renamed
 - Updated NuGets: There was a security alert on one of the NuGets. All the NuGets have been updated to the latest 
 - Improved feature: Sharding now has distributed lock on changes to the shardingsettings.json file
 - Improved feature: Refresh users claims now uses Net.DistributedFileStoreCache - see Example4

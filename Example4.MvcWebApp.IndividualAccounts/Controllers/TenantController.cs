@@ -16,12 +16,12 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
     public class TenantController : Controller
     {
         private readonly IAuthTenantAdminService _authTenantAdmin;
-        private readonly ISetRemoveStatus _status;
+        private readonly ISetRemoveStatus _upDownService;
 
-        public TenantController(IAuthTenantAdminService authTenantAdmin, ISetRemoveStatus status)
+        public TenantController(IAuthTenantAdminService authTenantAdmin, ISetRemoveStatus upDownService)
         {
             _authTenantAdmin = authTenantAdmin;
-            _status = status;
+            _upDownService = upDownService;
         }
 
         [HasPermission(Example4Permissions.TenantList)]
@@ -74,7 +74,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         [HasPermission(Example4Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(HierarchicalTenantDto input)
         {
-            var removeDownAsync = await _status.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
+            var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin
                 .UpdateTenantNameAsync(input.TenantId, input.TenantName);
             await removeDownAsync();
@@ -103,7 +103,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Move(HierarchicalTenantDto input)
         {
             //A hierarchical Move requires both the tenant being moved and the tenant receiving the moved tenant 
-            var removeDownAsync = await _status.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId, input.ParentId);
+            var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId, input.ParentId);
             var status = await _authTenantAdmin
                 .MoveHierarchicalTenantToAnotherParentAsync(input.TenantId, input.ParentId);
             await removeDownAsync();
@@ -135,7 +135,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
         public async Task<IActionResult> Delete(HierarchicalTenantDto input)
         {
             //This will permanently stop logged-in user from accessing the the delete tenant
-            var removeDownAsync = await _status.SetTenantDownWithDelayAsync(TenantDownVersions.Deleted, input.TenantId);
+            var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Deleted, input.TenantId);
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
             if (status.HasErrors)
                 await removeDownAsync();
