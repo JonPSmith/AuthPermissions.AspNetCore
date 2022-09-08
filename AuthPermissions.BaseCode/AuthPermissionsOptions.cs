@@ -63,7 +63,7 @@ namespace AuthPermissions.BaseCode
         public string PathToFolderToLock { get; set; }
 
         /// <summary>
-        /// This holds the second part of the sharding settings filename and MUST NOT BE NULL
+        /// This holds the second part of the sharding settings filename
         /// You should set this to <see cref="Environment"/>.<see cref="EnvironmentName"/>,
         /// but you can override this if you need to
         /// </summary>
@@ -77,14 +77,14 @@ namespace AuthPermissions.BaseCode
         /// <summary>
         /// This will form the name of the sharding settings file
         /// </summary>
-        /// <param name="secondPartOfFileName">This should be the <see cref="SecondPartOfShardingFile"/> and must not be null</param>
+        /// <param name="secondPartOfFileName">This should be the <see cref="SecondPartOfShardingFile"/></param>
         /// <returns></returns>
         public static string FormShardingSettingsFileName(string secondPartOfFileName)
         {
-            if (secondPartOfFileName == null) 
-                throw new ArgumentNullException(nameof(secondPartOfFileName), 
-                    $"You must set the {nameof(SecondPartOfShardingFile)} property in the {nameof(AuthPermissionsOptions)}");
-            return $"shardingsettings.{secondPartOfFileName}.json";
+            var secondPart = secondPartOfFileName != null
+                ? "." + secondPartOfFileName
+                : "";
+            return $"shardingsettings{secondPart}.json";
         }
 
         //-------------------------------------------------

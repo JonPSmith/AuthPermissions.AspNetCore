@@ -45,23 +45,18 @@ public class TestAccessDatabaseInformation
         File.WriteAllText(filepath, jsonString);
     }
 
-    [Fact]
-    public void TestAccessDatabaseInformationNoSecondPart()
+    [Theory]
+    [InlineData(null, "shardingsettings.json")]
+    [InlineData("Test", "shardingsettings.Test.json")]
+    public void TestAccessDatabaseInformationNoSecondPart(string secondPart, string expectedFileName)
     {
         //SETUP
-        ResetShardingSettingsFile();
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-        var context = new AuthPermissionsDbContext(options);
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
-        var stubCon = new StubConnectionsService(this);
-
 
         //ATTEMPT
-        var ex = Assert.Throws<ArgumentNullException>(
-            () => new AccessDatabaseInformation(stubEnv, stubCon, context, new AuthPermissionsOptions()));
+        var shardingFilename = AuthPermissionsOptions.FormShardingSettingsFileName(secondPart);
 
         //VERIFY
-        ex.Message.ShouldEqual("You must set the SecondPartOfShardingFile property in the AuthPermissionsOptions (Parameter 'secondPartOfFileName')");
+        shardingFilename.ShouldEqual(expectedFileName);
     }
 
     [Fact]

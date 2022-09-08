@@ -3,19 +3,17 @@
 ## ToDo
 
 - Improved feature: Added timout on user invitation - thanks to @idan-h
+- Improved feature: The AuthUserAdmin method QueryAuthUsers now takes an optional DatabaseInfoName to allow tenant admin on sharding
 - New feature: Code for minimal API's fluent HasPermission - see #47. Thanks to @idan-h
 - Bug fix: Changed JWT refresh token to handle multiple logged-in users - see issue #54
-- Bug fix: Update RunStartupMethodsSequentially to latest DistributedLock version
 
-- New feature: Create / delete an Azure database
+## 3.4.0
 
-## 4.0.0
-
-- BREAKING CHANGE: The name of the sharding file is changed from "shardingsettings.json" to "shardingsettings.{SecondPartOfShardingFile}.json"
-- BREAKING CHANGE: The RefreshUsersClaims classes have been moved to SupportCode project and a few classes have been renamed
-- Updated NuGets: There was a security alert on one of the NuGets. All the NuGets have been updated to the latest 
+- Improved feature: The name of the sharding file can have an EnvironmentName, e.g. "shardingsettings.Production.json"
+- Improved feature: The RefreshUsersClaims classes have been moved to SupportCode project and a few classes have been renamed
 - Improved feature: Sharding now has distributed lock on changes to the shardingsettings.json file
 - Improved feature: Refresh users claims now uses Net.DistributedFileStoreCache - see Example4
+- Updated NuGets: There was a security alert on one of the NuGets. All the NuGets have been updated to the latest 
 - New feature: Stop users linked to a tenant from accessing the the tenant while its being changed - see Example4 and Example6
 - New feature: Take the application "down for maintenance", which diverts users to a "please wait" page - see Example4
 
