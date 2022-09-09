@@ -34,6 +34,9 @@
 		<Content Update="Example6CacheFileStore.Production.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
+		<Content Update="shardingsettings.Development.json">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 	<ItemGroup>
 		<Content Update="shardingsettings.Production.json">

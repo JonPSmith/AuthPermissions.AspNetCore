@@ -9,13 +9,14 @@
 
 ## 3.4.0
 
+- New feature: Stop users linked to a tenant from accessing the the tenant while its being changed - see Example4 and Example6
+- New feature: Take the application "down for maintenance", which diverts users to a "please wait" page - see Example4
 - Improved feature: The name of the sharding file can have an EnvironmentName, e.g. "shardingsettings.Production.json"
 - Improved feature: The RefreshUsersClaims classes have been moved to SupportCode project and a few classes have been renamed
 - Improved feature: Sharding now has distributed lock on changes to the shardingsettings.json file
 - Improved feature: Refresh users claims now uses Net.DistributedFileStoreCache - see Example4
+- Bug Fix: The ReadShardingSettingsFile now return the default sharding DatabaseInfomation if no sharding file is found
 - Updated NuGets: There was a security alert on one of the NuGets. All the NuGets have been updated to the latest 
-- New feature: Stop users linked to a tenant from accessing the the tenant while its being changed - see Example4 and Example6
-- New feature: Take the application "down for maintenance", which diverts users to a "please wait" page - see Example4
 
 ## 3.3.0
 

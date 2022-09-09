@@ -11,17 +11,17 @@ namespace AuthPermissions.AspNetCore.Services;
 
 /// <summary>
 /// This is used when <see cref="TenantTypes.AddSharding"/> is turned on.
-/// It uses the shardingsetting.json file which holds the information of the different databases the app can use. 
+/// It uses the sharding settings file which holds the information of the different databases the app can use. 
 /// </summary>
 public interface IShardingConnections
 {
     /// <summary>
-    /// This returns all the database names in the shardingsetting.json file
+    /// This returns all the database names in the sharding settings file
     /// See <see cref="ShardingSettingsOption"/> for the format of that file
-    /// NOTE: If the shardingsetting.json file is missing, or there is no "ShardingData" section,
+    /// NOTE: If the sharding settings file is missing, or there is no "ShardingData" section,
     /// then it will return one <see cref="ShardingSettingsOption"/> that uses the "DefaultConnection" connection string
     /// </summary>
-    /// <returns>A list of <see cref="DatabaseInformation"/> from the shardingsetting.json file</returns>
+    /// <returns>A list of <see cref="DatabaseInformation"/> from the sharding settings file</returns>
     List<DatabaseInformation> GetAllPossibleShardingData();
 
     /// <summary>
@@ -31,7 +31,7 @@ public interface IShardingConnections
     IEnumerable<string> GetConnectionStringNames();
 
     /// <summary>
-    /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name
+    /// This returns all the database info names in the sharding settings file, with a list of tenant name linked to each connection name
     /// </summary>
     /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>

@@ -59,7 +59,7 @@ public class ShardingConnections : IShardingConnections
         _context = context;
         _options = options;
 
-        //If no shardingsetting.json file, then we provide one default sharding settings data
+        //If no sharding settings file, then we provide one default sharding settings data
         //which also contains other support data
         _shardingSettings.ShardingDatabases ??= new List<DatabaseInformation>
         {
@@ -68,12 +68,12 @@ public class ShardingConnections : IShardingConnections
     }
 
     /// <summary>
-    /// This returns all the database names in the shardingsetting.json file
+    /// This returns all the database names in the sharding settings file
     /// See <see cref="ShardingSettingsOption"/> for the format of that file
-    /// NOTE: If the shardingsetting.json file is missing, or there is no "ShardingData" section,
+    /// NOTE: If the sharding settings file is missing, or there is no "ShardingData" section,
     /// then it will return one <see cref="ShardingSettingsOption"/> that uses the "DefaultConnection" connection string
     /// </summary>
-    /// <returns>A list of <see cref="DatabaseInformation"/> from the shardingsetting.json file</returns>
+    /// <returns>A list of <see cref="DatabaseInformation"/> from the sharding settings file</returns>
     public List<DatabaseInformation> GetAllPossibleShardingData()
     {
         return _shardingSettings.ShardingDatabases;
@@ -89,7 +89,7 @@ public class ShardingConnections : IShardingConnections
     }
 
     /// <summary>
-    /// This returns all the database info names in the shardingsetting.json file, with a list of tenant name linked to each connection name
+    /// This returns all the database info names in the sharding settings file, with a list of tenant name linked to each connection name
     /// NOTE: The DatabaseInfoName which matches the <see cref="AuthPermissionsOptions.ShardingDefaultDatabaseInfoName"/> is always
     /// returns a HasOwnDb value of false. This is because the default database has the AuthP data in it.
     /// </summary>

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
@@ -9,7 +10,10 @@ using Medallion.Threading.Postgres;
 using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.Graph;
 using StatusGeneric;
+using File = System.IO.File;
 
 namespace AuthPermissions.SupportCode.ShardingServices;
 
@@ -26,6 +30,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     private readonly string _settingsFilePath;
     private readonly IShardingConnections _connectionsService;
     private readonly AuthPermissionsDbContext _authDbContext;
+    private readonly AuthPermissionsOptions _options;
 
     /// <summary>
     /// Ctor
@@ -41,6 +46,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
         _authDbContext = authDbContext;
+        _options = options;
     }
 
     /// <summary>
@@ -50,7 +56,8 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     public List<DatabaseInformation> ReadShardingSettingsFile()
     {
         if (!File.Exists(_settingsFilePath))
-            return new List<DatabaseInformation>();
+            return new List<DatabaseInformation>
+                { new DatabaseInformation { Name = _options.ShardingDefaultDatabaseInfoName } };
 
         var fileContext = File.ReadAllText(_settingsFilePath);
         var content = JsonSerializer.Deserialize<ShardingSettingsOption>(fileContext,
