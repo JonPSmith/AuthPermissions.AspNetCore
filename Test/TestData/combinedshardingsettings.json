@@ -7,17 +7,21 @@
   },
   "ShardingDatabases": [
     {
-      "Name": "Default Database"
+      "Name": "Default Database",
+      "ConnectionName": "DefaultConnection",
+      "DatabaseType": "SqlServer"
     },
     {
       "Name": "Another",
       "DatabaseName": "AnotherDatabase",
-      "ConnectionName": "AnotherConnectionString"
+      "ConnectionName": "AnotherConnectionString",
+      "DatabaseType": "SqlServer"
     },
     {
       "Name": "Bad: No DatabaseName",
       "DatabaseName": null,
-      "ConnectionName": "ServerOnlyConnectionString"
+      "ConnectionName": "ServerOnlyConnectionString",
+      "DatabaseType": "SqlServer"
     },
     {
       "Name": "Special Postgres",

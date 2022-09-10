@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
@@ -11,9 +10,7 @@ using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.Graph;
 using StatusGeneric;
-using File = System.IO.File;
 
 namespace AuthPermissions.SupportCode.ShardingServices;
 
@@ -52,12 +49,12 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <summary>
     /// This will return a list of <see cref="DatabaseInformation"/> in the sharding settings file in the application
     /// </summary>
-    /// <returns>If no file, then returns an empty list</returns>
+    /// <returns>If no file, then returns the default list</returns>
     public List<DatabaseInformation> ReadShardingSettingsFile()
     {
         if (!File.Exists(_settingsFilePath))
             return new List<DatabaseInformation>
-                { new DatabaseInformation { Name = _options.ShardingDefaultDatabaseInfoName } };
+                { DatabaseInformation.FormDefaultDatabaseInfo(_options)};
 
         var fileContext = File.ReadAllText(_settingsFilePath);
         var content = JsonSerializer.Deserialize<ShardingSettingsOption>(fileContext,
@@ -86,7 +83,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         return ApplyChangeWithinDistributedLock(() =>
         {
-            var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
+            var fileContent = ReadShardingSettingsFile();
             fileContent.Add(databaseInfo);
             return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
         });
@@ -104,7 +101,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
         return ApplyChangeWithinDistributedLock(() =>
         {
             var status = new StatusGenericHandler();
-            var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
+            var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
             if (foundIndex == -1)
                 return status.AddError("Could not find a database info entry with the " +
@@ -126,7 +123,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
         return await ApplyChangeWithinDistributedLockAsync(async () =>
         {
             var status = new StatusGenericHandler();
-            var fileContent = ReadShardingSettingsFile() ?? new List<DatabaseInformation>();
+            var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
             if (foundIndex == -1)
                 return status.AddError("Could not find a database info entry with the " +

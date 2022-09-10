@@ -28,15 +28,6 @@ public class ConnectionStringsOption : Dictionary<string, string> { }
 /// </summary>
 public class ShardingConnections : IShardingConnections
 {
-    /// <summary>
-    /// Defines the string for a SQL Server database server
-    /// </summary>
-    public const string SqlServerType = "SqlServer";
-    /// <summary>
-    /// Defines the string for a PostgreSQL database server
-    /// </summary>
-    public const string PostgresType =  "Postgres";
-
     private readonly ConnectionStringsOption _connectionDict;
     private readonly ShardingSettingsOption _shardingSettings;
     private readonly AuthPermissionsDbContext _context;
@@ -60,10 +51,10 @@ public class ShardingConnections : IShardingConnections
         _options = options;
 
         //If no sharding settings file, then we provide one default sharding settings data
-        //which also contains other support data
+        //NOTE that the DatabaseInformation class has default values linked to a 
         _shardingSettings.ShardingDatabases ??= new List<DatabaseInformation>
         {
-            new DatabaseInformation { Name = options.ShardingDefaultDatabaseInfoName }
+            DatabaseInformation.FormDefaultDatabaseInfo(options)
         };
     }
 
@@ -129,7 +120,7 @@ public class ShardingConnections : IShardingConnections
     /// <returns>The strings defining the different database types that are supported</returns>
     public string[] GetSupportedDatabaseTypes()
     {
-        return new string []{ SqlServerType, PostgresType};
+        return new string []{ DatabaseInformation.ShardingSqlServerType, DatabaseInformation.ShardingPostgresType };
     }
 
     /// <summary>
@@ -155,7 +146,7 @@ public class ShardingConnections : IShardingConnections
 
     /// <summary>
     /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a
-    /// a valid connection string. Useful when adding or editing the data in the shardingsettings file.
+    /// a valid connection string. Useful when adding or editing the data in the sharding settings file.
     /// </summary>
     /// <param name="databaseInfo">The full definition of the <see cref="DatabaseInformation"/> for this database info</param>
     /// <returns></returns>
@@ -204,7 +195,7 @@ public class ShardingConnections : IShardingConnections
     {
         switch (databaseInformation.DatabaseType)
         {
-            case SqlServerType:
+            case DatabaseInformation.ShardingSqlServerType:
             {
                 var builder = new SqlConnectionStringBuilder(connectionString);
                 if (string.IsNullOrEmpty(builder.InitialCatalog) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
@@ -218,7 +209,7 @@ public class ShardingConnections : IShardingConnections
                 builder.InitialCatalog = databaseInformation.DatabaseName;
                 return builder.ConnectionString;
             }
-            case PostgresType:
+            case DatabaseInformation.ShardingPostgresType:
             {
                 var builder = new NpgsqlConnectionStringBuilder(connectionString);
                 if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(databaseInformation.DatabaseName))

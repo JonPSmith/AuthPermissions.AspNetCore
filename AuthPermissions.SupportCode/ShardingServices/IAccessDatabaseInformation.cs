@@ -14,7 +14,7 @@ public interface IAccessDatabaseInformation
     /// <summary>
     /// This will return a list of <see cref="DatabaseInformation"/> in the sharding settings file in the application
     /// </summary>
-    /// <returns>If no file, then returns an empty list</returns>
+    /// <returns>If no file, then returns the default list</returns>
     List<DatabaseInformation> ReadShardingSettingsFile();
 
     /// <summary>
