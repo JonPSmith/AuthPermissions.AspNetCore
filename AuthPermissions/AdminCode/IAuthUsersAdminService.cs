@@ -15,11 +15,12 @@ namespace AuthPermissions.AdminCode
     public interface IAuthUsersAdminService
     {
         /// <summary>
-        /// This returns a IQueryable of AuthUser, with optional filtering by dataKey (useful for tenant admin
+        /// This returns a IQueryable of AuthUser, with optional filtering by dataKey and sharding name (useful for tenant admin)
         /// </summary>
         /// <param name="dataKey">optional dataKey. If provided then it only returns AuthUsers that fall within that dataKey</param>
+        /// <param name="databaseInfoName">optional sharding name. If provided then it only returns AuthUsers that fall within that dataKey</param>
         /// <returns>query on the database</returns>
-        IQueryable<AuthUser> QueryAuthUsers(string dataKey = null);
+        IQueryable<AuthUser> QueryAuthUsers(string dataKey = null, string databaseInfoName = null);
 
         /// <summary>
         /// Finds a AuthUser via its UserId. Returns a status with an error if not found

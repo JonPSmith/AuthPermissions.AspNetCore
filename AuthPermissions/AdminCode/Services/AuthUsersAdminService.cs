@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -23,7 +24,7 @@ namespace AuthPermissions.AdminCode.Services
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly IAuthPServiceFactory<ISyncAuthenticationUsers> _syncAuthenticationUsersFactory;
-        private readonly bool _isMultiTenant;
+        private readonly AuthPermissionsOptions _options;
 
         /// <summary>
         /// ctor
@@ -37,19 +38,41 @@ namespace AuthPermissions.AdminCode.Services
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
-            _isMultiTenant = options.TenantType.IsMultiTenant();
+            _options = options;
         }
 
         /// <summary>
-        /// This returns a IQueryable of AuthUser, with optional filtering by dataKey (useful for tenant admin)
+        /// This returns a IQueryable of AuthUser, with optional filtering by dataKey and sharding name (useful for tenant admin)
         /// </summary>
         /// <param name="dataKey">optional dataKey. If provided then it only returns AuthUsers that fall within that dataKey</param>
+        /// <param name="databaseInfoName">optional sharding name. If provided then it only returns AuthUsers that fall within that dataKey</param>
         /// <returns>query on the database</returns>
-        public IQueryable<AuthUser> QueryAuthUsers(string dataKey = null)
+        public IQueryable<AuthUser> QueryAuthUsers(string dataKey = null, string databaseInfoName = null)
         {
-            return dataKey == null
-                ? _context.AuthUsers
-                : _context.AuthUsers.Where(x => (x.UserTenant.ParentDataKey + x.TenantId + ".").StartsWith(dataKey));
+            if (dataKey == null)
+                return _context.AuthUsers;
+
+            if (!_options.TenantType.IsSharding())
+                //Not sharding so just check the DataKey
+                return _context.AuthUsers.Where(
+                    x => (x.UserTenant.ParentDataKey + x.TenantId + ".").StartsWith(dataKey));
+            
+            //It is sharding 
+            if (databaseInfoName == null)
+                throw new ArgumentNullException(nameof(databaseInfoName),
+                    "You must provide the user's databaseInfoName claim when using this method with sharding.");
+
+            if (_options.TenantType.IsHierarchical())
+                //Hierarchical: so normal DataKey test
+                return _context.AuthUsers.Where(x =>
+                    (x.UserTenant.ParentDataKey + x.TenantId + ".").StartsWith(dataKey) &&
+                    x.UserTenant.DatabaseInfoName == databaseInfoName);
+
+            //SingleLevel: The DataKey is only checked if its in a database with other tenants
+            return _context.AuthUsers.Where(x =>
+                (x.UserTenant.HasOwnDb || (x.UserTenant.ParentDataKey + x.TenantId + ".") == dataKey)
+                && x.UserTenant.DatabaseInfoName == databaseInfoName);
+
         }
 
         /// <summary>
@@ -139,7 +162,8 @@ namespace AuthPermissions.AdminCode.Services
                 return localRoleNames;
             }
 
-            if (!_isMultiTenant)
+            if (!_options.TenantType.IsMultiTenant())
+                //Not multi-tenant app so simple list of all Roles
                 return InsertEmptyNameIfNeeded(await _context.RoleToPermissions
                     .Select(x => x.RoleName).ToListAsync());
 

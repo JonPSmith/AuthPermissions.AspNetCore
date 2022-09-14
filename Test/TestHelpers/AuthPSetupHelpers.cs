@@ -119,7 +119,7 @@ namespace Test.TestHelpers
             return tenants.Select(x => x.TenantId).ToList();
         }
 
-        public async static Task<List<int>> SetupSingleShardingTenantsInDbAsync(this AuthPermissionsDbContext context,
+        public static async Task<List<int>> SetupSingleShardingTenantsInDbAsync(this AuthPermissionsDbContext context,
             ShardingSingleDbContext appContext = null)
         {
             var tenants = new List<Tenant>

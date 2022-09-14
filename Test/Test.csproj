@@ -62,6 +62,7 @@
     <ProjectReference Include="..\Example4.MvcWebApp.IndividualAccounts\Example4.MvcWebApp.IndividualAccounts.csproj" />
     <ProjectReference Include="..\Example4.ShopCode\Example4.ShopCode.csproj" />
     <ProjectReference Include="..\Example5.MvcWebApp.AzureAdB2C\Example5.MvcWebApp.AzureAdB2C.csproj" />
+    <ProjectReference Include="..\Example6.MvcWebApp.Sharding\Example6.MvcWebApp.Sharding.csproj" />
     <ProjectReference Include="..\Example6.SingleLevelSharding\Example6.SingleLevelSharding.csproj" />
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />
   </ItemGroup>
