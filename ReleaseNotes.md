@@ -1,21 +1,21 @@
 # Release Notes
 
-## ToDo
+## Not approved
 
-- Improved feature: Added timout on user invitation - thanks to @idan-h
-- Bug fix: Changed JWT refresh token to handle multiple logged-in users - see issue #54
+- Improved feature: Changed JWT refresh token to handle multiple logged-in users - see issue #54
 
 ## 3.4.0
 
 - New feature: Stop users linked to a tenant from accessing the the tenant while its being changed - see Example4 and Example6
-- New feature: Take the application "down for maintenance", which diverts users to a "please wait" page - see Example4
-- New feature: Code for minimal API's fluent HasPermission - see pull request #51. Thanks to @idan-h
+- New feature: Take the application "down for maintenance", which diverts users to a "please wait" page - see Example4 and Example6
+- New feature: Code for minimal API's fluent HasPermission - see pull request #51. (thanks to @idan-h)
 - Improved feature: The name of the sharding file can have an EnvironmentName, e.g. "shardingsettings.Production.json"
 - Improved feature: The RefreshUsersClaims classes have been moved to SupportCode project and a few classes have been renamed
 - Improved feature: Sharding now has distributed lock on changes to the shardingsettings.json file
 - Improved feature: Refresh users claims now uses Net.DistributedFileStoreCache - see Example4
+- Improved feature: Added timeout on user invitation - see Example 3 and 5 (inspired by @idan-h)
 - Improved feature: The AuthUserAdmin method QueryAuthUsers now takes an optional DatabaseInfoName to allow tenant admin users on sharding
-- Bug Fix: The ReadShardingSettingsFile now return the default sharding DatabaseInfomation if no sharding file is found
+- Bug Fix: The ReadShardingSettingsFile now return the default sharding DatabaseInformation if no sharding file is found
 - Updated NuGets: There was a security alert on one of the NuGets. All the NuGets have been updated to the latest 
 
 ## 3.3.0
