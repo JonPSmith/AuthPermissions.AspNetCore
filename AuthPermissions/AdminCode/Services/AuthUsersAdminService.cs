@@ -459,7 +459,11 @@ namespace AuthPermissions.AdminCode.Services
         {
             var status = new StatusGenericHandler<List<RoleToPermissions>>();
 
-            var foundRoles = roleNames?.Any() == true
+            if (roleNames == null || roleNames.SequenceEqual( new List<string> { CommonConstants.EmptyItemName }))
+                //If the only role is the empty item, then return no roles
+                return status.SetResult(new List<RoleToPermissions>());
+
+            var foundRoles = roleNames.Any() == true
                 ? await _context.RoleToPermissions
                     .Where(x => roleNames.Contains(x.RoleName))
                     .ToListAsync()

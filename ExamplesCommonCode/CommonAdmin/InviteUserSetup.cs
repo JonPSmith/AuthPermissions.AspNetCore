@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Example5.MvcWebApp.AzureAdB2C.Models;
+namespace ExamplesCommonCode.CommonAdmin;
 
 public class InviteUserSetup
 {
@@ -21,4 +21,15 @@ public class InviteUserSetup
     /// This provides all the Roles that the invited users can have
     /// </summary>
     public List<string> AllRoleNames { get; set; }
+
+    /// <summary>
+    /// This holds the selected invite expiration time in ticks. If default, then no  
+    /// </summary>
+    public long InviteExpiration { get; set; }
+
+    /// <summary>
+    /// This contains key/value dropdown data for setting an expiration time on a invite.
+    /// See <see cref="InviteNewUserService.ListOfExpirationTimes"/> static method for a set of times
+    /// </summary>
+    public List<KeyValuePair<long, string>> ExpirationTimesDropdown { get; set; }
 }

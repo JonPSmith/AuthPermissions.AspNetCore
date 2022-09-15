@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AuthPermissions;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -21,6 +21,7 @@ using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
+using static Humanizer.In;
 
 namespace Test.UnitTests.TestSupportCode;
 
@@ -96,7 +97,8 @@ public class TestInviteNewUserService
 
         //VERIFY
         status.IsValid.ShouldBeFalse(status.GetAllErrors());
-        status.GetAllErrors().ShouldEqual("You haven't set up the Roles for the invited user. If you really what that, then select the '< none >' dropdown item.");
+        status.GetAllErrors().ShouldEqual("You haven't set up any Roles for the invited user. " +
+                                          "If you really what the user to have no roles, then select the '< none >' dropdown item.");
     }
 
     [Fact]
@@ -118,6 +120,85 @@ public class TestInviteNewUserService
         //VERIFY
         status.IsValid.ShouldBeFalse();
         status.GetAllErrors().ShouldEqual("You must provide an email or username for the invitation.");
+    }
+
+    [Fact]
+    public async Task TestInviteUserToJoinTenantAsync_NoTenantBaseSettings()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string> { "Role1", "Role2" } };
+        var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+
+        var decrypted = tuple.encryptService.Decrypt(Base64UrlEncoder.Decode(status.Result));
+        var invite = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
+        invite.Email.ShouldEqual("user2@g.com");
+        invite.Roles.ShouldEqual(new List<string> { "Role1", "Role2" });
+        invite.TimeInviteExpires.ShouldEqual(default);
+    }
+
+    [Fact]
+    public void TestListOfExpirationTimes()
+    {
+        //SETUP
+        var utcNowPlusOneHour = DateTime.UtcNow.AddHours(1);
+
+        //ATTEMPT
+        var list = InviteNewUserService.ListOfExpirationTimes();
+
+        //VERIFY
+        var oneHourExpire = new DateTime(list[1].Key);
+        _output.WriteLine($"Expected value = {utcNowPlusOneHour:O}, Actual value = {oneHourExpire:O}");
+        oneHourExpire.Ticks.ShouldBeInRange(oneHourExpire.AddMilliseconds(-100).Ticks, oneHourExpire.AddMilliseconds(+100).Ticks);
+        list.Select(x => x.Value).ShouldEqual( new List<string>
+        {
+            "Invite is valid forever.",
+            "Invite is only valid for 1 hour from now.",
+            "Invite is only valid for 6 hours from now.",
+            "Invite is only valid for 24 hours from now.",
+            "Invite is only valid for 3 days from now.",
+            "Invite is only valid for 7 days from now.",
+            "Invite is only valid for 20 days from now."
+        });
+
+    }
+
+    [Fact]
+    public async Task TestInviteUserToJoinTenantAsync_WithTimeout()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var expiresTicks = DateTime.UtcNow.AddHours(1).Ticks;
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string> {"< none >"}, TimeInviteExpires = expiresTicks};
+        var status = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+
+        var decrypted = tuple.encryptService.Decrypt(Base64UrlEncoder.Decode(status.Result));
+        var invite = JsonSerializer.Deserialize<AddNewUserDto>(decrypted);
+        invite.Email.ShouldEqual("user2@g.com");
+        invite.TimeInviteExpires.ShouldEqual(expiresTicks);
+        status.Message.ShouldEndWith($". This invite expires on local time {new DateTime(expiresTicks).ToLocalTime():g}.");
     }
 
     [Theory]
@@ -222,5 +303,32 @@ public class TestInviteNewUserService
         }
     }
 
+    [Theory]
+    [InlineData(10, true)]
+    [InlineData(-1, false)]
+    public async Task TestAddUserViaInvite_Timeout(int secondsOffset, bool isValid)
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
 
+        var tuple = await CreateInviteAndAddSenderAuthUserAsync(context);
+        
+        var expiresTicks = DateTime.UtcNow.AddSeconds(secondsOffset).Ticks;
+        var dto = new AddNewUserDto { Email = "User2@g.com", Roles = new List<string> { CommonConstants.EmptyItemName }, 
+            TimeInviteExpires = expiresTicks };
+        var inviteStatus = await tuple.service.CreateInviteUserToJoinAsync(dto, "User1");
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = await tuple.service.AddUserViaInvite(inviteStatus.Result, "user2@g.com", null);
+
+        //VERIFY
+        context.ChangeTracker.Clear();
+        status.IsValid.ShouldEqual(isValid);
+        if (status.HasErrors)
+            status.GetAllErrors().ShouldEqual("The invite has expired. Please contact the person who sent you an invite.");
+    }
 }

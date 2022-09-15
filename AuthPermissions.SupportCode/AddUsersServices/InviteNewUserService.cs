@@ -47,6 +47,25 @@ public class InviteNewUserService : IInviteNewUserService
     }
 
     /// <summary>
+    /// This provides a selection of expiration times for a user invite.
+    /// If you don't like the expiration times you can create your own version of this code
+    /// </summary>
+    /// <returns></returns>
+    public static List<KeyValuePair<long, string>> ListOfExpirationTimes()
+    {
+        return new List<KeyValuePair<long, string>>
+        {
+            new(default, "Invite is valid forever."),
+            new(DateTime.UtcNow.AddHours(1).Ticks, "Invite is only valid for 1 hour from now."),
+            new(DateTime.UtcNow.AddHours(6).Ticks, "Invite is only valid for 6 hours from now."),
+            new(DateTime.UtcNow.AddDays(1).Ticks, "Invite is only valid for 24 hours from now."),
+            new(DateTime.UtcNow.AddDays(3).Ticks, "Invite is only valid for 3 days from now."),
+            new(DateTime.UtcNow.AddDays(7).Ticks, "Invite is only valid for 7 days from now."),
+            new(DateTime.UtcNow.AddDays(20).Ticks, "Invite is only valid for 20 days from now."),
+        };
+    }
+
+    /// <summary>
     /// This creates an encrypted string containing the information containing the
     /// invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
     /// Normally the tenantId is set from the user creating the invite, but there are two exceptions
@@ -130,18 +149,26 @@ public class InviteNewUserService : IInviteNewUserService
 
         if (invitedUser.Roles == null || !invitedUser.Roles.Any())
             return status.AddError(
-                "You haven't set up the Roles for the invited user. If you really what that, then select the "
+                "You haven't set up any Roles for the invited user. If you really what the user to have no roles, then select the "
                 + $"'{CommonConstants.EmptyItemName}' dropdown item.",
                 nameof(AddNewUserDto.Roles));
+
+        //if (invitedUser.Roles == new List<string> { CommonConstants.EmptyItemName })
+        //    //set Roles to null
+        //    invitedUser.Roles = null;
 
         status.Message =
             invitedUser.TenantId == null && _options.TenantType.IsMultiTenant()
                 ? "WARNING: you are creating an invite that will make the user an app admin (i.e. not a tenant). " +
-                  "This is allowable, but wanted to make sure that what you want to do."
+                  "This is allowable, but only send the invite if you are sure that what you want to do."
                 : $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join " +
                   (invitedUser.TenantId == null
                       ? "your application."
                       : $"the tenant '{foundTenant.TenantFullName}'.");
+
+        if (invitedUser.TimeInviteExpires != default)
+            status.Message +=
+                $" This invite expires on local time {new DateTime(invitedUser.TimeInviteExpires).ToLocalTime():g}.";
 
         //This setting makes the string shorter
         JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
@@ -188,6 +215,9 @@ public class InviteNewUserService : IInviteNewUserService
         if (newUserData.Email!= normalizedEmail)
             return status.AddError("Sorry, your email didn't match the invite.",
                 nameof(AddNewUserDto.Email));
+        if (newUserData.TimeInviteExpires != default 
+            && newUserData.TimeInviteExpires < DateTime.UtcNow.Ticks)
+            return status.AddError("The invite has expired. Please contact the person who sent you an invite.");
 
         newUserData.UserName = userName;
         newUserData.Password = password;

@@ -65,7 +65,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         {
             var setupInvite = new InviteUserSetup
             {
-                AllRoleNames = await _authUsersAdmin.GetRoleNamesForUsersAsync(User.GetUserIdFromUser())
+                AllRoleNames = await _authUsersAdmin.GetRoleNamesForUsersAsync(User.GetUserIdFromUser()),
+                ExpirationTimesDropdown = InviteNewUserService.ListOfExpirationTimes()
             }; 
 
             return View(setupInvite);
@@ -76,7 +77,8 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteUserServiceService, InviteUserSetup data)
         {
-            var addUserData = new AddNewUserDto { Email = data.Email, Roles = data.RoleNames}; 
+            var addUserData = new AddNewUserDto { Email = data.Email, Roles = data.RoleNames, 
+                TimeInviteExpires = data.InviteExpiration}; 
             var status = await inviteUserServiceService.CreateInviteUserToJoinAsync(addUserData, User.GetUserIdFromUser());
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),

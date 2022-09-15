@@ -48,6 +48,12 @@ public class AddNewUserDto
     /// </summary>
     public int? TenantId { get; set; }
 
+    /// <summary>
+    /// Optional. This holds the time (in ticks) when the user invite expires.
+    /// If default, then the invite won't expire. Thanks to @idan-h
+    /// </summary>
+    public long TimeInviteExpires { get; set; }
+
     //----------------------------------------------------
     //If using a register / login authentication provider
 
