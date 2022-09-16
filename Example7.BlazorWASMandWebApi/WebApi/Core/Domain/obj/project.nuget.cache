@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "KaSRwzMryg1as7YSM9Oi5N/ve3jsQQNjait5UjR4W9J6HZZyCzFK6GH/D80caBwk/zriCtt32cpLInC+D+aKcw==",
+  "success": true,
+  "projectFilePath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Domain/Domain.csproj",
+  "expectedPackageFiles": [
+    "/Users/akema_trebla/.nuget/packages/genericservices.statusgeneric/1.1.0/genericservices.statusgeneric.1.1.0.nupkg.sha512",
+    "/Users/akema_trebla/.nuget/packages/system.componentmodel.annotations/4.6.0/system.componentmodel.annotations.4.6.0.nupkg.sha512"
+  ],
+  "logs": []
+}

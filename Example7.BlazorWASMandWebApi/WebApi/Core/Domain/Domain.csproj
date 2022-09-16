@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Example7.BlazorWASMandWebApi.Domain</RootNamespace>
+    <AssemblyName>Example7.BlazorWASMandWebApi.Domain</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="GenericServices.StatusGeneric" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GenericServices.StatusGeneric" Version="1.1.0" />
+  </ItemGroup>
+</Project>
