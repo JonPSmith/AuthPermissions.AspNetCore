@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32002.185
@@ -54,7 +54,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebApi", "WebApi", "{C95E1A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Example7.BlazorWASMandWebApi\WebApi\Core\Domain\Domain.csproj", "{89D0A291-224E-4ECA-9A7A-2B1E062414A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Example7.BlazorWASMandWebApi\WebApi\Core\Domain\Shared\Shared.csproj", "{3F829781-6DB3-48F3-86C0-6668A32E9549}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Example7.BlazorWASMandWebApi\Shared\Shared.csproj", "{3F829781-6DB3-48F3-86C0-6668A32E9549}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

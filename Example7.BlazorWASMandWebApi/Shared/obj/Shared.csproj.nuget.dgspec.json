@@ -1,0 +1,62 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj": {}
+  },
+  "projects": {
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj",
+        "projectName": "Example7.BlazorWASMandWebApi.Shared",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
