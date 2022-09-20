@@ -1,0 +1,5 @@
+/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/obj/Debug/net6.0/Application.csproj.AssemblyReference.cache
+/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/obj/Debug/net6.0/Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/obj/Debug/net6.0/Application.AssemblyInfoInputs.cache
+/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/obj/Debug/net6.0/Application.AssemblyInfo.cs
+/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/obj/Debug/net6.0/Application.csproj.CoreCompileInputs.cache

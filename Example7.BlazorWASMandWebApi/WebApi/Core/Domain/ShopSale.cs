@@ -54,19 +54,10 @@ public class ShopSale : IDataKeyFilterReadOnly
     /// <param name="foundStock"></param>
     /// <param name="stockName">Used only for error message</param>
     /// <returns></returns>
-    public static IStatusGeneric<ShopSale> CreateSellAndUpdateStock(int numBought, ShopStock foundStock, string stockName)
+    public static ShopSale CreateSellAndUpdateStock(int numBought, ShopStock foundStock)
     {
-        if (numBought < 0) throw new ArgumentException("must be positive", nameof(numBought));
-        var status = new StatusGenericHandler<ShopSale> { Message = $"Successfully bought a {(foundStock?.StockName ?? stockName)}" };
+        foundStock.SellSomeStock(numBought);
 
-        if (foundStock == null)
-            return status.AddError($"Could not find any stock of: {stockName}.");
-
-        status.CombineStatuses(foundStock.SellSomeStock(numBought));
-        if (status.HasErrors)
-            return status;
-
-        var sale = new ShopSale(numBought, null, foundStock);
-        return status.SetResult(sale);
+        return new ShopSale(numBought, null, foundStock);
     }
 }
