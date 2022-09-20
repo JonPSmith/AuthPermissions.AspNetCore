@@ -112,7 +112,10 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantDelete)]
         public async Task<IActionResult> Delete(ShardingSingleLevelTenantDto input)
         {
+            var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Deleted, input.TenantId);
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
+            if (status.HasErrors)
+                await removeDownAsync();
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

@@ -119,6 +119,7 @@ public class SetRemoveStatus : ISetRemoveStatus
         return () =>  RemoveTenantDownAsync(downType, mainKey, secondaryKey);
     }
 
+    //Not used, but kept in case it might be useful 
     ///// <summary>
     ///// This removes the cache entry that was "downing" the tenant
     ///// </summary>
