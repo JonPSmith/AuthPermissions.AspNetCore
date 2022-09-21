@@ -28,4 +28,19 @@ public static class RegisterDownForMaintenance
             await handler.RedirectUserOnStatusesAsync(context.User, context.Response.Redirect, next);
         });
     }
+
+    /// <summary>
+    /// Register the "down for maintenance" middleware
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="tenantTypes">Provides the <see cref="TenantTypes"/> for the application</param>
+    public static IApplicationBuilder UseDownForMaintenance(this IApplicationBuilder app, TenantTypes tenantTypes)
+    {
+        return app.Use(async (HttpContext context, Func<Task> next) =>
+        {
+            var handler = new RedirectUsersViaStatusData(context.GetRouteData(), context.RequestServices, tenantTypes);
+
+            await handler.RedirectUserOnStatusesAsync(context.User, context.Response.Redirect, next);
+        });
+    }
 }
