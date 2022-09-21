@@ -1,0 +1,1026 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AuthPermissions.SupportCode</name>
+    </assembly>
+    <members>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto">
+            <summary>
+            This holds user data (via the inherit of the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto"/>)
+            and the Tenant information.
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto.TenantName">
+            <summary>
+            This is the name of the new tenant the user wants to create
+            Must be provided
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto.Version">
+            <summary>
+            This holds the name of the version of the multi-tenant features the user has selected
+            Can be null if not using versions 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto.HasOwnDb">
+            <summary>
+            If the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData"/>.<see cref="P:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData.HasOwnDbForEachVersion"/> is null
+            and <see cref="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.AddSharding"/> is on, then you must set this to true / false.
+            true means the new tenant has its own database, while false means the database will contain multiple tenants
+            NOTE: If the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData"/>.<see cref="P:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData.HasOwnDbForEachVersion"/> isn't null
+            then this parameter is ignored.
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto.Region">
+            <summary>
+            If <see cref="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.AddSharding"/> and you have database servers geographically spread,
+            then you can provide some information to help the <see cref="T:AuthPermissions.SupportCode.ShardingServices.IGetDatabaseForNewTenant"/> service
+            to pick the right server/database.
+            Can be null.
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto">
+            <summary>
+            This is used holds the data to securely add a new user to a AuthP application
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.Email">
+            <summary>
+            Contains a unique Email (normalized by applying .ToLower), which is used for lookup
+            If null, then it takes the UserName value
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.UserName">
+            <summary>
+            Contains a unique user name
+            This is used to a) provide more info on the user, or b) when using Windows authentication provider
+            If null, then it takes non-normalized Email
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.Roles">
+            <summary>
+            A list of Role names to add to the AuthP user when the AuthP user is created
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.TenantId">
+            <summary>
+            Optional. This holds the tenantId of the tenant that the joining user should be linked to
+            If null, then the application must not be a multi-tenant application 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.TimeInviteExpires">
+            <summary>
+            Optional. This holds the time (in ticks) when the user invite expires.
+            If default, then the invite won't expire. Thanks to @idan-h
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.Password">
+            <summary>
+            If using a register / login authentication provider you need to provide the user's password
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.IsPersistent">
+            <summary>
+            If using a register / login authentication provider and using cookies
+            setting this to true will make the cookie persist after using the app
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.GetRolesAsCommaDelimited">
+            <summary>
+            This converts the list of roles into 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager">
+            <summary>
+            This implements a user manager when using Azure AD as your authentication handler
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager.#ctor(AuthPermissions.AdminCode.IAuthUsersAdminService,AuthPermissions.AdminCode.IAuthTenantAdminService,AuthPermissions.SupportCode.AzureAdServices.IAzureAdAccessService,Microsoft.Extensions.Options.IOptions{AuthPermissions.AspNetCore.OpenIdCode.AzureAdOptions})">
+            <summary>
+            ctor
+            </summary>
+            <param name="authUsersAdmin"></param>
+            <param name="tenantAdminService"></param>
+            <param name="azureAccessService"></param>
+            <param name="azureOptions"></param>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager.AuthenticationGroup">
+            <summary>
+            This tells you what Authentication handler, or group of handlers, that the Add User Manager supports
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager.UserLoginData">
+            <summary>
+            This holds the data provided for the login.
+            Used to check that the email of the person who will login is the same as the email provided by the user
+            NOTE: Email and UserName can be null if providing a default value
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager.CheckNoExistingAuthUserAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto)">
+            <summary>
+            This makes a quick check that the user isn't already has an AuthUser 
+            </summary>
+            <param name="newUser"></param>
+            <returns>status, with error if there an user already</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager.SetUserInfoAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto)">
+            <summary>
+            This uses the <see cref="T:AuthPermissions.SupportCode.AzureAdServices.IAzureAdAccessService"/> to create the user with an temporary password in the AzureAD.
+            This returns the userId of the AzureAD user, which is uses to create the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser"/> with the Roles, Tenants, etc. 
+            </summary>
+            <param name="newUser">The information for creating an AuthUser </param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager.LoginAsync">
+            <summary>
+            not used 
+            </summary>
+            <returns>status with the final <see cref="T:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto"/> setting.
+            This is needed in the Azure AD version, as it creates a temporary password.</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager">
+            <summary>
+            This defines the properties / methods use to add a new user to an application that us using AuthP
+            This means it much easier for you to use the "invite user" and "sign up" features with any authentication
+            There are two implementation of this interface cover nearly all the normal authentication handlers
+            1. <see cref="T:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1"/>, which works with the Individual User Accounts
+            2. <see cref="T:AuthPermissions.SupportCode.AddUsersServices.Authentication.AzureAdNewUserManager"/>, which works for Azure AD
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager.AuthenticationGroup">
+            <summary>
+            This tells you what Authentication handler, or group of handlers, that the Add User Manager supports
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager.UserLoginData">
+            <summary>
+            This holds the data provided for the login.
+            Used to check that the email of the person who will login is the same as the email provided by the user
+            NOTE: Email and UserName can be null if providing a default value
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager.CheckNoExistingAuthUserAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto)">
+            <summary>
+            This makes a quick check that the user isn't already has an AuthUser 
+            </summary>
+            <param name="newUser"></param>
+            <returns>status, with error if there an user already</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager.SetUserInfoAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto)">
+            <summary>
+            This either register the user and creates the AuthUser to match, or for
+            external authentication handlers where you can't get a user's data before the login 
+            it adds the new user AuthP information into the database to be read within the login event
+            </summary>
+            <param name="newUser">The information for creating an AuthUser </param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager.LoginAsync">
+            <summary>
+            Optional: this logs in the user if the authentication handler can do that
+            </summary>
+            <returns>status with the final <see cref="T:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto"/> setting.
+            This is needed in the Azure AD version, as it creates a temporary password.</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1">
+            <summary>
+            This the implementation of the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager"/> for the Individual User Accounts authentication handler
+            This will create (or find) an individual user account and then create an AuthUser linked to that individual user.
+            It uses the the authP data in the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto"/> class when creating the AuthUser
+            </summary>
+            <typeparam name="TIdentity"></typeparam>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1.#ctor(AuthPermissions.AdminCode.IAuthUsersAdminService,AuthPermissions.AdminCode.IAuthTenantAdminService,Microsoft.AspNetCore.Identity.UserManager{`0},Microsoft.AspNetCore.Identity.SignInManager{`0})">
+            <summary>
+            ctor
+            </summary>
+            <param name="authUsersAdmin"></param>
+            <param name="tenantAdminService"></param>
+            <param name="userManager"></param>
+            <param name="signInManager"></param>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1.AuthenticationGroup">
+            <summary>
+            This Add User Manager works with the Individual User Accounts authentication handler
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1.UserLoginData">
+            <summary>
+            This holds the data provided for the login.
+            Used to check that the email of the person who will login is the same as the email provided by the user
+            NOTE: Email and UserName can be null if providing a default value
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1.CheckNoExistingAuthUserAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto)">
+            <summary>
+            This makes a quick check that the user isn't already has an AuthUser 
+            </summary>
+            <param name="newUser"></param>
+            <returns>status, with error if there an user already</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1.SetUserInfoAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto)">
+            <summary>
+            This either register the user and creates the AuthUser to match, or for
+            external authentication handlers where you can't get a user's data before the login 
+            it adds the new user AuthP information into the database to be read within the login event
+            </summary>
+            <param name="newUser">The information for creating an AuthUser
+            It also checks if there is a user already, which could happen if the user's login failed</param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.Authentication.IndividualUserAddUserManager`1.LoginAsync">
+            <summary>
+            This logs in the user
+            </summary>
+            <returns>status with the final <see cref="T:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto"/> setting.
+            This is needed in the Azure AD version, as it creates a temporary password.</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.IInviteNewUserService">
+            <summary>
+            This interface defines the methods for inviting a new user to an application
+            and the code to accept that invite and register the user with AuthP
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.IInviteNewUserService.CreateInviteUserToJoinAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,System.String)">
+            <summary>
+            This creates an encrypted string containing the information containing the
+            invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
+            </summary>
+            <param name="invitedUser">Data needed to add a new AuthP user</param>
+            <param name="userId">userId of current user - used to obtain any tenant info.</param>
+            <returns>status with message and encrypted string containing the data to send the user in a link</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.IInviteNewUserService.AddUserViaInvite(System.String,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            This takes the information from the user using the invite plus the encrypted invite code.
+            After a check on the user email is the same as the email in the invite, it then creates
+            an authentication login / user, which provides the UserId, and then created an AuthUser 
+            containing the email/username, Roles and Tenant info held in encrypted invite data.
+            </summary>
+            <param name="inviteParam">The encrypted part of the url encoded to work with urls
+                that was created by <see cref="M:AuthPermissions.SupportCode.AddUsersServices.IInviteNewUserService.CreateInviteUserToJoinAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,System.String)"/></param>
+            <param name="email">email - used to check that the user is the same as the invite</param>
+            <param name="userName">username - used for creating the user</param>
+            <param name="password">If use are using a register / login authentication handler (e.g. individual user accounts),
+                then the password for the new user should be provided</param>
+            <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
+                and you are using authentication cookie, then setting this to true makes the login persistent</param>
+            <returns>Status with the data used to create the user</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.InviteNewUserService">
+            <summary>
+            This service implements the "invite user" feature
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.InviteNewUserService.#ctor(AuthPermissions.BaseCode.AuthPermissionsOptions,AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.BaseCode.CommonCode.IEncryptDecryptService,AuthPermissions.AdminCode.IAuthUsersAdminService,AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager)">
+            <summary>
+            ctor
+            </summary>
+            <param name="options"></param>
+            <param name="context"></param>
+            <param name="encryptService"></param>
+            <param name="usersAdmin"></param>
+            <param name="addNewUserManager"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.InviteNewUserService.ListOfExpirationTimes">
+            <summary>
+            This provides a selection of expiration times for a user invite.
+            If you don't like the expiration times you can create your own version of this code
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.InviteNewUserService.CreateInviteUserToJoinAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,System.String)">
+            <summary>
+            This creates an encrypted string containing the information containing the
+            invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
+            Normally the tenantId is set from the user creating the invite, but there are two exceptions
+            - Invite user must allow for a Hierarchical tenant where the tenant is deeper than the admin user
+            - If the user is an non-tenant user (app admin), then the tenantId can be set to null or any tenant
+            </summary>
+            <param name="invitedUser">Data needed to add a new AuthP user</param>
+            <param name="userId">userId of current user - used to obtain any tenant info.</param>
+            <returns>status with message and encrypted string containing the data to send the user in a link</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.InviteNewUserService.AddUserViaInvite(System.String,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            This takes the information from the user using the invite plus the encrypted invite code.
+            After a check on the user email is the same as the email in the invite, it then creates
+            an authentication login / user, which provides the UserId, and then created an AuthUser 
+            containing the email/username, Roles and Tenant info held in encrypted invite data.
+            </summary>
+            <param name="inviteParam">The encrypted part of the url encoded to work with urls
+                that was created by <see cref="M:AuthPermissions.SupportCode.AddUsersServices.InviteNewUserService.CreateInviteUserToJoinAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,System.String)"/></param>
+            <param name="email">email - used to check that the user is the same as the invite</param>
+            <param name="userName">username - used for creating the user</param>
+            <param name="password">If use are using a register / login authentication handler (e.g. individual user accounts),
+            then the password for the new user should be provided</param>
+            <param name="isPersistent">If use are using a register / login authentication handler (e.g. individual user accounts)
+            and you are using authentication cookie, then setting this to true makes the login persistent</param>
+            <returns>Status with the data used to create the user</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.ISignInAndCreateTenant">
+            <summary>
+            This interface defines the service to implement AuthP's "sign up" feature, which allows a new user to 
+            create a new tenant automatically and then register the user to  new tenant. 
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.ISignInAndCreateTenant.SignUpNewTenantAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto)">
+            <summary>
+            This implements "sign up" feature, where a new user signs up for a new tenant,
+            where there is only version of the tenant. It also creates a new user which is linked to the new tenant.
+            </summary>
+            <param name="newUser">The information for the new user that is signing in</param>
+            <param name="tenantData">The information for how the new tenant should be created</param>
+            <returns>status</returns>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.ISignInAndCreateTenant.SignUpNewTenantWithVersionAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto,AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData)">
+            <summary>
+            This implements "sign up" feature, where a new user signs up for a new tenant, with versioning.
+            This method creates the tenant using the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData"/> for this application
+            with backup version information provides by the user.
+            At the same time is creates a new user which is linked to the new tenant.
+            </summary>
+            <param name="newUser">The information for the new user that is signing in</param>
+            <param name="tenantData">The information for how the new tenant should be created</param>
+            <param name="versionData">This contains the application's setup of your tenants, including different versions.</param>
+            <returns>Status</returns>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData">
+            <summary>
+            This is holds the data required for creating different versions of your multi tenant application
+            You fill this in and provide it to the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.SignInAndCreateTenant"/> service
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData.TenantRolesForEachVersion">
+            <summary>
+            The dictionary key should contain the name of each version,
+            and each value contains the Tenant Roles to be added to this version of a Tenant.
+            It null, then no Tenant Roles are added to the tenant
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData.TenantAdminRoles">
+            <summary>
+            This holds the Roles of a tenant admin for each version,
+            i.e. they can manage the users in their tenant including the
+            ability to invite a new user to your tenant.
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData.HasOwnDbForEachVersion">
+            <summary>
+            If <see cref="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.AddSharding"/> is on, then you can define which
+            tenant versions have their own DB.
+            If this property isn't null, then it will override the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto"/>.<see cref="P:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto.HasOwnDb"/> property
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AddUsersServices.SignInAndCreateTenant">
+            <summary>
+            This class implements the AuthP "sign up" feature, which allows a new user to automatically
+            create a new tenant and becomes the tenant admin user for this new tenant.
+            This class handles different versions, as defined in the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData"/> class
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.SignInAndCreateTenant.#ctor(AuthPermissions.BaseCode.AuthPermissionsOptions,AuthPermissions.AdminCode.IAuthTenantAdminService,AuthPermissions.SupportCode.AddUsersServices.Authentication.IAddNewUserManager,AuthPermissions.SupportCode.ShardingServices.IGetDatabaseForNewTenant)">
+            <summary>
+            ctor
+            </summary>
+            <param name="options"></param>
+            <param name="tenantAdmin"></param>
+            <param name="addNewUserManager"></param>
+            <param name="getShardingDb"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.SignInAndCreateTenant.SignUpNewTenantAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto)">
+            <summary>
+            This implements "sign up" feature, where a new user signs up for a new tenant,
+            where there is only version of the tenant. It also creates a new user which is linked to the new tenant.
+            </summary>
+            <param name="newUser">The information for the new user that is signing in.
+            NOTE: any Roles for the user should be added to the <see cref="P:AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto.Roles"/> property</param>
+            <param name="tenantData">The information for how the new tenant should be created.
+            NOTE: Set the <see cref="P:AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto.HasOwnDb"/> to true/false if sharding is on.</param>
+            <returns>status</returns>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AddUsersServices.SignInAndCreateTenant.SignUpNewTenantWithVersionAsync(AuthPermissions.SupportCode.AddUsersServices.AddNewUserDto,AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto,AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData)">
+            <summary>
+            This implements "sign up" feature, where a new user signs up for a new tenant, with versioning.
+            This method creates the tenant using the <see cref="T:AuthPermissions.SupportCode.AddUsersServices.MultiTenantVersionData"/> for this application
+            with backup version information provides by the user.
+            At the same time is creates a new user which is linked to the new tenant.
+            </summary>
+            <param name="newUser">The information for the new user that is signing in</param>
+            <param name="tenantData">The information for how the new tenant should be created</param>
+            <param name="versionData">This contains the application's setup of your tenants, including different versions.</param>
+            <returns>Status</returns>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AzureAdServices.AzureAdAccessService">
+            <summary>
+            This provides a <see cref="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers"/> service that returns all the Azure AD users who's account is enabled.
+            This implementation uses Microsoft.Graph library
+            This code came from https://docs.microsoft.com/en-us/samples/azure-samples/ms-identity-dotnetcore-b2c-account-management/manage-b2c-users-dotnet-core-ms-graph/
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AzureAdServices.AzureAdAccessService.#ctor(Microsoft.Extensions.Options.IOptions{AuthPermissions.AspNetCore.OpenIdCode.AzureAdOptions})">
+            <summary>
+            ctor
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AzureAdServices.AzureAdAccessService.GetAllActiveUserInfoAsync">
+            <summary>
+            This returns a list of all the enabled users for syncing with the AuthP users
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AzureAdServices.AzureAdAccessService.FindAzureUserAsync(System.String)">
+            <summary>
+            This will look for a user with the given email
+            </summary>
+            <param name="email"></param>
+            <returns>if found it returns the user's ID, otherwise it returns null</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AzureAdServices.AzureAdAccessService.CreateNewUserAsync(System.String,System.String,System.String)">
+            <summary>
+            This creates a new user in the Azure AD. It returns the ID of the new Azure AD user.
+            </summary>
+            <param name="email">Must be provided</param>
+            <param name="userName">Must be provided</param>
+            <param name="temporaryPassword">Must be present. It is a temporary Password</param>
+            <returns>status: if error then return message, otherwise Result holds ID of the newly created Azure AD user</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.AzureAdServices.IAzureAdAccessService">
+            <summary>
+            Defines the methods in the Azure AD service, including the <see cref="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers"/>
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AzureAdServices.IAzureAdAccessService.FindAzureUserAsync(System.String)">
+            <summary>
+            This will look for a user with the given email
+            </summary>
+            <param name="email"></param>
+            <returns>if found it returns the user's ID, otherwise it returns null</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.AzureAdServices.IAzureAdAccessService.CreateNewUserAsync(System.String,System.String,System.String)">
+            <summary>
+            This creates a new user in the Azure AD. It returns the ID of the new Azure AD user.
+            </summary>
+            <param name="email">Must be provided</param>
+            <param name="userName">Must be provided</param>
+            <param name="temporaryPassword">Must be present. It is a temporary Password</param>
+            <returns>status: if error then return message, otherwise Result holds ID of the newly created Azure AD user</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.AddGlobalChangeTimeClaim">
+            <summary>
+            This adds a claim used with the "update claims on change" feature
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.AddGlobalChangeTimeClaim.AddClaimToUserAsync(System.String)">
+            <summary>
+            This adds the current time (utc) as the last time the user's claims were updated
+            </summary>
+            <param name="userId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.GlobalChangeTimeService">
+            <summary>
+            This service handles the reading and writing of a DateTime to a place that all instances of the application
+            Its uses the FileStore cache to save / return the 
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.GlobalChangeTimeService.ChangeAtThisTimeCacheKeyName">
+            <summary>
+            This is the key for the "last changed" time
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.GlobalChangeTimeService.#ctor(Net.DistributedFileStoreCache.IDistributedFileStoreCacheClass)">
+            <summary>
+            ctor
+            </summary>
+            <param name="fsCache"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.GlobalChangeTimeService.SetGlobalChangeTimeToNowUtc(System.Int32)">
+            <summary>
+            This will write a file to a global directory. The file contains the <see cref="P:System.DateTime.UtcNow"/> as a string
+            </summary>
+            <param name="minutesToExpiration">Optional: if the parameter > 0 the cache entry will expire after the the given minutes.
+            This will very slightly improve performance.</param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.GlobalChangeTimeService.GetGlobalChangeTimeUtc">
+            <summary>
+            This gets the cache value with the <see cref="F:AuthPermissions.SupportCode.DownStatusCode.GlobalChangeTimeService.ChangeAtThisTimeCacheKeyName"/> key returned as a DateTime
+            If the cache value isn't found, then it returns <see cref="F:System.DateTime.MinValue"/>, which says no change has happened
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.GlobalChangeTimeService.DeleteGlobalFile">
+            <summary>
+            Remove the global change entry (not in the interface)
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.IGlobalChangeTimeService">
+            <summary>
+            Interface for the service that set / get the time of the last registered change
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.IGlobalChangeTimeService.SetGlobalChangeTimeToNowUtc(System.Int32)">
+            <summary>
+            This will write a file to a global directory. The file contains the <see cref="P:System.DateTime.UtcNow"/> as a string
+            </summary>
+            <param name="minutesToExpiration">Optional: if the parameter > 0 the cache entry will expire after the the given minutes.
+            This will very slightly improve performance.</param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.IGlobalChangeTimeService.GetGlobalChangeTimeUtc">
+            <summary>
+            This gets the cache value with the global change key returned as a DateTime
+            If the cache value isn't found, then it returns <see cref="F:System.DateTime.MinValue"/>, which says no change has happened
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.ISetRemoveStatus">
+            <summary>
+            This interface contains the methods you can use to take an app and / or tenant "down"
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.ISetRemoveStatus.GetAllDownKeyValues">
+            <summary>
+            This returns a list of key/values that start with the down status 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.ISetRemoveStatus.GetAppDownMessage">
+            <summary>
+            This returns the messages in the appDown settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.ISetRemoveStatus.SetAppDown(AuthPermissions.SupportCode.DownStatusCode.ManuelAppDownDto)">
+            <summary>
+            This sets the manual app down status
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.ISetRemoveStatus.RemoveAnyDown(System.String)">
+            <summary>
+            This removes any cache entry that starts with the Down Status
+            </summary>
+            <param name="cacheDownKey"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.ISetRemoveStatus.SetTenantDownWithDelayAsync(AuthPermissions.SupportCode.DownStatusCode.TenantDownVersions,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            This sets a tenant down and then delays so that any current accesses to the tenant should have finished.
+            This also returns the method to remove the tenant down
+            </summary>
+            <param name="downType">The type of the tenant down - this defines what page/message the user sees while the tenant is down</param>
+            <param name="tenantId">TenantId of the tenant to take down</param>
+            <param name="parentId">Optional: When executing a hierarchical Move you need to provide the new parent to be downed too</param>
+            <param name="delayMs">Delay once the cache down has been set. Defaults to 100 ms</param>
+            <returns>Returns the code to remove the tenant down status</returns>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.ManuelAppDownDto">
+            <summary>
+            This is used in the "app down" and contains information to show to users
+            while the application is "down for maintenance" 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.DownStatusCode.ManuelAppDownDto.UserId">
+            <summary>
+            Id of the user that set the "all down" status
+            This allows that user to still use the app
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.DownStatusCode.ManuelAppDownDto.Message">
+            <summary>
+            Optional message
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.DownStatusCode.ManuelAppDownDto.ExpectedTimeDownMinutes">
+            <summary>
+            Optional: This contains the expected time the app will be not available to users
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.DownStatusCode.ManuelAppDownDto.StartedUtc">
+            <summary>
+            Set this to the start time 
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.ManuelTenantDownDto">
+            <summary>
+            This is used to select a tenant to manually "down" a tenant 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.DownStatusCode.ManuelTenantDownDto.TenantId">
+            <summary>
+            Id of tenant to down
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.SupportCode.DownStatusCode.ManuelTenantDownDto.ListOfTenants">
+            <summary>
+            This contains a list of tenants, with the Key being the tenantId and the Value the tenantName
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.ManuelTenantDownDto.SetupListOfTenantsAsync(AuthPermissions.AdminCode.IAuthTenantAdminService)">
+            <summary>
+            this will set up the list of tenants to select from
+            </summary>
+            <param name="tenantAdminService"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData">
+            <summary>
+            This handles the redirection of user based on the down statues held in the FileStore cache.
+            Putting this in a separate class makes it easier to test
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.DownForStatusPrefix">
+            <summary>
+            This is the prefix on all diverts of users
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.DivertAppDown">
+            <summary>
+            This is the key for the "app down" entry
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.DivertTenantPrefix">
+            <summary>
+            This is the prefix on all the tenant "down" keys
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.DivertTenantUpdate">
+            <summary>
+            This is the prefix on tenant "down for update" keys (temporary, while change)
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.DivertTenantManuel">
+            <summary>
+            This is the prefix on tenant "manual down" keys (controlled by admin user)
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.DivertTenantDeleted">
+            <summary>
+            This is the prefix on tenants that have been deleted (permanent)
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.#ctor(Microsoft.AspNetCore.Routing.RouteData,System.IServiceProvider,AuthPermissions.BaseCode.SetupCode.TenantTypes,System.String)">
+            <summary>
+            ctor
+            </summary>
+            <param name="routeData">This should contain the HttpContext's GetRouteData()</param>
+            <param name="serviceProvider">The service provider from the HttpContext</param>
+            <param name="tenantTypes">Defines what </param>
+            <param name="statusControllerName">This defines the name of the controller where the status </param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.RedirectUsersViaStatusData.RedirectUserOnStatusesAsync(System.Security.Claims.ClaimsPrincipal,System.Action{System.String},System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            This checks if there are any "down" status entries in the FileStore cache, and if the user meets a "down" status.
+            The "app down" effects everybody but the user that took the app down, while the "tenant downs" only effects users
+            that have the same tenant key and the downed tenant
+            </summary>
+            <param name="user">The user, after the authorization has created it, with its claims</param>
+            <param name="redirect">This allows a user to be diverted to "down" message</param>
+            <param name="next">You call this if the user is allowed to go to the url they asked for</param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.RegisterDownForMaintenance">
+            <summary>
+            Use this to register the "down for maintenance" middleware.
+            This MUST be registered AFTER the UseAuthorization middleware
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.RegisterDownForMaintenance.UseDownForMaintenance(Microsoft.AspNetCore.Builder.WebApplication,AuthPermissions.BaseCode.SetupCode.TenantTypes)">
+            <summary>
+            Register the "down for maintenance" middleware
+            </summary>
+            <param name="app"></param>
+            <param name="tenantTypes">Provides the <see cref="T:AuthPermissions.BaseCode.SetupCode.TenantTypes"/> for the application</param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.RegisterDownForMaintenance.UseDownForMaintenance(Microsoft.AspNetCore.Builder.IApplicationBuilder,AuthPermissions.BaseCode.SetupCode.TenantTypes)">
+            <summary>
+            Register the "down for maintenance" middleware
+            </summary>
+            <param name="app"></param>
+            <param name="tenantTypes">Provides the <see cref="T:AuthPermissions.BaseCode.SetupCode.TenantTypes"/> for the application</param>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.TenantDownVersions">
+            <summary>
+            This defines the three types of tenant "downs"
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.TenantDownVersions.Update">
+            <summary>
+            Tenant "down for update" (temporary, while change)
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.TenantDownVersions.ManualDown">
+            <summary>
+            Manual "down" a tenant (controlled by admin user)
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.TenantDownVersions.Deleted">
+            <summary>
+            The tenant was deleted, so you don't logged-in user to try to access it (permanent)
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.SetRemoveStatus">
+            <summary>
+            This service provides methods to read, set and remove app and tenant "downs"
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.SetRemoveStatus.#ctor(Net.DistributedFileStoreCache.IDistributedFileStoreCacheClass,AuthPermissions.AdminCode.IAuthTenantAdminService)">
+            <summary>
+            ctor
+            </summary>
+            <param name="fsCache"></param>
+            <param name="authTenantAdmin"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.SetRemoveStatus.GetAllDownKeyValues">
+            <summary>
+            This returns a list of key/values that start with the down status 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.SetRemoveStatus.GetAppDownMessage">
+            <summary>
+            This returns the messages in the appDown settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.SetRemoveStatus.SetAppDown(AuthPermissions.SupportCode.DownStatusCode.ManuelAppDownDto)">
+            <summary>
+            This sets the manual app down status
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.SetRemoveStatus.RemoveAnyDown(System.String)">
+            <summary>
+            This removes any cache entry that starts with the Down Status
+            </summary>
+            <param name="cacheDownKey"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.SetRemoveStatus.SetTenantDownWithDelayAsync(AuthPermissions.SupportCode.DownStatusCode.TenantDownVersions,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            This sets a tenant down and then delays so that any current accesses to the tenant should have finished.
+            This also returns the method to remove the tenant down
+            </summary>
+            <param name="downType">The type of the tenant down - this defines what page/message the user sees while the tenant is down</param>
+            <param name="tenantId">TenantId of the tenant to take down</param>
+            <param name="parentId">Optional: When executing a hierarchical Move you need to provide the new parent to be downed too</param>
+            <param name="delayMs">Delay once the cache down has been set. Defaults to 100 ms</param>
+            <returns>Returns the code to remove the tenant down status</returns>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.TenantChangeCookieEvent">
+            <summary>
+            This contains the event method that watches for a significant change that effects the user's claims.
+            If a change is found it will compare the time the significant change against the time when
+            the user's claims were last updated. If the user's claims are "older" that the change happens, then their claims are updated
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.DownStatusCode.TenantChangeCookieEvent.EntityChangeClaimType">
+            <summary>
+            This is the name of the claim type for a change
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.TenantChangeCookieEvent.UpdateClaimsIfSomethingChangesAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieValidatePrincipalContext)">
+            <summary>
+            This updates the users claims when a change is registered.
+            Useful for updating the claims if something is changed
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.TenantKeyOrShardChangeService">
+            <summary>
+            This service that will be added to the AuthPermissionsDbContext
+            which will sets an entry in the FileStore cache containing the last time that
+            the DataKey or DatabaseInfoName where changed in the tenant
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.TenantKeyOrShardChangeService.#ctor(AuthPermissions.SupportCode.DownStatusCode.IGlobalChangeTimeService)">
+            <summary>
+            ctor
+            </summary>
+            <param name="globalAccessor"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.TenantKeyOrShardChangeService.RegisterEventHandlers(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext)">
+            <summary>
+            This will register a method to the EF Core StateChanged event.
+            If the registered method detects a change to the DataKey or DatabaseInfoName,
+            then it sets the global change setting to the time of the last change.
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.DownStatusCode.TenantStatusKeyExtensions">
+            <summary>
+            These extension methods can create the unique tenant value for a tenant "down" status
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.TenantStatusKeyExtensions.FormUniqueTenantValue(AuthPermissions.BaseCode.SetupCode.TenantTypes,System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Creates the unique tenant value from the user's claims
+            </summary>
+            <param name="tenantTypes"></param>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.TenantStatusKeyExtensions.FormUniqueTenantValue(System.String,System.String)">
+            <summary>
+            This creates the unique tenant value from the basic parts: DataKey and DatabaseInfoName
+            </summary>
+            <param name="dataKey"></param>
+            <param name="databaseInfoName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.TenantStatusKeyExtensions.FormUniqueTenantValue(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This creates the unique tenant value from the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.Tenant"/> class
+            </summary>
+            <param name="tenant"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.DownStatusCode.TenantStatusKeyExtensions.FormedTenantCombinedKeyAsync(AuthPermissions.AdminCode.IAuthTenantAdminService,System.Int32)">
+            <summary>
+            This reads in the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.Tenant"/> using its TenantId and creates the unique tenant value 
+            </summary>
+            <param name="tenantAdmin"></param>
+            <param name="tenantId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation">
+            <summary>
+            This class contains CRUD methods to the sharding settings which contains a list of <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> 
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation.ShardingSettingFilename">
+            <summary>
+            Name of the sharding file
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment,AuthPermissions.AspNetCore.Services.IShardingConnections,AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            Ctor
+            </summary>
+            <param name="env"></param>
+            <param name="connectionsService"></param>
+            <param name="authDbContext"></param>
+            <param name="options"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation.ReadShardingSettingsFile">
+            <summary>
+            This will return a list of <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> in the sharding settings file in the application
+            </summary>
+            <returns>If no file, then returns the default list</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation.GetDatabaseInformationByName(System.String)">
+            <summary>
+            This returns the <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> where its <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> matches the databaseInfoName property.
+            </summary>
+            <param databaseInfoName="databaseInfoName"></param>
+            <returns>If no matching database information found, then it returns null</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation.AddDatabaseInfoToJsonFile(AuthPermissions.AspNetCore.Services.DatabaseInformation)">
+            <summary>
+            This adds a new <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> to the list in the current sharding settings file.
+            If there are no errors it will update the sharding settings file in the application.
+            </summary>
+            <param databaseInfoName="databaseInfo"></param>
+            <returns>status containing a success message, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation.UpdateDatabaseInfoToJsonFile(AuthPermissions.AspNetCore.Services.DatabaseInformation)">
+            <summary>
+            This updates a <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> already in the sharding settings file.
+            It uses the <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> in the provided in the <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> parameter.
+            If there are no errors it will update the sharding settings file in the application.
+            </summary>
+            <param databaseInfoName="databaseInfo"></param>
+            <returns>status containing a success message, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.AccessDatabaseInformation.RemoveDatabaseInfoToJsonFileAsync(System.String)">
+            <summary>
+            This removes a <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> with the same <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> as the databaseInfoName.
+            If there are no errors it will update the sharding settings file in the application
+            </summary>
+            <param databaseInfoName="databaseInfoName">Looks for a <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> with the <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> </param>
+            <returns>status containing a success message, or errors</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.ShardingServices.DemoGetDatabaseForNewTenant">
+            <summary>
+            This is a demo implementation of the <see cref="T:AuthPermissions.SupportCode.ShardingServices.IGetDatabaseForNewTenant"/> interface
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.DemoGetDatabaseForNewTenant.#ctor(AuthPermissions.AspNetCore.Services.IShardingConnections)">
+            <summary>
+            ctor
+            </summary>
+            <param name="shardingService"></param>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.DemoGetDatabaseForNewTenant.FindBestDatabaseInfoNameAsync(System.Boolean,System.String,System.String)">
+            <summary>
+            This will look for a database for a new tenant.
+            If the hasOwnDb is true, then it will find an empty database,
+            otherwise it will look for database containing multiple tenants
+            </summary>
+            <param name="hasOwnDb">If true the tenant needs its own database. False means it shares a database.</param>
+            <param name="region">If not null this provides geographic information to pick the nearest database server.</param>
+            <param name="version">Optional: provides the version name in case that effects the database selection</param>
+            <returns>Status with the DatabaseInfoName, or error if it can't find a database to work with</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.ShardingServices.IAccessDatabaseInformation">
+            <summary>
+            This defines the CRUD methods to the sharding settings file which contains a list of <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> 
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.IAccessDatabaseInformation.ReadShardingSettingsFile">
+            <summary>
+            This will return a list of <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> in the sharding settings file in the application
+            </summary>
+            <returns>If no file, then returns the default list</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.IAccessDatabaseInformation.GetDatabaseInformationByName(System.String)">
+            <summary>
+            This returns the <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> where its <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> matches the databaseInfoName property.
+            </summary>
+            <param databaseInfoName="databaseInfoName"></param>
+            <returns>If no matching database information found, then it returns null</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.IAccessDatabaseInformation.AddDatabaseInfoToJsonFile(AuthPermissions.AspNetCore.Services.DatabaseInformation)">
+            <summary>
+            This adds a new <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> to the list in the current sharding settings file.
+            If there are no errors it will update the sharding settings file in the application.
+            </summary>
+            <param databaseInfoName="databaseInfo"></param>
+            <returns>status containing a success message, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.IAccessDatabaseInformation.UpdateDatabaseInfoToJsonFile(AuthPermissions.AspNetCore.Services.DatabaseInformation)">
+            <summary>
+            This updates a <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> already in the sharding settings file.
+            It uses the <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> in the provided in the <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> parameter.
+            If there are no errors it will update the sharding settings file in the application.
+            </summary>
+            <param databaseInfoName="databaseInfo"></param>
+            <returns>status containing a success message, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.IAccessDatabaseInformation.RemoveDatabaseInfoToJsonFileAsync(System.String)">
+            <summary>
+            This removes a <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> with the same <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> as the databaseInfoName.
+            If there are no errors it will update the sharding settings file in the application
+            </summary>
+            <param databaseInfoName="databaseInfoName">Looks for a <see cref="T:AuthPermissions.AspNetCore.Services.DatabaseInformation"/> with the <see cref="P:AuthPermissions.AspNetCore.Services.DatabaseInformation.Name"/> </param>
+            <returns>status containing a success message, or errors</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.ShardingServices.IGetDatabaseForNewTenant">
+            <summary>
+            This defined a service that will find a database for a new tenant when using sharding.
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.ShardingServices.IGetDatabaseForNewTenant.FindBestDatabaseInfoNameAsync(System.Boolean,System.String,System.String)">
+            <summary>
+            This will look for a database for a new tenant when <see cref="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.AddSharding"/> is on
+            The job of this method that will return a DatabaseInfoName for the database to use, or an error if can't be found
+            </summary>
+            <param name="hasOwnDb">If true the tenant needs its own database. False means it shares a database.</param>
+            <param name="region">If not null this provides geographic information to pick the nearest database server.</param>
+            <param name="version">Optional: provides the version name in case that effects the database selection</param>
+            <returns>Status with the DatabaseInfoName, or error if it can't find a database to work with</returns>
+        </member>
+        <member name="T:AuthPermissions.SupportCode.TimeClaimExtensions">
+            <summary>
+            Methods to convert / reads DateTime. Used in the global change code
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.TimeClaimExtensions.CreateClaimDateTimeTicks(System.String,System.TimeSpan)">
+            <summary>
+            This creates a claim containing the UTC time, with a possible offset, as ticks 
+            </summary>
+            <param name="claimName"></param>
+            <param name="offset">This is the timespan to add on to the current UtcNow to define the time when
+                the user's claims should be refreshed</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.TimeClaimExtensions.GetClaimDateTimeTicksValue(System.Collections.Generic.List{System.Security.Claims.Claim},System.String)">
+            <summary>
+            This returns the TimeToRefreshUserClaims as an UTC DataTime. If there is no TimeToRefreshUserClaims claim
+            then it returns <see cref="F:System.DateTime.MinValue"/>
+            </summary>
+            <param name="usersClaims">A list of the claims found in the current principal user</param>
+            <param name="claimName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.TimeClaimExtensions.DateTimeToTicks(System.DateTime)">
+            <summary>
+            This sets the dateTime to UTC and then turns into a parseable string
+            </summary>
+            <param name="dateTime"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SupportCode.TimeClaimExtensions.TicksToDateTimeUtc(System.String)">
+            <summary>
+            This parses the string containing ticks into a DateTime and the DateTime is set to UTC
+            </summary>
+            <param name="dateTimeTicksString"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

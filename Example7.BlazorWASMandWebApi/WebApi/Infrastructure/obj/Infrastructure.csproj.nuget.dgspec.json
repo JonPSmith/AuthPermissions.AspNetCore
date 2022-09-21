@@ -1,0 +1,804 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Infrastructure/Infrastructure.csproj": {}
+  },
+  "projects": {
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore.csproj",
+        "projectName": "AuthPermissions.AspNetCore",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/AuthPermissions.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/AuthPermissions.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Authentication.OpenIdConnect": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.AspNetCore.Authorization": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.AspNetCore.Http": {
+              "target": "Package",
+              "version": "[2.2.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj",
+        "projectName": "AuthPermissions.BaseCode",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "EntityFrameworkCore.Exceptions.PostgreSQL": {
+              "target": "Package",
+              "version": "[6.0.3, )"
+            },
+            "EntityFrameworkCore.Exceptions.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.3, )"
+            },
+            "EntityFrameworkCore.Exceptions.Sqlite": {
+              "target": "Package",
+              "version": "[6.0.3, )"
+            },
+            "GenericServices.StatusGeneric": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Net.RunMethodsSequentially": {
+              "target": "Package",
+              "version": "[1.3.1, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[6.0.6, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.PostgreSql/AuthPermissions.PostgreSql.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.PostgreSql/AuthPermissions.PostgreSql.csproj",
+        "projectName": "AuthPermissions.PostgreSql",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.PostgreSql/AuthPermissions.PostgreSql.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.PostgreSql/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[6.0.6, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SqlServer/AuthPermissions.SqlServer.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SqlServer/AuthPermissions.SqlServer.csproj",
+        "projectName": "AuthPermissions.SqlServer",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SqlServer/AuthPermissions.SqlServer.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SqlServer/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SupportCode/AuthPermissions.SupportCode.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SupportCode/AuthPermissions.SupportCode.csproj",
+        "projectName": "AuthPermissions.SupportCode",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SupportCode/AuthPermissions.SupportCode.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SupportCode/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "DistributedLock": {
+              "target": "Package",
+              "version": "[2.3.1, )"
+            },
+            "EfCore.TestSupport": {
+              "target": "Package",
+              "version": "[5.2.2, )"
+            },
+            "Microsoft.AspNetCore.Hosting": {
+              "target": "Package",
+              "version": "[2.2.7, )"
+            },
+            "Microsoft.Graph": {
+              "target": "Package",
+              "version": "[4.37.0, )"
+            },
+            "Net.DistributedFileStoreCache": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/AuthPermissions.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/AuthPermissions.csproj",
+        "projectName": "AuthPermissions",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/AuthPermissions.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.PostgreSql/AuthPermissions.PostgreSql.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.PostgreSql/AuthPermissions.PostgreSql.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SqlServer/AuthPermissions.SqlServer.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SqlServer/AuthPermissions.SqlServer.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "GenericServices.StatusGeneric": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.Data.Sqlite.Core": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "Net.RunMethodsSequentially": {
+              "target": "Package",
+              "version": "[1.3.1, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[6.0.6, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj",
+        "projectName": "Example7.BlazorWASMandWebApi.Shared",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/Application.csproj",
+        "projectName": "Example7.BlazorWASMandWebApi.Application",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/Application.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Domain/Domain.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Domain/Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Ardalis.Specification": {
+              "target": "Package",
+              "version": "[6.1.0, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[11.2.2, )"
+            },
+            "Mapster": {
+              "target": "Package",
+              "version": "[7.3.0, )"
+            },
+            "MediatR.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[10.0.1, )"
+            },
+            "Microsoft.Extensions.Localization": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Domain/Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Domain/Domain.csproj",
+        "projectName": "Example7.BlazorWASMandWebApi.Domain",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Domain/Domain.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "GenericServices.StatusGeneric": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Infrastructure/Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Infrastructure/Infrastructure.csproj",
+        "projectName": "Example7.BlazorWASMandWebApi.Infrastructure",
+        "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Infrastructure/Infrastructure.csproj",
+        "packagesPath": "/Users/akema_trebla/.nuget/packages/",
+        "outputPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/akema_trebla/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore/AuthPermissions.AspNetCore.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.BaseCode/AuthPermissions.BaseCode.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SupportCode/AuthPermissions.SupportCode.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions.SupportCode/AuthPermissions.SupportCode.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/AuthPermissions.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/AuthPermissions/AuthPermissions.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/Shared/Shared.csproj"
+              },
+              "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/Application.csproj": {
+                "projectPath": "/Users/akema_trebla/Projects/AuthPermissions.AspNetCore/Example7.BlazorWASMandWebApi/WebApi/Core/Application/Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Ardalis.Specification.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.1.0, )"
+            },
+            "EfCore.GenericServices.AspNetCore": {
+              "target": "Package",
+              "version": "[4.1.1, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[6.23.1, )"
+            },
+            "Net.DistributedFileStoreCache": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
+            "NetCore.AutoRegisterDi": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

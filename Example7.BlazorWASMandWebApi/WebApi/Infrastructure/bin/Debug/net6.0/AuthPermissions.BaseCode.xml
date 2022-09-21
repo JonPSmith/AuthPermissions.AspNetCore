@@ -1,0 +1,1517 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AuthPermissions.BaseCode</name>
+    </assembly>
+    <members>
+        <member name="T:AuthPermissions.BaseCode.AuthPermissionsOptions">
+            <summary>
+            This contains the options set by the developer and data that is passed between setup extension methods
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType">
+            <summary>
+            This defines whether tenant code is activated, and whether the
+            multi-tenant is is a single layer, or many layers (hierarchical)
+            Defaults no using tenants
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.ShardingDefaultDatabaseInfoName">
+            <summary>
+            If sharding is turned on, then you can define the sharding database data to use if not 
+            This defaults to "Default Database", which should be set up to link to the database that also contains the AuthP data
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.Configuration">
+            <summary>
+            This is needed if you are using sharding. Its used to get the ConnectionString
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.LinkToTenantType">
+            <summary>
+            This turns on the LinkToTenantData feature, e.g. an admin person can access the data in a specific tenant
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.EncryptionKey">
+            <summary>
+            This string is used by the <see cref="T:AuthPermissions.BaseCode.CommonCode.EncryptDecryptService"/> for services that need to encrypt / decrypt data 
+            This should be at least 16 characters long
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.NumMinutesBeforeCookieTimesOut">
+            <summary>
+            When using the "Access the data of other tenant" feature this defines when the link cookie times out.
+            Defaults to 10 hours.
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.UseLocksToUpdateGlobalResources">
+            <summary>
+            This will use the Net.RunMethodsSequentially library to safely update / seed a database 
+            on applications that have multiple instances using a global lock
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.PathToFolderToLock">
+            <summary>
+            This is used by the Net.RunMethodsSequentially library to lock a folder
+            If UseRunMethodsSequentially is true, then this property must be filled 
+            with a path to a directory in your running application 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.SecondPartOfShardingFile">
+            <summary>
+            This holds the second part of the sharding settings filename
+            You should set this to <see cref="T:System.Environment"/>.<see cref="T:Microsoft.Extensions.Hosting.EnvironmentName"/>,
+            but you can override this if you need to
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.ConfigureAuthPJwtToken">
+            <summary>
+            This is where you configure the JwtToken
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.AuthPermissionsOptions.FormShardingSettingsFileName(System.String)">
+            <summary>
+            This will form the name of the sharding settings file
+            </summary>
+            <param name="secondPartOfFileName">This should be the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.SecondPartOfShardingFile"/></param>
+            <returns></returns>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPermissionsOptions.InternalData">
+            <summary>
+            This holds data that is set up during the 
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.AuthPJwtConfiguration">
+            <summary>
+            This contains the data that the JWT token (and optional RefreshToken)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPJwtConfiguration.Issuer">
+            <summary>
+            This identifies provider that issued the JWT
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPJwtConfiguration.Audience">
+            <summary>
+            This identifies the recipients that the JWT is intended for
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPJwtConfiguration.SigningKey">
+            <summary>
+            This is a SECRET key that both the issuer and audience have to have 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPJwtConfiguration.TokenExpires">
+            <summary>
+            JWT Token' `Expires` property is set to a date by added a `TokenExpires` timespan to the current Datetime.UtcNow
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.AuthPJwtConfiguration.RefreshTokenExpires">
+            <summary>
+            This Timespan is used to work out if the RefreshToken (in the database) has expired or not
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.AuthPJwtConfiguration.CheckThisJwtConfiguration">
+            <summary>
+            This checks that the properties have been set
+            NOTE: Doesn't check RefreshTokenExpires as might not be used.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsBadDataException">
+            <summary>
+            A AuthPermissions for bad data errors
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.AuthPermissionsBadDataException.#ctor(System.String)">
+            <summary>
+            Just send a message
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.AuthPermissionsBadDataException.#ctor(System.String,System.String)">
+            <summary>
+            Message and parameter name
+            </summary>
+            <param name="message"></param>
+            <param name="paramName"></param>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException">
+            <summary>
+            A AuthPermissions for internal errors
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException.#ctor(System.String)">
+            <summary>
+            Must contain a message
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.ClaimsExtensions">
+            <summary>
+            This contains extension method about ASP.NET Core <see cref="T:System.Security.Claims.Claim"/>
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ClaimsExtensions.GetUserIdFromClaims(System.Collections.Generic.IEnumerable{System.Security.Claims.Claim})">
+            <summary>
+            This returns the UserId from the current user's claims
+            </summary>
+            <param name="claims"></param>
+            <returns>The UserId, or null if not logged in</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ClaimsExtensions.GetUserIdFromUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            This returns the UserId from the current user 
+            </summary>
+            <param name="user">The current ClaimsPrincipal user</param>
+            <returns>The UserId, or null if not logged in</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ClaimsExtensions.GetPackedPermissionsFromUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            This returns the AuthP packed permissions. Can be null if no user, or not packed permissions claims
+            </summary>
+            <param name="user">The current ClaimsPrincipal user</param>
+            <returns>The packed permissions, or null if not logged in</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ClaimsExtensions.GetAuthDataKeyFromUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            This returns the AuthP DataKey. Can be null if AuthP user has no user, user not a tenants, or tenants are not configured
+            </summary>
+            <param name="user">The current ClaimsPrincipal user</param>
+            <returns>The AuthP DataKey from the claim, or null if no DataKey claim</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ClaimsExtensions.GetDatabaseInfoNameFromUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Returns the ConnectionName claim. Can be null if no user, user not a tenants or sharding isn't configured
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.EncryptDecryptService">
+            <summary>
+            Class to Encrypt / Decrypt a string
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.EncryptDecryptService.#ctor(AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            This provides an AES Encrypt / Decrypt of a string
+            </summary>
+            <param name="options"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.EncryptDecryptService.Encrypt(System.String)">
+            <summary>
+            This encrypts a string using the Aes encryption with the key provided
+            </summary>
+            <param name="text"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.EncryptDecryptService.Decrypt(System.String)">
+            <summary>
+            This decrypts a string using the Aes encryption with the key provided
+            </summary>
+            <param name="encrypted"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.ErrorReportingExtensions">
+            <summary>
+            Various error reporting extensions for the AuthP code
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ErrorReportingExtensions.ThrowExceptionIfEnumIsNotCorrect(System.Type)">
+            <summary>
+            Checks the permission type is correct
+            </summary>
+            <param name="permissionType"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ErrorReportingExtensions.ThrowExceptionIfEnumHasMembersHaveDuplicateValues(System.Type)">
+            <summary>
+            Checks the permission type members don't have duplicate values, as that causes problems
+            </summary>
+            <param name="permissionType"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ErrorReportingExtensions.IfErrorsTurnToException(StatusGeneric.IStatusGeneric)">
+            <summary>
+            This throws an AuthPermissionsBadDataException 
+            </summary>
+            <param name="status"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.ErrorReportingExtensions.FormErrorString(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            This forms an error with the line of data has has an error, with an optional pointer to the char that had the problem
+            </summary>
+            <param name="line">line of input text that has a problem</param>
+            <param name="lineNum"></param>
+            <param name="charNum">If not negative it outputs another line below the bad line of text pointing to the point where the error was found</param>
+            <param name="error">The error message</param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadOnly">
+            <summary>
+            This is used on entity classes where the DataKey isn't set by setting the DataKey directly
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadOnly.DataKey">
+            <summary>
+            The DataKey to be used for multi-tenant applications
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadWrite">
+            <summary>
+            This is on entity classes where the DataKey set by setting the DataKey directly
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadWrite.DataKey">
+            <summary>
+            The DataKey to be used for multi-tenant applications
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.IEncryptDecryptService">
+            <summary>
+            This defines an Encrypt/Decrypt service used by AuthP
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.IEncryptDecryptService.Encrypt(System.String)">
+            <summary>
+            This encrypts a string using the Aes encryption with the key provided
+            </summary>
+            <param name="text"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.IEncryptDecryptService.Decrypt(System.String)">
+            <summary>
+            This decrypts a string using the Aes encryption with the key provided
+            </summary>
+            <param name="encrypted"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions">
+            <summary>
+            Extension methods to 
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions.DataKeyNoQueryFilter">
+            <summary>
+            If the DataKey contains this string, then the single-level query filter should be set to true
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions.GetTenantDataKey(System.Int32,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            This calculates the data key from the tenantId and the parentDataKey.
+            If it is a single layer multi-tenant it will by the TenantId as a string
+               - If the tenant is in its own database, then it will send back the <see cref="F:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions.DataKeyNoQueryFilter"/> constant
+            If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId in the parents as well
+            </summary>
+            <param name="tenantId"></param>
+            <param name="parentDataKey">The parentDataKey is needed if hierarchical</param>
+            <param name="isHierarchical"></param>
+            <param name="hasItsOwnDb"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions.GetTenantDataKey(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This calculates the data key for given tenant.
+            If it is a single layer multi-tenant it will by the TenantId as a string
+            If it is a hierarchical multi-tenant it will contains a concatenation of the tenantsId in the parents as well
+            </summary>
+            <param name="tenant"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions.IsSharding(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This returns true if the Tenant is using sharding
+            </summary>
+            <param name="tenant"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions.GetHighestTenantId(System.Int32,System.String)">
+            <summary>
+            This returns the highest TenantId for a tenant
+            This is used if a tenant is moved to another database, as we must move all the hierarchical data
+            - For single-level multi-tenant, this will be the TenantId
+            - for hierarchical multi-tenant, this will be the first TenantId in the ParentDataKey,
+              or this TenantId if the ParentDataKey is null
+            </summary>
+            <returns>The highest TenantId of a tenant</returns>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.NameExtension">
+            <summary>
+            Simple extension method to improve error feedback in ASP.NET Core
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.NameExtension.CamelToPascal(System.String)">
+            <summary>
+            This converts a camel-cased string to Pascal-case
+            This is used to convert method names into the name used in a class
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.CommonCode.RegexUtilities">
+            <summary>
+            Contains a extension method to check an email
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.CommonCode.RegexUtilities.IsValidEmail(System.String)">
+            <summary>
+            Checks that the email is valid
+            </summary>
+            <param name="email"></param>
+            <returns>true is valid email</returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser">
+            <summary>
+            This defines a simple user (UserId, email and username) which will hold the roles and tenant data
+            for this user.
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.CreateAuthUser(System.String,System.String,System.String,System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions},AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            Define a user with there default roles and optional tenant
+            </summary>
+            <param name="userId">Id of the user - can't be null</param>
+            <param name="email">user's email - especially useful in Web applications</param>
+            <param name="userName">username - used when using Windows authentication. Generally useful for admin too.</param>
+            <param name="roles">List of AuthP Roles for this user</param>
+            <param name="userTenant">optional: defines multi-tenant tenant for this user</param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.UserId">
+            <summary>
+            The user's Id is its primary key
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.Email">
+            <summary>
+            Contains a unique Email, which is used for lookup
+            (can be null if using Windows authentication provider)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.UserName">
+            <summary>
+            Contains a unique user name
+            This is used to a) provide more info on the user, or b) when using Windows authentication provider
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.IsDisabled">
+            <summary>
+            If true the user is disabled, which means no AuthP claims will be added to its claims
+            NOTE: By default this does not stop this user from logging in
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.UserRoles">
+            <summary>
+            The roles linked to this user
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.TenantId">
+            <summary>
+            foreign key for multi-tenant systems (optional)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.UserTenant">
+            <summary>
+            Tenant for multi-tenant systems
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.NameToUseForError">
+            <summary>
+            Used when there is an exception
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.ToString">
+            <summary>
+            Summary of AuthUser
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.AddRoleToUser(AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions)">
+            <summary>
+            Adds a RoleToPermissions to the user
+            </summary>
+            <param name="role"></param>
+            <returns>true if added. False if already there</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.RemoveRoleFromUser(AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions)">
+            <summary>
+            This removes a RoleToPermissions from a user
+            </summary>
+            <param name="role"></param>
+            <returns>true if role was found and removed</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.ReplaceAllRoles(System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions})">
+            <summary>
+            This will replace all the Roles for this AuthUser
+            </summary>
+            <param name="roles">List of roles to replace the current user's roles</param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.UpdateUserTenant(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This updates a tenant.
+            NOTE: A tenant is only valid if the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> has been set 
+            </summary>
+            <param name="tenant"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.ChangeUserNameAndEmailWithChecks(System.String,System.String)">
+            <summary>
+            This changes the email and username, which checks that at least one of them isn't null
+            </summary>
+            <param name="email"></param>
+            <param name="userName"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.UpdateIsDisabled(System.Boolean)">
+            <summary>
+            This allows you to change the user's <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.IsDisabled"/> setting
+            </summary>
+            <param name="isDisabled">If true, then no AuthP claims are adding the the user's claims</param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.CheckRolesAreValidForUser(System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions},System.Boolean)">
+            <summary>
+            This checks that the roles are valid for this type of user
+            </summary>
+            <param name="foundRoles"></param>
+            <param name="tenantUser"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken">
+            <summary>
+            This holds the information of a RefreshToken sent to the application
+            This allows for checking that the RefreshToken sent in is correct or not.
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken.TokenValue">
+            <summary>
+            This is the string value sent to the the caller as a refresh token
+            It also the primary key to this 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken.UserId">
+            <summary>
+            The ID of the user linked to this RefreshToken
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken.JwtId">
+            <summary>
+            This takes the Id of the JWT token 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken.IsInvalid">
+            <summary>
+            If this true, then you should not renew the JWT token
+            It gets set to true if it has been used, or can manually set to true to force a new login
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken.AddedDateUtc">
+            <summary>
+            This is set to the database utc date when added to the database
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken.CreateNewRefreshToken(System.String,System.String)">
+            <summary>
+            This is called to create a RefreshToken. It should be written to the database
+            </summary>
+            <param name="userId"></param>
+            <param name="jwtTokenId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.RefreshToken.MarkAsInvalid">
+            <summary>
+            Use this if a) RefreshToken has been used, or b) you want to stop the user from being able refresh their token
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions">
+            <summary>
+            This holds each Roles, which are mapped to Permissions
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.#ctor(System.String,System.String,System.String,AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes)">
+            <summary>
+            This creates the Role with its permissions
+            </summary>
+            <param name="roleName"></param>
+            <param name="description"></param>
+            <param name="packedPermissions">The enum values converted to unicode chars</param>
+            <param name="roleType">Optional: this sets the type of the Role - only used in multi-tenant apps</param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.RoleName">
+            <summary>
+            Name of the role
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.Description">
+            <summary>
+            A human-friendly description of what the Role does
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.RoleType">
+            <summary>
+            This contains the RoleType. Only used in multi-tenant application
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.PackedPermissionsInRole">
+            <summary>
+            This contains the list of permissions as a series of unicode chars
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.Tenants">
+            <summary>
+            This links a RoleToPermission with a <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.RoleType"/> of
+            <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAutoAdd"/> or <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAdminAdd"/>
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.ToString">
+            <summary>
+            Useful summary
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.NameToUseForError">
+            <summary>
+            Used when there is an exception
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.Update(System.String,System.String,AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes)">
+            <summary>
+            This updates the permissions in a AuthP Role
+            </summary>
+            <param name="packedPermissions"></param>
+            <param name="description"></param>
+            <param name="roleType"></param>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants">
+            <summary>
+            Various constants to do with the AuthPermissionsDbContext 
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.UserIdSize">
+            <summary>
+            Max size of the UserId string
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.EmailSize">
+            <summary>
+            Max size of the UserName string
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.UserNameSize">
+            <summary>
+            Max size of the UserName string
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.RoleNameSize">
+            <summary>
+            Max size of the RoleName string
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.TenantFullNameSize">
+            <summary>
+            Max size of the TenantFullName string
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.TenantDataKeySize">
+            <summary>
+            Max size of the TenantDataKey string
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.RefreshTokenValueSize">
+            <summary>
+            Max size of the TokenValue in the RefreshToken
+            This comes from the 32 bytes being turned into Base64, which becomes 44 chars long
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.RefreshTokenRandomByteSize">
+            <summary>
+            This is the number of bytes in the RandomNumberGenerator used in the JWT RefreshToken
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.AuthDbConstants.MigrationsHistoryTableName">
+            <summary>
+            the name of the EF Core migration 
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.INameToShowOnException">
+            <summary>
+            Add this to a AuthP's entity classes to define a name for show when a database exception happens
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.INameToShowOnException.NameToUseForError">
+            <summary>
+            The most useful name in an entity class to show when there is a database exception
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes">
+            <summary>
+            This enum defines the different types of Roles
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.Normal">
+            <summary>
+            A Role that can be assigned to any any user 
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAutoAdd">
+            <summary>
+            A Role that is assigned to an Tenant and is automatically included in the calculation of the user's Permissions
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAdminAdd">
+            <summary>
+            A Role that is assigned to an Tenant which an admin can assign to a user's list of Roles
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.HiddenFromTenant">
+            <summary>
+            This Role is hidden from any AuthP user than is linked to a Tenant
+            The <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.HiddenFromTenant"/> RoleType is automatically if a Permission in the Role has the
+            "AutoGenerateFilter = true" parameter in the Permission member's DataDisplay attribute.
+            A RoleType of a Role can also manually set to this setting 
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.Tenant">
+            <summary>
+            This is used for multi-tenant systems
+            NOTE: two types of names are defined in the Tenant. For single-level tenants the two names are the same
+            1. FullTenantName - for hierarchical tenants this is the combined tenant names (separated by |) of the parents and its tenant name
+            2. TenantName - the last name in FullTenantName
+            The FullTenantName is saved to the database, but the TenantName is derived from the FullTenantName
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.CreateSingleTenant(System.String,System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions})">
+            <summary>
+            This defines a tenant in a single tenant multi-tenant system.
+            </summary>
+            <param name="fullTenantName"></param>
+            <param name="tenantRoles">Optional: add Roles that have a <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes"/> of
+            <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAutoAdd"/> or <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAdminAdd"/></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.CreateHierarchicalTenant(System.String,AuthPermissions.BaseCode.DataLayer.Classes.Tenant,System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions})">
+            <summary>
+            This creates a tenant in a hierarchical multi-tenant system with a parent/child relationships
+            You MUST have parent loaded and has been written to the database
+            </summary>
+            <param name="fullTenantName">This must be the full tenant name, including the parent name</param>
+            <param name="parent">Parent tenant - can be null if top level</param>
+            <param name="tenantRoles">Optional: add Roles that have a <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes"/> of
+            <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAutoAdd"/> or <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAdminAdd"/></param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.TenantId">
+            <summary>
+            Tenant primary key
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.ParentDataKey">
+            <summary>
+            This the combines primary key of all parents (can be null)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.TenantFullName">
+            <summary>
+            This is the name defined for this tenant, and must be unique
+            In hierarchical tenants this is the combined tenant names (separated by |) of the parents and its tenant name
+            NOTE: The TenantName is the last name in the list of names
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.IsHierarchical">
+            <summary>
+            This is true if the tenant is hierarchical 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.HasOwnDb">
+            <summary>
+            This is true if the tenant has its own database.
+            This is used by single-level tenants to return true for the query filter
+            Also provides a quick way to find out what databases are used and how many tenants are in each database
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.DatabaseInfoName">
+            <summary>
+            If sharding is turned on then this will contain the name of database data
+            in the shardingsettings.json file. This must not be null.
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.ParentTenantId">
+            <summary>
+            Foreign key to parent - can by null
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.Parent">
+            <summary>
+            The parent tenant (if it exists)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.Children">
+            <summary>
+            The optional children
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.TenantRoles">
+            <summary>
+            This holds any Roles that have been specifically 
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.ToString">
+            <summary>
+            Easy way to see the tenant and its key
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.NameToUseForError">
+            <summary>
+            Used when there is an exception
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.UpdateShardingState(System.String,System.Boolean)">
+            <summary>
+            This allows you to change the sharding information for this tenant
+            </summary>
+            <param name="newDatabaseInfoName">This contains the name of database data in the shardingsettings.json file</param>
+            <param name="hasOwnDb">true if it is the only tenant in its database</param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.GetTenantName">
+            <summary>
+            This will provide a single tenant name.
+            If its an hierarchical tenant, then it will be the last name in the hierarchy
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.CombineParentNameWithTenantName(System.String,System.String)">
+            <summary>
+            This is the official way to combine the parent name and the individual tenant name
+            </summary>
+            <param name="thisTenantName">name for this specific tenant level</param>
+            <param name="fullParentName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.UpdateTenantName(System.String)">
+            <summary>
+            This updates the tenant name 
+            </summary>
+            <param name="newNameAtThisLevel"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.UpdateTenantRoles(System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions})">
+            <summary>
+            This will replace the current tenant roles with a new set of tenant roles
+            </summary>
+            <param name="tenantRoles"></param>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsBadDataException"></exception>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.MoveTenantToNewParent(AuthPermissions.BaseCode.DataLayer.Classes.Tenant,System.Action{System.ValueTuple{System.String,AuthPermissions.BaseCode.DataLayer.Classes.Tenant}})">
+            <summary>
+            This moves the current tenant to a another tenant
+            </summary>
+            <param name="newParentTenant">Can be null if moving to top</param>
+            <param name="getChangeData">This action is called at every tenant that is effected.
+            These starts at the parent and then recursively works down the children.
+            This allows you to obtains the previous DataKey, the new DataKey and the fullname of every tenant that was moved</param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.ExtractEndLeftTenantName(System.String)">
+            <summary>
+            This will return a single tenant name. If it's hierarchical it returns the final name
+            </summary>
+            <param name="fullTenantName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.CheckRolesAreAllTenantRolesAndSetTenantRoles(System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions},AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This checks that the given roles have a <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.RoleType"/> that can be added to a tenant.
+            If no errors (and roles aren't null) the <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.Tenant._tenantRoles"/> collection is updated, otherwise the status is returned with errors
+            </summary>
+            <param name="tenantRoles">The list of roles to added/updated to <see param="thisTenant"/> instance. Can be null</param>
+            <param name="thisTenant">the current instance of the tenant</param>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsBadDataException"></exception>
+            <returns>status, with the <see param="thisTenant"/> instance if no errors.</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.RecursivelyChangeChildNames(AuthPermissions.BaseCode.DataLayer.Classes.Tenant,System.Collections.Generic.IEnumerable{AuthPermissions.BaseCode.DataLayer.Classes.Tenant},System.Action{AuthPermissions.BaseCode.DataLayer.Classes.Tenant,AuthPermissions.BaseCode.DataLayer.Classes.Tenant})">
+            <summary>
+            This will recursively move through the children of a parent and call the action applies a change to each child
+            </summary>
+            <param name="parent">The parent of the children (can be null)</param>
+            <param name="children"></param>
+            <param name="updateTenant">This action takes the parent and child</param>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.Classes.UserToRole">
+            <summary>
+            This is a one-to-many relationship between the User (represented by the UserId) and their Roles (represented by RoleToPermissions)
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.Classes.UserToRole.#ctor(System.String,AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions)">
+            <summary>
+            Create a UserToRole - only used by AuthUser class
+            </summary>
+            <param name="userId"></param>
+            <param name="role"></param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.UserToRole.UserId">
+            <summary>
+            The user Id
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.UserToRole.RoleName">
+            <summary>
+            The RoleName is part of the key, which ensure that a user only has a role once
+            It is also a foreign key for the RoleToPermissions
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.Classes.UserToRole.Role">
+            <summary>
+            Link to the RoleToPermissions
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext">
+            <summary>
+            This forms the AuthP's EF Core database
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.ProviderName">
+            <summary>
+            This overcomes the exception if the class used in the tests which uses the <see cref="T:Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory"/>
+            to allow testing of an DbContext that works with SqlServer and PostgreSQL 
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext},AuthPermissions.BaseCode.DataLayer.IDatabaseStateChangeEvent)">
+            <summary>
+            ctor
+            </summary>
+            <param name="options"></param>
+            <param name="eventSetup">OPTIONAL: If provided, then a method will be run within the ctor</param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.AuthUsers">
+            <summary>
+            The list of AuthUsers defining what roles and tenant that user has
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.RoleToPermissions">
+            <summary>
+            A list of all the AuthP's Roles, each with the permissions in each Role
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.Tenants">
+            <summary>
+            When using AuthP's multi-tenant feature these define each tenant and the DataKey to access data in that tenant
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.UserToRoles">
+            <summary>
+            This links AuthP's Roles to a AuthUser
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.RefreshTokens">
+            <summary>
+            If you use AuthP's JWT refresh token, then the tokens are held in this entity
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            Set up AuthP's setup
+            </summary>
+            <param name="modelBuilder"></param>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.EfCode.DataKeyQueryExtension">
+            <summary>
+            Contains code to allow you to automate the adding of a multi-tenant query filter to your application's DbContext
+            See Example3.InvoiceCode and Example4.ShopCode projects with the two types of multi-tenant: single and hierarchical
+            This more secure as you can't forget to add a multi-tenant query filter, which would let anyone access that data
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.DataKeyQueryExtension.AddSingleTenantReadWriteQueryFilter(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType,AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadOnly)">
+            <summary>
+            This method will set up a single level tenant query filter exact match query filter
+            See the Example3.InvoiceCode project with its single level multi-tenant database (InvoiceDbContext)
+            </summary>
+            <param name="entityData"></param>
+            <param name="dataKey"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.DataKeyQueryExtension.AddHierarchicalTenantReadOnlyQueryFilter(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType,AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadOnly)">
+            <summary>
+            This method will set up a multi-tenant query filter using the "startswith" query filter
+            See the Example4.ShopCode project with its hierarchical multi-tenant database (RetailDbContext)
+            </summary>
+            <param name="entityData"></param>
+            <param name="dataKey"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.DataKeyQueryExtension.AddSingleTenantShardingQueryFilter(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType,AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadOnly)">
+            <summary>
+            This method will set up a single-level tenant query filter when using sharding
+            The difference from the non-sharding version is if the tenant is in a database all on its own,
+            then it sets a true, which will remove the effect of query filter to improve performance
+            See the Example6 for an example of using this
+            </summary>
+            <param name="entityData"></param>
+            <param name="dataKey"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.DataKeyQueryExtension.SetupSingleTenantShardingQueryFilter``1(AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadOnly)">
+            <summary>
+            This version will set a true if the DataKey == <see cref="F:AuthPermissions.BaseCode.CommonCode.MultiTenantExtensions.DataKeyNoQueryFilter"/>
+            This removes the effect of the query filter in single-level tenant using sharding and is the only tenant in a database
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+            <param name="dataKey"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.EfCode.SaveChangesExtensions">
+            <summary>
+            This contains extension methods which will call SaveChanges / SaveChangesAsync
+            with code to to detect unique constraint errors
+            It uses the https://github.com/Giorgi/EntityFramework.Exceptions library as I plan to support SQL Server and PostgreSQL
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.SaveChangesExtensions.SaveChangesWithChecks(Microsoft.EntityFrameworkCore.DbContext)">
+            <summary>
+            This calls SaveChanges, but detects unique constraint and concurrency exception
+            </summary>
+            <param name="context"></param>
+            <returns>Status</returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.SaveChangesExtensions.SaveChangesWithChecksAsync(Microsoft.EntityFrameworkCore.DbContext)">
+            <summary>
+            This calls SaveChangesAsync, but detects unique constraint and concurrency exception
+            </summary>
+            <param name="context"></param>
+            <returns>Status</returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.EfCode.Version2DataKeyHelper">
+            <summary>
+            Extension method to add to your application's DbContext when moving a multi-tenant application to Version2 of the AuthP library.
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.Version2DataKeyHelper.UpdateToVersion2DataKeyFormat(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder,System.String,System.String)">
+            <summary>
+            This migration extension method should be applied to all the entities in your application that
+            uses the the <see cref="T:AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadOnly"/> or <see cref="T:AuthPermissions.BaseCode.CommonCode.IDataKeyFilterReadWrite"/>.
+            This fixes the bug in Version 1 of the AuthP library where hierarchical multi-tenant application
+            could get data from another tenant - rare but possible. 
+            NOTE: This migration is impotent, i.e. it will only change DataKey in the version 1 format
+            </summary>
+            <param name="migrationBuilder"></param>
+            <param name="tableName">Table name with any schema at the start if required</param>
+            <param name="dataKeyColumnName"></param>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.EfCode.Version2DataKeyHelper.CreateVersion2DataKeyUpdateSql(System.String,System.String)">
+            <summary>
+            Method to create SQL for <see cref="M:AuthPermissions.BaseCode.DataLayer.EfCode.Version2DataKeyHelper.UpdateToVersion2DataKeyFormat(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder,System.String,System.String)"/>
+            Provided so that I can test this SQL
+            </summary>
+            <param name="tableName">Table name with any schema at the start if required</param>
+            <param name="dataKeyColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.DataLayer.IDatabaseStateChangeEvent">
+            <summary>
+            This is an optional service for the <see cref="T:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext"/> which
+            allows you register event handlers 
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.DataLayer.IDatabaseStateChangeEvent.RegisterEventHandlers(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext)">
+            <summary>
+            This is called within the <see cref="T:AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext"/> constructor.
+            It allows you to register the events you need.
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.PermissionsCode.IUsersPermissionsService">
+            <summary>
+            Service to return permission names of the user
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.IUsersPermissionsService.PermissionsFromUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            This returns all the permissions in the provided ClaimsPrincipal (or null if no user or permission claim)
+            </summary>
+            <param name="user"></param>
+            <returns>Returns list of permissions in current user, or null if claim not found</returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.PermissionsCode.PermissionChecks">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionChecks.HasPermission``1(System.Security.Claims.ClaimsPrincipal,``0)">
+            <summary>
+            This returns true if the current user has the permission
+            </summary>
+            <param name="user"></param>
+            <param name="permissionToCheck"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionChecks.ThisPermissionIsAllowed(System.Type,System.String,System.String)">
+            <summary>
+            This is used by the policy provider to check the permission name string
+            </summary>
+            <param name="enumPermissionType"></param>
+            <param name="packedPermissions"></param>
+            <param name="permissionName"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.PermissionsCode.PermissionConstants">
+            <summary>
+            Various permission constants
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.PermissionsCode.PermissionConstants.PackedPermissionClaimType">
+            <summary>
+            The claim name holding the packed permission string
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.PermissionsCode.PermissionConstants.DataKeyClaimType">
+            <summary>
+            The claim name holding the optional DataKey
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.PermissionsCode.PermissionConstants.DatabaseInfoNameType">
+            <summary>
+            The claim name holding the name of the database data in the shardingsettings file
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.PermissionsCode.PermissionConstants.PackedAccessAllPermission">
+            <summary>
+            This is the char for the AccessAll permission
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay">
+            <summary>
+            This class holds information on one enum in the permissions enum with the various attributes
+            It also holds a static method for returning all the permissions for a specific enum type
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay.GroupName">
+            <summary>
+            GroupName, which groups permissions working in the same area
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay.ShortName">
+            <summary>
+            ShortName of the permission - often says what it does, e.g. Read
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay.Description">
+            <summary>
+            Long description of what action this permission allows 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay.PermissionName">
+            <summary>
+            The name of the permission
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay.ToString">
+            <summary>
+            Details of the permission names with the extra info provided by the 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay.GetPermissionsToDisplay(System.Type,System.Boolean)">
+            <summary>
+            This returns all the enum permission names with the various display attribute data
+            NOTE: It does not show enum names that
+            a) don't have an <see cref="T:System.ComponentModel.DataAnnotations.DisplayAttribute"/> on them. They are assumed to not 
+            b) Which have a <see cref="T:System.ObsoleteAttribute"/> applied to that name
+            </summary>
+            <param name="enumType">type of the enum permissions</param>
+            <param name="excludeFilteredPermissions">if trie then it won't show permissions where the AutoGenerateFilter is true</param>
+            <returns>a list of PermissionDisplay classes containing the data</returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.PermissionsCode.PermissionPacker">
+            <summary>
+            This class contains extension methods to pack Permissions names into a unicode string
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionPacker.PackCommaDelimitedPermissionsNames(System.Type,System.String)">
+            <summary>
+            Packs permission names found in the comma delimited string into a unicode string
+            </summary>
+            <param name="enumPermissionsType"></param>
+            <param name="permissionNames"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionPacker.PackPermissionsNames(System.Type,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Packs a list of permissions names into a unicode string
+            </summary>
+            <param name="enumPermissionsType"></param>
+            <param name="permissionNames"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionPacker.PackPermissionsNamesWithValidation(System.Type,System.Collections.Generic.IEnumerable{System.String},System.Action{System.String},System.Action)">
+            <summary>
+            This converts a list of enum permission names into a packed string. If any permission names are bad it calls the reportError action
+            </summary>
+            <param name="enumPermissionsType"></param>
+            <param name="permissionNames"></param>
+            <param name="reportError">Report a permission name that isn't in the list of enum members</param>
+            <param name="foundAdvancedPermission">Only called if an advanced permission is found</param>
+            <returns>the packed permission string</returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.PermissionsCode.PermissionUnpacker">
+            <summary>
+            Holds a extension method to unpack permissions
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.PermissionUnpacker.ConvertPackedPermissionToNames(System.String,System.Type)">
+            <summary>
+            This takes a string containing packed permissions and returns the names of the Permission member names
+            </summary>
+            <param name="packedPermissions"></param>
+            <param name="permissionsEnumType"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.PermissionsCode.Services.UsersPermissionsService">
+            <summary>
+            This will provide the names of the permission in the current user
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.Services.UsersPermissionsService.#ctor(AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            Ctor
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.PermissionsCode.Services.UsersPermissionsService.PermissionsFromUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            This returns all the permissions in the provided ClaimsPrincipal (or null if no user or permission claim)
+            </summary>
+            <param name="user"></param>
+            <returns>Returns list of permissions in current user, or null if claim not found</returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.AuthPAuthenticationTypes">
+            <summary>
+            Used to check what form of authorization you are using.
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPAuthenticationTypes.NotSet">
+            <summary>
+            This is the default - AuthPermissions will throw an exception to say you must define the Authentication Type
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPAuthenticationTypes.IndividualAccounts">
+            <summary>
+            This says you are using IndividualAccount Authentication
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPAuthenticationTypes.OpenId">
+            <summary>
+            This says you are using an authentication provider that uses OpenID
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPAuthenticationTypes.UserProvidedAuthentication">
+            <summary>
+            This means you have manually set up the Authentication code which adds the AuthP Roles and Tenant claims to the cookie or JWT Token
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto">
+            <summary>
+            This class is used for bulk loading of AuthP's Roles
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto.#ctor(System.String,System.String,System.String,System.Nullable{AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes})">
+            <summary>
+            Define a Role and the permissions in the Role: must be unique and not null
+            </summary>
+            <param name="roleName">Name of the Role: must be unique</param>
+            <param name="description">Human-friendly description of what the Role provides. Can be null</param>
+            <param name="permissionsCommaDelimited">A list of the names of the `Permissions` in this Role</param>
+            <param name="roleType">Optional: Only used if the Role is linked to a tenant</param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto.RoleName">
+            <summary>
+            Name of the Role: must be unique and not null
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto.Description">
+            <summary>
+            Human-friendly description of what the Role provides. Can be null
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto.RoleType">
+            <summary>
+            The Type of the Role. This is only used in multi-tenant applications 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto.PermissionsCommaDelimited">
+            <summary>
+            A list of the names of the `Permissions` in this Role
+            The names come from your Permissions enum members
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto.ToString">
+            <summary>
+            Useful for debugging
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto">
+            <summary>
+            This class is used to bulk loading tenants into the AuthP's database on startup
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.#ctor(System.String,System.String,AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto[])">
+            <summary>
+            This defines a tenant in an multi-tenant application
+            </summary>
+            <param name="tenantName">Name of the specific tenant level. So, for hierarchical tenant you only give the name at this tenant level.</param>
+            <param name="tenantRolesCommaDelimited">Optional: comma delimited string containing the names of tenant Roles for this tenant. NOTE:
+                - If null in a hierarchical multi-tenant system, then the parent's list of tenant Roles are used
+                - If empty in a hierarchical multi-tenant system, then it doesn't use the parents list of tenant Role</param>
+            <param name="childrenTenants">For hierarchical multi-tenants you provide the </param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.TenantName">
+            <summary>
+            Name of this specific tenant level.
+            - For single-level tenants its the tenant name
+            - For hierarchical multi-tenant, its the specific name of the tenant level
+              e.g. if you adding the shop Dress4U, the TenantName is "Dress4U" and the fullname 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.TenantRolesCommaDelimited">
+            <summary>
+            Optional: You can add AuthP's tenant roles via this string
+            The Roles must have a <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.RoleType"/> of <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAutoAdd"/> or <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.TenantAdminAdd"/>
+            NOTE:
+            - If null in a hierarchical multi-tenant system, then the parent's list of tenant Roles are used
+            - If empty in a hierarchical multi-tenant system, then it doesn't use the parents list of tenant Roles
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.ChildrenTenants">
+            <summary>
+            Only used in hierarchical multi-tenant apps. This array holds the children tenants from this tenant 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.Parent">
+            <summary>
+            Link back to the <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto"/> data of the parent 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.CreatedTenantId">
+            <summary>
+            The TenantID of the created tenant
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.CreatedTenantFullName">
+            <summary>
+            The full name of the created tenant
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.ToString">
+            <summary>
+            Useful for debug
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant">
+            <summary>
+            Class used to define users with their roles and tenant
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.#ctor(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            This defines a user in your application
+            </summary>
+            <param name="email">Unique email</param>
+            <param name="userName">name to help the admin team to work out who the user is</param>
+            <param name="roleNamesCommaDelimited">A string containing a comma delimited set of auth roles that the user</param>
+            <param name="userId">If null, then you must register a <see cref="T:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService"/> to provide a lookup of the UserId</param>
+            <param name="uniqueUserName">A string that is unique for each user, e.g. email. If not provided then uses the userName</param>
+            <param name="tenantNameForDataKey">Optional: The unique name of your multi-tenant that this user is linked to</param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.UserId">
+            <summary>
+            This is what AuthPermissions needs to create a new AuthP User
+            You can set the userId directly or if you leave it as null then you must provide <see cref="T:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService"/>
+            which will interrogate the authentication provider for the UserId
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.Email">
+            <summary>
+            Contains a name to help the admin team to work out who the user is
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.UserName">
+            <summary>
+            Contains a name to help the admin team to work out who the user is
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.UniqueUserName">
+            <summary>
+            This contains a string that is unique for each user, e.g. email
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.TenantNameForDataKey">
+            <summary>
+            This contains the Tenant name. Used to provide the user with a multi-tenant data key
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.RoleNamesCommaDelimited">
+            <summary>
+            List of role names in a comma delimited list
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant.ToString">
+            <summary>
+            Useful when debugging
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.AuthPDatabaseTypes">
+            <summary>
+            The different database types that AuthPermissions supports
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPDatabaseTypes.NotSet">
+            <summary>
+            This is the default - AuthPermissions will throw an exception to say you must define the database type
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPDatabaseTypes.SqliteInMemory">
+            <summary>
+            This is a in-memory database - useful for unit testing
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPDatabaseTypes.SqlServer">
+            <summary>
+            SQL Server database is used
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.AuthPDatabaseTypes.Postgres">
+            <summary>
+            Postgres database is used
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.FindUserInfoResult">
+            <summary>
+            The class used with the <see cref="T:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService"/> service
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.FindUserInfoResult.#ctor(System.String,System.String)">
+            <summary>
+            You provide UserId and UserName
+            </summary>
+            <param name="userId">required</param>
+            <param name="userName">optional</param>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.FindUserInfoResult.UserId">
+            <summary>
+            Found userId (can be null if user not found)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.FindUserInfoResult.UserName">
+            <summary>
+            Found user name (optional)
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService">
+            <summary>
+            This service can be used to find the UserId and optionally the user's name
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService.FindUserInfoAsync(System.String)">
+            <summary>
+            When adding a AuthUser to the AuthP database you might not know the UserId
+            You can write a service that that can take the uniqueName of the AuthUser (normally the email)
+            and return the UserId, and optionally the user name (Azure Active Directory has a user name)
+            </summary>
+            <param name="uniqueName">The unique name you provide in your AuthUser setup data</param>
+            <returns>a class containing a UserIf and UserName property, or null if not found</returns>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.LinkToTenantTypes">
+            <summary>
+            Options for the AccessTenantData feature
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.LinkToTenantTypes.NotTurnedOn">
+            <summary>
+            Not used
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.LinkToTenantTypes.OnlyAppUsers">
+            <summary>
+            Only app users can do this, i.e. a AuthUser not linked to a tenant
+            Simpler and quicker than the <see cref="F:AuthPermissions.BaseCode.SetupCode.LinkToTenantTypes.AppAndHierarchicalUsers"/> option
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.LinkToTenantTypes.AppAndHierarchicalUsers">
+            <summary>
+            This allows the feature to work with Hierarchical Users
+            Useful if a higher level wants to get direct write to a Leaf tenant's set of data
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.SetupInternalData">
+            <summary>
+            This contains the data that is set during the set up the AuthPermissions
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.EnumPermissionsType">
+            <summary>
+            holds the type of the Enum Permissions 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.AuthPDatabaseType">
+            <summary>
+            This contains the type of database used for the AuthP database
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.RunSequentiallyOptions">
+            <summary>
+            This holds the Net.RunMethodsSequentially options 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.AuthPAuthenticationType">
+            <summary>
+            this contains the type of authorization your application uses
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.OverrideShardingConnections">
+            <summary>
+            If this is true, then the developer has 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.RolesPermissionsSetupData">
+            <summary>
+            This holds the classes containing the definition of a RolesToPermission database class
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.TenantSetupData">
+            <summary>
+            This holds the classes that defines the tenants 
+            Note for hierarchical tenants you add children tenants via an nested set of <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto"/> classes
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.UserRolesSetupData">
+            <summary>
+            This holds the definition for a user, with its various parts
+            See the <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant"/> class for information you need to provide
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.BaseCode.SetupCode.TenantTypes">
+            <summary>
+            This defines the types of tenant the AuthPermissions can handle, with optional sharding
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.NotUsingTenants">
+            <summary>
+            Usage of tenants are turned off
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.SingleLevel">
+            <summary>
+            Multi-tenant with one level only, e.g. a company has different departments: sales, finance, HR etc.
+            A User can only be in one of these levels
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.HierarchicalTenant">
+            <summary>
+            Multi-tenant with one level only, e.g. a company has different departments: sales, finance, HR etc.
+            A tenant can be mixed in with 
+            </summary>
+            <summary>
+            Multi-tenant many levels, e.g. Holding company -> USA branch -> East Coast -> New York
+            A User at the USA branch has read/write access to the USA branch data, read-only access to the East Coast and all its subsidiaries 
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.AddSharding">
+            <summary>
+            This turns on the sharding. Sharding allows tenants to be split across many databases, including placing a tenant's data in its own database.
+            
+            </summary>
+        </member>
+    </members>
+</doc>

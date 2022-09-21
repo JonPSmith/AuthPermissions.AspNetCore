@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Example7.BlazorWASMandWebApi.Infrastructure</RootNamespace>
+    <AssemblyName>Example7.BlazorWASMandWebApi.Infrastructure</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.23.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" Version="6.1.0" />
+    <PackageReference Include="Net.DistributedFileStoreCache" Version="1.0.0" />
+    <PackageReference Include="NetCore.AutoRegisterDi" Version="2.1.0" />
+    <PackageReference Include="EfCore.GenericServices.AspNetCore" Version="4.1.1" />
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\AuthPermissions.BaseCode\AuthPermissions.BaseCode.csproj" />
+    <ProjectReference Include="..\..\..\AuthPermissions\AuthPermissions.csproj" />
+    <ProjectReference Include="..\Core\Application\Application.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\..\..\AuthPermissions.AspNetCore\AuthPermissions.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="NetCore.AutoRegisterDi" />
+    <None Remove="EfCore.GenericServices.AspNetCore" />
+  </ItemGroup>
+</Project>

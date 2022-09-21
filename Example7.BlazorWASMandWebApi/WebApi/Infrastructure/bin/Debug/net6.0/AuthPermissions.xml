@@ -1,0 +1,1407 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AuthPermissions</name>
+    </assembly>
+    <members>
+        <member name="T:AuthPermissions.AdminCode.EntitySchemaTableExtensions">
+            <summary>
+            These methods come from the library https://github.com/JonPSmith/EfCore.SchemaCompare
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.EntitySchemaTableExtensions.FormSchemaTableFromModel(Microsoft.EntityFrameworkCore.Metadata.IEntityType)">
+            <summary>
+            This returns a string in the format "table" or "{schema}.{table}" that this entity is mapped to
+            This also handles "ToView" entities, in which case it will map the 
+            It it isn't mapped to a table it returns null
+            </summary>
+            <param name="entityType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.EntitySchemaTableExtensions.FormSchemaTable(System.String,System.String)">
+            <summary>
+            Use this on Model side, where the schema is null for the default schema
+            </summary>
+            <param name="schema"></param>
+            <param name="table"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.GenericPaging">
+            <summary>
+            This is a generic paging code
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.GenericPaging.Page``1(System.Linq.IQueryable{``0},System.Int32,System.Int32)">
+            <summary>
+            This will add LINQ Skip and Take methods to provide a paging approach
+            </summary>
+            <param name="query">an IQueryable query of the type you want to show</param>
+            <param name="pageNumZeroStart">Page number, starting at zero</param>
+            <param name="pageSize">The number of entities you want to show</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.IAuthRolesAdminService">
+            <summary>
+            This is the interface for the AuthP's Roles admin 
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthRolesAdminService.QueryRoleToPermissions(System.String)">
+            <summary>
+            This returns a IQueryable of the <see cref="T:AuthPermissions.AdminCode.RoleWithPermissionNamesDto"/> that the user allowed to see
+            This contains all the properties in the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions"/> class, plus a list of the Permissions names
+            </summary>
+            <param name="currentUserId">If your application uses the Multi-Tenant code you must provide the current userId (or null if not logged in)</param>
+            <returns>query on the database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthRolesAdminService.GetPermissionDisplay(System.Boolean,System.String)">
+            <summary>
+            This returns a list of permissions with the information from the Display attribute
+            NOTE: This should not be called by a user that has a tenant, but this isn't checked
+            </summary>
+            <param name="excludeFilteredPermissions">Optional: If set to true, then filtered permissions are also included.</param>
+            <param name="groupName">optional: If true it only returns permissions in a specific group</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthRolesAdminService.QueryUsersUsingThisRole(System.String)">
+            <summary>
+            This returns a query containing all the Auth users that have the given role name
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthRolesAdminService.QueryTenantsUsingThisRole(System.String)">
+            <summary>
+            This returns a query containing all the Tenants that have given role name
+            </summary>
+            <param name="roleName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthRolesAdminService.CreateRoleToPermissionsAsync(System.String,System.Collections.Generic.IEnumerable{System.String},System.String,AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes)">
+            <summary>
+            This creates a new RoleToPermissions with the given description and permissions defined by the names
+            NOTE: This should not be called by a user that has a tenant, but this isn't checked
+            </summary>
+            <param name="roleName">Name of the new role (must be unique)</param>
+            <param name="permissionNames">a collection of permission names to go into this role</param>
+            <param name="description">The description to tell you what this role allows the user to use - can be null</param>
+            <param name="roleType">Optional: defaults to <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.Normal"/></param>
+            <returns>A status with any errors found</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthRolesAdminService.UpdateRoleToPermissionsAsync(System.String,System.Collections.Generic.IEnumerable{System.String},System.String,AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes)">
+            <summary>
+            This updates the role's permission names, and optionally its description
+            if the new permissions contain an advanced permission
+            </summary>
+            <param name="roleName">Name of an existing role</param>
+            <param name="permissionNames">a collection of permission names to go into this role</param>
+            <param name="description">Optional: If given then updates the description for this role</param>
+            <param name="roleType">Optional: defaults to <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.Normal"/>.
+            NOTE: the roleType is changed to <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.HiddenFromTenant"/> if advanced permissions are found</param>
+            <returns>Status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthRolesAdminService.DeleteRoleAsync(System.String,System.Boolean)">
+            <summary>
+            This deletes a Role. If that Role is already assigned to Auth users you must set the removeFromUsers to true
+            otherwise you will get an error.
+            NOTE: This should not be called by a user that has a tenant, but this isn't checked
+            </summary>
+            <param name="roleName">name of role to delete</param>
+            <param name="removeFromUsers">If false it will fail if any Auth user have that role.
+                If true it will delete the role from all the users that have it.</param>
+            <returns>status</returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.IAuthTenantAdminService">
+            <summary>
+            interface of the AuthP Tenant admin services
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.QueryTenants">
+            <summary>
+            This simply returns a IQueryable of Tenants
+            </summary>
+            <returns>query on the AuthP database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.QueryEndLeafTenants">
+            <summary>
+            This query returns all the end leaf Tenants, which is the bottom of the hierarchy (i.e. no children below it)
+            </summary>
+            <returns>query on the AuthP database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.GetRoleNamesForTenantsAsync">
+            <summary>
+            This returns a list of all the RoleNames that can be applied to a Tenant
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.GetTenantViaIdAsync(System.Int32)">
+            <summary>
+            This returns a tenant, with TenantRoles and its Parent but no children, that has the given TenantId
+            </summary>
+            <param name="tenantId">primary key of the tenant you are looking for</param>
+            <returns>Status. If successful, then contains the Tenant</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.GetHierarchicalTenantChildrenViaIdAsync(System.Int32)">
+            <summary>
+            This returns a list of all the child tenants
+            </summary>
+            <param name="tenantId">primary key of the tenant you are looking for</param>
+            <returns>A list of child tenants for this tenant (can be empty)</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.AddSingleTenantAsync(System.String,System.Collections.Generic.List{System.String},System.Nullable{System.Boolean},System.String)">
+            <summary>
+            This adds a new, single level  Tenant
+            </summary>
+            <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
+            <param name="tenantRoleNames">Optional: List of tenant role names</param>
+            <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+            <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
+            <returns>A status containing the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.Tenant"/> class</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.AddHierarchicalTenantAsync(System.String,System.Int32,System.Collections.Generic.List{System.String},System.Nullable{System.Boolean},System.String)">
+            <summary>
+            This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
+            </summary>
+            <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
+            <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
+            <param name="tenantRoleNames">Optional: List of tenant role names</param>
+            <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+            <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
+            <returns>A status containing the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.Tenant"/> class</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.UpdateTenantRolesAsync(System.Int32,System.Collections.Generic.List{System.String})">
+            <summary>
+            This replaces the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.TenantRoles"/> in the tenant with <see param="tenantId"/> primary key
+            </summary>
+            <param name="tenantId">Primary key of the tenant to change</param>
+            <param name="newTenantRoleNames">List of RoleName to replace the current tenant's <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.TenantRoles"/></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.UpdateTenantNameAsync(System.Int32,System.String)">
+            <summary>
+            This updates the name of this tenant to the <see param="newTenantLevelName"/>.
+            This also means all the children underneath need to have their full name updated too
+            This method uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> you provided via the <see cref="M:AuthPermissions.RegisterExtensions.RegisterTenantChangeService``1(AuthPermissions.AuthSetupData)"/>
+            to update the application's tenant data.
+            </summary>
+            <param name="tenantId">Primary key of the tenant to change</param>
+            <param name="newTenantName">This is the new name for this tenant name</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.MoveHierarchicalTenantToAnotherParentAsync(System.Int32,System.Int32)">
+            <summary>
+            This moves a hierarchical tenant to a new parent (which might be null). This changes the TenantFullName and the
+            TenantDataKey of the selected tenant and all of its children
+            This method uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> you provided via the <see cref="M:AuthPermissions.RegisterExtensions.RegisterTenantChangeService``1(AuthPermissions.AuthSetupData)"/>
+            to move the application's tenant data.
+            </summary>
+            <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
+            <param name="newParentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.DeleteTenantAsync(System.Int32)">
+            <summary>
+            This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/>,
+            but only if no AuthP user are linked to this tenant (it will return errors listing all the AuthP user that are linked to this tenant
+            This method uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> you provided via the <see cref="M:AuthPermissions.RegisterExtensions.RegisterTenantChangeService``1(AuthPermissions.AuthSetupData)"/>
+            to delete the application's tenant data.
+            NOTE: If the tenant is hierarchical, then it will delete the tenant and all of its child tenants
+            </summary>
+            <param name="tenantId">The primary key of the AuthP tenant to be deleted</param>
+            <returns>Status returning the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthTenantAdminService.MoveToDifferentDatabaseAsync(System.Int32,System.Boolean,System.String)">
+            <summary>
+            This is used when sharding is enabled. It updates the tenant's <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.DatabaseInfoName"/> and
+            <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.HasOwnDb"/> and calls the  <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> <see cref="M:AuthPermissions.AdminCode.ITenantChangeService.MoveToDifferentDatabaseAsync(System.String,System.String,AuthPermissions.BaseCode.DataLayer.Classes.Tenant)"/>
+            which moves the tenant data to another database and then deletes the the original tenant data.
+            </summary>
+            <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
+                NOTE: If its a hierarchical tenant, then the tenant must be the highest parent.</param>
+            <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
+            <param name="databaseInfoName">The name of the connection string in the ConnectionStrings part of the appsettings file</param>
+            <returns>status</returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.IAuthUsersAdminService">
+            <summary>
+            This provides CRUD access to the AuthP's Users
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.QueryAuthUsers(System.String,System.String)">
+            <summary>
+            This returns a IQueryable of AuthUser, with optional filtering by dataKey and sharding name (useful for tenant admin)
+            </summary>
+            <param name="dataKey">optional dataKey. If provided then it only returns AuthUsers that fall within that dataKey</param>
+            <param name="databaseInfoName">optional sharding name. If provided then it only returns AuthUsers that fall within that dataKey</param>
+            <returns>query on the database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.FindAuthUserByUserIdAsync(System.String)">
+            <summary>
+            Finds a AuthUser via its UserId. Returns a status with an error if not found
+            </summary>
+            <param name="userId"></param>
+            <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.FindAuthUserByEmailAsync(System.String)">
+            <summary>
+            Find a AuthUser via its email. Returns a status with an error if not found
+            </summary>
+            <param name="email"></param>
+            <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.UpdateDisabledAsync(System.String,System.Boolean)">
+            <summary>
+            This will changes the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.IsDisabled"/> for the user with the given userId
+            A disabled user causes the <see cref="T:AuthPermissions.ClaimsCalculator"/> to not add any AuthP claims to the user on login 
+            </summary>
+            <param name="userId"></param>
+            <param name="isDisabled">New setting for the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.IsDisabled"/></param>
+            <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.GetRoleNamesForUsersAsync(System.String,System.Boolean)">
+            <summary>
+            This returns a list of all the RoleNames that can be applied to the AuthUser
+            Doesn't work properly when used in a create, as the user's tenant hasn't be set
+            </summary>
+            <param name="userId">UserId of the user you are updating. Only needed in multi-tenant applications </param>
+            <param name="addNone">Defaults to true, with will add the <see cref="F:AuthPermissions.CommonConstants.EmptyItemName"/> at the start.
+            This is useful for selecting no roles</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.GetAllTenantNamesAsync">
+            <summary>
+            This returns all the tenant full names
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.AddNewUserAsync(System.String,System.String,System.String,System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            This adds a new AuthUse to the database
+            </summary>
+            <param name="userId"></param>
+            <param name="email">if not null, then checked to be a valid email</param>
+            <param name="userName"></param>
+            <param name="roleNames">The rolenames of this user</param>
+            <param name="tenantName">If null, then keeps current tenant. If "" will remove a tenant link.
+            Otherwise the user will be linked to the tenant with that name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.UpdateUserAsync(System.String,System.String,System.String,System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            This update an existing AuthUser. This method is designed so you only have to provide data for the parts you want to update,
+            i.e. if a parameter is null, then it keeps the original setting. The only odd one out is the tenantName,
+            where you have to provide the <see cref="F:AuthPermissions.CommonConstants.EmptyItemName"/> value to remove the tenant.  
+            </summary>
+            <param name="userId"></param>
+            <param name="email">Either provide a email or null. if null, then uses the current user's email</param>
+            <param name="userName">Either provide a userName or null. if null, then uses the current user's userName</param>
+            <param name="roleNames">Either a list of rolenames or null. If null, then keeps its current rolenames.</param>
+            <param name="tenantName">If null, then keeps current tenant. If it is <see cref="F:AuthPermissions.CommonConstants.EmptyItemName"/> it will remove a tenant link.
+            Otherwise the user will be linked to the tenant with that name.</param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.DeleteUserAsync(System.String)">
+            <summary>
+            This will delete the AuthUser with the given userId
+            </summary>
+            <param name="userId"></param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.SyncAndShowChangesAsync">
+            <summary>
+            This compares the users in the authentication provider against the user's in the AuthP's database.
+            It creates a list of all the changes (add, update, remove) than need to be applied to the AuthUsers.
+            This is shown to the admin user to check, and fill in the Roles/Tenant parts for new users
+            </summary>
+            <returns>Status, if valid then it contains a list of <see cref="T:AuthPermissions.AdminCode.SyncAuthUserWithChange"/>to display</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.IAuthUsersAdminService.ApplySyncChangesAsync(System.Collections.Generic.IEnumerable{AuthPermissions.AdminCode.SyncAuthUserWithChange})">
+            <summary>
+            This receives a list of <see cref="T:AuthPermissions.AdminCode.SyncAuthUserWithChange"/> and applies them to the AuthP database.
+            This uses the <see cref="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.FoundChangeType"/> parameter to define what to change
+            </summary>
+            <param name="changesToApply"></param>
+            <returns>Status</returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers">
+            <summary>
+            This interface defines the service that will return the UserId, Email and Name of all
+            the active users in your authentication provider's.  This is used to synchronize the
+            AuthUsers in the AuthPermissions database to the authentication provider's users
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ISyncAuthenticationUsers.GetAllActiveUserInfoAsync">
+            <summary>
+            This should provide all the active users that need AuthPermissions role/permissions and/or multi-tenant features
+            </summary>
+            <returns>A list <see cref="T:AuthPermissions.AdminCode.SyncAuthenticationUser"/> classes containing the UserId, Email and Name for all users</returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.ITenantChangeService">
+            <summary>
+            This is the interface for the creating, deleting, updating, or hierarchical moving of tenants
+            This service should apply changes to the application's database. 
+            The methods are called by the <see cref="T:AuthPermissions.AdminCode.Services.AuthTenantAdminService"/> methods withing a transaction,
+            so that if the application database changes fails, then the AuthP changes will be rolled back.
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ITenantChangeService.CreateNewTenantAsync(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            When a new AuthP Tenant is created, then this method is called. If you have a tenant-type entity in your
+            application's database, then this allows you to create a new entity for the new tenant.
+            You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
+            NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children
+            </summary>
+            <param name="tenant"></param>
+            <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ITenantChangeService.SingleTenantUpdateNameAsync(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This is called when the name of your single-level tenant is changed. This is useful if you use the tenant name in your multi-tenant data.
+            NOTE: The application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read.
+            You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
+            </summary>
+            <param name="tenant"></param>
+            <returns>Returns null if all OK, otherwise the name change is rolled back and the return string is shown to the user</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ITenantChangeService.SingleTenantDeleteAsync(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This is used with single-level tenant to either
+            a) delete all the application-side data with the given DataKey, or
+            b) soft-delete the data.
+            You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back
+            Notes:
+            - The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read
+            - You can provide information of what you have done by adding public parameters to this class.
+              The TenantAdmin <see cref="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.DeleteTenantAsync(System.Int32)"/> method returns your class on a successful Delete
+            </summary>
+            <param name="tenant"></param>
+            <returns>Returns null if all OK, otherwise the AuthP part of the delete is rolled back and the return string is shown to the user</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ITenantChangeService.HierarchicalTenantUpdateNameAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.Tenant})">
+            <summary>
+            This is called when the name of your Hierarchical tenants is changed. This is useful if you use the tenant name in your multi-tenant data.
+            NOTE: The application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read.
+            You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
+            </summary>
+            <param name="tenantsToUpdate">This contains the tenants to update.</param>
+            <returns>Returns null if all OK, otherwise the name change is rolled back and the return string is shown to the user</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ITenantChangeService.HierarchicalTenantDeleteAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.DataLayer.Classes.Tenant})">
+            <summary>
+            This is used with hierarchical tenants to either
+            a) delete all the application-side data with the given DataKey, or
+            b) soft-delete the data.
+            You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back
+            Notes:
+            - The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read
+            - You can provide information of what you have done by adding public parameters to this class.
+              The TenantAdmin <see cref="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.DeleteTenantAsync(System.Int32)"/> method returns your class on a successful Delete
+            </summary>
+            <param name="tenantsInOrder">The tenants to delete with the children first in case a higher level links to a lower level</param>
+            <returns>Returns null if all OK, otherwise the AuthP part of the delete is rolled back and the return string is shown to the user</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ITenantChangeService.MoveHierarchicalTenantDataAsync(System.Collections.Generic.List{System.ValueTuple{System.String,AuthPermissions.BaseCode.DataLayer.Classes.Tenant}})">
+            <summary>
+            This is used with hierarchical tenants, where you move one tenant (and its children) to another tenant
+            This requires you to change the DataKeys of each application's tenant data, so they link to the new tenant.
+            Also, if you contain the name of the tenant in your data, then you need to update its new FullName
+            Notes:
+            - The created application's DbContext won't have a DataKey, so you will need to use IgnoreQueryFilters on any EF Core read
+            - You can get multiple calls if move a higher level
+            </summary>
+            <param name="tenantToUpdate">The data to update each tenant. This starts at the parent and then recursively works down the children</param>
+            <returns>Returns null if all OK, otherwise AuthP part of the move is rolled back and the return string is shown to the user</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.ITenantChangeService.MoveToDifferentDatabaseAsync(System.String,System.String,AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This is called when a tenant is moved to a new database setting.
+            Its job is to move all the application's data to a new database (which isn't an easy thing to do!)
+            and then delete the old data
+            This method is called for both a single-level or hierarchical tenant, but the code for each is quite different.
+            NOTE: If its a hierarchical tenant, then the tenant will be the highest parent.
+            NOTE: If the tenant's <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.HasOwnDb"/> is true, then its worth you checking the database
+            doesn't have any application's data in the new database. This is especially important for a single-level tenant
+            because the query filter will be turned off and any other data would be returned.
+            </summary>
+            <param name="oldDatabaseInfoName">The connection string to the old database</param>
+            <param name="oldDataKey"></param>
+            <param name="updatedTenant">This tenant has had its sharding information updated</param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.RoleWithPermissionNamesDto">
+            <summary>
+            Used in <see cref="T:AuthPermissions.AdminCode.IAuthRolesAdminService"/> to return a Role with the permission names 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.RoleWithPermissionNamesDto.RoleName">
+            <summary>
+            Name of the Role (unique)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.RoleWithPermissionNamesDto.Description">
+            <summary>
+            A human-friendly description of what the Role does
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.RoleWithPermissionNamesDto.RoleType">
+            <summary>
+            This returns the type of Role this is
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.RoleWithPermissionNamesDto.PackedPermissionsInRole">
+            <summary>
+            This contains the list of permissions as a series of unicode chars
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.RoleWithPermissionNamesDto.PermissionNames">
+            <summary>
+            This contains a list of all Permission names in the role
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.Services.AuthRolesAdminService">
+            <summary>
+            This provides CRUD access to the AuthP's Roles
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.#ctor(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            ctor
+            </summary>
+            <param name="context"></param>
+            <param name="options"></param>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.QueryRoleToPermissions(System.String)">
+            <summary>
+            This simply returns a IQueryable of the <see cref="T:AuthPermissions.AdminCode.RoleWithPermissionNamesDto"/>.
+            This contains all the properties in the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions"/> class, plus a list of the Permissions names
+            This can be by a user linked to a tenant and it will display all the roles that tenant can use 
+            </summary>
+            <param name="currentUserId">Only used if using AuthP's multi-tenant feature you must provide the current user's ID</param>
+            <returns>query on the database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.GetPermissionDisplay(System.Boolean,System.String)">
+            <summary>
+            This returns a list of permissions with the information from the Display attribute
+            NOTE: This should not be called by a user that has a tenant, but this isn't checked
+            </summary>
+            <param name="excludeFilteredPermissions">Optional: If set to true, then filtered permissions are also included.</param>
+            <param name="groupName">optional: If true  it only returns permissions in a specific group</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.QueryUsersUsingThisRole(System.String)">
+            <summary>
+            This returns a query containing all the AuthP users that have the given role name
+            NOTE: it assumes that the user can only look for roles that they are allowed to see
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.QueryTenantsUsingThisRole(System.String)">
+            <summary>
+            This returns a query containing all the Tenants that have given role name
+            </summary>
+            <param name="roleName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.CreateRoleToPermissionsAsync(System.String,System.Collections.Generic.IEnumerable{System.String},System.String,AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes)">
+            <summary>
+            This adds a new RoleToPermissions with the given description and permissions defined by the names 
+            </summary>
+            <param name="roleName">Name of the new role (must be unique)</param>
+            <param name="permissionNames">a collection of permission names to go into this role</param>
+            <param name="description">The description to tell you what this role allows the user to use - can be null</param>
+            <param name="roleType">Optional: defaults to <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.Normal"/></param>
+            <returns>A status with any errors found</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.UpdateRoleToPermissionsAsync(System.String,System.Collections.Generic.IEnumerable{System.String},System.String,AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes)">
+            <summary>
+            This updates the role's permission names, and optionally its description
+            if the new permissions contain an advanced permission
+            </summary>
+            <param name="roleName">Name of an existing role</param>
+            <param name="permissionNames">a collection of permission names to go into this role</param>
+            <param name="description">Optional: If given then updates the description for this role</param>
+            <param name="roleType">Optional: defaults to <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.Normal"/>.
+            NOTE: the roleType is changed to <see cref="F:AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes.RoleTypes.HiddenFromTenant"/> if advanced permissions are found</param>
+            <returns>Status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.DeleteRoleAsync(System.String,System.Boolean)">
+            <summary>
+            This deletes a Role. If that Role is already assigned to AuthP users you must set the removeFromUsers to true
+            otherwise you will get an error.
+            </summary>
+            <param name="roleName">name of role to delete</param>
+            <param name="removeFromUsers">If false it will fail if any AuthP user have that role.
+                If true it will delete the role from all the users that have it.</param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthRolesAdminService.FindTheTenantIdOfTheUser(System.String)">
+            <summary>
+            Used to find the tenantId of the current user - can be null if not an tenant user
+            </summary>
+            <param name="currentUserId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.Services.AuthTenantAdminService">
+            <summary>
+            This provides CRUD services for tenants
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.#ctor(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.BaseCode.AuthPermissionsOptions,AuthPermissions.SetupCode.Factories.IAuthPServiceFactory{AuthPermissions.AdminCode.ITenantChangeService},Microsoft.Extensions.Logging.ILogger{AuthPermissions.AdminCode.Services.AuthTenantAdminService})">
+            <summary>
+            ctor
+            </summary>
+            <param name="context"></param>
+            <param name="options"></param>
+            <param name="tenantChangeServiceFactory"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.QueryTenants">
+            <summary>
+            This simply returns a IQueryable of Tenants
+            </summary>
+            <returns>query on the AuthP database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.QueryEndLeafTenants">
+            <summary>
+            This query returns all the end leaf Tenants, which is the bottom of the hierarchy (i.e. no children below it)
+            </summary>
+            <returns>query on the AuthP database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.GetRoleNamesForTenantsAsync">
+            <summary>
+            This returns a list of all the RoleNames that can be applied to a Tenant
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.GetTenantViaIdAsync(System.Int32)">
+            <summary>
+            This returns a tenant, with TenantRoles and its Parent but no children, that has the given TenantId
+            </summary>
+            <param name="tenantId">primary key of the tenant you are looking for</param>
+            <returns>Status. If successful, then contains the Tenant</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.GetHierarchicalTenantChildrenViaIdAsync(System.Int32)">
+            <summary>
+            This returns a list of all the child tenants
+            </summary>
+            <param name="tenantId">primary key of the tenant you are looking for</param>
+            <returns>A list of child tenants for this tenant (can be empty)</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.AddSingleTenantAsync(System.String,System.Collections.Generic.List{System.String},System.Nullable{System.Boolean},System.String)">
+            <summary>
+            This adds a new, single level Tenant
+            </summary>
+            <param name="tenantName">Name of the new single-level tenant (must be unique)</param>
+            <param name="tenantRoleNames">Optional: List of tenant role names</param>
+            <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+            <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
+            <returns>A status containing the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.Tenant"/> class</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.AddHierarchicalTenantAsync(System.String,System.Int32,System.Collections.Generic.List{System.String},System.Nullable{System.Boolean},System.String)">
+            <summary>
+            This adds a new Hierarchical Tenant, liking it into the parent (which can be null)
+            </summary>
+            <param name="tenantName">Name of the new tenant. This will be prefixed with the parent's tenant name to make it unique</param>
+            <param name="parentTenantId">The primary key of the parent. If 0 then the new tenant is at the top level</param>
+            <param name="tenantRoleNames">Optional: List of tenant role names</param>
+            <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
+            <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
+            <returns>A status containing the <see cref="T:AuthPermissions.BaseCode.DataLayer.Classes.Tenant"/> class</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.UpdateTenantRolesAsync(System.Int32,System.Collections.Generic.List{System.String})">
+            <summary>
+            This replaces the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.TenantRoles"/> in the tenant with <see param="tenantId"/> primary key
+            </summary>
+            <param name="tenantId">Primary key of the tenant to change</param>
+            <param name="newTenantRoleNames">List of RoleName to replace the current tenant's <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.TenantRoles"/></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.UpdateTenantNameAsync(System.Int32,System.String)">
+            <summary>
+            This updates the name of this tenant to the <see param="newTenantLevelName"/>.
+            This also means all the children underneath need to have their full name updated too
+            This method uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> you provided via the <see cref="M:AuthPermissions.RegisterExtensions.RegisterTenantChangeService``1(AuthPermissions.AuthSetupData)"/>
+            to update the application's tenant data.
+            </summary>
+            <param name="tenantId">Primary key of the tenant to change</param>
+            <param name="newTenantName">This is the new name for this tenant name</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.MoveHierarchicalTenantToAnotherParentAsync(System.Int32,System.Int32)">
+            <summary>
+            This moves a hierarchical tenant to a new parent (which might be null). This changes the TenantFullName and the
+            TenantDataKey of the selected tenant and all of its children
+            This method uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> you provided via the <see cref="M:AuthPermissions.RegisterExtensions.RegisterTenantChangeService``1(AuthPermissions.AuthSetupData)"/>
+            </summary>
+            <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
+            <param name="newParentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.DeleteTenantAsync(System.Int32)">
+            <summary>
+            This will delete the tenant (and all its children if the data is hierarchical) and uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/>,
+            but only if no AuthP user are linked to this tenant (it will return errors listing all the AuthP user that are linked to this tenant
+            This method uses the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> you provided via the <see cref="M:AuthPermissions.RegisterExtensions.RegisterTenantChangeService``1(AuthPermissions.AuthSetupData)"/>
+            to delete the application's tenant data.
+            </summary>
+            <returns>Status returning the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.MoveToDifferentDatabaseAsync(System.Int32,System.Boolean,System.String)">
+            <summary>
+            This is used when sharding is enabled. It updates the tenant's <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.DatabaseInfoName"/> and
+            <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.HasOwnDb"/> and calls the  <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> <see cref="M:AuthPermissions.AdminCode.ITenantChangeService.MoveToDifferentDatabaseAsync(System.String,System.String,AuthPermissions.BaseCode.DataLayer.Classes.Tenant)"/>
+            which moves the tenant data to another database and then deletes the the original tenant data.
+            NOTE: You can change the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.HasOwnDb"/> by calling this method with no change to the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.DatabaseInfoName"/>.
+            </summary>
+            <param name="tenantToMoveId">The primary key of the AuthP tenant to be moved.
+                NOTE: If its a hierarchical tenant, then the tenant must be the highest parent.</param>
+            <param name="hasOwnDb">Says whether the new database will only hold this tenant</param>
+            <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.CheckHasOwnDbIsValidAsync(System.Boolean,System.String)">
+            <summary>
+            If the hasOwnDb is true, it returns an error if any tenants have the same <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.Tenant.DatabaseInfoName"/>
+            </summary>
+            <param name="hasOwnDb"></param>
+            <param name="databaseInfoName"></param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthTenantAdminService.GetRolesWithChecksAsync(System.Collections.Generic.List{System.String})">
+            <summary>
+            This finds the roles with the given names from the AuthP database. Returns errors if not found
+            NOTE: The Tenant checks that the role's <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.RoleToPermissions.RoleType"/> are valid for a tenant
+            </summary>
+            <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
+            <returns>Status</returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.Services.AuthUsersAdminService">
+            <summary>
+            This provides CRUD access to the AuthP's Users
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.#ctor(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.SetupCode.Factories.IAuthPServiceFactory{AuthPermissions.AdminCode.ISyncAuthenticationUsers},AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            ctor
+            </summary>
+            <param name="context"></param>
+            <param name="syncAuthenticationUsersFactory">A factory to create an authentication sync provider</param>
+            <param name="options">auth options</param>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.QueryAuthUsers(System.String,System.String)">
+            <summary>
+            This returns a IQueryable of AuthUser, with optional filtering by dataKey and sharding name (useful for tenant admin)
+            </summary>
+            <param name="dataKey">optional dataKey. If provided then it only returns AuthUsers that fall within that dataKey</param>
+            <param name="databaseInfoName">optional sharding name. If provided then it only returns AuthUsers that fall within that dataKey</param>
+            <returns>query on the database</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.FindAuthUserByUserIdAsync(System.String)">
+            <summary>
+            Finds a AuthUser via its UserId. Returns a status with an error if not found
+            </summary>
+            <param name="userId"></param>
+            <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.FindAuthUserByEmailAsync(System.String)">
+            <summary>
+            Find a AuthUser via its email. Returns a status with an error if not found
+            </summary>
+            <param name="email"></param>
+            <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.UpdateDisabledAsync(System.String,System.Boolean)">
+            <summary>
+            This will changes the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.IsDisabled"/> for the user with the given userId
+            A disabled user causes the <see cref="T:AuthPermissions.ClaimsCalculator"/> to not add any AuthP claims to the user on login 
+            </summary>
+            <param name="userId"></param>
+            <param name="isDisabled">New setting for the <see cref="P:AuthPermissions.BaseCode.DataLayer.Classes.AuthUser.IsDisabled"/></param>
+            <returns>Status containing the AuthUser with UserRoles and UserTenant, or errors</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.GetRoleNamesForUsersAsync(System.String,System.Boolean)">
+            <summary>
+            This returns a list of all the RoleNames that can be applied to the AuthUser
+            Doesn't work properly when used in a create, as the user's tenant hasn't be set
+            </summary>
+            <param name="userId">UserId of the user you are updating. Only needed in multi-tenant applications </param>
+            <param name="addNone">Defaults to true, with will add the <see cref="F:AuthPermissions.CommonConstants.EmptyItemName"/> at the start.
+            This is useful for selecting no roles</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.GetAllTenantNamesAsync">
+            <summary>
+            This returns all the tenant full names
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.AddNewUserAsync(System.String,System.String,System.String,System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            This adds a new AuthUse to the database
+            </summary>
+            <param name="userId"></param>
+            <param name="email">if not null, then checked to be a valid email</param>
+            <param name="userName"></param>
+            <param name="roleNames">The rolenames of this user - if null then assumes no roles</param>
+            <param name="tenantName">optional: full name of the tenant</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.UpdateUserAsync(System.String,System.String,System.String,System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            This update an existing AuthUser. This method is designed so you only have to provide data for the parts you want to update,
+            i.e. if a parameter is null, then it keeps the original setting. The only odd one out is the tenantName,
+            where you have to provide the <see cref="F:AuthPermissions.CommonConstants.EmptyItemName"/> value to remove the tenant.  
+            </summary>
+            <param name="userId"></param>
+            <param name="email">Either provide a email or null. if null, then uses the current user's email</param>
+            <param name="userName">Either provide a userName or null. if null, then uses the current user's userName</param>
+            <param name="roleNames">Either a list of rolenames or null. If null, then keeps its current rolenames.
+            If the rolesNames collection only contains a single entry with the value <see cref="F:AuthPermissions.CommonConstants.EmptyItemName"/>,
+            then the roles will be set to an empty collection.</param>
+            <param name="tenantName">If null, then keeps current tenant. If it is <see cref="F:AuthPermissions.CommonConstants.EmptyItemName"/> it will remove a tenant link.
+            Otherwise the user will be linked to the tenant with that name.</param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.DeleteUserAsync(System.String)">
+            <summary>
+            This will delete the AuthUser with the given userId
+            </summary>
+            <param name="userId"></param>
+            <returns>status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.SyncAndShowChangesAsync">
+            <summary>
+            This compares the users in the authentication provider against the user's in the AuthP's database.
+            It creates a list of all the changes (add, update, remove) than need to be applied to the AuthUsers.
+            This is shown to the admin user to check, and fill in the Roles/Tenant parts for new users
+            </summary>
+            <returns>Status, if valid then it contains a list of <see cref="T:AuthPermissions.AdminCode.SyncAuthUserWithChange"/>to display</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.ApplySyncChangesAsync(System.Collections.Generic.IEnumerable{AuthPermissions.AdminCode.SyncAuthUserWithChange})">
+            <summary>
+            This receives a list of <see cref="T:AuthPermissions.AdminCode.SyncAuthUserWithChange"/> and applies them to the AuthP database.
+            This uses the <see cref="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.FoundChangeType"/> parameter to define what to change
+            </summary>
+            <param name="changesToApply"></param>
+            <returns>Status</returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.Services.AuthUsersAdminService.FindCheckRolesAreValidForUserAsync(System.Collections.Generic.List{System.String},AuthPermissions.BaseCode.DataLayer.Classes.Tenant,System.String)">
+            <summary>
+            This finds and checks that the roles are valid for this type of user and tenant
+            </summary>
+            <param name="roleNames"></param>
+            <param name="usersTenant">NOTE: must include the tenant's roles</param>
+            <param name="userName">name/email of the user</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.Services.Internal.ChangeRoleTypeChecks">
+            <summary>
+            This contains the rules for 
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.SyncAuthenticationUser">
+            <summary>
+            This class contains the information on a user from your authentication provider - see <see cref="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers"/>
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.SyncAuthenticationUser.#ctor(System.String,System.String,System.String)">
+            <summary>
+            ctor
+            </summary>
+            <param name="userId"></param>
+            <param name="email"></param>
+            <param name="userName"></param>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthenticationUser.UserId">
+            <summary>
+            The userId of the user
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthenticationUser.Email">
+            <summary>
+            The user's main email (used as one way to find the user) 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthenticationUser.UserName">
+            <summary>
+            The user's name
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.SyncAuthUserChangeTypes">
+            <summary>
+            The type of changes between the authentication provider's user and the AuthPermission's AuthUser
+            Also used to confirm that the change should be made 
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.AdminCode.SyncAuthUserChangeTypes.NoChange">
+            <summary>
+            Ignore this change - can be set by the user
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.AdminCode.SyncAuthUserChangeTypes.Create">
+            <summary>
+            A new authentication provider's user, need to add a AuthP user  
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.AdminCode.SyncAuthUserChangeTypes.Update">
+            <summary>
+            The authentication provider user's email and/or username has change, so update AuthP user
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.AdminCode.SyncAuthUserChangeTypes.Delete">
+            <summary>
+            A user has been removed from authentication provider' database, so delete AuthP user too
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.SyncAuthUserWithChange">
+            <summary>
+            This class is used to find, display and change the AuthUser
+            The <see cref="M:AuthPermissions.AdminCode.IAuthUsersAdminService.SyncAndShowChangesAsync"/> method uses
+            the internal constructor to work out what has changed
+            The public constructor is used when a view/page/WebAPI wants to return these changes.
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.SyncAuthUserWithChange.#ctor">
+            <summary>
+            Ctor for sending back the data
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.SyncAuthUserWithChange.#ctor(AuthPermissions.AdminCode.SyncAuthenticationUser,AuthPermissions.BaseCode.DataLayer.Classes.AuthUser)">
+            <summary>
+            Ctor used by sync code to build the sync change data
+            In general the following happens 
+            - OldEmail and OldUserName contain the values from the AuthUser
+            - Email and UserName contain the values from the authentication provider Uses
+            The exception is Delete, where we want to show the AuthUser data. In this case
+            -  Email and UserName contain the values from the AuthUser
+            - OldEmail and OldUserName are set to null, which marks them changed
+            </summary>
+            <param name="authenticationUser"></param>
+            <param name="authUser"></param>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.FoundChangeType">
+            <summary>
+            This is set to the difference between authentication provider's user and the AuthPermission's AuthUser
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.UserId">
+            <summary>
+            The userId of the user (NOTE: this is not shown) 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.Email">
+            <summary>
+            The user's main email (used as one way to find the user) 
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.OldEmail">
+            <summary>
+            Holds the AuthP version
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.EmailChanged">
+            <summary>
+            True if Emails are different
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.UserName">
+            <summary>
+            The user's name
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.OldUserName">
+            <summary>
+            Holds the AuthP version
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.UserNameChanged">
+            <summary>
+            True if usernames different
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.RoleNames">
+            <summary>
+            The AuthRoles for this AuthUser
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.NumRoles">
+            <summary>
+            Number of roles, or "not set" if none
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.TenantName">
+            <summary>
+            The name of the AuthP Tenant for this AuthUser (can be null)
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AdminCode.SyncAuthUserWithChange.HasTenant">
+            <summary>
+            True if the user has a tenant
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.SyncAuthUserWithChange.ToString">
+            <summary>
+            Summary to 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.AdminCode.TenantTypeExtensions">
+            <summary>
+            Methods to decode the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> property
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.TenantTypeExtensions.ThrowExceptionIfTenantTypeIsWrong(AuthPermissions.BaseCode.SetupCode.TenantTypes)">
+            <summary>
+            This checks that the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> property contains a valid state
+            </summary>
+            <param name="tenantType"></param>
+            <exception cref="T:AuthPermissions.BaseCode.CommonCode.AuthPermissionsException"></exception>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.TenantTypeExtensions.IsMultiTenant(AuthPermissions.BaseCode.SetupCode.TenantTypes)">
+            <summary>
+            Returns true if the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> property is set to use AuthP's multi-tenant feature
+            </summary>
+            <param name="tenantType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.TenantTypeExtensions.IsSingleLevel(AuthPermissions.BaseCode.SetupCode.TenantTypes)">
+            <summary>
+            Returns true if the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> property is set to <see cref="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.SingleLevel"/>
+            </summary>
+            <param name="tenantType"></param>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.TenantTypeExtensions.IsHierarchical(AuthPermissions.BaseCode.SetupCode.TenantTypes)">
+            <summary>
+            Returns true if the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> property is set to <see cref="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.HierarchicalTenant"/>
+            </summary>
+            <param name="tenantType"></param>
+        </member>
+        <member name="M:AuthPermissions.AdminCode.TenantTypeExtensions.IsSharding(AuthPermissions.BaseCode.SetupCode.TenantTypes)">
+            <summary>
+            Returns true if the <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> property has the <see cref="F:AuthPermissions.BaseCode.SetupCode.TenantTypes.AddSharding"/> flag set
+            </summary>
+            <param name="tenantType"></param>
+        </member>
+        <member name="T:AuthPermissions.AuthSetupData">
+            <summary>
+            This class carries data through the setup extensions
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AuthSetupData.Services">
+            <summary>
+            The DI ServiceCollection which AuthPermissions services, constants and policies are registered to
+            </summary>
+        </member>
+        <member name="P:AuthPermissions.AuthSetupData.Options">
+            <summary>
+            This holds the AuthPermissions options
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.SetupCode.BulkLoadOnStartup">
+            <summary>
+            This adds roles/permissions, tenants and Users only if the database is empty
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.BulkLoadOnStartup.SeedRolesTenantsUsersIfEmpty(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.BaseCode.AuthPermissionsOptions,AuthPermissions.SetupCode.Factories.IAuthPServiceFactory{AuthPermissions.BaseCode.SetupCode.IFindUserInfoService})">
+            <summary>
+            This adds roles/permissions, tenants and Users, but only if each roles/tenants/Users are empty
+            </summary>
+            <param name="context"></param>
+            <param name="options"></param>
+            <param name="findUserInfoServiceFactory"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SetupCode.Factories.FindUserInfoServiceFactory">
+            <summary>
+            Factory to cover the <see cref="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers"/> service
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.Factories.FindUserInfoServiceFactory.#ctor(System.IServiceProvider)">
+            <summary>
+            Needs IServiceProvider
+            </summary>
+            <param name="serviceProvider"></param>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.Factories.FindUserInfoServiceFactory.GetService(System.Boolean,System.String)">
+            <summary>
+            Returned service that allows you to get the authorization provider user by its email
+            </summary>
+            <param name="throwExceptionIfNull">If no service found and this is true, then throw an exception</param>
+            <param name="callingMethod">This contains the name of the calling method</param>
+            <returns>The service, or null </returns>
+        </member>
+        <member name="T:AuthPermissions.SetupCode.Factories.IAuthPServiceFactory`1">
+            <summary>
+            Generic factory method to handle services that are (optionally) registered by the developer
+            </summary>
+            <typeparam name="TServiceInterface"></typeparam>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.Factories.IAuthPServiceFactory`1.GetService(System.Boolean,System.String)">
+            <summary>
+            This returns the service registered to the <see type="TServiceInterface"/> interface
+            </summary>
+            <param name="throwExceptionIfNull">If no service found and this is true, then throw an exception</param>
+            <param name="callingMethod">This contains the name of the calling method</param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SetupCode.Factories.SyncAuthenticationUsersFactory">
+            <summary>
+            Factory to cover the <see cref="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers"/> service
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.Factories.SyncAuthenticationUsersFactory.#ctor(System.IServiceProvider)">
+            <summary>
+            Needs IServiceProvider
+            </summary>
+            <param name="serviceProvider"></param>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.Factories.SyncAuthenticationUsersFactory.GetService(System.Boolean,System.String)">
+            <summary>
+            Returned a service which provides all the active users in the authentication provider in your application
+            </summary>
+            <param name="throwExceptionIfNull">If no service found and this is true, then throw an exception</param>
+            <param name="callingMethod">This contains the name of the calling method</param>
+            <returns>The service, or null </returns>
+        </member>
+        <member name="T:AuthPermissions.SetupCode.Factories.TenantChangeServiceFactory">
+            <summary>
+            Factory to cover the <see cref="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers"/> service
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.Factories.TenantChangeServiceFactory.#ctor(System.IServiceProvider)">
+            <summary>
+            Needs IServiceProvider
+            </summary>
+            <param name="serviceProvider"></param>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.Factories.TenantChangeServiceFactory.GetService(System.Boolean,System.String)">
+            <summary>
+            Returned service that allows you to get the authorization provider user by its email
+            </summary>
+            <param name="throwExceptionIfNull">If no service found and this is true, then throw an exception</param>
+            <param name="callingMethod">This contains the name of the calling method</param>
+            <returns>The service, or null </returns>
+        </member>
+        <member name="T:AuthPermissions.SetupCode.SetupCheckExtensions">
+            <summary>
+            Various checks using the the setup stage of AuthP
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.SetupCheckExtensions.CheckConnectString(System.String)">
+            <summary>
+            Check the connection string
+            </summary>
+            <param name="connectionString"></param>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.SetupCheckExtensions.CheckAuthorizationIsIndividualAccounts(AuthPermissions.AuthSetupData)">
+            <summary>
+            This checks that the <see cref="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.AuthPAuthenticationType"/> enum is set to IndividualAccounts
+            </summary>
+            <param name="setupData"></param>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.SetupCheckExtensions.CheckThatAuthorizationTypeIsSetIfNotInUnitTestMode(AuthPermissions.AuthSetupData)">
+            <summary>
+            This checks that the <see cref="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.AuthPAuthenticationType"/> enum is set to an auth (unless its in unit test mode)
+            </summary>
+            <param name="setupData"></param>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.SetupCheckExtensions.CheckDatabaseTypeIsSet(AuthPermissions.AuthSetupData)">
+            <summary>
+            This checks that the <see cref="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.AuthPDatabaseType"/> enum is set to a database type
+            </summary>
+            <param name="setupData"></param>
+        </member>
+        <member name="M:AuthPermissions.SetupCode.SetupCheckExtensions.CheckDatabaseTypeIsSetToSqliteInMemory(AuthPermissions.AuthSetupData,System.String)">
+            <summary>
+            This checks that the <see cref="P:AuthPermissions.BaseCode.SetupCode.SetupInternalData.AuthPDatabaseType"/> enum is set to a database type
+            </summary>
+            <param name="setupData"></param>
+            <param name="callingMethod">DO NOT USE - used to get the calling method name</param>
+        </member>
+        <member name="T:AuthPermissions.BulkLoadServices.Concrete.BulkLoadRolesService">
+            <summary>
+            This bulk loads Roles with their permissions from a string with contains a series of lines
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.Concrete.BulkLoadRolesService.#ctor(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            ctor
+            </summary>
+            <param name="context"></param>
+            <param name="options"></param>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.Concrete.BulkLoadRolesService.AddRolesToDatabaseAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto})">
+            <summary>
+            This allows you to add Roles with their permissions via the <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto"/> class
+            </summary>
+            <param name="roleSetupData">A list of definitions containing the information for each Role</param>
+            <returns>status</returns>
+        </member>
+        <member name="T:AuthPermissions.BulkLoadServices.Concrete.BulkLoadTenantsService">
+            <summary>
+            Bulk load multiple tenants from a list of <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto"/>
+            This works with a single-level tenant scheme and a hierarchical tenant scheme
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.Concrete.BulkLoadTenantsService.#ctor(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext)">
+            <summary>
+            requires access to the AuthPermissionsDbContext
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.Concrete.BulkLoadTenantsService.AddTenantsToDatabaseAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto},AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            This allows you to add tenants to the database on startup.
+            It gets the definition of each tenant from the <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto"/> class
+            </summary>
+            <param name="tenantSetupData">If you are using a single layer then each line contains the a tenant name
+            </param>
+            <param name="options">The AuthPermissionsOptions to check what type of tenant setting you have</param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BulkLoadServices.Concrete.BulkLoadUsersService">
+            <summary>
+            This allows you to bulk load users, with their Roles and (optional) Tenant
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.Concrete.BulkLoadUsersService.#ctor(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.SetupCode.Factories.IAuthPServiceFactory{AuthPermissions.BaseCode.SetupCode.IFindUserInfoService},AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            Ctor
+            </summary>
+            <param name="context"></param>
+            <param name="findUserInfoServiceFactory"></param>
+            <param name="options"></param>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.Concrete.BulkLoadUsersService.AddUsersRolesToDatabaseAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant})">
+            <summary>
+            This allows you to add a series of users with their roles and the tenant (if <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> says tenants are used
+            </summary>
+            <param name="userDefinitions">A list of <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant"/> containing the information on users and what auth roles they have.
+            In this case the UserId must be filled in with the authorized users' UserId, or the <see cref="T:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService"/> can find a user's ID
+            </param>
+            <returns>A status so that errors can be returned</returns>
+        </member>
+        <member name="T:AuthPermissions.BulkLoadServices.IBulkLoadRolesService">
+            <summary>
+            Bulk load many Roles with their permissions
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.IBulkLoadRolesService.AddRolesToDatabaseAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto})">
+            <summary>
+            This allows you to add Roles with their permissions via the <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto"/> class
+            </summary>
+            <param name="roleSetupData">A list of definitions containing the information for each Role</param>
+            <returns>status</returns>
+        </member>
+        <member name="T:AuthPermissions.BulkLoadServices.IBulkLoadTenantsService">
+            <summary>
+            Bulk load multiple tenants
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.IBulkLoadTenantsService.AddTenantsToDatabaseAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto},AuthPermissions.BaseCode.AuthPermissionsOptions)">
+            <summary>
+            This allows you to add tenants to the database on startup.
+            It gets the definition of each tenant from the <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto"/> class
+            </summary>
+            <param name="tenantSetupData">If you are using a single layer then each line contains the a tenant name
+            </param>
+            <param name="options">The AuthPermissionsOptions to check what type of tenant setting you have</param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.BulkLoadServices.IBulkLoadUsersService">
+            <summary>
+            Bulk load AuthUsers 
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.BulkLoadServices.IBulkLoadUsersService.AddUsersRolesToDatabaseAsync(System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant})">
+            <summary>
+            This allows you to add a series of users with their roles and the tenant (if <see cref="P:AuthPermissions.BaseCode.AuthPermissionsOptions.TenantType"/> says tenants are used
+            </summary>
+            <param name="userDefinitions">A list of <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant"/> containing the information on users and what auth roles they have.
+            In this case the UserId must be filled in with the authorized users' UserId, or the <see cref="T:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService"/> can find a user's ID
+            </param>
+            <returns>A status so that errors can be returned</returns>
+        </member>
+        <member name="T:AuthPermissions.ClaimsCalculator">
+            <summary>
+            This service returns the authPermission claims for an AuthUser
+            and any extra claims registered using AuthP's AddClaimToUser method when registering AuthP
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.ClaimsCalculator.#ctor(AuthPermissions.BaseCode.DataLayer.EfCode.AuthPermissionsDbContext,AuthPermissions.BaseCode.AuthPermissionsOptions,System.Collections.Generic.IEnumerable{AuthPermissions.IClaimsAdder})">
+            <summary>
+            Ctor
+            </summary>
+            <param name="context"></param>
+            <param name="options"></param>
+            <param name="claimAdders"></param>
+        </member>
+        <member name="M:AuthPermissions.ClaimsCalculator.GetClaimsForAuthUserAsync(System.String)">
+            <summary>
+            This will return the required AuthP claims, plus any extra claims from registered <see cref="T:AuthPermissions.IClaimsAdder"/> methods  
+            </summary>
+            <param name="userId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.ClaimsCalculator.CalcPermissionsForUserAsync(System.String)">
+            <summary>
+            This is called if the Permissions that a user needs calculating.
+            It looks at what permissions the user has based on their roles
+            </summary>
+            <param name="userId"></param>
+            <returns>a string containing the packed permissions, or null if no permissions</returns>
+        </member>
+        <member name="M:AuthPermissions.ClaimsCalculator.GetMultiTenantClaims(AuthPermissions.BaseCode.DataLayer.Classes.Tenant)">
+            <summary>
+            This adds the correct claims for a multi-tenant application
+            </summary>
+            <param name="tenant"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.CommonConstants">
+            <summary>
+            Thsi contains any general AuthP constants
+            </summary>
+        </member>
+        <member name="F:AuthPermissions.CommonConstants.EmptyItemName">
+            <summary>
+            This is used in the <see cref="T:AuthPermissions.AdminCode.Services.AuthUsersAdminService"/> and in the display code in the AuthUserChange class
+            </summary>
+        </member>
+        <member name="T:AuthPermissions.IClaimsAdder">
+            <summary>
+            This interface defines the way to add a claim to a user on login
+            and on refresh of the user's claims (e.g. when JWT Token refresh happens).
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.IClaimsAdder.AddClaimToUserAsync(System.String)">
+            <summary>
+            This returns a claim to add to the current user. A return of null means don't add a claim
+            </summary>
+            <param name="userId"></param>
+            <returns>A claim, or null if no claim should be added</returns>
+        </member>
+        <member name="T:AuthPermissions.IClaimsCalculator">
+            <summary>
+            Defines the interface to the code that calcs the AuthP claims
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.IClaimsCalculator.GetClaimsForAuthUserAsync(System.String)">
+            <summary>
+            This will return the AuthP claims to be added to the Cookie or JWT token
+            </summary>
+            <param name="userId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.RegisterExtensions">
+            <summary>
+            This contains extension methods to register your code to be used with AuthP's code
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.RegisterExtensions.RegisterFindUserInfoService``1(AuthPermissions.AuthSetupData)">
+            <summary>
+            Use this to provide the <see cref="T:AuthPermissions.BaseCode.SetupCode.IFindUserInfoService"/> service which AuthP uses to synchronize its user database
+            against the users in the application's Authentication Provider. Used in the <see cref="T:AuthPermissions.AdminCode.Services.AuthUsersAdminService"/> sync code.
+            </summary>
+            <typeparam name="TUserLookup"></typeparam>
+            <param name="setupData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.RegisterExtensions.RegisterAuthenticationProviderReader``1(AuthPermissions.AuthSetupData)">
+            <summary>
+            Use this to provide the <see cref="T:AuthPermissions.AdminCode.ISyncAuthenticationUsers"/> service which AuthP uses to synchronize its user database
+            against the users in the application's Authentication Provider. Used in the <see cref="T:AuthPermissions.AdminCode.Services.AuthUsersAdminService"/> sync code.
+            </summary>
+            <typeparam name="TSyncProviderReader"></typeparam>
+            <param name="setupData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.RegisterExtensions.RegisterTenantChangeService``1(AuthPermissions.AuthSetupData)">
+            <summary>
+            Use this to provide the <see cref="T:AuthPermissions.AdminCode.ITenantChangeService"/> service which AuthP uses to alter your tenant data when you call the
+            AuthP tenant's methods to Update, Move, or Delete a tenant
+            This is used to check that the AuthP entities and your application entities are in the same database.
+            </summary>
+            <typeparam name="TTenantChangeService"></typeparam>
+            <param name="setupData"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthPermissions.SetupExtensions">
+            <summary>
+            These are a series of extension methods to register/configure the AuthPermission library
+            </summary>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.RegisterAuthPermissions``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{AuthPermissions.BaseCode.AuthPermissionsOptions})">
+            <summary>
+            This is the start of registering AuthPermissions library into the available .NET DI provider
+            This takes in the type of your enum holding your permissions and any options you want to set
+            </summary>
+            <typeparam name="TEnumPermissions">Must be an enum, sized as an ushort (16 bit unsigned)</typeparam>
+            <param name="services">The DI register instance</param>
+            <param name="options">optional: You can set certain options to change the way this library works</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.UsingEfCoreSqlServer(AuthPermissions.AuthSetupData,System.String)">
+            <summary>
+            This will register a SQL Server database to hold the AuthPermissions database.
+            NOTE I have configured the AuthPermissionDbContext such that it can be part of another database (it has its own Migrations history table)
+            </summary>
+            <param name="setupData"></param>
+            <param name="connectionString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.UsingEfCorePostgres(AuthPermissions.AuthSetupData,System.String)">
+            <summary>
+            This will register a Postgres database to hold the AuthPermissions database.
+            NOTE I have configured the AuthPermissionDbContext such that it can be part of another database (it has its own Migrations history table)
+            </summary>
+            <param name="setupData"></param>
+            <param name="connectionString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.UsingInMemoryDatabase(AuthPermissions.AuthSetupData)">
+            <summary>
+            This registers an in-memory database. The data added to this database will be lost when the app/unit test stops
+            </summary>
+            <param name="setupData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.RegisterAddClaimToUser``1(AuthPermissions.AuthSetupData)">
+            <summary>
+            This registers your service that adds one claim to the user on login
+            and on refresh of the user's claims (e.g. when JWT Token refresh happens).
+            NOTE: If you want to add multiple claims then call this method with a class that implements the <see cref="T:AuthPermissions.IClaimsAdder"/> 
+            </summary>
+            <typeparam name="TClaimsAdder">Your class that returns a single claim to be added to a user</typeparam>
+            <param name="setupData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.AddTenantsIfEmpty(AuthPermissions.AuthSetupData,System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto})">
+            <summary>
+            This allows you to define the name of each tenant using the <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto"/> class
+            For hierarchical tenant design you add child tenants using the <see cref="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.ChildrenTenants"/> property
+            </summary>
+            <param name="setupData"></param>
+            <param name="tenantDefinitions">list of tenant definitions. For hierarchical tenants use the <see cref="P:AuthPermissions.BaseCode.SetupCode.BulkLoadTenantDto.ChildrenTenants"/> property</param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.AddRolesPermissionsIfEmpty(AuthPermissions.AuthSetupData,System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto})">
+            <summary>
+            This allows you to add Roles with their permissions, but only if the auth database contains NO RoleToPermissions
+            </summary>
+            <param name="setupData"></param>
+            <param name="rolesDefinitions">This contains a list of <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadRolesDto"/> classes defining AuthP Roles</param>
+            <returns>AuthSetupData</returns>
+        </member>
+        <member name="M:AuthPermissions.SetupExtensions.AddAuthUsersIfEmpty(AuthPermissions.AuthSetupData,System.Collections.Generic.List{AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant})">
+            <summary>
+            This allows you to add users with their Roles and optional tenant, but only if the auth database doesn't have any AuthUsers in the database
+            The <paramref name="userRolesSetup"/> parameter must contain a list of userId+roles.
+            </summary>
+            <param name="setupData"></param>
+            <param name="userRolesSetup">A list of <see cref="T:AuthPermissions.BaseCode.SetupCode.BulkLoadUserWithRolesTenant"/> containing the information on users and what auth roles they have.
+            In this case the UserId must be filled in with the authorized users' UserId 
+            </param>
+            <returns>AuthSetupData</returns>
+        </member>
+    </members>
+</doc>
