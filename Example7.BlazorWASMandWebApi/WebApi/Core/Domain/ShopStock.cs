@@ -6,7 +6,7 @@ namespace Example7.BlazorWASMandWebApi.Domain;
 /// <summary>
 /// This contains an item stocked in the shop, and how many they have
 /// </summary>
-public class ShopStock : IDataKeyFilterReadOnly
+public class ShopStock : IAggregateRoot, IDataKeyFilterReadOnly
 {
     private ShopStock() { } //needed by EF Core
 

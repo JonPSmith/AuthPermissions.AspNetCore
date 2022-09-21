@@ -10,8 +10,12 @@
 
   <ItemGroup>
     <None Remove="GenericServices.StatusGeneric" />
+    <None Remove="Shared\obj\Debug\net6.0\Shared.csproj.AssemblyReference.cache" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GenericServices.StatusGeneric" Version="1.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Shared\obj\Debug\net6.0\Shared.GlobalUsings.g.cs" />
   </ItemGroup>
 </Project>

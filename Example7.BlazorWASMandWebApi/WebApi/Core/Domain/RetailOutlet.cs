@@ -3,7 +3,7 @@
 
 namespace Example7.BlazorWASMandWebApi.Domain;
 
-public class RetailOutlet : IDataKeyFilterReadOnly
+public class RetailOutlet : IAggregateRoot, IDataKeyFilterReadOnly
 {
     private RetailOutlet() { } //Needed by EF Core
 
