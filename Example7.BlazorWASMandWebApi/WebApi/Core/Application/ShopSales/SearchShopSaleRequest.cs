@@ -9,9 +9,9 @@ public class SearchShopSaleRequest : IRequest<List<ShopSaleDto>>
 
 public class SearchShopSaleRequestHandler : IRequestHandler<SearchShopSaleRequest, List<ShopSaleDto>>
 {
-    private readonly IReadRepositoryBase<ShopSale> _repository;
+    private readonly IReadRepository<ShopSale> _repository;
 
-    public SearchShopSaleRequestHandler(IReadRepositoryBase<ShopSale> repository)
+    public SearchShopSaleRequestHandler(IReadRepository<ShopSale> repository)
     {
         _repository = repository;
     }

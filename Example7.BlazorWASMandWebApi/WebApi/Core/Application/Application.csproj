@@ -9,25 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Ardalis.Specification" />
-    <None Remove="MediatR.Extensions.Microsoft.DependencyInjection" />
-    <None Remove="Mapster" />
-    <None Remove="FluentValidation.DependencyInjectionExtensions" />
-    <None Remove="Microsoft.Extensions.Localization" />
-    <None Remove="ShopStock\" />
-    <None Remove="ShopSales\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Ardalis.Specification" Version="6.1.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.2.2" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.9" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ShopStock\" />
-    <Folder Include="ShopSales\" />
-  </ItemGroup>
+ 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>

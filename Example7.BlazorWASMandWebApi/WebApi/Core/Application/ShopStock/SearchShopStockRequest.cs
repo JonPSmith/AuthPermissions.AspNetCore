@@ -9,9 +9,9 @@ namespace Example7.BlazorWASMandWebApi.Application.ShopStock
 
     public class SearchShopStockRequestHandler : IRequestHandler<SearchShopStockRequest, List<ShopStockDto>>
     {
-        private readonly IReadRepositoryBase<Domain.ShopStock> _repository;
+        private readonly IReadRepository<Domain.ShopStock> _repository;
 
-        public SearchShopStockRequestHandler(IReadRepositoryBase<Domain.ShopStock> repository)
+        public SearchShopStockRequestHandler(IReadRepository<Domain.ShopStock> repository)
         {
             _repository = repository;
         }

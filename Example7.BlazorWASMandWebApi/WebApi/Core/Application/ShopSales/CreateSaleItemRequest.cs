@@ -22,13 +22,13 @@ public class CreateSaleItemRequest : IRequest<ShopSaleDto>
 
 public class CreateSaleItemRequestHandler : IRequestHandler<CreateSaleItemRequest, ShopSaleDto>
 {
-    private readonly IRepositoryBase<ShopSale> _shopSaleRepository;
-    private readonly IRepositoryBase<Domain.ShopStock> _shopStockRepository;
+    private readonly IRepository<ShopSale> _shopSaleRepository;
+    private readonly IRepository<Domain.ShopStock> _shopStockRepository;
     private readonly IValidator<CreateSaleItemRequest> _validator;
 
     public CreateSaleItemRequestHandler(
-        IRepositoryBase<ShopSale> shopSaleRepository,
-        IRepositoryBase<Domain.ShopStock> shopStockRepository,
+        IRepository<ShopSale> shopSaleRepository,
+        IRepository<Domain.ShopStock> shopStockRepository,
         IValidator<CreateSaleItemRequest> validator)
     {
         _shopSaleRepository = shopSaleRepository;
