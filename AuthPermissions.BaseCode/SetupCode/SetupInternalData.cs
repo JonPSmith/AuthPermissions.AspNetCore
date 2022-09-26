@@ -31,7 +31,8 @@ namespace AuthPermissions.BaseCode.SetupCode
         public AuthPAuthenticationTypes AuthPAuthenticationType { get; set; }
 
         /// <summary>
-        /// If this is true, then the developer has 
+        /// If this is true, then the developer used the ReplaceShardingConnections
+        /// method to add their own ShardingConnections service
         /// </summary>
         public bool OverrideShardingConnections { get; set; }
 

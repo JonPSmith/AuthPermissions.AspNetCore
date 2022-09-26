@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
@@ -20,22 +21,31 @@ using Microsoft.IdentityModel.Tokens;
 using RunMethodsSequentially;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
+using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
+using Net.DistributedFileStoreCache;
+using AuthPermissions.BaseCode.DataLayer;
+using NuGet.Common;
+using System.IdentityModel.Tokens.Jwt;
+using Newtonsoft.Json.Linq;
+using System.Security.Claims;
 
 namespace Example2.WebApiWithToken.IndividualAccounts
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private readonly IConfiguration _configuration;
+        private readonly IHostEnvironment _environment;
 
-        public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IHostEnvironment environment)
+        {
+            _configuration = configuration;
+            _environment = environment;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
             services.AddDefaultIdentity<IdentityUser>(
                     options => options.SignIn.RequireConfirmedAccount = false)
@@ -44,7 +54,10 @@ namespace Example2.WebApiWithToken.IndividualAccounts
 
             // Configure Authentication using JWT token with refresh capability
             var jwtData = new JwtSetupData();
-            Configuration.Bind("JwtData", jwtData);
+            _configuration.Bind("JwtData", jwtData);
+            //The solution to getting the userId claim correct was found in https://stackoverflow.com/a/70315108/1434764
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
             services.AddAuthentication(auth =>
                 {
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -63,6 +76,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SigningKey)),
                         ClockSkew = TimeSpan.Zero //The default is 5 minutes, but we want a quick expires for JTW refresh
+
                     };
 
                     //This code came from https://www.blinkingcaret.com/2018/05/30/refresh-tokens-in-asp-net-core-web-api/
@@ -92,7 +106,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                         Issuer = jwtData.Issuer,
                         Audience = jwtData.Audience,
                         SigningKey = jwtData.SigningKey,
-                        TokenExpires = new TimeSpan(0,5,0), //Quick Token expiration because we use a refresh token
+                        TokenExpires = new TimeSpan(0,20,0), //Quick Token expiration because we use a refresh token
                         RefreshTokenExpires = new TimeSpan(1,0,0,0) //Refresh token is valid for one day
                     };
                 })
@@ -111,6 +125,17 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                 });
 
             services.AddControllers();
+
+            //Register code for updating user's permissions claim when the user's Roles have changed
+            services.AddDistributedFileStoreCache(options =>
+            {
+                options.WhichVersion = FileStoreCacheVersions.Class;
+                //makes it easier to look at the content, but makes a update very slightly slower 
+                options.JsonSerializerForCacheFile = new JsonSerializerOptions { WriteIndented = true }; 
+                //I override the the default first part of the FileStore cache file because there are many example apps in this repo
+                options.FirstPartOfCacheFileName = "Example2CacheFileStore";
+            }, _environment);
+            services.AddScoped<IDatabaseStateChangeEvent, RoleChangeDetectorService>();
 
             //thanks to: https://www.c-sharpcorner.com/article/authentication-and-authorization-in-asp-net-5-with-jwt-and-swagger/
             services.AddSwaggerGen(c =>
@@ -159,6 +184,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UsePermissionsChange();
 
             app.UseEndpoints(endpoints =>
             {

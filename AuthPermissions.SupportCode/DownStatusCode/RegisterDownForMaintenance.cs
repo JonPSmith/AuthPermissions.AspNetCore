@@ -19,7 +19,7 @@ public static class RegisterDownForMaintenance
     /// </summary>
     /// <param name="app"></param>
     /// <param name="tenantTypes">Provides the <see cref="TenantTypes"/> for the application</param>
-    public static void UseDownForMaintenance(this WebApplication app, TenantTypes tenantTypes)
+    public static void UseDownForMaintenance(this IApplicationBuilder app, TenantTypes tenantTypes)
     {
         app.Use(async (HttpContext context, Func<Task> next) =>
         {

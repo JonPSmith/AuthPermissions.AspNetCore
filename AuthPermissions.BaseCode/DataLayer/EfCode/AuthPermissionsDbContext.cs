@@ -24,12 +24,16 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// ctor
         /// </summary>
         /// <param name="options"></param>
-        /// <param name="eventSetup">OPTIONAL: If provided, then a method will be run within the ctor</param>
+        /// <param name="eventSetups">OPTIONAL: If provided, then a method will be run within the ctor</param>
         public AuthPermissionsDbContext(DbContextOptions<AuthPermissionsDbContext> options,
-            IDatabaseStateChangeEvent eventSetup = null)
+            IEnumerable<IDatabaseStateChangeEvent> eventSetups = null)
             : base(options)
         {
-            eventSetup?.RegisterEventHandlers(this);
+            foreach (var eventSetup in eventSetups ?? Array.Empty<IDatabaseStateChangeEvent>())
+            {
+                eventSetup.RegisterEventHandlers(this);
+            }
+
             ProviderName = this.Database.ProviderName;
         }
 

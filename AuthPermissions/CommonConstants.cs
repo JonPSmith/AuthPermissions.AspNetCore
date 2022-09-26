@@ -6,7 +6,7 @@ using AuthPermissions.AdminCode.Services;
 namespace AuthPermissions
 {
     /// <summary>
-    /// Thsi contains any general AuthP constants
+    /// This contains any general AuthP constants used in various AuthP admin code
     /// </summary>
     public static class CommonConstants
     {

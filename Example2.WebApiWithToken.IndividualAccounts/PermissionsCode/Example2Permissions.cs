@@ -11,11 +11,14 @@ namespace Example2.WebApiWithToken.IndividualAccounts.PermissionsCode
         NotSet = 0, //error condition
 
         //Here is an example of very detailed control over something
-        [Display(GroupName = "Test", Name = "Access page", Description = "Used in a [HasPermission] attribute")]
+        [Display(GroupName = "Test", Name = "Access page")]
         Permission1 = 1,
 
-        [Display(GroupName = "Test", Name = "Display link", Description = "Used in User.UserHasThisPermission in page")]
+        [Display(GroupName = "Test", Name = "Display link")]
         Permission2 = 2,
+
+        [Display(GroupName = "Test", Name = "Display link")]
+        Permission3 = 3,
 
         //This is an example of what to do with permission you don't used anymore.
         //You don't want its number to be reused as it could cause problems 

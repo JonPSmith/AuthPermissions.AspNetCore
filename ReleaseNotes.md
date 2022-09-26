@@ -1,8 +1,10 @@
 # Release Notes
 
-## Not approved
+## 3.5.0
 
-- Improved feature: Changed JWT refresh token to handle multiple logged-in users - see issue #54
+- Bug Fix: When using JWT Token authentication the ClaimsCalculator has to set up the nameidentifier
+- Improved feature: AuthPermissionsDbContext now takes mutiple IDatabaseStateChangeEvent
+- Improved feature: Updated FileStore distributed cache to version ???
 
 ## 3.4.0
 

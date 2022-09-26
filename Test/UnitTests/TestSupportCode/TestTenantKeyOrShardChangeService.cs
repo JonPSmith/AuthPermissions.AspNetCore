@@ -1,8 +1,10 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.DownStatusCode;
@@ -24,7 +26,7 @@ public class TestTenantKeyOrShardChangeService
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
         var service = new TenantKeyOrShardChangeService(globalAccessor);
-        var context = new AuthPermissionsDbContext(options, service);
+        var context = new AuthPermissionsDbContext(options, new List<IDatabaseStateChangeEvent> { service});
 
         context.Database.EnsureCreated();
 
@@ -44,7 +46,7 @@ public class TestTenantKeyOrShardChangeService
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
         var service = new TenantKeyOrShardChangeService(globalAccessor);
-        var context = new AuthPermissionsDbContext(options, service);
+        var context = new AuthPermissionsDbContext(options, new List<IDatabaseStateChangeEvent> { service});
         context.Database.EnsureCreated();
 
         await context.BulkLoadHierarchicalTenantInDbAsync();
@@ -71,7 +73,7 @@ public class TestTenantKeyOrShardChangeService
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var globalAccessor = new StubGlobalChangeTimeService();
         var service = new TenantKeyOrShardChangeService(globalAccessor);
-        var context = new AuthPermissionsDbContext(options, service);
+        var context = new AuthPermissionsDbContext(options, new List<IDatabaseStateChangeEvent> { service});
         context.Database.EnsureCreated();
 
         await context.SetupSingleShardingTenantsInDbAsync();
