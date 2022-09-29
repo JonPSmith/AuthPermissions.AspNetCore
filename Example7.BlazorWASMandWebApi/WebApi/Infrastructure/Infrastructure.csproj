@@ -23,6 +23,11 @@
     <PackageReference Include="Net.DistributedFileStoreCache" Version="1.0.0" />
     <PackageReference Include="NetCore.AutoRegisterDi" Version="2.1.0" />
     <PackageReference Include="EfCore.GenericServices.AspNetCore" Version="4.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
+    <PackageReference Include="ZymLabs.NSwag.FluentValidation.AspNetCore" Version="0.6.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
   </ItemGroup>
  
   <ItemGroup>
@@ -34,7 +39,11 @@
     <ProjectReference Include="..\..\..\AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="NetCore.AutoRegisterDi" />
-    <None Remove="EfCore.GenericServices.AspNetCore" />
+    <None Remove="Microsoft.AspNetCore.Http" />
+    <None Remove="Microsoft.Extensions.Hosting" />
+    <None Remove="NSwag.AspNetCore" />
+    <None Remove="ZymLabs.NSwag.FluentValidation.AspNetCore" />
+    <None Remove="OpenApi\" />
+    <None Remove="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" />
   </ItemGroup>
 </Project>

@@ -19,4 +19,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Identity\" />
+    <None Remove="Identity\Tokens\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Identity\" />
+    <Folder Include="Identity\Tokens\" />
+  </ItemGroup>
 </Project>
