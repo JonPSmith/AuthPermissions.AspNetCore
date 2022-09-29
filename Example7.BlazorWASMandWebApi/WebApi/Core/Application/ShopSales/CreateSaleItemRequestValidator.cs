@@ -7,7 +7,7 @@ namespace Example7.BlazorWASMandWebApi.Application.ShopSales
 {
     public class CreateSaleItemRequestValidator : AbstractValidator<CreateSaleItemRequest>
     {
-        public CreateSaleItemRequestValidator(IReadRepositoryBase<Domain.ShopStock> shopStockRepository)
+        public CreateSaleItemRequestValidator(IReadRepository<Domain.ShopStock> shopStockRepository)
         {
             RuleFor(p => p.ShopStockId)
                .NotEmpty()
