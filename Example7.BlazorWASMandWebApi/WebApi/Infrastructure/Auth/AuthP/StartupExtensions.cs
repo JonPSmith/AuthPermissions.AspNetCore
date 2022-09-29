@@ -16,6 +16,9 @@ using Microsoft.EntityFrameworkCore;
 using NetCore.AutoRegisterDi;
 using GenericServices.Setup;
 using Microsoft.AspNetCore.Hosting;
+using AuthPermissions.BaseCode;
+using Example7.BlazorWASMandWebApi.Infrastructure.Auth.Jwt;
+using Microsoft.Extensions.Options;
 
 namespace Example7.BlazorWASMandWebApi.Infrastructure.Auth.AuthP;
 
@@ -27,10 +30,25 @@ public static class StartupExtensions
     {
         string? connectionString = configuration.GetConnectionString("DefaultConnection");
 
+        var provider = services.BuildServiceProvider();
+        var jwtSettings = provider.GetRequiredService<IOptions<JwtSettings>>().Value;
+
         services.RegisterAuthPermissions<Example7Permissions>(options =>
         {
             options.TenantType = TenantTypes.HierarchicalTenant;
+            options.EncryptionKey = configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
             options.PathToFolderToLock = webHostEnvironment.ContentRootPath;
+            options.Configuration = configuration;
+
+            // This sets up the JWT Token. The config is suitable for using the Refresh Token with your JWT Token
+            options.ConfigureAuthPJwtToken = new AuthPJwtConfiguration
+            {
+                Issuer = "retail",
+                Audience = "retail",
+                SigningKey = jwtSettings.Key,
+                TokenExpires = new TimeSpan(0, jwtSettings.TokenExpirationInMinutes, 0),
+                RefreshTokenExpires = TimeSpan.FromDays(jwtSettings.RefreshTokenExpirationInDays)
+            };
         })
 
         //NOTE: This uses the same database as the individual accounts DB
@@ -75,7 +93,7 @@ public static class StartupExtensions
         //Register RetailDbContext database and some services (included hosted services)
         services.RegisterExample7ShopCode(configuration);
         //Add GenericServices (after registering the RetailDbContext context)
-        services.GenericServicesSimpleSetup<RetailDbContext>(Assembly.GetAssembly(typeof(StartupExtensions)));
+        //services.GenericServicesSimpleSetup<RetailDbContext>(Assembly.GetAssembly(typeof(StartupExtensions)));
         return services;
     }
 

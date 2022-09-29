@@ -15,7 +15,7 @@ public static class StartupExtensions
         services.AddIdentity();
 
         services.Configure<SecuritySettings>(config.GetSection(nameof(SecuritySettings)));
-        if (config["SecuritySettings:Provider"].Equals("AzureAD", StringComparison.OrdinalIgnoreCase))
+        if (config["SecuritySettings:Provider"].Equals("AzureAd", StringComparison.OrdinalIgnoreCase))
         {
             // TODO services.AddAzureAdAuth(config)
         }
