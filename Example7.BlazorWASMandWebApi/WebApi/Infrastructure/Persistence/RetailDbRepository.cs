@@ -1,13 +1,15 @@
 ﻿using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
+using Example7.BlazorWASMandWebApi.Application;
+using Example7.BlazorWASMandWebApi.Domain;
 using Example7.BlazorWASMandWebApi.Infrastructure.Persistence.Contexts;
 using Mapster;
 
 namespace Example7.BlazorWASMandWebApi.Infrastructure.Persistence;
 
 // Inherited from Ardalis.Specification's RepositoryBase<T>
-public class RetailDbRepository<T> : RepositoryBase<T>, IReadRepositoryBase<T>, IRepositoryBase<T>
-    where T : class
+public class RetailDbRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
+    where T : class, IAggregateRoot
 {
     public RetailDbRepository(RetailDbContext dbContext)
         : base(dbContext)
