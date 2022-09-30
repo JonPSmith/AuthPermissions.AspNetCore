@@ -7,8 +7,10 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
+using AuthPermissions.BulkLoadServices;
 using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
 
@@ -29,13 +31,16 @@ namespace AuthPermissions.AspNetCore.StartupServices
         /// <summary>
         /// This takes data from the bulk load extension methods and and if there is no data for a
         /// each type of bulk load (i.e. roles, tenants, and users), then it will write the bulk load
-        /// data to the AuthP's database
+        /// data to the AuthP's database.
+        /// NOTE: any AuthP database event change listeners will NOT be triggered during bulk loading
         /// </summary>
         /// <param name="scopedServices">This should be a scoped service</param>
         /// <returns></returns>
         public async ValueTask ApplyYourChangeAsync(IServiceProvider scopedServices)
         {
-            var context = scopedServices.GetRequiredService<AuthPermissionsDbContext>();
+            var contextOptions = scopedServices.GetRequiredService<DbContextOptions<AuthPermissionsDbContext>>();
+            //This creates an AuthP database instance without any event change listeners
+            var context = new AuthPermissionsDbContext(contextOptions);
             var authOptions = scopedServices.GetRequiredService<AuthPermissionsOptions>();
             var findUserIdServiceFactory = scopedServices.GetRequiredService<IAuthPServiceFactory<IFindUserInfoService>>();
 

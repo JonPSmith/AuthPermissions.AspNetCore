@@ -39,6 +39,29 @@ namespace AuthPermissions.BaseCode.PermissionsCode
         }
 
         /// <summary>
+        /// This returns true if the two packed Permissions are the same in length and content
+        /// NOTE: It sorts the characters of two strings so that we only return true if they have the same permissions.
+        /// </summary>
+        /// <param name="packed1"></param>
+        /// <param name="packed2"></param>
+        /// <returns>true if the two packed Permissions are the same</returns>
+        public static bool ComparesPackPermissions(this string packed1, string packed2)
+        {
+            if (packed1.Length != packed2.Length)
+                return false;
+
+            //Thanks to https://stackoverflow.com/a/6441603/1434764
+            string SortString(string input)
+            {
+                char[] characters = input.ToArray();
+                Array.Sort(characters);
+                return new string(characters);
+            }
+
+            return SortString(packed1) == SortString(packed2);
+        }
+
+        /// <summary>
         /// This converts a list of enum permission names into a packed string. If any permission names are bad it calls the reportError action
         /// </summary>
         /// <param name="enumPermissionsType"></param>

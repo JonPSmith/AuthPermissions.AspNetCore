@@ -26,6 +26,7 @@ using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -218,7 +219,9 @@ namespace AuthPermissions.AspNetCore
             setupData.RegisterCommonServices();
 
             var serviceProvider = setupData.Services.BuildServiceProvider();
-            var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+            var contextOptions = serviceProvider.GetRequiredService<DbContextOptions<AuthPermissionsDbContext>>();
+            //This creates an AuthP database instance without any event change listeners
+            var context = new AuthPermissionsDbContext(contextOptions);
             context.Database.EnsureCreated();
 
             var findUserIdService = serviceProvider.GetService<IAuthPServiceFactory<IFindUserInfoService>>();

@@ -64,11 +64,16 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         {
             var allUsers = usersAdmin.QueryAuthUsers()
                 .OrderBy(x => x.Email)
-                .Include(x => x.UserRoles).ToList();
+                .Include(x => x.UserRoles)
+                .ThenInclude(x => x.Role).ToList();
             var result = new List<string>();
-            result.AddRange(allUsers.Select(entry => 
-                $"Email: {entry.Email}, UserId: {entry.UserId}, Roles: {string.Join(", ", entry.UserRoles.Select(x => x.RoleName))}"));
-
+            foreach (var user in allUsers)
+            {
+                var combinedPermissions = new string(string
+                    .Concat(user.UserRoles.SelectMany(x => x.Role.PackedPermissionsInRole)).Distinct().ToArray());
+                result.Add($"Email: {user.Email}, UserId: {user.UserId}, Permissions:{string.Join(", ", combinedPermissions.Select(x => (int)x))}");
+            }
+            
             return result.ToArray();
         }
 

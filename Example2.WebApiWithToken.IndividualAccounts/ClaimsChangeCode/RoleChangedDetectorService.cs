@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
@@ -19,16 +20,18 @@ namespace Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
 /// <summary>
 /// This detects changes in the AuthP's Roles and then 
 /// This service will be added to the AuthPermissionsDbContext
+/// NOTE: because this is used with Web API with a JWT Token with refresh you could make the
+/// cache value time out after the refresh time, as by then the claims will have been updated
 /// </summary>
-public class RoleChangeDetectorService : IDatabaseStateChangeEvent
+public class RoleChangedDetectorService : IDatabaseStateChangeEvent
 {
 
     private readonly IDistributedFileStoreCacheClass _fsCache;
     private readonly AuthPermissionsOptions _options;
-    private readonly ILogger<RoleChangeDetectorService> _logger;
+    private readonly ILogger<RoleChangedDetectorService> _logger;
 
-    public RoleChangeDetectorService(IDistributedFileStoreCacheClass fsCache, 
-        AuthPermissionsOptions options, ILogger<RoleChangeDetectorService> logger = null)
+    public RoleChangedDetectorService(IDistributedFileStoreCacheClass fsCache, 
+        AuthPermissionsOptions options, ILogger<RoleChangedDetectorService> logger = null)
     {
         _fsCache = fsCache;
         _options = options;
@@ -36,57 +39,63 @@ public class RoleChangeDetectorService : IDatabaseStateChangeEvent
     }
 
     /// <summary>
-    /// This will register a method to the EF Core StateChanged event.
+    /// This will register a method to the EF Core SavedChanges event to find the Users
+    /// that need their PackedPermission's claim to be overrides with the changed database
     /// </summary>
     /// <param name="context"></param>
     public void RegisterEventHandlers(AuthPermissionsDbContext context)
     {
-        //This handles changes
-        void RegisterRoleChangeUpdateUsers(object sender, EntityStateChangedEventArgs e)
+        var effectedUserIds = new List<string>();
+
+        //This catches the changes before SaveChanges is called
+        context.SavingChanges += delegate(object dbContext, SavingChangesEventArgs args)
         {
-            if ((e.Entry.Entity is RoleToPermissions || e.Entry.Entity is UserToRole)
-                && e.NewState == EntityState.Modified
-               )
+            var allTrackedEntities = ((DbContext)dbContext).ChangeTracker.Entries()
+                .ToList();
+
+            effectedUserIds = allTrackedEntities
+                .Where(x => x.Entity is UserToRole && x.State != EntityState.Unchanged)
+                .Select(x => ((UserToRole)x.Entity).UserId)
+                .Distinct().ToList();
+
+            //This looks at any modified RoleToPermissions (adds and deletes are handed by the UserToRoles)
+            foreach (var entry in allTrackedEntities.Where(x => x.Entity is RoleToPermissions && x.State == EntityState.Modified))
             {
-                //Either a RoleToPermissions or a UserToRole has changed
-
-                var roleName = e.Entry.Entity is RoleToPermissions roleToPermissions
-                    ? roleToPermissions.RoleName
-                    : ((UserToRole)e.Entry.Entity).RoleName;
-                UpdateAllUsersPermissionClaim(context, roleName);
+                effectedUserIds.AddRange(((AuthPermissionsDbContext)dbContext).UserToRoles
+                    .Where(x => x.RoleName == ((RoleToPermissions)entry.Entity).RoleName)
+                    .Select(x => x.UserId));
             }
-        }
 
-        //This handles the creation of a new UserToRole
-        void RegisterUserToRoleAddUpdateUsers(object sender, EntityTrackedEventArgs e)
+            AddPermissionOverridesToCache(context, effectedUserIds.Distinct());
+        };
+
+        //This removes the UserIds if the SaveChange fails
+        context.SaveChangesFailed += (sender, args) =>
         {
-            if (e.Entry.Entity is UserToRole userToRole && e.FromQuery == false 
-                                             && (e.Entry.State == EntityState.Added || e.Entry.State == EntityState.Deleted))
-            {
-                var permissionValue = CalcPermissionsForUser(context, userToRole.UserId) ?? "";
-                _fsCache.Set(userToRole.UserId.FormReplacementPermissionsKey(), permissionValue);
-                _logger?.LogInformation("UserId {0} had a new Role, which makes the permission values to {1}",
-                    userToRole.UserId, string.Join(", ", permissionValue.Select(x => (int)x)));
-            }
-        }
+            effectedUserIds = new List<string>();
+        };
 
-        context.ChangeTracker.StateChanged += RegisterRoleChangeUpdateUsers;
-        context.ChangeTracker.Tracked += RegisterUserToRoleAddUpdateUsers;
+        //This is called if the SaveChanges was successful. At this point the database is in the correct 
+        context.SavedChanges += delegate(object dbContext, SavedChangesEventArgs args) 
+        {
+            AddPermissionOverridesToCache((AuthPermissionsDbContext)dbContext, effectedUserIds.Distinct());
+            effectedUserIds = new List<string>();
+        };
+
+
     }
 
-    private void UpdateAllUsersPermissionClaim(AuthPermissionsDbContext context, string roleName)
+    private void AddPermissionOverridesToCache(AuthPermissionsDbContext context, IEnumerable<string> effectedUserIds)
     {
-        foreach (var authUser in context.AuthUsers
-                     .Where(x => x.UserRoles.Any(y => y.RoleName == roleName)))
+        foreach (var authUser in context.AuthUsers.Where(x => effectedUserIds.Contains(x.UserId)))
         {
             //If not claims, then use empty string
             var permissionValue = CalcPermissionsForUser(context, authUser.UserId) ?? "";
             _fsCache.Set(authUser.UserId.FormReplacementPermissionsKey(), permissionValue);
-            _logger?.LogInformation("User {0} has been updated to permission values {1}", 
+            _logger?.LogInformation("User {0} has been updated to permission values {1}",
                 authUser.Email, string.Join(", ", permissionValue.Select(x => (int)x)));
         }
     }
-
 
     /// <summary>
     /// This code is taken from the <see cref="ClaimsCalculator"/> and changed to sync.

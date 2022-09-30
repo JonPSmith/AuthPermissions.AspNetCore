@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
 using System.Security.Claims;
 using AuthPermissions.BaseCode.PermissionsCode;
-using AuthPermissions;
 
 namespace Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
 
@@ -60,7 +59,7 @@ public static class UpdateRoleClaimMiddleware
             {
                 //Yes, we have a replacement permissions claim
 
-                if (replacementPermissions == user.GetPackedPermissionsFromUser())
+                if (replacementPermissions.ComparesPackPermissions(user.GetPackedPermissionsFromUser()))
                 {
                     //The user's permissions claim has been updated, so we can remove the replacementPermissions cache entry
                     await fsCache.RemoveAsync(userId.FormReplacementPermissionsKey());

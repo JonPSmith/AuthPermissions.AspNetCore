@@ -135,7 +135,7 @@ namespace Example2.WebApiWithToken.IndividualAccounts
                 //I override the the default first part of the FileStore cache file because there are many example apps in this repo
                 options.FirstPartOfCacheFileName = "Example2CacheFileStore";
             }, _environment);
-            services.AddScoped<IDatabaseStateChangeEvent, RoleChangeDetectorService>();
+            services.AddScoped<IDatabaseStateChangeEvent, RoleChangedDetectorService>();
 
             //thanks to: https://www.c-sharpcorner.com/article/authentication-and-authorization-in-asp-net-5-with-jwt-and-swagger/
             services.AddSwaggerGen(c =>

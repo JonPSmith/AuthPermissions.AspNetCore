@@ -17,6 +17,24 @@
       "DatabaseName": "StubTest",
       "ConnectionName": "PostgreSqlConnection",
       "DatabaseType": "Postgres"
+    },
+    {
+      "Name": "Name2",
+      "DatabaseName": "DatabaseName2",
+      "ConnectionName": "UnitTestConnection",
+      "DatabaseType": null
+    },
+    {
+      "Name": "Name1",
+      "DatabaseName": "DatabaseName1",
+      "ConnectionName": "UnitTestConnection",
+      "DatabaseType": null
+    },
+    {
+      "Name": "Name3",
+      "DatabaseName": "DatabaseName3",
+      "ConnectionName": "UnitTestConnection",
+      "DatabaseType": null
     }
   ]
 }
