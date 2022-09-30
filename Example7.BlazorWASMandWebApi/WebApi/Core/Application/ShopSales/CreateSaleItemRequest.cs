@@ -8,11 +8,6 @@ namespace Example7.BlazorWASMandWebApi.Application.ShopSales;
 public class CreateSaleItemRequest : IRequest<ShopSaleDto>
 {
     /// <summary>
-    /// This holds the PK of the created ShopSale
-    /// </summary>
-    public int ShopSaleId { get; set; }
-
-    /// <summary>
     /// This holds the 
     /// </summary>
     public int ShopStockId { get; set; }
