@@ -45,5 +45,9 @@
     <None Remove="ZymLabs.NSwag.FluentValidation.AspNetCore" />
     <None Remove="OpenApi\" />
     <None Remove="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" />
+    <None Remove="Multitenancy\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Multitenancy\" />
   </ItemGroup>
 </Project>
