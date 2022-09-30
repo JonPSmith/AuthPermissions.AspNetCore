@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Example7.BlazorWASMandWebApi.Host.Controllers;
 
 public class LoggedInUserController : VersionNeutralApiController
-{
+{    
     public async Task<AuthUserDisplay?> AuthUserInfo([FromServices] IAuthUsersAdminService service)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -24,6 +24,7 @@ public class LoggedInUserController : VersionNeutralApiController
         return null;
     }
 
+    [HttpGet("permissions")]
     public List<string> UserPermissions([FromServices] IUsersPermissionsService service)
     {
         return service.PermissionsFromUser(HttpContext.User);
