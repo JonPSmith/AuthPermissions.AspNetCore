@@ -4,7 +4,6 @@
 
 - Improved feature: AuthPermissionsDbContext now takes mutiple IDatabaseStateChangeEvent
 - Improved feature: No AuthP database event change listeners will be triggered during bulk loading
-- Improved feature: Updated FileStore distributed cache to version ???
 
 ## 3.4.0
 

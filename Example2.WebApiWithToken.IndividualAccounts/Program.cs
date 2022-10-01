@@ -88,7 +88,7 @@ builder.Services.RegisterAuthPermissions<Example2Permissions>(options =>
         Issuer = jwtData.Issuer,
         Audience = jwtData.Audience,
         SigningKey = jwtData.SigningKey,
-        TokenExpires = new TimeSpan(0, 20, 0), //Quick Token expiration because we use a refresh token
+        TokenExpires = new TimeSpan(0, 5, 0), //Quick Token expiration because we use a refresh token
         RefreshTokenExpires = new TimeSpan(1, 0, 0, 0) //Refresh token is valid for one day
     };
 })
