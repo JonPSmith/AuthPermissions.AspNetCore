@@ -11,10 +11,11 @@ namespace AuthPermissions.AspNetCore.Services
     public interface IDisableJwtRefreshToken
     {
         /// <summary>
-        /// This will mark the latest, valid RefreshToken as invalid.
-        /// Call this a) when a user logs out, or b) you want to log out an active user when the JTW times out
+        /// This will mark the specified (if empty the latest), valid RefreshToken as invalid.
+        /// Call this a) when a user logs out, or b) you want to log out an active user when the JWT times out
         /// </summary>
         /// <param name="userId"></param>
-        Task MarkJwtRefreshTokenAsUsedAsync(string userId);
+        /// <param name="refreshTokenToDisable"></param>
+        Task MarkJwtRefreshTokenAsUsedAsync(string userId, string refreshTokenToDisable = null);
     }
 }

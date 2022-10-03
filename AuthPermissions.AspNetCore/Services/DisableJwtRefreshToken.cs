@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,23 +27,37 @@ namespace AuthPermissions.AspNetCore.Services
         }
 
         /// <summary>
-        /// This will mark the latest, valid RefreshToken as invalid.
-        /// Call this a) when a user logs out, or b) you want to log out an active user when the JTW times out
+        /// This will mark the specified (if empty the latest), valid RefreshToken as invalid.
+        /// Call this a) when a user logs out, or b) you want to log out an active user when the JWT times out
         /// </summary>
         /// <param name="userId"></param>
-        public async Task MarkJwtRefreshTokenAsUsedAsync(string userId)
+        /// <param name="refreshTokenToDisable"></param>
+        public async Task MarkJwtRefreshTokenAsUsedAsync(string userId, string refreshTokenToDisable = null)
         {
-            var latestValidRefreshToken = await _context.RefreshTokens
-                .Where(x => x.UserId == userId && !x.IsInvalid)
-                .OrderByDescending(x => x.AddedDateUtc)
-                .FirstOrDefaultAsync();
+            RefreshToken refreshToken = null;
 
-            if (latestValidRefreshToken != null)
+            if (string.IsNullOrWhiteSpace(refreshTokenToDisable))
             {
-                latestValidRefreshToken.MarkAsInvalid();
-                var status = await _context.SaveChangesWithChecksAsync();
-                status.IfErrorsTurnToException();
+                // Get the latest refresh token
+                refreshToken = await _context.RefreshTokens
+                    .Where(x => x.UserId == userId && !x.IsInvalid)
+                    .OrderByDescending(x => x.AddedDateUtc)
+                    .FirstOrDefaultAsync();
             }
+            else
+            {
+                refreshToken = await _context.RefreshTokens
+                    .FirstOrDefaultAsync(x => x.UserId == userId && x.TokenValue == refreshTokenToDisable);
+            }
+
+            if (refreshToken == null)
+            {
+                return;
+            }
+
+            refreshToken.MarkAsInvalid();
+            var status = await _context.SaveChangesWithChecksAsync();
+            status.IfErrorsTurnToException();
         }
     }
 }

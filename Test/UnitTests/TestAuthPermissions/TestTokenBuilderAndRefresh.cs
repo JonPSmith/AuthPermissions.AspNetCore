@@ -234,6 +234,42 @@ namespace Test.UnitTests.TestAuthPermissions
             afterToken.IsInvalid.ShouldBeTrue();
         }
 
+        [Fact]
+        public async Task TestMarkJwtRefreshTokenAsUsedAsyncWithSpecifiedRefreshToken()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
+
+            var setup = new SetupTokenBuilder(context);
+            await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
+            await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
+
+            var refreshTokensSet = context.RefreshTokens.OrderBy(x => x.AddedDateUtc);
+
+            var firstTokenBefore = refreshTokensSet.First();
+            firstTokenBefore.IsInvalid.ShouldBeFalse();
+
+            var lastTokenBefore = refreshTokensSet.Last();
+            lastTokenBefore.IsInvalid.ShouldBeFalse();
+
+            context.ChangeTracker.Clear();
+            var service = new DisableJwtRefreshToken(context);
+
+            //ATTEMPT
+            await service.MarkJwtRefreshTokenAsUsedAsync("User1", firstTokenBefore.TokenValue);
+
+            //VERIFY
+            context.ChangeTracker.Clear();
+
+            var firstTokenAfter = refreshTokensSet.First();
+            firstTokenAfter.IsInvalid.ShouldBeTrue();
+
+            var lastTokenAfter = refreshTokensSet.Last();
+            lastTokenAfter.IsInvalid.ShouldBeFalse();
+        }
+
 
     }
 }
