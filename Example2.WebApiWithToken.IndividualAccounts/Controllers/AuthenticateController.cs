@@ -118,10 +118,10 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         [Authorize]
         [HttpPost]
         [Route("logout")]
-        public async Task<ActionResult> Logout([FromServices]IDisableJwtRefreshToken service)
+        public async Task<ActionResult> Logout([FromServices]IDisableJwtRefreshToken service, [FromBody]LogoutModel model)
         {
             var userId = User.GetUserIdFromUser();
-            await service.MarkJwtRefreshTokenAsUsedAsync(userId);
+            await service.MarkJwtRefreshTokenAsUsedAsync(userId, model.RefreshToken);
 
             return Ok();
         }
