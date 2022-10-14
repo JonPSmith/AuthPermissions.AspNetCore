@@ -13,7 +13,7 @@ namespace AuthPermissions.SupportCode.DownStatusCode;
 /// If a change is found it will compare the time the significant change against the time when
 /// the user's claims were last updated. If the user's claims are "older" that the change happens, then their claims are updated
 /// </summary>
-public static class TenantChangeCookieEvent
+public static class SomethingChangedCookieEvent
 {
     /// <summary>
     /// This is the name of the claim type for a change

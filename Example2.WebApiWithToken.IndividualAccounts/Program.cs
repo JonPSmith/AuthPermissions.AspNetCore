@@ -37,8 +37,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(
 // Configure Authentication using JWT token with refresh capability
 var jwtData = new JwtSetupData();
 builder.Configuration.Bind("JwtData", jwtData);
-//The solution to getting the userId claim correct was found in https://stackoverflow.com/a/70315108/1434764
-JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+//The solution to getting the nameidentifier claim to have the user's Id was found in https://stackoverflow.com/a/70315108/1434764
 JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication(auth =>
 {

@@ -1,18 +1,11 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using AuthPermissions;
-using AuthPermissions.AdminCode;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.BaseCode.DataLayer.Classes;
-using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Logging;
 using Net.DistributedFileStoreCache;
 
 namespace Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;

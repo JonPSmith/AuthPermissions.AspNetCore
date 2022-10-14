@@ -39,8 +39,9 @@ builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    //this will cause all the logged-in users to have their claims to be updated if the 
-    options.Events.OnValidatePrincipal = TenantChangeCookieEvent.UpdateClaimsIfSomethingChangesAsync;
+    //this will cause all the logged-in users to have their claims to be updated if their claims are old
+    //NOTE: You must register the AddGlobalChangeTimeClaim via RegisterAddClaimToUser
+    options.Events.OnValidatePrincipal = SomethingChangedCookieEvent.UpdateClaimsIfSomethingChangesAsync;
 });
 
 

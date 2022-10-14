@@ -2,6 +2,7 @@
 
 ## 3.5.0
 
+- BREAKING CHANGE (small): Changed TenantChangeCookieEvent name to SomethingChangedCookieEvent
 - Improved feature: AuthPermissionsDbContext now takes mutiple IDatabaseStateChangeEvent
 - Improved feature: No AuthP database event change listeners will be triggered during bulk loading
 

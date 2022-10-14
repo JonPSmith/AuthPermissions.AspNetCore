@@ -17,7 +17,7 @@ public class AddGlobalChangeTimeClaim : IClaimsAdder
     /// <returns></returns>
     public Task<Claim> AddClaimToUserAsync(string userId)
     {
-        var claim = TenantChangeCookieEvent.EntityChangeClaimType.CreateClaimDateTimeTicks();
+        var claim = SomethingChangedCookieEvent.EntityChangeClaimType.CreateClaimDateTimeTicks();
         return Task.FromResult(claim);
     }
 }

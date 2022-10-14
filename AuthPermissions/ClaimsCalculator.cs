@@ -94,7 +94,7 @@ namespace AuthPermissions
 
             if (_options.TenantType.IsMultiTenant())
             {
-                //We need to add any RoleTypes.TenantAdminAdd for a tenant user
+                //We need to add any RoleTypes.TenantAutoAdd for a tenant user
 
                 var autoAddPermissions = await _context.AuthUsers
                     .Where(x => x.UserId == userId && x.TenantId != null)

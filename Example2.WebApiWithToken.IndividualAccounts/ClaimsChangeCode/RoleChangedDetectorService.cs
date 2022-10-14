@@ -80,39 +80,38 @@ public class RoleChangedDetectorService : IDatabaseStateChangeEvent
             AddPermissionOverridesToCache((AuthPermissionsDbContext)dbContext, effectedUserIds.Distinct());
             effectedUserIds = new List<string>();
         };
-
-
     }
 
     private void AddPermissionOverridesToCache(AuthPermissionsDbContext context, IEnumerable<string> effectedUserIds)
     {
-        foreach (var authUser in context.AuthUsers.Where(x => effectedUserIds.Contains(x.UserId)))
+        foreach (var userIdAndPackedPermission in context.AuthUsers
+                     .Where(x => effectedUserIds.Contains(x.UserId))
+                     .Select(x => new{ x.UserId, packedPermissions = 
+                         x.UserRoles.Select(y => y.Role.PackedPermissionsInRole).ToList()})
+                 )
         {
             //If not claims, then use empty string
-            var permissionValue = CalcPermissionsForUser(context, authUser.UserId) ?? "";
-            _fsCache.Set(authUser.UserId.FormReplacementPermissionsKey(), permissionValue);
-            _logger?.LogInformation("User {0} has been updated to permission values {1}",
-                authUser.Email, string.Join(", ", permissionValue.Select(x => (int)x)));
+            var permissionValue = CalcPermissionsForUser(context, userIdAndPackedPermission.UserId, userIdAndPackedPermission.packedPermissions) ?? "";
+            _fsCache.Set(userIdAndPackedPermission.UserId.FormReplacementPermissionsKey(), permissionValue);
+            _logger?.LogInformation("UserId {0} has been updated to permission values {1}",
+                userIdAndPackedPermission.UserId, string.Join(", ", permissionValue.Select(x => (int)x)));
         }
     }
 
     /// <summary>
-    /// This code is taken from the <see cref="ClaimsCalculator"/> and changed to sync.
+    /// This takes the assigned <see cref="RoleToPermissions.PackedPermissionsInRole"/> for the user
+    /// and then adds any <see cref="RoleTypes.TenantAutoAdd"/> Roles if provided to create the user's final PackedPermissions
+    /// This code is taken from the <see cref="ClaimsCalculator"/> and changed
     /// </summary>
     /// <param name="context"></param>
     /// <param name="userId"></param>
+    /// <param name="permissionsForAllRoles"></param>
     /// <returns></returns>
-    private string CalcPermissionsForUser(AuthPermissionsDbContext context, string userId)
+    private string CalcPermissionsForUser(AuthPermissionsDbContext context, string userId, List<string> permissionsForAllRoles)
     {
-        //This gets all the permissions, with a distinct to remove duplicates
-        var permissionsForAllRoles = context.UserToRoles
-            .Where(x => x.UserId == userId)
-            .Select(x => x.Role.PackedPermissionsInRole)
-            .ToList();
-
         if (_options.TenantType.IsMultiTenant())
         {
-            //We need to add any RoleTypes.TenantAdminAdd for a tenant user
+            //We need to add any RoleTypes.TenantAutoAdd for a tenant user
 
             var autoAddPermissions = context.AuthUsers
                 .Where(x => x.UserId == userId && x.TenantId != null)
