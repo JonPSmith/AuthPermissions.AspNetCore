@@ -16,6 +16,7 @@ using TestSupport.EfHelpers;
 using System.Collections.Generic;
 using System.Linq;
 using AuthPermissions.BaseCode.DataLayer.Classes;
+using Test.TestHelpers;
 
 namespace Test.UnitTests.TestExamples;
 

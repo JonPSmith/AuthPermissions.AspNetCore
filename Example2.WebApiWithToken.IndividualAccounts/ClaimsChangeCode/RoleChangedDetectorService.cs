@@ -84,6 +84,7 @@ public class RoleChangedDetectorService : IDatabaseStateChangeEvent
 
     private void AddPermissionOverridesToCache(AuthPermissionsDbContext context, IEnumerable<string> effectedUserIds)
     {
+        var entriesToCache = new List<KeyValuePair<string,string>>();
         foreach (var userIdAndPackedPermission in context.AuthUsers
                      .Where(x => effectedUserIds.Contains(x.UserId))
                      .Select(x => new{ x.UserId, packedPermissions = 
@@ -92,10 +93,12 @@ public class RoleChangedDetectorService : IDatabaseStateChangeEvent
         {
             //If not claims, then use empty string
             var permissionValue = CalcPermissionsForUser(context, userIdAndPackedPermission.UserId, userIdAndPackedPermission.packedPermissions) ?? "";
-            _fsCache.Set(userIdAndPackedPermission.UserId.FormReplacementPermissionsKey(), permissionValue);
+            entriesToCache.Add(new(userIdAndPackedPermission.UserId.FormReplacementPermissionsKey(), permissionValue));
             _logger?.LogInformation("UserId {0} has been updated to permission values {1}",
                 userIdAndPackedPermission.UserId, string.Join(", ", permissionValue.Select(x => (int)x)));
         }
+        if (entriesToCache.Any())
+            _fsCache.SetMany(entriesToCache);
     }
 
     /// <summary>

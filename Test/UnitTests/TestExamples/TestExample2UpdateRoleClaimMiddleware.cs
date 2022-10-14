@@ -13,6 +13,7 @@ using Test.StubClasses;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
 using System;
+using Test.TestHelpers;
 
 namespace Test.UnitTests.TestExamples;
 

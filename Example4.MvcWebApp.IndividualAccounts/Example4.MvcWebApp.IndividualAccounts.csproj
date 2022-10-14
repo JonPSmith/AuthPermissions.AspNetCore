@@ -18,7 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.8" />
-    <PackageReference Include="Net.DistributedFileStoreCache" Version="1.0.0" />
+    <PackageReference Include="Net.DistributedFileStoreCache" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
