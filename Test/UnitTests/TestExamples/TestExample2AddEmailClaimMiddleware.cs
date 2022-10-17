@@ -8,7 +8,6 @@ using Net.DistributedFileStoreCache;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System;
-using Test.StubClasses;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
@@ -35,7 +34,7 @@ public class TestExample2AddEmailClaimMiddleware
     private static IServiceProvider GetServiceProvider(StubFileStoreCacheClass stubFsCache)
     {
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
-        var context = new AuthPermissionsDbContext(options);
+        var context = new AuthPermissionsDbContext(options, new []{new EmailChangeDetectorService(stubFsCache) });
         context.Database.EnsureCreated();
         context.Add(AuthUser.CreateAuthUser("userId", "email@google.com", null, new List<RoleToPermissions>()).Result);
         context.SaveChanges();
@@ -46,7 +45,6 @@ public class TestExample2AddEmailClaimMiddleware
         var serviceProvider = services.BuildServiceProvider();
 
         return serviceProvider;
-
     }
 
 
@@ -82,6 +80,27 @@ public class TestExample2AddEmailClaimMiddleware
 
         //VERIFY
         newUser.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TestEmailChangeDetectorService_EmailChanged()
+    {
+        //SETUP
+        var stubFsCache = new StubFileStoreCacheClass();
+        var serviceProvider = GetServiceProvider(stubFsCache);
+
+        var context = serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+
+        context.ChangeTracker.Clear();
+        stubFsCache.Set("userId".FormAddedEmailClaimKey(), "cached email");
+
+        //ATTEMPT
+        var user = context.AuthUsers.Single();
+        user.ChangeUserNameAndEmailWithChecks("second@gmail.com", null);
+        context.SaveChanges();
+
+        //VERIFY
+        stubFsCache.Get("userId".FormAddedEmailClaimKey()).ShouldBeNull();
     }
 
 }

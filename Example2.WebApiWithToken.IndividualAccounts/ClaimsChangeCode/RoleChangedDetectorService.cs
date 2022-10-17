@@ -24,7 +24,6 @@ namespace Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
 /// </summary>
 public class RoleChangedDetectorService : IDatabaseStateChangeEvent
 {
-
     private readonly IDistributedFileStoreCacheClass _fsCache;
     private readonly AuthPermissionsOptions _options;
     private readonly ILogger<RoleChangedDetectorService> _logger;
@@ -40,6 +39,7 @@ public class RoleChangedDetectorService : IDatabaseStateChangeEvent
     /// <summary>
     /// This will register a method to the EF Core SavedChanges event to find the Users
     /// that need their PackedPermission's claim to be overrides with the changed database
+    /// NOTE: This code does NOT handle Roles of RoleTypes.TenantAutoAdd. This could be added, but its not there now
     /// </summary>
     /// <param name="context"></param>
     public void RegisterEventHandlers(AuthPermissionsDbContext context)
@@ -64,8 +64,6 @@ public class RoleChangedDetectorService : IDatabaseStateChangeEvent
                     .Where(x => x.RoleName == ((RoleToPermissions)entry.Entity).RoleName)
                     .Select(x => x.UserId));
             }
-
-            AddPermissionOverridesToCache(context, effectedUserIds.Distinct());
         };
 
         //This removes the UserIds if the SaveChange fails
@@ -98,6 +96,8 @@ public class RoleChangedDetectorService : IDatabaseStateChangeEvent
                 userIdAndPackedPermission.UserId, string.Join(", ", permissionValue.Select(x => (int)x)));
         }
         if (entriesToCache.Any())
+            //NOTE: You might like to add a expiration time on the cache entries if your users claims are regularly updated
+            //e.g. if you are JWT Token with the refresh feature, then you could make the cache expire after the refresh time.
             _fsCache.SetMany(entriesToCache);
     }
 

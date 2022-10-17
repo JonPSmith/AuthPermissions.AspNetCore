@@ -33,13 +33,11 @@ public class EmailChangeDetectorService : IDatabaseStateChangeEvent
         {
             if (e.Entry.Entity is AuthUser user
                 && e.NewState == EntityState.Modified
-                && (e.Entry.OriginalValues[nameof(AuthUser.Email)] != e.Entry.CurrentValues[nameof(AuthUser.Email)])
+                && e.Entry.OriginalValues[nameof(AuthUser.Email)] != e.Entry.CurrentValues[nameof(AuthUser.Email)]
                 )
                 //Email has changed, so we remove the current cache value, which causes the email to be reevaluated 
                 _fsCache.Remove(user.UserId.FormAddedEmailClaimKey());
         };
-
-
     }
 
 }

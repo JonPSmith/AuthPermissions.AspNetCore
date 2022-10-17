@@ -9,7 +9,6 @@ using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 using Example2.WebApiWithToken.IndividualAccounts.PermissionsCode;
-using Test.StubClasses;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
 using System;
@@ -90,23 +89,6 @@ public class TestExample2UpdateRoleClaimMiddleware
             newUser.ShouldBeNull();
             user.GetPackedPermissionsFromUser().ShouldEqual($"{(char)Example2Permissions.Permission1}");
         }
-    }
-
-    [Fact]
-    public async Task TestReplacePermissionsMiddleware_RemoveEntryIfSame()
-    {
-        //SETUP
-        var user = CreateUser($"{(char)Example2Permissions.Permission1}");
-        var stubFsCache = new StubFileStoreCacheClass();
-        stubFsCache.Set("userId".FormReplacementPermissionsKey(), $"{(char)Example2Permissions.Permission1}");
-
-        //ATTEMPT
-        var newUser = await UpdateRoleClaimMiddleware.ReplacePermissionsMiddleware(GetServiceProvider(stubFsCache), user);
-
-        //VERIFY
-        newUser.ShouldBeNull();
-        user.GetPackedPermissionsFromUser().ShouldEqual($"{(char)Example2Permissions.Permission1}");
-        stubFsCache.GetAllKeyValues().Count.ShouldEqual(0);
     }
 
 }
