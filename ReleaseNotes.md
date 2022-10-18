@@ -4,7 +4,7 @@
 
 - BREAKING CHANGE (small): The DisableJwtRefreshToken service has been updated to handle multiple logins from one user
 - BREAKING CHANGE (small): Changed TenantChangeCookieEvent name to SomethingChangedCookieEvent
-- Improved feature: AuthPermissionsDbContext now takes mutiple IDatabaseStateChangeEvent
+- Improved feature: AuthPermissionsDbContext now takes multiple IDatabaseStateChangeEvent
 - Improved feature: No AuthP database event change listeners will be triggered during bulk loading
 
 ## 3.4.0
