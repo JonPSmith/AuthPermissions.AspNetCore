@@ -112,16 +112,15 @@ namespace Example2.WebApiWithToken.IndividualAccounts.Controllers
         }
 
         /// <summary>
-        /// This will mark the JST refresh as used, so the user cannot refresh the JWT Token
+        /// This will mark the JST refresh as used, so the user cannot refresh the JWT Token.
         /// </summary>
         /// <returns></returns>
         [Authorize]
         [HttpPost]
         [Route("logout")]
-        public async Task<ActionResult> Logout([FromServices]IDisableJwtRefreshToken service)
+        public async Task<ActionResult> Logout([FromServices]IDisableJwtRefreshToken service, string refreshToken)
         {
-            var userId = User.GetUserIdFromUser();
-            await service.MarkJwtRefreshTokenAsUsedAsync(userId);
+            await service.LogoutUserViaRefreshTokenAsync(refreshToken);
 
             return Ok();
         }

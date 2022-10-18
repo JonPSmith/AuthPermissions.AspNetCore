@@ -209,7 +209,7 @@ namespace Test.UnitTests.TestAuthPermissions
         }
 
         [Fact]
-        public async Task TestMarkJwtRefreshTokenAsUsedAsync()
+        public async Task TestLogoutUserViaRefreshTokenAsync_TwoSameUsers()
         {
             //SETUP
             var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -218,22 +218,66 @@ namespace Test.UnitTests.TestAuthPermissions
 
             var setup = new SetupTokenBuilder(context);
             await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
+            await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
 
-            var beforeToken = context.RefreshTokens.Single();
-            beforeToken.IsInvalid.ShouldBeFalse();
+            var refreshTokensSet = context.RefreshTokens.OrderBy(x => x.AddedDateUtc);
+
+            var firstTokenBefore = refreshTokensSet.First();
+            firstTokenBefore.IsInvalid.ShouldBeFalse();
+
+            var lastTokenBefore = refreshTokensSet.Last();
+            lastTokenBefore.IsInvalid.ShouldBeFalse();
 
             context.ChangeTracker.Clear();
             var service = new DisableJwtRefreshToken(context);
 
             //ATTEMPT
-            await service.MarkJwtRefreshTokenAsUsedAsync("User1");
+            await service.LogoutUserViaRefreshTokenAsync(firstTokenBefore.TokenValue);
 
             //VERIFY
             context.ChangeTracker.Clear();
-            var afterToken = context.RefreshTokens.Single();
-            afterToken.IsInvalid.ShouldBeTrue();
+
+            var firstTokenAfter = refreshTokensSet.First();
+            firstTokenAfter.IsInvalid.ShouldBeTrue();
+
+            var lastTokenAfter = refreshTokensSet.Last();
+            lastTokenAfter.IsInvalid.ShouldBeFalse();
         }
 
+        [Fact]
+        public async Task LogoutUserViaUserIdAsync_TwoSameUsers()
+        {
+            //SETUP
+            var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+            using var context = new AuthPermissionsDbContext(options);
+            context.Database.EnsureCreated();
 
+            var setup = new SetupTokenBuilder(context);
+            await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
+            await setup.TokenBuilder.GenerateTokenAndRefreshTokenAsync("User1");
+
+            var refreshTokensSet = context.RefreshTokens.OrderBy(x => x.AddedDateUtc);
+
+            var firstTokenBefore = refreshTokensSet.First();
+            firstTokenBefore.IsInvalid.ShouldBeFalse();
+
+            var lastTokenBefore = refreshTokensSet.Last();
+            lastTokenBefore.IsInvalid.ShouldBeFalse();
+
+            context.ChangeTracker.Clear();
+            var service = new DisableJwtRefreshToken(context);
+
+            //ATTEMPT
+            await service.LogoutUserViaUserIdAsync("User1");
+
+            //VERIFY
+            context.ChangeTracker.Clear();
+
+            var firstTokenAfter = refreshTokensSet.First();
+            firstTokenAfter.IsInvalid.ShouldBeTrue();
+
+            var lastTokenAfter = refreshTokensSet.Last();
+            lastTokenAfter.IsInvalid.ShouldBeTrue();
+        }
     }
 }
