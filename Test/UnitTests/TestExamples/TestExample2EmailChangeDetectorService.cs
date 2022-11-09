@@ -8,6 +8,7 @@ using AuthPermissions.BaseCode;
 using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -34,8 +35,8 @@ public class TestExample2EmailChangeDetectorService
         context.ChangeTracker.Clear();
         stubFsCache.ClearAll();
 
-        var authAdmin = new AuthUsersAdminService(context,
-            new StubSyncAuthenticationUsersFactory(), new AuthPermissionsOptions());
+        var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
+            new AuthPermissionsOptions(), new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
         //ATTEMPT
         stubFsCache.Set("User1".FormAddedEmailClaimKey(), "cached email");

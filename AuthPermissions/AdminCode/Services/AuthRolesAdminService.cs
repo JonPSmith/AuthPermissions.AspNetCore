@@ -12,6 +12,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -23,6 +24,7 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthRolesAdminService : IAuthRolesAdminService
     {
         private readonly AuthPermissionsDbContext _context;
+        private readonly ILocalizeWithDefault<IAuthRolesAdminService> _localizeDefault;
         private readonly Type _permissionType;
         private readonly bool _isMultiTenant;
 
@@ -31,9 +33,12 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        public AuthRolesAdminService(AuthPermissionsDbContext context, AuthPermissionsOptions options)
+        /// <param name="localizeDefault"></param>
+        public AuthRolesAdminService(AuthPermissionsDbContext context, AuthPermissionsOptions options,
+            ILocalizeWithDefault<IAuthRolesAdminService> localizeDefault)
         {
             _context = context;
+            _localizeDefault = localizeDefault;
             _permissionType = options.InternalData.EnumPermissionsType;
             _isMultiTenant = options.TenantType.IsMultiTenant();
         }
@@ -110,19 +115,23 @@ namespace AuthPermissions.AdminCode.Services
             IEnumerable<string> permissionNames,
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
-            var status = new StatusGenericHandler { Message = $"Successfully added the new role {roleName}." };
+            var status = new StatusGenericLocalizer<IAuthRolesAdminService>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".MethodMessageKey(), $"Successfully added the new role {roleName}.");
 
             if (string.IsNullOrEmpty(roleName))
-                return status.AddError("The RoleName isn't filled in", nameof(roleName).CamelToPascal());
+                return status.AddErrorString("BadRoleName".MethodMessageKey(), 
+                    "The RoleName isn't filled in", nameof(roleName).CamelToPascal());
             if ((await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName)) != null)
-                return status.AddError($"There is already a Role with the name of '{roleName}'.", nameof(roleName).CamelToPascal());
+                return status.AddErrorFormattedWithParams("DuplicateRoleName".MethodMessageKey(),
+                    $"There is already a Role with the name of '{roleName}'.", nameof(roleName).CamelToPascal());
             
             if (permissionNames == null)
-                return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
+                return status.AddErrorString("NoRoles".MethodMessageKey(), 
+                    "You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
 
             //NOTE: If an advanced permission (i.e. has the display attribute has AutoGenerateFilter = true) is found the roleType is updated to HiddenFromTenant
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
-                x => status.AddError(
+                x => status.AddErrorFormattedWithParams("InvalidRole".MethodMessageKey(),
                     $"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.",
                     nameof(permissionNames).CamelToPascal()), () => roleType = RoleTypes.HiddenFromTenant);
 
@@ -130,7 +139,8 @@ namespace AuthPermissions.AdminCode.Services
                 return status;
 
             if (!packedPermissions.Any())
-                return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
+                return status.AddErrorString("NoPermissions", 
+                    "You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
 
             _context.Add(new RoleToPermissions(roleName, description, packedPermissions, roleType));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -152,16 +162,19 @@ namespace AuthPermissions.AdminCode.Services
             IEnumerable<string> permissionNames,
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
-            var status = new StatusGenericHandler { Message = $"Successfully updated the role {roleName}." };
+            var status = new StatusGenericLocalizer<IAuthRolesAdminService>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".MethodMessageKey(), $"Successfully updated the role {roleName}.");
             var existingRolePermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
 
             if (existingRolePermission == null)
-                return status.AddError($"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
+                return status.AddErrorFormattedWithParams("IncorrectRoleName",
+                    $"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
 
             var originalRoleType = existingRolePermission.RoleType;
 
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
-                x => status.AddError($"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
+                x => status.AddErrorFormattedWithParams("InvalidPermission".MethodMessageKey(), 
+                    $"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
                     nameof(permissionNames).CamelToPascal()), 
                 () => roleType = RoleTypes.HiddenFromTenant);
 
@@ -169,7 +182,8 @@ namespace AuthPermissions.AdminCode.Services
                 return status;
 
             if (!packedPermissions.Any())
-                return status.AddError("You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
+                return status.AddErrorString("NoPermissions", 
+                    "You must provide at least one permission name.", nameof(permissionNames).CamelToPascal());
 
             if (originalRoleType != roleType)
             {
@@ -196,13 +210,14 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteRoleAsync(string roleName, bool removeFromUsers)
         {
-            var status = new StatusGenericHandler {Message = $"Successfully deleted the role {roleName}"};
+            var status = new StatusGenericLocalizer<IAuthRolesAdminService>("en", _localizeDefault);
 
             var existingRolePermission =
                 await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
 
             if (existingRolePermission == null)
-                return status.AddError($"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
+                return status.AddErrorFormattedWithParams("IncorrectRoleName",
+                    $"Could not find a role called {roleName}", nameof(roleName).CamelToPascal());
 
             var usersWithRoles = await _context.UserToRoles.Where(x => x.RoleName == roleName).ToListAsync();
             int tenantCount = existingRolePermission.RoleType == RoleTypes.TenantAdminAdd || existingRolePermission.RoleType == RoleTypes.TenantAutoAdd
@@ -210,11 +225,12 @@ namespace AuthPermissions.AdminCode.Services
             if (!removeFromUsers)
             {
                 if (usersWithRoles.Any())
-                    status.AddError($"That role is used in {usersWithRoles.Count} AuthUsers and you didn't confirm the delete.", 
+                    status.AddErrorFormattedWithParams("RoleUsedUser".MethodMessageKey(),
+                        $"That role is used in {usersWithRoles.Count} AuthUsers and you didn't confirm the delete.", 
                     nameof(roleName).CamelToPascal());
 
                 if (tenantCount > 0)
-                    status.AddError(
+                    status.AddErrorFormattedWithParams("RoleUsedTenant".MethodMessageKey(),
                         $"That role is used in {usersWithRoles.Count} tenants and you didn't confirm the delete.",
                         nameof(roleName).CamelToPascal());
 
@@ -233,10 +249,25 @@ namespace AuthPermissions.AdminCode.Services
             _context.Remove(existingRolePermission);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
 
+            //build the success message
+            var successMessages = new List<FormattableString> { $"Successfully deleted the role {roleName}" };
+            var successKey = "Success";
             if (usersWithRoles.Any())
-                status.Message += $" and removed that role from {usersWithRoles.Count} users";
+            {
+                successMessages.Add( $" and removed that role from {usersWithRoles.Count} users");
+                successKey += "-RemoveUsers";
+            }
             if (tenantCount > 0)
-                status.Message += $" and removed that role from {tenantCount} tenants";
+            {
+                successMessages.Add($" and removed that role from {tenantCount} tenants");
+                successKey += "-RemoveTenants";
+            }
+            //There are 4 possible keys for this method
+            //1. "Success":                           delete Role, doesn't effect anyone
+            //2. "Success-RemoveUsers":               delete Role, affects users
+            //3. "Success-RemoveTenants":             delete Role, affects tenants
+            //4. "Success-RemoveUsers-RemoveTenants": delete Role, affects users and tenants
+            status.SetMessageFormatted(successKey.MethodMessageKey(), successMessages.ToArray());
             status.Message += ".";
             return status;
         }

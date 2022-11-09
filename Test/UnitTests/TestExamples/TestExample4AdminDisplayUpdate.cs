@@ -35,6 +35,7 @@ namespace Test.UnitTests.TestExamples
         private async Task<(AuthPermissionsDbContext context, ServiceProvider serviceProvider)> SetupExample4DataAsync()
         {
             var services = new ServiceCollection();
+            services.AddLogging();
             var serviceProvider = await services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;
@@ -54,6 +55,7 @@ namespace Test.UnitTests.TestExamples
         private async Task<(AuthPermissionsDbContext context, ServiceProvider serviceProvider)> SetupExample6DataAsync()
         {
             var services = new ServiceCollection();
+            services.AddLogging();
             var serviceProvider = await services.RegisterAuthPermissions<Example6Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding;

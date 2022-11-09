@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -12,7 +12,6 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using Test.StubClasses;
 using Test.TestHelpers;
@@ -25,6 +24,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestTenantAdminServicesSingle
     {
+        private readonly AuthPermissionsOptions _authOptionsSingle =
+            new() { TenantType = TenantTypes.SingleLevel };
+
         private readonly ITestOutputHelper _output;
 
         public TestTenantAdminServicesSingle(ITestOutputHelper output)
@@ -43,7 +45,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel}, null, null);
+            var service = new AuthTenantAdminService(context, _authOptionsSingle, 
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(),null, null);
 
             //ATTEMPT
             var tenants = service.QueryTenants().ToList();
@@ -64,7 +67,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel}, null, null);
+            var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(), null, null);
 
             //ATTEMPT
             var tenants = service.QueryEndLeafTenants().ToList();
@@ -88,8 +92,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var tenantChange = new StubITenantChangeServiceFactory();
-                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
-                    tenantChange, null);
+                var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                    new StubLocalizeWithDefault<IAuthTenantAdminService>(), tenantChange, null);
 
                 //ATTEMPT
                 var status = await service.AddSingleTenantAsync("Tenant4");
@@ -122,9 +126,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.SaveChanges();
                 context.ChangeTracker.Clear();
 
-                var service = new AuthTenantAdminService(context,
-                    new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
-                    null, null);
+                var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                    new StubLocalizeWithDefault<IAuthTenantAdminService>(), null, null);
 
                 //ATTEMPT
                 var roleNames = await service.GetRoleNamesForTenantsAsync();
@@ -152,8 +155,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var tenantChange = new StubITenantChangeServiceFactory();
-                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
-                    tenantChange, null);
+                var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                    new StubLocalizeWithDefault<IAuthTenantAdminService>(), tenantChange, null);
 
                 //ATTEMPT
                 var status = await service.AddSingleTenantAsync("Tenant4", new List<string>{"TenantRole1", "TenantRole2"});
@@ -188,8 +191,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var tenantChange = new StubITenantChangeServiceFactory();
-                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
-                    tenantChange, null);
+                var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                    new StubLocalizeWithDefault<IAuthTenantAdminService>(), tenantChange, null);
 
                 //ATTEMPT
                 var status = await service.AddSingleTenantAsync("Tenant4", new List<string> { roleName });
@@ -219,8 +222,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel }, null, null);
-
+            var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(), null, null);
             //ATTEMPT
             var status = await service.UpdateTenantRolesAsync(newTenant.TenantId, new List<string> { "TenantRole2" });
 
@@ -240,10 +243,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             contexts.RetailDbContext.SetupSingleRetailAndStock();
             contexts.AuthPContext.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(contexts.AuthPContext, new AuthPermissionsOptions
-            {
-                TenantType = TenantTypes.SingleLevel
-            }, new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
+            var service = new AuthTenantAdminService(contexts.AuthPContext, _authOptionsSingle,
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(), 
+                new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
 
             //ATTEMPT
             var status = await service.AddSingleTenantAsync("Tenant2");
@@ -266,7 +268,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var tenantIds = context.SetupSingleTenantsInDb();
                 context.ChangeTracker.Clear();
 
-                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                    new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                     new StubITenantChangeServiceFactory(), null);
 
                 //ATTEMPT
@@ -296,7 +299,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var tenantIds = context.SetupSingleTenantsInDb();
                 context.ChangeTracker.Clear();
 
-                var service = new AuthTenantAdminService(context, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel},
+                var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                    new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                     new StubITenantChangeServiceFactory(), null);
 
                 //ATTEMPT
@@ -331,7 +335,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SaveChanges();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+            var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 new StubITenantChangeServiceFactory(), null);
 
             //ATTEMPT
@@ -353,7 +358,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var tenantIds = context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthTenantAdminService(context, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+            var service = new AuthTenantAdminService(context, _authOptionsSingle,
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 new StubITenantChangeServiceFactory("error from TenantChangeService"), null);
 
             //ATTEMPT

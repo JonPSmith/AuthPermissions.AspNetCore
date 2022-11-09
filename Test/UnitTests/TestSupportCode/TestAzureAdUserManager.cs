@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.BaseCode;
@@ -38,8 +39,10 @@ public class TestAzureAdUserManager
         {
             TenantType = tenantType
         };
-        var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), authOptions);
-        var tenantAdmin = new AuthTenantAdminService(context, authOptions, new StubITenantChangeServiceFactory(), null);
+        var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
+            authOptions, new StubLocalizeWithDefault<IAuthUsersAdminService>());
+        var tenantAdmin = new AuthTenantAdminService(context, authOptions, 
+            new StubLocalizeWithDefault<IAuthTenantAdminService>(), new StubITenantChangeServiceFactory(), null);
         var azureAdStub = new StubAzureAdAccessService();
         var azureOptions = Options.Create(new AzureAdOptions{ AzureAdApproaches = "Find,Create"});
 

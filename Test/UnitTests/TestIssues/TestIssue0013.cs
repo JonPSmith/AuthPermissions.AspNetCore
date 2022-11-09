@@ -7,11 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -25,6 +27,8 @@ namespace Test.UnitTests.TestIssues;
 /// </summary>
 public class TestIssue0013
 {
+    private readonly AuthPermissionsOptions _authOptionsWithTestEnum =
+        new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } };
     private readonly ITestOutputHelper _output;
 
     public TestIssue0013(ITestOutputHelper output)
@@ -44,7 +48,7 @@ public class TestIssue0013
         await SetupRoleUserAndPossibleTenant(originalType, context);
         context.ChangeTracker.Clear();
 
-        var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } });
+        var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
 
         //ATTEMPT
         var status = await service.UpdateRoleToPermissionsAsync("Role1", new[] { "One" }, null, updatedType);
@@ -68,7 +72,7 @@ public class TestIssue0013
         await SetupRoleUserAndPossibleTenant(RoleTypes.TenantAdminAdd, context);
         context.ChangeTracker.Clear();
 
-        var service = new AuthRolesAdminService(context, new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } });
+        var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
 
         //ATTEMPT
         var status = await service.DeleteRoleAsync("Role1", removeFromUser);

@@ -3,11 +3,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Test.StubClasses;
@@ -20,6 +19,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestTenantChangeServiceSingle
     {
+        private readonly AuthPermissionsOptions _authOptionsSingle =
+            new() { TenantType = TenantTypes.SingleLevel };
+
         private readonly ITestOutputHelper _output;
 
         public TestTenantChangeServiceSingle(ITestOutputHelper output)
@@ -37,7 +39,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -61,7 +63,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -84,7 +86,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -106,7 +108,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel },
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT

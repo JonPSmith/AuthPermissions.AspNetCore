@@ -24,6 +24,7 @@ using AuthPermissions.BulkLoadServices;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.SetupCode;
 using AuthPermissions.SetupCode.Factories;
+using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -263,6 +264,10 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddTransient<IBulkLoadRolesService, BulkLoadRolesService>();
             setupData.Services.AddTransient<IBulkLoadTenantsService, BulkLoadTenantsService>();
             setupData.Services.AddTransient<IBulkLoadUsersService, BulkLoadUsersService>();
+
+            //Localization services
+            //NOTE: The developer must register the .NET localization service and add
+            setupData.Services.AddSingleton(typeof(ILocalizeWithDefault<>), typeof(LocalizeWithDefault<>));
 
             //Other services
             setupData.Services.AddTransient<IDisableJwtRefreshToken, DisableJwtRefreshToken>();

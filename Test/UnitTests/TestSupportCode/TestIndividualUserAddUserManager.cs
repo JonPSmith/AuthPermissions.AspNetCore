@@ -15,6 +15,7 @@ using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreCode;
 using Example3.MvcWebApp.IndividualAccounts.Data;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
+using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -56,6 +57,9 @@ public class TestIndividualUserAddUserManager
                     dbOptions.MigrationsHistoryTable(StartupExtensions.InvoicesDbContextHistoryName)));
 
         services.AddScoped<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
+        services.AddSingleton(typeof(ILocalizeWithDefault<>), typeof(StubLocalizeWithDefault<>));
+        services.AddScoped<ILocalizeWithDefault<IAuthTenantAdminService>>(x =>
+            new StubLocalizeWithDefault<IAuthTenantAdminService>());
         services.RegisterAuthPermissions<Example3Permissions>(options =>
         {
             options.TenantType = TenantTypes.SingleLevel;

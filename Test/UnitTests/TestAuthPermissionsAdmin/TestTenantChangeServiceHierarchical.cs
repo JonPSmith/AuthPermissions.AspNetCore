@@ -4,11 +4,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Example4.ShopCode.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
 using Test.StubClasses;
@@ -21,6 +20,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestTenantChangeServiceHierarchical
     {
+
+        private readonly AuthPermissionsOptions _authOptionsHierarchical =
+            new() { TenantType = TenantTypes.HierarchicalTenant };
+
         private readonly ITestOutputHelper _output;
 
         public TestTenantChangeServiceHierarchical(ITestOutputHelper output)
@@ -69,7 +72,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                _authOptionsHierarchical, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -96,7 +99,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                _authOptionsHierarchical, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -119,7 +122,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                _authOptionsHierarchical, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -148,7 +151,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                _authOptionsHierarchical, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -180,7 +183,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                _authOptionsHierarchical, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -212,7 +215,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                _authOptionsHierarchical, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -244,7 +247,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                _authOptionsHierarchical, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT

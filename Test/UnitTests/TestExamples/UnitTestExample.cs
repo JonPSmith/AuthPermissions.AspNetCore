@@ -27,6 +27,7 @@ namespace Test.UnitTests.TestExamples
         {
             //SETUP
             var services = new ServiceCollection();
+            services.AddLogging();
             var serviceProvider = await services.RegisterAuthPermissions<Example4Permissions>(options =>
                 {
                     options.TenantType = TenantTypes.HierarchicalTenant;

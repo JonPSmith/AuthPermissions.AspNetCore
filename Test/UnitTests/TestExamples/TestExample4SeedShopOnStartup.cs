@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
@@ -37,7 +38,10 @@ namespace Test.UnitTests.TestExamples
             using var authPContext = new AuthPermissionsDbContext(authPOptions);
             authPContext.Database.EnsureCreated();
             await authPContext.BulkLoadHierarchicalTenantInDbAsync();
-            var tenantService = new AuthTenantAdminService(authPContext, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant}, null, null);
+            var tenantService = new AuthTenantAdminService(authPContext, 
+                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant}, 
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+                null, null);
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();
             //var rOptions = this.CreateUniqueClassOptions<RetailDbContext>();
@@ -63,7 +67,10 @@ namespace Test.UnitTests.TestExamples
             using var authPContext = new AuthPermissionsDbContext(authPOptions);
             authPContext.Database.EnsureCreated();
             await authPContext.BulkLoadHierarchicalTenantInDbAsync();
-            var tenantService = new AuthTenantAdminService(authPContext, new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant}, null, null);
+            var tenantService = new AuthTenantAdminService(authPContext,
+                new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+                null, null);
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();
             //var rOptions = this.CreateUniqueClassOptions<RetailDbContext>();

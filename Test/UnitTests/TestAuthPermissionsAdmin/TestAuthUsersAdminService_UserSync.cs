@@ -3,12 +3,11 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -20,6 +19,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestAuthUsersAdminService_UserSync
     {
+        private readonly AuthPermissionsOptions _authOptionsSingle =
+            new() { TenantType = TenantTypes.SingleLevel };
+
         private readonly ITestOutputHelper _output;
 
         public TestAuthUsersAdminService_UserSync(ITestOutputHelper output)
@@ -40,7 +42,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
-            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, authenticationServiceFactory, 
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var changes = await service.SyncAndShowChangesAsync();
@@ -72,7 +75,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
-            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, authenticationServiceFactory,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var changes = await service.SyncAndShowChangesAsync();
@@ -106,7 +110,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
-            var service = new AuthUsersAdminService(context, authenticationServiceFactory, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, authenticationServiceFactory,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
             var changes = await service.SyncAndShowChangesAsync();
 
             //ATTEMPT

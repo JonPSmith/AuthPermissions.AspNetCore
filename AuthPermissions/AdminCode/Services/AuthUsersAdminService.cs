@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -12,6 +11,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SetupCode.Factories;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -25,6 +25,7 @@ namespace AuthPermissions.AdminCode.Services
         private readonly AuthPermissionsDbContext _context;
         private readonly IAuthPServiceFactory<ISyncAuthenticationUsers> _syncAuthenticationUsersFactory;
         private readonly AuthPermissionsOptions _options;
+        private readonly ILocalizeWithDefault<IAuthUsersAdminService> _localizeDefault;
 
         /// <summary>
         /// ctor
@@ -32,13 +33,15 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="context"></param>
         /// <param name="syncAuthenticationUsersFactory">A factory to create an authentication sync provider</param>
         /// <param name="options">auth options</param>
+        /// <param name="localizeDefault">localization</param>
         public AuthUsersAdminService(AuthPermissionsDbContext context,
             IAuthPServiceFactory<ISyncAuthenticationUsers> syncAuthenticationUsersFactory,
-            AuthPermissionsOptions options)
+            AuthPermissionsOptions options, ILocalizeWithDefault<IAuthUsersAdminService> localizeDefault)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
             _options = options;
+            _localizeDefault = localizeDefault;
         }
 
         /// <summary>
@@ -83,7 +86,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<AuthUser>> FindAuthUserByUserIdAsync(string userId)
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
-            var status = new StatusGenericHandler<AuthUser>();
+            var status = new StatusGenericLocalizer<AuthUser, IAuthUsersAdminService>("en", _localizeDefault);
 
             var authUser = await _context.AuthUsers
                 .Include(x => x.UserRoles)
@@ -91,7 +94,8 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                status.AddError("Could not find the AuthP User you asked for.", nameof(userId).CamelToPascal());
+                status.AddErrorString("UserNotFound", //common error
+                    "Could not find the AuthP User you asked for.", nameof(userId).CamelToPascal());
 
             return status.SetResult(authUser);
         }
@@ -104,7 +108,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<AuthUser>> FindAuthUserByEmailAsync(string email)
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
-            var status = new StatusGenericHandler<AuthUser>();
+            var status = new StatusGenericLocalizer<AuthUser, IAuthUsersAdminService>("en", _localizeDefault);
 
             email = email.Trim().ToLower();
 
@@ -114,7 +118,8 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefaultAsync(x => x.Email == email);
 
             if (authUser == null)
-                status.AddError($"Could not find the AuthP User with the email of {email}.",
+                status.AddErrorFormattedWithParams("UserNotFoundEmail".MethodMessageKey(),
+                    $"Could not find the AuthP User with the email of {email}.",
                     nameof(email).CamelToPascal());
 
             return status.SetResult(authUser);
@@ -130,14 +135,16 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> UpdateDisabledAsync(string userId, bool isDisabled)
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
-            var status = new StatusGenericHandler
-                { Message = $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}" };
+            var status = new StatusGenericLocalizer<IAuthUsersAdminService>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".MethodMessageKey(),
+                $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}");
 
             var authUser = await _context.AuthUsers
                 .SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                return status.AddError("Could not find the AuthP User you asked for.", nameof(userId).CamelToPascal());
+                return status.AddErrorString("UserNotFound", //common error
+                    "Could not find the User you asked for.", nameof(userId).CamelToPascal());
 
             authUser.UpdateIsDisabled(isDisabled);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -218,11 +225,13 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> AddNewUserAsync(string userId, string email,
             string userName, List<string> roleNames, string tenantName = null)
         {
-            var status = new StatusGenericHandler
-                { Message = $"Successfully added a AuthUser with the name {userName ?? email}" };
+            var status = new StatusGenericLocalizer<IAuthUsersAdminService>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".MethodMessageKey(),
+                $"Successfully added a AuthUser with the name {userName ?? email}");
 
             if (email != null && !email.IsValidEmail())
-                status.AddError($"The email '{email}' is not a valid email.");
+                status.AddErrorFormattedWithParams("InvalidEmail", //common 
+                    $"The email '{email}' is not a valid email.", nameof(email).CamelToPascal());
 
             //Find the tenant
             var foundTenant = string.IsNullOrEmpty(tenantName) || tenantName == CommonConstants.EmptyItemName
@@ -230,7 +239,8 @@ namespace AuthPermissions.AdminCode.Services
                 : await _context.Tenants.Include(x => x.TenantRoles)
                     .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
             if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyItemName && foundTenant == null)
-                status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
+                status.AddErrorFormattedWithParams("TenantNotFound", //common error
+                    $"A tenant with the name '{tenantName}' wasn't found.", nameof(tenantName).CamelToPascal());
 
             //Find/check the roles
             var rolesStatus = await FindCheckRolesAreValidForUserAsync(roleNames, foundTenant, userName ?? email);
@@ -267,7 +277,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
 
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<IAuthUsersAdminService>("en", _localizeDefault);
 
             var foundUserStatus = await FindAuthUserByUserIdAsync(userId);
             if (status.CombineStatuses(foundUserStatus).HasErrors)
@@ -281,7 +291,8 @@ namespace AuthPermissions.AdminCode.Services
             var authUserToUpdate = foundUserStatus.Result;
 
             if (email != null && !email.IsValidEmail())
-                status.AddError($"The email '{email}' is not a valid email.");
+                status.AddErrorFormattedWithParams("InvalidEmail", //common error
+                    $"The email '{email}' is not a valid email.", nameof(email).CamelToPascal());
 
             //Now we update the existing AuthUser's email and userName
             authUserToUpdate.ChangeUserNameAndEmailWithChecks(email, userName);
@@ -303,8 +314,9 @@ namespace AuthPermissions.AdminCode.Services
                         .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
 
                 if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyItemName && foundTenant == null)
-                    return status.AddError($"A tenant with the name '{tenantName}' wasn't found.");
-            
+                    status.AddErrorFormattedWithParams("TenantNotFound", //common error
+                        $"A tenant with the name '{tenantName}' wasn't found.", nameof(email).CamelToPascal());
+
                 authUserToUpdate.UpdateUserTenant(foundTenant);
             }
 
@@ -338,17 +350,19 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteUserAsync(string userId)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<IAuthUsersAdminService>("en", _localizeDefault);
 
             var authUser = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                return status.AddError("Could not find the user you were looking for.", nameof(userId).CamelToPascal());
+                return status.AddErrorString("UserNotFound", //common error
+                    "Could not find the User you asked for.", nameof(userId).CamelToPascal());
 
             _context.Remove(authUser);
             status.CombineStatuses( await _context.SaveChangesWithChecksAsync());
 
-            status.Message = $"Successfully deleted the user {authUser.UserName ?? authUser.Email}.";
+            status.SetMessageFormatted("Success".MethodMessageKey(),
+                $"Successfully deleted the user {authUser.UserName ?? authUser.Email}.");
 
             return status;
         }
@@ -361,7 +375,7 @@ namespace AuthPermissions.AdminCode.Services
         /// It creates a list of all the changes (add, update, remove) than need to be applied to the AuthUsers.
         /// This is shown to the admin user to check, and fill in the Roles/Tenant parts for new users
         /// </summary>
-        /// <returns>Status, if valid then it contains a list of <see cref="SyncAuthUserWithChange"/>to display</returns>
+        /// <returns>A list of <see cref="SyncAuthUserWithChange"/>to display</returns>
         public async Task<List<SyncAuthUserWithChange>> SyncAndShowChangesAsync()
         {
             //This throws an exception if the developer hasn't configured the service
@@ -407,7 +421,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status</returns>
         public async Task<IStatusGeneric> ApplySyncChangesAsync(IEnumerable<SyncAuthUserWithChange> changesToApply)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<IAuthUsersAdminService>("en", _localizeDefault);
 
             foreach (var syncChange in changesToApply)
             {
@@ -439,7 +453,8 @@ namespace AuthPermissions.AdminCode.Services
             //Build useful summary
             var changeStrings = Enum.GetValues<SyncAuthUserChangeTypes>().ToList()
                 .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChangeType == x)}");
-            status.Message = $"Sync successful: {(string.Join(", ", changeStrings))}";
+            status.SetMessageFormatted("Success".MethodMessageKey(),
+                $"Sync successful: {(string.Join(", ", changeStrings))}");
 
             return status;
         }
@@ -457,7 +472,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <exception cref="NotImplementedException"></exception>
         private async Task<IStatusGeneric<List<RoleToPermissions>>> FindCheckRolesAreValidForUserAsync(List<string> roleNames, Tenant usersTenant, string userName)
         {
-            var status = new StatusGenericHandler<List<RoleToPermissions>>();
+            var status = new StatusGenericLocalizer<List<RoleToPermissions>, IAuthUsersAdminService>("en", _localizeDefault);
 
             if (roleNames == null || roleNames.SequenceEqual( new List<string> { CommonConstants.EmptyItemName }))
                 //If the only role is the empty item, then return no roles
@@ -471,21 +486,25 @@ namespace AuthPermissions.AdminCode.Services
             if (foundRoles.Count != (roleNames?.Count ?? 0))
             {
                 foreach (var badRoleName in roleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
-                    status.AddError($"The Role '{badRoleName}' was not found in the lists of Roles.");
+                    status.AddErrorFormatted("RoleNotFound".MethodMessageKey(),
+                        $"The Role '{badRoleName}' was not found in the lists of Roles.");
             }
 
             //Check that the Roles are allowed for this user
             foreach (var foundRole in foundRoles)
             {
                 if (usersTenant == null && foundRole.RoleType == RoleTypes.TenantAdminAdd)
-                    status.AddError($"The role '{foundRole.RoleName}' isn't allowed to a non-tenant user.");
+                    status.AddErrorFormatted("NonTenantNotAllowed".MethodMessageKey(),
+                        $"The role '{foundRole.RoleName}' isn't allowed to a non-tenant user.");
 
                 if (usersTenant != null && foundRole.RoleType == RoleTypes.HiddenFromTenant)
-                    status.AddError($"The role '{foundRole.RoleName}' isn't allowed to tenant user.");
+                    status.AddErrorFormatted("TenantNotAllowed".MethodMessageKey(), 
+                        $"The role '{foundRole.RoleName}' isn't allowed to tenant user.");
                 
                 if (usersTenant != null && foundRole.RoleType == RoleTypes.TenantAdminAdd
                     && !usersTenant.TenantRoles.Contains(foundRole))
-                    status.AddError($"The role '{foundRole.RoleName}' wasn't found in the tenant '{usersTenant.TenantFullName}' tenant roles.");
+                    status.AddErrorFormatted("RoleNotFoundTenant".MethodMessageKey(), 
+                        $"The role '{foundRole.RoleName}' wasn't found in the tenant '{usersTenant.TenantFullName}' tenant roles.");
             }
 
             status.SetResult(foundRoles);

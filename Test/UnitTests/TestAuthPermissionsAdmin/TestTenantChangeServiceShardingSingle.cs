@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -19,6 +20,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestTenantChangeServiceShardingSingle
     {
+        private readonly AuthPermissionsOptions _authOptionsSingleSharding =
+            new() { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding };
+
         private readonly ITestOutputHelper _output;
 
         public TestTenantChangeServiceShardingSingle(ITestOutputHelper output)
@@ -36,7 +40,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -60,7 +64,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -86,7 +90,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -108,7 +112,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -131,7 +135,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -153,7 +157,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -175,7 +179,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -203,7 +207,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding },
+                _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
                 changeServiceFactory, null);
 
             var preStatus = await service.AddSingleTenantAsync("Tenant4", null, true, "Other Database");

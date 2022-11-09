@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Test.StubClasses;
@@ -45,8 +46,8 @@ public class TestExample2RoleChangedDetectorService
         context.ChangeTracker.Clear();
         stubFsCache.ClearAll();
 
-        var authAdmin = new AuthUsersAdminService(context, 
-            new StubSyncAuthenticationUsersFactory(), authOptions);
+        var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
+            authOptions, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
         //ATTEMPT
         var users = authAdmin.QueryAuthUsers().Include(x => x.UserRoles).ToList();
@@ -75,8 +76,8 @@ public class TestExample2RoleChangedDetectorService
         context.ChangeTracker.Clear();
         stubFsCache.ClearAll();
 
-        var authAdmin = new AuthUsersAdminService(context,
-            new StubSyncAuthenticationUsersFactory(), authOptions);
+        var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(),
+            authOptions, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
         //ATTEMPT
         await authAdmin.UpdateUserAsync("User1", roleNames: new List<string> { "Role1", "Role2" });
@@ -108,8 +109,8 @@ public class TestExample2RoleChangedDetectorService
         context.ChangeTracker.Clear();
         stubFsCache.ClearAll();
 
-        var authAdmin = new AuthUsersAdminService(context,
-            new StubSyncAuthenticationUsersFactory(), authOptions);
+        var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(),
+            authOptions, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
         //ATTEMPT
         await authAdmin.UpdateUserAsync("User3", roleNames: new List<string> { "Role1" });
@@ -141,8 +142,8 @@ public class TestExample2RoleChangedDetectorService
         context.ChangeTracker.Clear();
         stubFsCache.ClearAll();
 
-        var authAdmin = new AuthUsersAdminService(context,
-            new StubSyncAuthenticationUsersFactory(), authOptions);
+        var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(),
+            authOptions, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
         //ATTEMPT
         await authAdmin.UpdateUserAsync("User2", roleNames: new List<string> { });
@@ -174,7 +175,7 @@ public class TestExample2RoleChangedDetectorService
         context.ChangeTracker.Clear();
         stubFsCache.ClearAll();
 
-        var rolesAdmin = new AuthRolesAdminService(context, authOptions);
+        var rolesAdmin = new AuthRolesAdminService(context, authOptions, new StubLocalizeWithDefault<IAuthRolesAdminService>());
 
         //ATTEMPT
         await rolesAdmin.UpdateRoleToPermissionsAsync("Role2", new List<string> { "One", "Three" }, null);

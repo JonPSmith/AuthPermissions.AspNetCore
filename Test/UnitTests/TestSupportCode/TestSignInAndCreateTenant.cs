@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
@@ -40,8 +41,10 @@ public class TestSignInAndCreateTenant
         {
             TenantType = tenantType
         };
-        var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), authOptions);
-        var tenantAdmin = new AuthTenantAdminService(context, authOptions, new StubITenantChangeServiceFactory(), null);
+        var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
+            authOptions, new StubLocalizeWithDefault<IAuthUsersAdminService>());
+        var tenantAdmin = new AuthTenantAdminService(context, authOptions,
+            new StubLocalizeWithDefault<IAuthTenantAdminService>(), new StubITenantChangeServiceFactory(), null); 
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
             new StubAddNewUserManager(userAdmin, tenantAdmin), new StubIGetDatabaseForNewTenant());
 

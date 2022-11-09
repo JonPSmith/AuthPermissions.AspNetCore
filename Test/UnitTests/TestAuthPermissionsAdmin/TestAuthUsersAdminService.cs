@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
+using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
@@ -12,6 +13,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.EntityFrameworkCore;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -22,6 +24,9 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestAuthUsersAdminService
     {
+        private readonly AuthPermissionsOptions _authOptionsSingle =
+            new() { TenantType = TenantTypes.SingleLevel };
+
         private readonly ITestOutputHelper _output;
 
         public TestAuthUsersAdminService(ITestOutputHelper output)
@@ -41,7 +46,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions{TenantType = TenantTypes.SingleLevel});
+            var service = new AuthUsersAdminService(context, null, 
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var users = service.QueryAuthUsers()
@@ -71,7 +77,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var status = await service.FindAuthUserByUserIdAsync("User1");
@@ -93,7 +100,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var status = await service.FindAuthUserByEmailAsync("User1@gmail.com");
@@ -115,7 +123,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var status = await service.UpdateDisabledAsync("User2", true);
@@ -148,7 +157,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var roleNames = await service.GetRoleNamesForUsersAsync("User2",addNone);
@@ -180,7 +190,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var status = await service.AddNewUserAsync("UserId", "User1@g.com", null,
@@ -206,7 +217,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
             var authUser = (await service.FindAuthUserByEmailAsync("User1@gmail.com")).Result;
 
             //ATTEMPT
@@ -241,7 +253,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
@@ -277,7 +290,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SaveChanges();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
             var authUser = (await service.FindAuthUserByUserIdAsync("User1")).Result;
 
             //ATTEMPT
@@ -305,7 +319,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
@@ -334,7 +349,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.SetupSingleTenantsInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthUsersAdminService(context, null, new AuthPermissionsOptions { TenantType = TenantTypes.SingleLevel });
+            var service = new AuthUsersAdminService(context, null,
+                _authOptionsSingle, new StubLocalizeWithDefault<IAuthUsersAdminService>());
 
             //ATTEMPT
             var status = await service.DeleteUserAsync(userId);
@@ -343,7 +359,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             status.IsValid.ShouldEqual(isValid);
             _output.WriteLine(status.Message);
             if (!isValid)
-                status.GetAllErrors().ShouldEqual("Could not find the user you were looking for.");
+                status.GetAllErrors().ShouldEqual("Could not find the User you asked for.");
         }
     }
 }
