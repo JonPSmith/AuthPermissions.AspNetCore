@@ -359,7 +359,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+                new StubLocalizeWithDefault<IAuthTenantAdminService>(false),
                 new StubITenantChangeServiceFactory("error from TenantChangeService"), null);
 
             //ATTEMPT

@@ -502,11 +502,13 @@ namespace AuthPermissions.AdminCode.Services
                     return status.AddErrorString(null, errorString); //we assume the tenantChangeService localized its messages
 
                 status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
-                FormattableString toWhere = $"top level.";
                 if (parentTenant != null)
-                    toWhere = $"the new named '{existingTenantWithChildren.TenantFullName}'.";
-                status.SetMessageFormatted("Success".MethodMessageKey(), 
-                   $"Successfully moved the tenant originally named '{originalName}' to ", toWhere);
+                    status.SetMessageFormatted("Success-ToTenant".MethodMessageKey(),
+                        $"Successfully moved the tenant originally named '{originalName}' to ",
+                        $"the new named '{existingTenantWithChildren.TenantFullName}'.");
+                else 
+                    status.SetMessageFormatted("Success-ToTop".MethodMessageKey(), 
+                   $"Successfully moved the tenant originally named '{originalName}' to top level.");
 
                 if (status.IsValid)
                     await transaction.CommitAsync();

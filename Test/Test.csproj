@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="appsettings.json" />
     <None Remove="TestData\combinedshardingsettings.json" />
     <None Remove="TestData\example3-appsettings.json" />
   </ItemGroup>
@@ -50,6 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="UnitCommands\" />
     <Folder Include="UnitTests\TestIssues\" />
   </ItemGroup>
 
