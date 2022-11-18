@@ -10,11 +10,11 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DistributedLock" Version="2.3.1" />
-    <PackageReference Include="EfCore.TestSupport" Version="5.2.2" />
+    <PackageReference Include="DistributedLock" Version="2.3.2" />
+    <PackageReference Include="EfCore.TestSupport" Version="5.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.Graph" Version="4.37.0" />
-    <PackageReference Include="Net.DistributedFileStoreCache" Version="1.1.0" />
+    <PackageReference Include="Net.DistributedFileStoreCache" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

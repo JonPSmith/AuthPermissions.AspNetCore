@@ -20,22 +20,22 @@
     <dependencies>
       <group targetFramework="net6.0">
         <dependency id="GenericServices.StatusGeneric" version="1.1.0" />
-        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="6.0.8" />
-        <dependency id="Microsoft.Data.Sqlite.Core" version="6.0.8" />
-        <dependency id="Microsoft.EntityFrameworkCore" version="6.0.8" />
-        <dependency id="Microsoft.EntityFrameworkCore.InMemory" version="6.0.8" />
-        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="6.0.8" />
-        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="6.0.8" />
-        <dependency id="Microsoft.EntityFrameworkCore.Tools" version="6.0.8" />
+        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="6.0.11" />
+        <dependency id="Microsoft.Data.Sqlite.Core" version="6.0.11" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="6.0.11" />
+        <dependency id="Microsoft.EntityFrameworkCore.InMemory" version="6.0.11" />
+        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="6.0.11" />
+        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="6.0.11" />
+        <dependency id="Microsoft.EntityFrameworkCore.Tools" version="6.0.11" />
         <dependency id="Microsoft.Extensions.Hosting" version="6.0.1" />
         <dependency id="Net.RunMethodsSequentially" version="1.3.1" />
         <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="6.0.6" />
-        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="6.0.8" />
+        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="6.0.11" />
         <dependency id="Microsoft.AspNetCore.Authorization" version="6.0.8" />
         <dependency id="Microsoft.AspNetCore.Http" version="2.2.2" />
         <dependency id="EntityFrameworkCore.Exceptions.PostgreSQL" version="6.0.3" />
-        <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="6.0.3" />
-        <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.3" />
+        <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="6.0.11" />
+        <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.11" />
         <dependency id="DistributedLock" version="2.3.1" />
         <dependency id="EfCore.TestSupport" version="5.2.2" />
         <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
