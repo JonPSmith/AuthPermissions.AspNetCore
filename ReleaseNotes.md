@@ -1,5 +1,10 @@
 # Release Notes
 
+## 4.0.0
+
+- Improved feature: Now supports .NET 7
+- Simplication (non-breaking): All tenant version now have a `DataKey` of length of 250.
+
 ## 3.5.0
 
 - BREAKING CHANGE (small): The DisableJwtRefreshToken service has been updated to handle multiple logins from one user
