@@ -32,7 +32,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             var filter = methodToCall.Invoke(null, new object[] { dataKey });
             entityData.SetQueryFilter((LambdaExpression)filter);
             entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetIsUnicode(false); //Make unicode
-            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(12);    //and small for single multi-tenant
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(AuthDbConstants.TenantDataKeySize);
             entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadWrite.DataKey)));
         }
 
@@ -59,7 +59,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             var filter = methodToCall.Invoke(null, new object[] { dataKey });
             entityData.SetQueryFilter((LambdaExpression) filter);
             entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetIsUnicode(false); //Make unicode
-            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(AuthDbConstants.TenantDataKeySize);    //and small for single multi-tenant
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(AuthDbConstants.TenantDataKeySize);
             entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadOnly.DataKey)));
         }
 
@@ -88,8 +88,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             var filter = methodToCall.Invoke(null, new object[] { dataKey });
             entityData.SetQueryFilter((LambdaExpression)filter);
             entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetIsUnicode(false); //Make unicode
-            var dataKeySize = Math.Max(12, MultiTenantExtensions.DataKeyNoQueryFilter.Length);
-            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(dataKeySize);    //size must contain "no query" string
+            entityData.GetProperty(nameof(IDataKeyFilterReadWrite.DataKey)).SetMaxLength(AuthDbConstants.TenantDataKeySize);
             entityData.AddIndex(entityData.FindProperty(nameof(IDataKeyFilterReadWrite.DataKey)));
         }
 
