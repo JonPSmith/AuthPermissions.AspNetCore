@@ -3,7 +3,7 @@
 ## 4.0.0
 
 - Improved feature: Now supports .NET 7
-- Change (non-breaking): All tenant version now have a `DataKey` of length of 250. 
+- Simplication (non-breaking): All tenant version now have a `DataKey` of length of 250.
 
 ## 3.5.0
 
