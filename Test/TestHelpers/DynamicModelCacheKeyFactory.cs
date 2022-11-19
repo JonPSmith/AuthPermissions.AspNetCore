@@ -9,7 +9,7 @@ namespace Test.TestHelpers;
 
 public class DynamicModelCacheKeyFactory : IModelCacheKeyFactory
 {
-    public object Create(DbContext context)
+    public object Create(DbContext context, bool designTime = true)
         => context is AuthPermissionsDbContext dynamicContext
             ? (context.GetType(), dynamicContext.ProviderName)
             : (object)context.GetType();
