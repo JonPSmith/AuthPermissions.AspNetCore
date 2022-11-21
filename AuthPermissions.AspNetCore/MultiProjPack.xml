@@ -10,7 +10,8 @@
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-- Improved feature: Now supports .NET6 and .NET 7 frameworks.
+- Now supports .NET6 and .NET 7 frameworks.
+- Updated all the .NET 6 NuGets to the latest versions.
 - Simplification (non-breaking): All tenant version now have a `DataKey` of length of 250.
 	</releaseNotes>
     <license type="expression">MIT</license>
