@@ -19,7 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-    <PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview007" />
+    <PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview013" />
     <PackageReference Include="Net.RunMethodsSequentially" Version="2.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
   </ItemGroup>
@@ -37,6 +37,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview013" />
 		<PackageReference Include="Net.RunMethodsSequentially" Version="2.0.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.0" />
 	</ItemGroup>
