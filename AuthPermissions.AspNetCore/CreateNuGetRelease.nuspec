@@ -2,16 +2,15 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>3.5.0</version>
+    <version>4.0.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-- BREAKING CHANGE (small): The DisableJwtRefreshToken service has been updated to handle multiple logins from one user
-- BREAKING CHANGE (small): Changed TenantChangeCookieEvent name to SomethingChangedCookieEvent
-- Improved feature: AuthPermissionsDbContext now takes multiple IDatabaseStateChangeEvent
-- Improved feature: No AuthP database event change listeners will be triggered during bulk loading
+- Now supports .NET6 and .NET 7 frameworks.
+- Updated all the .NET 6 NuGets to the latest versions.
+- Simplification (non-breaking): All tenant version now have a `DataKey` of length of 250.
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
@@ -19,7 +18,7 @@
     <tags>ASP.NET Core, Entity Framework Core</tags>
     <dependencies>
       <group targetFramework="net6.0">
-        <dependency id="GenericServices.StatusGeneric" version="1.1.0" />
+        <dependency id="GenericServices.StatusGeneric" version="1.2.0" />
         <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="6.0.11" />
         <dependency id="Microsoft.Data.Sqlite.Core" version="6.0.11" />
         <dependency id="Microsoft.EntityFrameworkCore" version="6.0.11" />
@@ -30,17 +29,17 @@
         <dependency id="Microsoft.Extensions.Hosting" version="6.0.1" />
         <dependency id="Net.RunMethodsSequentially" version="1.3.1" />
         <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="6.0.6" />
-        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="6.0.11" />
+        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="6.0.8" />
         <dependency id="Microsoft.AspNetCore.Authorization" version="6.0.8" />
         <dependency id="Microsoft.AspNetCore.Http" version="2.2.2" />
         <dependency id="EntityFrameworkCore.Exceptions.PostgreSQL" version="6.0.3" />
-        <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="6.0.11" />
-        <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.11" />
+        <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="6.0.3" />
+        <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.3" />
         <dependency id="DistributedLock" version="2.3.1" />
         <dependency id="EfCore.TestSupport" version="5.2.2" />
         <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
         <dependency id="Microsoft.Graph" version="4.37.0" />
-        <dependency id="Net.DistributedFileStoreCache" version="1.1.0" />
+        <dependency id="Net.DistributedFileStoreCache" version="2.0.0" />
       </group>
     </dependencies>
   </metadata>
@@ -48,19 +47,37 @@
     <file src="..\AuthPermissions\bin\Release\net6.0\AuthPermissions.dll" target="lib\net6.0" />
     <file src="..\AuthPermissions\bin\Release\net6.0\AuthPermissions.xml" target="lib\net6.0" />
     <file src="..\AuthPermissions\bin\Release\net6.0\AuthPermissions.pdb" target="lib\net6.0" />
+    <file src="..\AuthPermissions\bin\Release\net7.0\AuthPermissions.dll" target="lib\net7.0" />
+    <file src="..\AuthPermissions\bin\Release\net7.0\AuthPermissions.xml" target="lib\net7.0" />
+    <file src="..\AuthPermissions\bin\Release\net7.0\AuthPermissions.pdb" target="lib\net7.0" />
     <file src="..\AuthPermissions.AspNetCore\bin\Release\net6.0\AuthPermissions.AspNetCore.dll" target="lib\net6.0" />
     <file src="..\AuthPermissions.AspNetCore\bin\Release\net6.0\AuthPermissions.AspNetCore.xml" target="lib\net6.0" />
     <file src="..\AuthPermissions.AspNetCore\bin\Release\net6.0\AuthPermissions.AspNetCore.pdb" target="lib\net6.0" />
+    <file src="..\AuthPermissions.AspNetCore\bin\Release\net7.0\AuthPermissions.AspNetCore.dll" target="lib\net7.0" />
+    <file src="..\AuthPermissions.AspNetCore\bin\Release\net7.0\AuthPermissions.AspNetCore.xml" target="lib\net7.0" />
+    <file src="..\AuthPermissions.AspNetCore\bin\Release\net7.0\AuthPermissions.AspNetCore.pdb" target="lib\net7.0" />
     <file src="..\AuthPermissions.BaseCode\bin\Release\net6.0\AuthPermissions.BaseCode.dll" target="lib\net6.0" />
     <file src="..\AuthPermissions.BaseCode\bin\Release\net6.0\AuthPermissions.BaseCode.xml" target="lib\net6.0" />
     <file src="..\AuthPermissions.BaseCode\bin\Release\net6.0\AuthPermissions.BaseCode.pdb" target="lib\net6.0" />
+    <file src="..\AuthPermissions.BaseCode\bin\Release\net7.0\AuthPermissions.BaseCode.dll" target="lib\net7.0" />
+    <file src="..\AuthPermissions.BaseCode\bin\Release\net7.0\AuthPermissions.BaseCode.xml" target="lib\net7.0" />
+    <file src="..\AuthPermissions.BaseCode\bin\Release\net7.0\AuthPermissions.BaseCode.pdb" target="lib\net7.0" />
     <file src="..\AuthPermissions.PostgreSql\bin\Release\net6.0\AuthPermissions.PostgreSql.dll" target="lib\net6.0" />
+    <file src="..\AuthPermissions.PostgreSql\bin\Release\net6.0\AuthPermissions.PostgreSql.xml" target="lib\net6.0" />
     <file src="..\AuthPermissions.PostgreSql\bin\Release\net6.0\AuthPermissions.PostgreSql.pdb" target="lib\net6.0" />
+    <file src="..\AuthPermissions.PostgreSql\bin\Release\net7.0\AuthPermissions.PostgreSql.dll" target="lib\net7.0" />
+    <file src="..\AuthPermissions.PostgreSql\bin\Release\net7.0\AuthPermissions.PostgreSql.xml" target="lib\net7.0" />
+    <file src="..\AuthPermissions.PostgreSql\bin\Release\net7.0\AuthPermissions.PostgreSql.pdb" target="lib\net7.0" />
     <file src="..\AuthPermissions.SqlServer\bin\Release\net6.0\AuthPermissions.SqlServer.dll" target="lib\net6.0" />
     <file src="..\AuthPermissions.SqlServer\bin\Release\net6.0\AuthPermissions.SqlServer.pdb" target="lib\net6.0" />
+    <file src="..\AuthPermissions.SqlServer\bin\Release\net7.0\AuthPermissions.SqlServer.dll" target="lib\net7.0" />
+    <file src="..\AuthPermissions.SqlServer\bin\Release\net7.0\AuthPermissions.SqlServer.pdb" target="lib\net7.0" />
     <file src="..\AuthPermissions.SupportCode\bin\Release\net6.0\AuthPermissions.SupportCode.dll" target="lib\net6.0" />
     <file src="..\AuthPermissions.SupportCode\bin\Release\net6.0\AuthPermissions.SupportCode.xml" target="lib\net6.0" />
     <file src="..\AuthPermissions.SupportCode\bin\Release\net6.0\AuthPermissions.SupportCode.pdb" target="lib\net6.0" />
+    <file src="..\AuthPermissions.SupportCode\bin\Release\net7.0\AuthPermissions.SupportCode.dll" target="lib\net7.0" />
+    <file src="..\AuthPermissions.SupportCode\bin\Release\net7.0\AuthPermissions.SupportCode.xml" target="lib\net7.0" />
+    <file src="..\AuthPermissions.SupportCode\bin\Release\net7.0\AuthPermissions.SupportCode.pdb" target="lib\net7.0" />
     <file src="..\AuthPermissions.AspNetCore\images\AuthPermissionsAspNetCoreNuGetIcon.png" target="images\" />
   </files>
 </package>

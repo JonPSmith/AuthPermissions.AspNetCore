@@ -1,15 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+	  <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	</PropertyGroup>
-
-  <ItemGroup>
+	<ItemGroup>
     <PackageReference Include="DistributedLock" Version="2.3.2" />
     <PackageReference Include="EfCore.TestSupport" Version="5.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
@@ -17,7 +14,7 @@
     <PackageReference Include="Net.DistributedFileStoreCache" Version="2.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <ProjectReference Include="..\AuthPermissions.AspNetCore\AuthPermissions.AspNetCore.csproj" />
     <ProjectReference Include="..\AuthPermissions.BaseCode\AuthPermissions.BaseCode.csproj" />
   </ItemGroup>
