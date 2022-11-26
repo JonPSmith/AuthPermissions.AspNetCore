@@ -8,7 +8,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -18,6 +18,7 @@ namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
 /// This service defines the admin command to implement the "Access the data of other tenant" feature - see issue #10
 /// It handles the creating, accessing and removing a cookie that carries the DataKey and Name of the tenant to want to access
 /// </summary>
+[LocalizeSetClassName("LinkToTenantDataService")] //This makes the "class" of the localizeKey is shortened to the given name 
 public class LinkToTenantDataService : ILinkToTenantDataService
 {
     private readonly AuthPermissionsDbContext _context;
@@ -25,6 +26,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     private readonly IAccessTenantDataCookie _cookieAccessor;
 
     private readonly IEncryptDecryptService _encryptorService;
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// Ctor
@@ -33,16 +35,18 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     /// <param name="options"></param>
     /// <param name="cookieAccessor"></param>
     /// <param name="encryptorService"></param>
+    /// <param name="localizeDefault"></param>
     public LinkToTenantDataService( 
         AuthPermissionsDbContext context,
         AuthPermissionsOptions options,
         IAccessTenantDataCookie cookieAccessor,
-        IEncryptDecryptService encryptorService)
+        IEncryptDecryptService encryptorService, ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
         _context = context;
         _options = options;
         _cookieAccessor = cookieAccessor;
         _encryptorService = encryptorService;
+        _localizeDefault = localizeDefault;
     }
 
     /// <summary>
@@ -55,7 +59,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     /// <exception cref="AuthPermissionsException"></exception>
     public async Task<IStatusGeneric> StartLinkingToTenantDataAsync(string currentUserId, int tenantId)
     {
-        var status = new StatusGenericHandler();
+        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
 
         if (_options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
             throw new AuthPermissionsException(
@@ -63,7 +67,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
         var user = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == currentUserId);
         if (user == null)
-            return status.AddError("Could not find the user you were looking for.");
+            return status.AddErrorString("UserNotFound".ClassLocalizeKey(this), "Could not find the user you were looking for.");
 
         if (user.TenantId != null && _options.LinkToTenantType != LinkToTenantTypes.AppAndHierarchicalUsers)
             throw new AuthPermissionsException(
@@ -72,14 +76,15 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
         var tenantToLinkTo = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == tenantId);
         if (tenantToLinkTo == null)
-            return status.AddError("Could not find the tenant you were looking for.");
+            return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this), "Could not find the tenant you were looking for.");
 
         if (status.HasErrors)
             return status;
 
         _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _options.NumMinutesBeforeCookieTimesOut);
 
-        status.Message = $"You are now linked the the data of the tenant called '{tenantToLinkTo.TenantFullName}'";
+        status.SetMessageString("Success".ClassLocalizeKey(this), 
+            $"You are now linked the the data of the tenant called '{tenantToLinkTo.TenantFullName}'");
         return status;
     }
 

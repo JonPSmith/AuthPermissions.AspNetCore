@@ -40,7 +40,7 @@ namespace Test.UnitTests.TestExamples
             await authPContext.BulkLoadHierarchicalTenantInDbAsync();
             var tenantService = new AuthTenantAdminService(authPContext, 
                 new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant}, 
-                new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+                new StubLocalizeWithDefault<LocalizeResources>(),
                 null, null);
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();
@@ -69,7 +69,7 @@ namespace Test.UnitTests.TestExamples
             await authPContext.BulkLoadHierarchicalTenantInDbAsync();
             var tenantService = new AuthTenantAdminService(authPContext,
                 new AuthPermissionsOptions { TenantType = TenantTypes.HierarchicalTenant },
-                new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+                new StubLocalizeWithDefault<LocalizeResources>(),
                 null, null);
 
             var rOptions = SqliteInMemory.CreateOptions<RetailDbContext>();

@@ -1,11 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
@@ -23,11 +19,12 @@ namespace AuthPermissions.AdminCode.Services
     /// <summary>
     /// This provides CRUD services for tenants
     /// </summary>
+    [LocalizeSetClassName("TenantAdmin")] //This makes the "class" of the localizeKey is shortened to the given name 
     public class AuthTenantAdminService : IAuthTenantAdminService
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly AuthPermissionsOptions _options;
-        private readonly ILocalizeWithDefault<IAuthTenantAdminService> _localizeDefault;
+        private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
         private readonly IAuthPServiceFactory<ITenantChangeService> _tenantChangeServiceFactory;
         private readonly ILogger _logger;
 
@@ -43,7 +40,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="logger"></param>
         public AuthTenantAdminService(AuthPermissionsDbContext context, 
             AuthPermissionsOptions options,
-            ILocalizeWithDefault<IAuthTenantAdminService> localizeDefault,
+            ILocalizeWithDefault<LocalizeResources> localizeDefault,
             IAuthPServiceFactory<ITenantChangeService> tenantChangeServiceFactory,
             ILogger<AuthTenantAdminService> logger)
         {
@@ -95,14 +92,14 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status. If successful, then contains the Tenant</returns>
         public async Task<IStatusGeneric<Tenant>> GetTenantViaIdAsync(int tenantId)
         {
-            var status = new StatusGenericLocalizer<Tenant, IAuthTenantAdminService>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
 
             var result = await _context.Tenants
                 .Include(x => x.Parent)
                 .Include(x => x.TenantRoles)
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
             return result == null 
-                ? status.AddErrorString("TenantNotFound", //common error
+                ? status.AddErrorString("TenantNotFound".MethodLocalizeKey(this), //common error
                     "Could not find the tenant you were looking for.") 
                 : status.SetResult(result);
         }
@@ -140,8 +137,8 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<Tenant>> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
             bool? hasOwnDb = null, string databaseInfoName = null)
         {
-            var status = new StatusGenericLocalizer<Tenant, IAuthTenantAdminService>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".MethodMessageKey(), $"Successfully added the new tenant {tenantName}.");
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this), $"Successfully added the new tenant {tenantName}.");
 
             if (!_tenantType.IsSingleLevel())
                 throw new AuthPermissionsException(
@@ -163,7 +160,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (_tenantType.IsSharding())
                 {
                     if (hasOwnDb == null)
-                        status.AddErrorString("HasOwnDbInvalid".MethodMessageKey(),
+                        status.AddErrorString("HasOwnDbInvalid".ClassMethodLocalizeKey(this),
                             $"The {nameof(hasOwnDb)} parameter must be set to true or false when sharding is turned on.",
                             nameof(hasOwnDb).CamelToPascal());
                     else
@@ -185,7 +182,7 @@ namespace AuthPermissions.AdminCode.Services
 
                 var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result);
                 if (errorString != null)
-                    return status.AddErrorString(null, errorString); //we assume the tenantChangeService localized its messages
+                    return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
 
                 await transaction.CommitAsync();
             }
@@ -195,7 +192,7 @@ namespace AuthPermissions.AdminCode.Services
                     throw;
 
                 _logger.LogError(e, $"Failed to {e.Message}");
-                return status.AddErrorString("ExceptionFail", //same as in Hierarchical
+                return status.AddErrorString("ExceptionFail".ClassLocalizeKey(this), //same as in Hierarchical
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
@@ -214,13 +211,13 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<Tenant>> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
             List<string> tenantRoleNames = null, bool? hasOwnDb = false, string databaseInfoName = null)
         {
-            var status = new StatusGenericLocalizer<Tenant, IAuthTenantAdminService>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
 
             if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} before you can use tenants");
             if (tenantName.Contains('|'))
-                return status.AddErrorString("BadChar".MethodMessageKey(),
+                return status.AddErrorString("BadChar".ClassMethodLocalizeKey(this),
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
                         nameof(tenantName).CamelToPascal());
 
@@ -235,7 +232,7 @@ namespace AuthPermissions.AdminCode.Services
                     //We need to find the parent
                     parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
                     if (parentTenant == null)
-                        return status.AddErrorString("ParentNotFound".MethodMessageKey(), 
+                        return status.AddErrorString("ParentNotFound".ClassMethodLocalizeKey(this), 
                             "Could not find the parent tenant you asked for.");
 
                     if (!parentTenant.IsHierarchical)
@@ -244,7 +241,7 @@ namespace AuthPermissions.AdminCode.Services
                 }
 
                 var fullTenantName = Tenant.CombineParentNameWithTenantName(tenantName, parentTenant?.TenantFullName);
-                status.SetMessageFormatted("Success".MethodMessageKey(), 
+                status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this), 
                     $"Successfully added the new hierarchical tenant {fullTenantName}.");
 
                 var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
@@ -263,7 +260,7 @@ namespace AuthPermissions.AdminCode.Services
                         //But to make sure the user thinks their values are used we send back errors if they are different 
 
                         if (hasOwnDb != null && parentTenant.HasOwnDb != hasOwnDb)
-                            status.AddErrorFormattedWithParams("InvalidHasOwnDb".MethodMessageKey(),
+                            status.AddErrorFormattedWithParams("InvalidHasOwnDb".ClassMethodLocalizeKey(this),
                                 new FormattableString[]
                                 {
                                     $"The {nameof(hasOwnDb)} parameter doesn't match the parent's ",
@@ -274,7 +271,7 @@ namespace AuthPermissions.AdminCode.Services
 
                         if (databaseInfoName != null &&
                             parentTenant.DatabaseInfoName != databaseInfoName)
-                            status.AddErrorFormattedWithParams("InvalidDatabaseInfoName".MethodMessageKey(),
+                            status.AddErrorFormattedWithParams("InvalidDatabaseInfoName".ClassMethodLocalizeKey(this),
                                 new FormattableString[]
                                 {
                                     $"The {nameof(databaseInfoName)} parameter doesn't match the parent's ",
@@ -293,7 +290,7 @@ namespace AuthPermissions.AdminCode.Services
                     {
 
                         if (hasOwnDb == null)
-                            return status.AddErrorString("hasOwnDbNotSet".MethodMessageKey(),
+                            return status.AddErrorString("hasOwnDbNotSet".ClassMethodLocalizeKey(this),
                                 $"The {nameof(hasOwnDb)} parameter must be set to true or false if there is no parent and sharding is turned on.",
                                 nameof(hasOwnDb).CamelToPascal());
 
@@ -316,7 +313,7 @@ namespace AuthPermissions.AdminCode.Services
 
                 var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result);
                 if (errorString != null)
-                    return status.AddErrorString(null, errorString); //we assume the tenantChangeService localized its messages
+                    return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
 
                 await transaction.CommitAsync();
             }
@@ -326,7 +323,7 @@ namespace AuthPermissions.AdminCode.Services
                     throw;
 
                 _logger.LogError(e, $"Failed to {e.Message}");
-                return status.AddErrorString("ExceptionFail", //common message
+                return status.AddErrorString("ExceptionFail".ClassLocalizeKey(this), //common error in this class
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
@@ -345,14 +342,14 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} parameter in the AuthP's options");
 
-            var status = new StatusGenericLocalizer<Tenant, IAuthTenantAdminService>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".MethodMessageKey(), $"Successfully updated the tenant's Roles.");
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this), $"Successfully updated the tenant's Roles.");
 
             var tenant = await _context.Tenants.Include(x => x.TenantRoles)
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
             if (tenant == null)
-                return status.AddErrorString("TenantNotFound", //common error
+                return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this), //common error in this class
                     "Could not find the tenant you were looking for.");
 
             var tenantRolesStatus = await GetRolesWithChecksAsync(newTenantRoleNames);
@@ -377,14 +374,14 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns></returns>
         public async Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName)
         {
-            var status = new StatusGenericLocalizer<Tenant, IAuthTenantAdminService>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".MethodMessageKey(), $"Successfully updated the tenant's name to {newTenantName}.");
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this), $"Successfully updated the tenant's name to {newTenantName}.");
 
             if (string.IsNullOrEmpty(newTenantName))
-                return status.AddErrorString("TenantNameEmpty".MethodMessageKey(),
+                return status.AddErrorString("TenantNameEmpty".ClassMethodLocalizeKey(this),
                     "The new name was empty", nameof(newTenantName).CamelToPascal());
             if (newTenantName.Contains('|'))
-                return status.AddErrorString("TenantNameInvalid".MethodMessageKey(),
+                return status.AddErrorString("TenantNameInvalid".ClassMethodLocalizeKey(this),
                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
                         nameof(newTenantName).CamelToPascal());
 
@@ -397,7 +394,7 @@ namespace AuthPermissions.AdminCode.Services
                     .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
                 if (tenant == null)
-                    return status.AddErrorString("TenantNotFound", //common error
+                    return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this), //common error in this class
                         "Could not find the tenant you were looking for.");
 
                 if (tenant.IsHierarchical)
@@ -421,7 +418,7 @@ namespace AuthPermissions.AdminCode.Services
 
                     var errorString = await tenantChangeService.SingleTenantUpdateNameAsync(tenant);
                     if (errorString != null)
-                        return status.AddErrorString(null, errorString); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
                 }
 
                 status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -435,7 +432,7 @@ namespace AuthPermissions.AdminCode.Services
                     throw;
 
                 _logger.LogError(e, $"Failed to {e.Message}");
-                return status.AddErrorString("ExceptionFail", //common message
+                return status.AddErrorString("ExceptionFail".ClassLocalizeKey(this), //common error in this class
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
@@ -445,21 +442,21 @@ namespace AuthPermissions.AdminCode.Services
         /// <summary>
         /// This moves a hierarchical tenant to a new parent (which might be null). This changes the TenantFullName and the
         /// TenantDataKey of the selected tenant and all of its children
-        /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="IAuthTenantAdminService"/>
+        /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="LocalizeResources"/>
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
         /// <param name="newParentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
         /// <returns>status</returns>
         public async Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(int tenantToMoveId, int newParentTenantId)
         {
-            var status = new StatusGenericLocalizer<Tenant, IAuthTenantAdminService>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
 
             if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
                     $"You cannot add a hierarchical tenant because the tenant configuration is {_tenantType}");
 
             if (tenantToMoveId == newParentTenantId)
-                return status.AddErrorString("NoMoveToSelf".MethodMessageKey(),
+                return status.AddErrorString("NoMoveToSelf".ClassMethodLocalizeKey(this),
                     "You cannot move a tenant to itself.", nameof(tenantToMoveId).CamelToPascal());
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
@@ -486,11 +483,11 @@ namespace AuthPermissions.AdminCode.Services
                     //We need to find the parent
                     parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == newParentTenantId);
                     if (parentTenant == null)
-                        return status.AddErrorString("ParentNotFound".MethodMessageKey(),
+                        return status.AddErrorString("ParentNotFound".ClassMethodLocalizeKey(this),
                             "Could not find the parent tenant you asked for.");
 
                     if (tenantsWithChildren.Select(x => x.TenantFullName).Contains(parentTenant.TenantFullName))
-                        return status.AddErrorString("ParentIsChild".MethodMessageKey(), "You cannot move a tenant one of its children.",
+                        return status.AddErrorString("ParentIsChild".ClassMethodLocalizeKey(this), "You cannot move a tenant one of its children.",
                             nameof(newParentTenantId).CamelToPascal());
                 }
 
@@ -499,15 +496,15 @@ namespace AuthPermissions.AdminCode.Services
                 existingTenantWithChildren.MoveTenantToNewParent(parentTenant, tuple => listOfChanges.Add(tuple));
                 var errorString = await tenantChangeService.MoveHierarchicalTenantDataAsync(listOfChanges);
                 if (errorString != null)
-                    return status.AddErrorString(null, errorString); //we assume the tenantChangeService localized its messages
+                    return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
 
                 status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
                 if (parentTenant != null)
-                    status.SetMessageFormatted("Success-ToTenant".MethodMessageKey(),
+                    status.SetMessageFormatted("Success-ToTenant".ClassMethodLocalizeKey(this),
                         $"Successfully moved the tenant originally named '{originalName}' to ",
                         $"the new named '{existingTenantWithChildren.TenantFullName}'.");
                 else 
-                    status.SetMessageFormatted("Success-ToTop".MethodMessageKey(), 
+                    status.SetMessageFormatted("Success-ToTop".ClassMethodLocalizeKey(this), 
                    $"Successfully moved the tenant originally named '{originalName}' to top level.");
 
                 if (status.IsValid)
@@ -519,7 +516,7 @@ namespace AuthPermissions.AdminCode.Services
                     throw;
 
                 _logger.LogError(e, $"Failed to {e.Message}");
-                return status.AddErrorString("ExceptionFail", //common message
+                return status.AddErrorString("ExceptionFail".ClassLocalizeKey(this), //common error in this class
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
@@ -535,7 +532,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
         public async Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId)
         {
-            var status = new StatusGenericLocalizer<ITenantChangeService, IAuthTenantAdminService>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<ITenantChangeService, LocalizeResources>("en", _localizeDefault);
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
             status.SetResult(tenantChangeService);
@@ -550,7 +547,7 @@ namespace AuthPermissions.AdminCode.Services
                     .SingleOrDefaultAsync(x => x.TenantId == tenantId);
 
                 if (tenantToDelete == null)
-                    return status.AddErrorString("TenantNotFound", //common error
+                    return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this), //common error in this class
                         "Could not find the tenant you were looking for.");
 
                 var allTenantIdsAffectedByThisDelete = await _context.Tenants
@@ -570,7 +567,7 @@ namespace AuthPermissions.AdminCode.Services
                     : "tenant is";
                 if (usersOfThisTenant.Any())
                     usersOfThisTenant.ForEach(x =>
-                        status.AddErrorFormatted("BeingUsedAbort".MethodMessageKey(),
+                        status.AddErrorFormatted("BeingUsedAbort".ClassMethodLocalizeKey(this),
                             $"This delete is aborted because this {tenantOrChildren} linked to the user '{x}'."));
 
                 if (status.HasErrors)
@@ -592,7 +589,7 @@ namespace AuthPermissions.AdminCode.Services
 
                     var childError = await tenantChangeService.HierarchicalTenantDeleteAsync(tenantsInOrder);
                     if (childError != null)
-                        return status.AddErrorString(null, childError); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), childError); //we assume the tenantChangeService localized its messages
 
                     if (tenantsInOrder.Count > 0)
                     {
@@ -606,7 +603,7 @@ namespace AuthPermissions.AdminCode.Services
                     //delete the tenant that the user defines
                     var mainError = await tenantChangeService.SingleTenantDeleteAsync(tenantToDelete);
                     if (mainError != null)
-                        return status.AddErrorString(null, mainError); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), mainError); //we assume the tenantChangeService localized its messages
                     _context.Remove(tenantToDelete);
                 }
 
@@ -621,11 +618,11 @@ namespace AuthPermissions.AdminCode.Services
                     throw;
 
                 _logger.LogError(e, $"Failed to {e.Message}");
-                return status.AddErrorString("ExceptionFail", //common message
+                return status.AddErrorString("ExceptionFail".ClassLocalizeKey(this), //common error in this class
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
-            status.SetMessageFormatted(messageKey.MethodMessageKey(), messages.ToArray());
+            status.SetMessageFormatted(messageKey.ClassMethodLocalizeKey(this), messages.ToArray());
             return status;
         }
 
@@ -643,8 +640,8 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId, bool hasOwnDb,
             string databaseInfoName)
         {
-            var status = new StatusGenericLocalizer<ITenantChangeService, IAuthTenantAdminService>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".MethodMessageKey(),
+            var status = new StatusGenericLocalizer<ITenantChangeService, LocalizeResources>("en", _localizeDefault);
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
             $"Successfully moved the tenant to the database defined by the database information with the name '{databaseInfoName}'.");
 
             if (!_tenantType.IsSharding())
@@ -660,20 +657,20 @@ namespace AuthPermissions.AdminCode.Services
                     .SingleOrDefaultAsync(x => x.TenantId == tenantToMoveId);
 
                 if (tenant == null)
-                    return status.AddErrorString("TenantNotFound", //common error
+                    return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this), //common error in this class
                         "Could not find the tenant you were looking for.");
 
                 if (tenant.IsHierarchical && tenant.ParentDataKey != null)
-                    return status.AddErrorString("ChildIsInvalid".MethodMessageKey(),
+                    return status.AddErrorString("ChildIsInvalid".ClassMethodLocalizeKey(this),
                         "For hierarchical tenants you must provide the top tenant's TenantId, not a child tenant.");
 
                 if (tenant.DatabaseInfoName == databaseInfoName)
                 {
                     if (tenant.HasOwnDb == hasOwnDb)
-                        return status.AddErrorString("NoChange".MethodMessageKey(),
+                        return status.AddErrorString("NoChange".ClassMethodLocalizeKey(this),
                             "You didn't change any of the sharding parts, so nothing was changed.");
 
-                    status.SetMessageFormatted("SuccessNotMoved".MethodMessageKey(), 
+                    status.SetMessageFormatted("SuccessNotMoved".ClassMethodLocalizeKey(this), 
                         $"The tenant wasn't moved but its {nameof(Tenant.HasOwnDb)} was changed to {hasOwnDb}.");
                 }
 
@@ -693,7 +690,7 @@ namespace AuthPermissions.AdminCode.Services
                     var mainError = await tenantChangeService
                         .MoveToDifferentDatabaseAsync(previousDatabaseInfoName, previousDataKey, tenant);
                     if (mainError != null)
-                        return status.AddErrorString(null, mainError); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), mainError); //we assume the tenantChangeService localized its messages
                 }
 
                 if (status.IsValid)
@@ -705,7 +702,7 @@ namespace AuthPermissions.AdminCode.Services
                     throw;
 
                 _logger.LogError(e, $"Failed to {e.Message}");
-                return status.AddErrorString("ExceptionFail", //common message
+                return status.AddErrorString("ExceptionFail".ClassLocalizeKey(this), //common error in this class
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
@@ -723,14 +720,14 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         private async Task<IStatusGeneric> CheckHasOwnDbIsValidAsync(bool hasOwnDb, string databaseInfoName)
         {
-            var status = new StatusGenericLocalizer<IAuthTenantAdminService>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
             if (!hasOwnDb)
                 return status;
 
             databaseInfoName ??= _options.ShardingDefaultDatabaseInfoName;
 
             if (await _context.Tenants.AnyAsync(x => x.DatabaseInfoName == databaseInfoName))
-                status.AddErrorFormatted("InvalidDatabase".MethodMessageKey(),
+                status.AddErrorFormatted("InvalidDatabase".ClassMethodLocalizeKey(this),
                     $"The {nameof(hasOwnDb)} parameter is true, but the sharding database name " ,
                     $"'{databaseInfoName}' already has tenant(s) using that database.");
 
@@ -746,7 +743,7 @@ namespace AuthPermissions.AdminCode.Services
         private async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(
             List<string> tenantRoleNames)
         {
-            var status = new StatusGenericLocalizer<List<RoleToPermissions>, IAuthTenantAdminService>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<List<RoleToPermissions>, LocalizeResources>("en", _localizeDefault);
 
             var foundRoles = tenantRoleNames?.Any() == true
                 ? await _context.RoleToPermissions
@@ -759,7 +756,7 @@ namespace AuthPermissions.AdminCode.Services
             {
                 foreach (var badRoleName in tenantRoleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
                 {
-                    status.AddErrorFormatted("RoleNotFound".MethodMessageKey(),
+                    status.AddErrorFormatted("RoleNotFound".ClassMethodLocalizeKey(this),
                         $"The Role '{badRoleName}' was not found in the lists of Roles.");
                 }
             }

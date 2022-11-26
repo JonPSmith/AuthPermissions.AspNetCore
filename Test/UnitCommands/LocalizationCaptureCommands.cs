@@ -35,7 +35,7 @@ public class LocalizationCaptureCommands
         _output.WriteLine($"There are {entries.Count} captured localizations, with {entries.Count(x => x.SameKeyButDiffFormat)} so problems.");
         foreach (var entry in entries)
         {
-            _output.WriteLine($"ClassFullName = {entry.ClassFullName}, LocalizeKey = {entry.LocalizeKey}, {(entry.SameKeyButDiffFormat ? "BAD" : "")}");
+            _output.WriteLine($"ResourceClassType = {entry.ResourceClassType}, LocalizeKey = {entry.LocalizeKey}, {(entry.SameKeyButDiffFormat ? "BAD" : "")}");
             _output.WriteLine($"     Actual Message = {entry.ActualMessage}");
             if (entry.MessageFormat != null )
                 _output.WriteLine($"     Message Format = {entry.MessageFormat}");

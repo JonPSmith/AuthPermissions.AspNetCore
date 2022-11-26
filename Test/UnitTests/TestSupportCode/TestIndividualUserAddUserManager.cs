@@ -7,6 +7,7 @@ using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices;
@@ -58,8 +59,8 @@ public class TestIndividualUserAddUserManager
 
         services.AddScoped<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
         services.AddSingleton(typeof(ILocalizeWithDefault<>), typeof(StubLocalizeWithDefault<>));
-        services.AddScoped<ILocalizeWithDefault<IAuthTenantAdminService>>(x =>
-            new StubLocalizeWithDefault<IAuthTenantAdminService>());
+        services.AddScoped<ILocalizeWithDefault<LocalizeResources>>(x =>
+            new StubLocalizeWithDefault<LocalizeResources>());
         services.RegisterAuthPermissions<Example3Permissions>(options =>
         {
             options.TenantType = TenantTypes.SingleLevel;

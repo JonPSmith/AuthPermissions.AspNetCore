@@ -47,7 +47,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var roles = service.QueryRoleToPermissions().ToList();
@@ -76,7 +76,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             {
                 TenantType = TenantTypes.SingleLevel,
                 InternalData = { EnumPermissionsType = typeof(TestEnum) }
-            }, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            }, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var roles = service.QueryRoleToPermissions(setupUser.UserId).ToList();
@@ -104,7 +104,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var authUsers = service.QueryUsersUsingThisRole(roleName).ToList();
@@ -126,7 +126,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.CreateRoleToPermissionsAsync("Role4", new[] { "One", enumMemberName, "Three" }, "another role");
@@ -157,7 +157,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.CreateRoleToPermissionsAsync("Role2", new[] { "One", "Two", "Three" }, "another role");
@@ -181,7 +181,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.UpdateRoleToPermissionsAsync(roleName,  new[] { "One" },
@@ -213,7 +213,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.DeleteRoleAsync(roleName, false);
@@ -241,7 +241,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.AddMultipleUsersWithRolesInDb();
             context.ChangeTracker.Clear();
 
-            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<IAuthRolesAdminService>());
+            var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.DeleteRoleAsync("Role2", removeFromUser);

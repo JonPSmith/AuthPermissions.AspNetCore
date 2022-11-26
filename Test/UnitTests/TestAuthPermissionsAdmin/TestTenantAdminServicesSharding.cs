@@ -57,7 +57,7 @@ public class TestTenantAdminServicesSharding
 
         var tenantChange = new StubITenantChangeServiceFactory();
         var service = new AuthTenantAdminService(context,
-            _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+            _authOptionsSingleSharding, new StubLocalizeWithDefault<LocalizeResources>(),
             tenantChange,  null);
 
         //ATTEMPT
@@ -86,7 +86,7 @@ public class TestTenantAdminServicesSharding
 
         var tenantChange = new StubITenantChangeServiceFactory();
         var service = new AuthTenantAdminService(context,
-            _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+            _authOptionsSingleSharding, new StubLocalizeWithDefault<LocalizeResources>(),
             tenantChange, null);
 
         //ATTEMPT
@@ -110,7 +110,7 @@ public class TestTenantAdminServicesSharding
 
         var tenantChange = new StubITenantChangeServiceFactory();
         var service = new AuthTenantAdminService(context,
-            _authOptionsSingleSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+            _authOptionsSingleSharding, new StubLocalizeWithDefault<LocalizeResources>(),
             tenantChange, null);
 
         //ATTEMPT
@@ -156,7 +156,7 @@ public class TestTenantAdminServicesSharding
 
         var tenantChange = new StubITenantChangeServiceFactory();
         var service = new AuthTenantAdminService(context,
-            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<LocalizeResources>(),
             tenantChange, null);
 
         //ATTEMPT
@@ -185,7 +185,7 @@ public class TestTenantAdminServicesSharding
 
         var tenantChange = new StubITenantChangeServiceFactory();
         var service = new AuthTenantAdminService(context,
-            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<LocalizeResources>(),
             tenantChange, null);
 
         //ATTEMPT
@@ -214,7 +214,7 @@ public class TestTenantAdminServicesSharding
 
         var tenantChange = new StubITenantChangeServiceFactory();
         var service = new AuthTenantAdminService(context,
-            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<LocalizeResources>(),
             tenantChange, null);
 
         //ATTEMPT
@@ -241,7 +241,7 @@ public class TestTenantAdminServicesSharding
 
         var tenantChange = new StubITenantChangeServiceFactory();
         var service = new AuthTenantAdminService(context,
-            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<IAuthTenantAdminService>(),
+            _authOptionsHierarchicalSharding, new StubLocalizeWithDefault<LocalizeResources>(),
             tenantChange, null);
 
         //ATTEMPT
