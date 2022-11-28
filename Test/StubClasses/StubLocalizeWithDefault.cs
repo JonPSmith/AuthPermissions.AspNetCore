@@ -11,7 +11,8 @@ namespace Test.StubClasses;
 public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource>
 {
     /// <summary>
-    /// This is true if there is an entry in the database with the same  Resource/Key, but a different 
+    /// This is true if there is an entry in the database with the same Resource/Key, but a different.
+    /// Used in the test of this class.
     /// </summary>
     public bool SameKeyButDiffFormat { get; set; }
 
@@ -78,8 +79,8 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
             callingClassName, localizeKeyData.MethodName, localizeKeyData.SourceLineNumber);
 
         if (sameLocalizationReference.Any(x =>
-                ((x.MessageFormat != null && x.MessageFormat == messageFormat)     //Using format, and the same
-                || (x.MessageFormat == null && x.ActualMessage == actualMessage))  //Using string, and the same
+                ((x.MessageFormat != null && x.MessageFormat == messageFormat)     //Using format: and the same
+                || (x.MessageFormat == null && x.ActualMessage == actualMessage))  //Using string: and the same
                 && x.SameKeyButDiffFormat == SameKeyButDiffFormat
                 && x.CallingClassName == localizedLog.CallingClassName
                 && x.CallingMethodName == localizedLog.CallingMethodName
@@ -87,7 +88,7 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
             //There is already an entry with the same 
             return;
 
-        context.Add(new LocalizedLog(typeof(TResource).FullName, localizeKey ?? "already localized", 
+        context.Add(new LocalizedLog(typeof(TResource).FullName, localizeKey, 
             cultureOfMessage, actualMessage, messageFormat, SameKeyButDiffFormat,
             callingClassName, localizeKeyData.MethodName, localizeKeyData.SourceLineNumber));
         context.SaveChanges();
@@ -114,7 +115,7 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
         return type.Name;
     }
 
-        //-----------------------------------------------------------
+    //-----------------------------------------------------------
     //database part
 
     public LocalizationCaptureDb GetLocalizationCaptureDbInstance(bool turnOnManually = false)
@@ -125,7 +126,7 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
 
         var connectionString = config.GetConnectionString("LocalizationCaptureDb");
         if (connectionString == null)
-            throw new Exception("The ConnectionString: 'LocalizationCaptureDd' must be added to make this work");
+            throw new Exception("The ConnectionString: 'LocalizationCaptureDd' must be added to the appsettings file to make this work.");
 
         var optionsBuilder =
             new DbContextOptionsBuilder<LocalizationCaptureDb>();
