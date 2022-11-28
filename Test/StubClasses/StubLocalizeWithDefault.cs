@@ -10,49 +10,86 @@ namespace Test.StubClasses;
 
 public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource>
 {
+    /// <summary>
+    /// This is true if there is an entry in the database with the same  Resource/Key, but a different 
+    /// </summary>
+    public bool SameKeyButDiffFormat { get; set; }
 
-    public string LocalizeStringMessage(LocalizeKeyClass localizeKey, string cultureOfMessage, string message)
+    public string LocalizeStringMessage(LocalizeKeyData localizeKeyData, string cultureOfMessage, string message)
     {
-        if (localizeKey == null)
+        if (localizeKeyData == null)
             throw new Exception("The status Message was set directly, which is an error. "
             + $"Message = {message}");
 
-        SaveLocalizationToDb(localizeKey.ToString(), cultureOfMessage, message, null);
+        SaveLocalizationToDb(localizeKeyData, cultureOfMessage, message, null);
         return message;
     }
 
-    public string LocalizeFormattedMessage(LocalizeKeyClass localizeKey, string cultureOfMessage,
+    public string LocalizeFormattedMessage(LocalizeKeyData localizeKeyData, string cultureOfMessage,
         params FormattableString[] formattableStrings)
     {
-        if (localizeKey == null)
-            throw new ArgumentNullException(nameof(localizeKey));
+        if (localizeKeyData == null)
+            throw new ArgumentNullException(nameof(localizeKeyData));
 
         var message = string.Join(string.Empty, formattableStrings.Select(x => x.ToString()).ToArray());
         var messageFormat = string.Join(string.Empty, formattableStrings.SelectMany(x => x.Format).ToArray());
-        SaveLocalizationToDb(localizeKey.ToString(), cultureOfMessage, message, messageFormat);
+        SaveLocalizationToDb(localizeKeyData, cultureOfMessage, message, messageFormat);
 
         return string.Join(string.Empty, formattableStrings.Select(x => x.ToString()).ToArray());
     }
 
-    private void SaveLocalizationToDb(string localizeKey, string cultureOfMessage, string actualMessage, string messageFormat)
+    /// <summary>
+    /// This adds  information on each localized message, including where it was sent from,
+    /// so that you can see what localized messages in your app. Usually you would use the
+    /// <see cref="StubLocalizeWithDefault{TResource}"/> within your unit tests.
+    /// It tries to: 
+    /// 1) Add a new entry in the database if there isn't an entry containing the same information.
+    /// 2) It also sets the <see cref="LocalizedLog"/>.<see cref="LocalizedLog.SameKeyButDiffFormat"/> to true
+    /// if an existing entry with the same ResourceFile / LocalizeKey, but a different different message.
+    /// </summary>
+    /// <param name="localizeKeyData"></param>
+    /// <param name="cultureOfMessage"></param>
+    /// <param name="actualMessage"></param>
+    /// <param name="messageFormat"></param>
+    private void SaveLocalizationToDb(LocalizeKeyData localizeKeyData, string cultureOfMessage, string actualMessage,
+        string messageFormat)
     {
         using var context = GetLocalizationCaptureDbInstance();
         if (context == null)
             return;
 
-        var sameLocalizeKey = context.LocalizedData
-            .Where(x => x.ResourceClassType == typeof(TResource).FullName && x.LocalizeKey == localizeKey).ToList();
-        if (sameLocalizeKey.Any(x => x.MessageFormat == messageFormat))
-            //already in the database, so don't add again
+        var localizeKey = localizeKeyData.LocalizeKey ?? "already localize";
+        var callingClassName = localizeKeyData.CallingClass.Name;
+
+        //This will hold any existing database entries that have the same ResourceFile and LocalizeKey
+        var sameLocalizationReference = context.LocalizedData
+            .Where(x => x.ResourceClassType == typeof(TResource).FullName
+                        && x.LocalizeKey == localizeKey).ToList();
+
+        //This is true if there was already an entry with the same ResourceFile / LocalizeKey but a different message
+        SameKeyButDiffFormat = sameLocalizationReference.Any(x =>
+            x.ResourceClassType == typeof(TResource).FullName
+            && x.LocalizeKey == localizeKey
+            && ((x.MessageFormat != null && x.MessageFormat != messageFormat)
+                || (x.MessageFormat == null && x.ActualMessage != actualMessage)));
+
+        var localizedLog = new LocalizedLog(typeof(TResource).FullName, localizeKey,
+            cultureOfMessage, actualMessage, messageFormat, SameKeyButDiffFormat,
+            callingClassName, localizeKeyData.MethodName, localizeKeyData.SourceLineNumber);
+
+        if (sameLocalizationReference.Any(x =>
+                ((x.MessageFormat != null && x.MessageFormat == messageFormat)     //Using format, and the same
+                || (x.MessageFormat == null && x.ActualMessage == actualMessage))  //Using string, and the same
+                && x.SameKeyButDiffFormat == SameKeyButDiffFormat
+                && x.CallingClassName == localizedLog.CallingClassName
+                && x.CallingMethodName == localizedLog.CallingMethodName
+                && x.SourceLineNumber == localizedLog.SourceLineNumber))
+            //There is already an entry with the same 
             return;
 
-        if (sameLocalizeKey.Any(x => x.LocalizeKey == localizeKey && x.SameKeyButDiffFormat))
-            //already has the SameKeyButDiffFormat issue, so don't add again
-            return;
-
-        context.Add(new LocalizedData(typeof(TResource).FullName, localizeKey ?? "already localized", 
-            cultureOfMessage, actualMessage, messageFormat,
-            sameLocalizeKey.Any()));
+        context.Add(new LocalizedLog(typeof(TResource).FullName, localizeKey ?? "already localized", 
+            cultureOfMessage, actualMessage, messageFormat, SameKeyButDiffFormat,
+            callingClassName, localizeKeyData.MethodName, localizeKeyData.SourceLineNumber));
         context.SaveChanges();
     }
 
@@ -91,7 +128,7 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
         context.SaveChanges();
     }
 
-    public List<LocalizedData> ListLocalizationCaptureDb()
+    public List<LocalizedLog> ListLocalizationCaptureDb()
     {
         using var context = GetLocalizationCaptureDbInstance(true);
         if (context == null)
@@ -101,11 +138,11 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
             .ToList();
     }
 
-    public class LocalizedData
+    public class LocalizedLog
     {
         /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
-        public LocalizedData(string resourceClassType, string localizeKey, string cultureOfMessage, 
-            string actualMessage, string messageFormat, bool sameKeyButDiffFormat)
+        public LocalizedLog(string resourceClassType, string localizeKey, string cultureOfMessage, 
+            string actualMessage, string messageFormat, bool sameKeyButDiffFormat, string callingClassName, string callingMethodName, int sourceLineNumber)
         {
             ResourceClassType = resourceClassType;
             LocalizeKey = localizeKey;
@@ -113,6 +150,9 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
             ActualMessage = actualMessage;
             MessageFormat = messageFormat;
             SameKeyButDiffFormat = sameKeyButDiffFormat;
+            CallingClassName = callingClassName;
+            CallingMethodName = callingMethodName;
+            SourceLineNumber = sourceLineNumber;
         }
 
         public int Id { get; set; }
@@ -122,6 +162,9 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
         public string ActualMessage { get; set; }
         public string MessageFormat { get; set; }
         public bool SameKeyButDiffFormat { get; set;}
+        public string CallingClassName { get; set; }
+        public string CallingMethodName { get; set; }
+        public int SourceLineNumber { get; set; }
     }
 
     public class LocalizationCaptureDb : DbContext
@@ -129,6 +172,6 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
         public LocalizationCaptureDb(DbContextOptions<LocalizationCaptureDb> options)
             : base(options) {}
 
-        public DbSet<LocalizedData> LocalizedData { get; set; }
+        public DbSet<LocalizedLog> LocalizedData { get; set; }
     }
 }

@@ -83,7 +83,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
         _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _options.NumMinutesBeforeCookieTimesOut);
 
-        status.SetMessageString("Success".ClassLocalizeKey(this), 
+        status.SetMessageFormatted("Success".ClassLocalizeKey(this), 
             $"You are now linked the the data of the tenant called '{tenantToLinkTo.TenantFullName}'");
         return status;
     }

@@ -54,7 +54,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview023" />
+		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview026" />
 	</ItemGroup>
 
   <ItemGroup>

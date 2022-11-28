@@ -115,7 +115,7 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefaultAsync(x => x.Email == email);
 
             if (authUser == null)
-                status.AddErrorFormattedWithParams("UserNotFoundEmail".MethodLocalizeKey(this),
+                status.AddErrorFormattedWithParams("UserNotFoundEmail".ClassMethodLocalizeKey(this),
                     $"Could not find the AuthP User with the email of {email}.",
                     nameof(email).CamelToPascal());
 
@@ -133,7 +133,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".MethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
                 $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}");
 
             var authUser = await _context.AuthUsers
@@ -223,7 +223,7 @@ namespace AuthPermissions.AdminCode.Services
             string userName, List<string> roleNames, string tenantName = null)
         {
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".MethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
                 $"Successfully added a AuthUser with the name {userName ?? email}");
 
             if (email != null && !email.IsValidEmail())
@@ -282,7 +282,7 @@ namespace AuthPermissions.AdminCode.Services
 
             email ??= foundUserStatus.Result.Email;
             userName ??= foundUserStatus.Result.UserName;
-            status.SetMessageFormatted("Success".ClassLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
                 $"Successfully updated a AuthUser with the name {userName ?? email}");
 
             var authUserToUpdate = foundUserStatus.Result;
@@ -358,7 +358,7 @@ namespace AuthPermissions.AdminCode.Services
             _context.Remove(authUser);
             status.CombineStatuses( await _context.SaveChangesWithChecksAsync());
 
-            status.SetMessageFormatted("Success".MethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
                 $"Successfully deleted the user {authUser.UserName ?? authUser.Email}.");
 
             return status;
@@ -450,7 +450,7 @@ namespace AuthPermissions.AdminCode.Services
             //Build useful summary
             var changeStrings = Enum.GetValues<SyncAuthUserChangeTypes>().ToList()
                 .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChangeType == x)}");
-            status.SetMessageFormatted("Success".MethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
                 $"Sync successful: {(string.Join(", ", changeStrings))}");
 
             return status;
@@ -483,7 +483,7 @@ namespace AuthPermissions.AdminCode.Services
             if (foundRoles.Count != (roleNames?.Count ?? 0))
             {
                 foreach (var badRoleName in roleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
-                    status.AddErrorFormatted("RoleNotFound".MethodLocalizeKey(this),
+                    status.AddErrorFormatted("RoleNotFound".ClassMethodLocalizeKey(this),
                         $"The Role '{badRoleName}' was not found in the lists of Roles.");
             }
 
@@ -491,16 +491,16 @@ namespace AuthPermissions.AdminCode.Services
             foreach (var foundRole in foundRoles)
             {
                 if (usersTenant == null && foundRole.RoleType == RoleTypes.TenantAdminAdd)
-                    status.AddErrorFormatted("NonTenantNotAllowed".MethodLocalizeKey(this),
+                    status.AddErrorFormatted("NonTenantNotAllowed".ClassMethodLocalizeKey(this),
                         $"The role '{foundRole.RoleName}' isn't allowed to a non-tenant user.");
 
                 if (usersTenant != null && foundRole.RoleType == RoleTypes.HiddenFromTenant)
-                    status.AddErrorFormatted("TenantNotAllowed".MethodLocalizeKey(this), 
+                    status.AddErrorFormatted("TenantNotAllowed".ClassMethodLocalizeKey(this), 
                         $"The role '{foundRole.RoleName}' isn't allowed to tenant user.");
                 
                 if (usersTenant != null && foundRole.RoleType == RoleTypes.TenantAdminAdd
                     && !usersTenant.TenantRoles.Contains(foundRole))
-                    status.AddErrorFormatted("RoleNotFoundTenant".MethodLocalizeKey(this), 
+                    status.AddErrorFormatted("RoleNotFoundTenant".ClassMethodLocalizeKey(this), 
                         $"The role '{foundRole.RoleName}' wasn't found in the tenant '{usersTenant.TenantFullName}' tenant roles.");
             }
 

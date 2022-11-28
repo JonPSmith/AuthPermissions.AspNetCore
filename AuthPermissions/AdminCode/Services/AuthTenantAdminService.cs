@@ -182,7 +182,7 @@ namespace AuthPermissions.AdminCode.Services
 
                 var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result);
                 if (errorString != null)
-                    return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
+                    return status.AddErrorString(this.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
 
                 await transaction.CommitAsync();
             }
@@ -313,7 +313,7 @@ namespace AuthPermissions.AdminCode.Services
 
                 var errorString = await tenantChangeService.CreateNewTenantAsync(newTenantStatus.Result);
                 if (errorString != null)
-                    return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
+                    return status.AddErrorString(this.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
 
                 await transaction.CommitAsync();
             }
@@ -418,7 +418,7 @@ namespace AuthPermissions.AdminCode.Services
 
                     var errorString = await tenantChangeService.SingleTenantUpdateNameAsync(tenant);
                     if (errorString != null)
-                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(this.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
                 }
 
                 status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
@@ -496,7 +496,7 @@ namespace AuthPermissions.AdminCode.Services
                 existingTenantWithChildren.MoveTenantToNewParent(parentTenant, tuple => listOfChanges.Add(tuple));
                 var errorString = await tenantChangeService.MoveHierarchicalTenantDataAsync(listOfChanges);
                 if (errorString != null)
-                    return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
+                    return status.AddErrorString(this.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
 
                 status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
                 if (parentTenant != null)
@@ -589,7 +589,7 @@ namespace AuthPermissions.AdminCode.Services
 
                     var childError = await tenantChangeService.HierarchicalTenantDeleteAsync(tenantsInOrder);
                     if (childError != null)
-                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), childError); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(this.AlreadyLocalized(), childError); //we assume the tenantChangeService localized its messages
 
                     if (tenantsInOrder.Count > 0)
                     {
@@ -603,7 +603,7 @@ namespace AuthPermissions.AdminCode.Services
                     //delete the tenant that the user defines
                     var mainError = await tenantChangeService.SingleTenantDeleteAsync(tenantToDelete);
                     if (mainError != null)
-                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), mainError); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(this.AlreadyLocalized(), mainError); //we assume the tenantChangeService localized its messages
                     _context.Remove(tenantToDelete);
                 }
 
@@ -690,7 +690,7 @@ namespace AuthPermissions.AdminCode.Services
                     var mainError = await tenantChangeService
                         .MoveToDifferentDatabaseAsync(previousDatabaseInfoName, previousDataKey, tenant);
                     if (mainError != null)
-                        return status.AddErrorString(LocalizeKeyExtensions.AlreadyLocalized(), mainError); //we assume the tenantChangeService localized its messages
+                        return status.AddErrorString(this.AlreadyLocalized(), mainError); //we assume the tenantChangeService localized its messages
                 }
 
                 if (status.IsValid)

@@ -24,6 +24,7 @@ public class TestStubLocalizeWithDefault
 
         //VERIFY
         status.Errors.Single().ToString().ShouldEqual("An Error");
+        stubLocalizer.SameKeyButDiffFormat.ShouldBeFalse();
     }
 
     [Fact]
@@ -34,10 +35,11 @@ public class TestStubLocalizeWithDefault
 
         //ATTEMPT
         var status = new StatusGenericLocalizer<LocalizeResources>("en", stubLocalizer);
-        status.SetMessageString("test".MethodLocalizeKey(this), "My status Message");
+        status.SetMessageString("test".MethodLocalizeKey(this), "Status Message1");
 
         //VERIFY
-        status.Message.ShouldEqual("My status Message");
+        status.Message.ShouldEqual("Status Message1");
+        stubLocalizer.SameKeyButDiffFormat.ShouldBeFalse();
     }
 
 
@@ -49,9 +51,25 @@ public class TestStubLocalizeWithDefault
 
         //ATTEMPT
         var status = new StatusGenericLocalizer<LocalizeResources>("en", stubLocalizer);
-        status.SetMessageFormatted("test".MethodLocalizeKey(this), $"My status Message");
+        status.SetMessageFormatted("test".MethodLocalizeKey(this), $"Status Message{2}");
 
         //VERIFY
-        status.Message.ShouldEqual("My status Message");
+        status.Message.ShouldEqual("Status Message2");
+        stubLocalizer.SameKeyButDiffFormat.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void TestSetMessage_SameKeyButDiffFormat()
+    {
+        //SETUP
+        var stubLocalizer = new StubLocalizeWithDefault<LocalizeResources>();
+
+        //ATTEMPT
+        var status = new StatusGenericLocalizer<LocalizeResources>("en", stubLocalizer);
+        status.AddErrorString("test".MethodLocalizeKey(this), "First Error message");
+        status.AddErrorString("test".MethodLocalizeKey(this), "Second Error message");
+
+        //VERIFY
+        stubLocalizer.SameKeyButDiffFormat.ShouldBeTrue();
     }
 }
