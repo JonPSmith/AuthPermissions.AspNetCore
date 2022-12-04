@@ -46,7 +46,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsSingle, 
-                new StubLocalizeWithDefault<LocalizeResources>(),null, null);
+                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),null, null);
 
             //ATTEMPT
             var tenants = service.QueryTenants().ToList();
@@ -68,7 +68,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                new StubLocalizeWithDefault<LocalizeResources>(), null, null);
+                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), null, null);
 
             //ATTEMPT
             var tenants = service.QueryEndLeafTenants().ToList();
@@ -93,7 +93,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var tenantChange = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                    new StubLocalizeWithDefault<LocalizeResources>(), tenantChange, null);
+                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), tenantChange, null);
 
                 //ATTEMPT
                 var status = await service.AddSingleTenantAsync("Tenant4");
@@ -127,7 +127,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                    new StubLocalizeWithDefault<LocalizeResources>(), null, null);
+                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), null, null);
 
                 //ATTEMPT
                 var roleNames = await service.GetRoleNamesForTenantsAsync();
@@ -156,7 +156,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var tenantChange = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                    new StubLocalizeWithDefault<LocalizeResources>(), tenantChange, null);
+                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), tenantChange, null);
 
                 //ATTEMPT
                 var status = await service.AddSingleTenantAsync("Tenant4", new List<string>{"TenantRole1", "TenantRole2"});
@@ -192,7 +192,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var tenantChange = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                    new StubLocalizeWithDefault<LocalizeResources>(), tenantChange, null);
+                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), tenantChange, null);
 
                 //ATTEMPT
                 var status = await service.AddSingleTenantAsync("Tenant4", new List<string> { roleName });
@@ -223,7 +223,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                new StubLocalizeWithDefault<LocalizeResources>(), null, null);
+                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), null, null);
             //ATTEMPT
             var status = await service.UpdateTenantRolesAsync(newTenant.TenantId, new List<string> { "TenantRole2" });
 
@@ -244,7 +244,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             contexts.AuthPContext.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(contexts.AuthPContext, _authOptionsSingle,
-                new StubLocalizeWithDefault<LocalizeResources>(), 
+                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), 
                 new StubRetailTenantChangeServiceFactory(contexts.RetailDbContext), null);
 
             //ATTEMPT
@@ -269,7 +269,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                    new StubLocalizeWithDefault<LocalizeResources>(),
+                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                     new StubITenantChangeServiceFactory(), null);
 
                 //ATTEMPT
@@ -300,7 +300,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                    new StubLocalizeWithDefault<LocalizeResources>(),
+                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                     new StubITenantChangeServiceFactory(), null);
 
                 //ATTEMPT
@@ -336,7 +336,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                new StubLocalizeWithDefault<LocalizeResources>(),
+                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 new StubITenantChangeServiceFactory(), null);
 
             //ATTEMPT
@@ -359,7 +359,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsSingle,
-                new StubLocalizeWithDefault<LocalizeResources>(),
+                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 new StubITenantChangeServiceFactory("error from TenantChangeService"), null);
 
             //ATTEMPT

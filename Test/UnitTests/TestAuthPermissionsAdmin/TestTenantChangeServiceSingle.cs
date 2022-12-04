@@ -39,7 +39,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingle, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -63,7 +63,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingle, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -86,7 +86,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingle, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -108,7 +108,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubInvoiceChangeServiceFactory(contexts.InvoiceDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingle, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT

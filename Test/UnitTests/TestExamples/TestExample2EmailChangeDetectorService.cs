@@ -36,7 +36,7 @@ public class TestExample2EmailChangeDetectorService
         stubFsCache.ClearAll();
 
         var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
-            new AuthPermissionsOptions(), new StubLocalizeWithDefault<LocalizeResources>());
+            new AuthPermissionsOptions(), new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
 
         //ATTEMPT
         stubFsCache.Set("User1".FormAddedEmailClaimKey(), "cached email");

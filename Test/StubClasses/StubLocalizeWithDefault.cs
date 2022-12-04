@@ -8,7 +8,7 @@ using TestSupport.Helpers;
 
 namespace Test.StubClasses;
 
-public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource>
+public class StubLocalizeWithDefaultWithLogging<TResource> : ILocalizeWithDefault<TResource>
 {
     /// <summary>
     /// This is true if there is an entry in the database with the same Resource/Key, but a different.
@@ -19,8 +19,7 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
     public string LocalizeStringMessage(LocalizeKeyData localizeKeyData, string cultureOfMessage, string message)
     {
         if (localizeKeyData == null)
-            throw new Exception("The status Message was set directly, which is an error. "
-            + $"Message = {message}");
+            throw new ArgumentNullException(nameof(localizeKeyData));
 
         SaveLocalizationToDb(localizeKeyData, cultureOfMessage, message, null);
         return message;
@@ -42,7 +41,7 @@ public class StubLocalizeWithDefault<TResource> : ILocalizeWithDefault<TResource
     /// <summary>
     /// This adds  information on each localized message, including where it was sent from,
     /// so that you can see what localized messages in your app. Usually you would use the
-    /// <see cref="StubLocalizeWithDefault{TResource}"/> within your unit tests.
+    /// <see cref="StubLocalizeWithDefaultWithLogging{TResource}"/> within your unit tests.
     /// It tries to: 
     /// 1) Add a new entry in the database if there isn't an entry containing the same information.
     /// 2) It also sets the <see cref="LocalizedLog"/>.<see cref="LocalizedLog.SameKeyButDiffFormat"/> to true

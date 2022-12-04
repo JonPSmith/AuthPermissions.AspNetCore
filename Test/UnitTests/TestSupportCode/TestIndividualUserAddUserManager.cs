@@ -58,9 +58,9 @@ public class TestIndividualUserAddUserManager
                     dbOptions.MigrationsHistoryTable(StartupExtensions.InvoicesDbContextHistoryName)));
 
         services.AddScoped<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
-        services.AddSingleton(typeof(ILocalizeWithDefault<>), typeof(StubLocalizeWithDefault<>));
+        services.AddSingleton(typeof(ILocalizeWithDefault<>), typeof(StubLocalizeWithDefaultWithLogging<>));
         services.AddScoped<ILocalizeWithDefault<LocalizeResources>>(x =>
-            new StubLocalizeWithDefault<LocalizeResources>());
+            new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
         services.RegisterAuthPermissions<Example3Permissions>(options =>
         {
             options.TenantType = TenantTypes.SingleLevel;

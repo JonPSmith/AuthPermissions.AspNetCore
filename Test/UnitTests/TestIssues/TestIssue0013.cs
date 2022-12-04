@@ -48,7 +48,7 @@ public class TestIssue0013
         await SetupRoleUserAndPossibleTenant(originalType, context);
         context.ChangeTracker.Clear();
 
-        var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
+        var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
 
         //ATTEMPT
         var status = await service.UpdateRoleToPermissionsAsync("Role1", new[] { "One" }, null, updatedType);
@@ -72,7 +72,7 @@ public class TestIssue0013
         await SetupRoleUserAndPossibleTenant(RoleTypes.TenantAdminAdd, context);
         context.ChangeTracker.Clear();
 
-        var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefault<LocalizeResources>());
+        var service = new AuthRolesAdminService(context, _authOptionsWithTestEnum, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
 
         //ATTEMPT
         var status = await service.DeleteRoleAsync("Role1", removeFromUser);

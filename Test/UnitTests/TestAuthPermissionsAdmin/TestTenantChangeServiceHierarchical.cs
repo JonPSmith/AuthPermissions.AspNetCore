@@ -72,7 +72,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsHierarchical, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsHierarchical, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -99,7 +99,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsHierarchical, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsHierarchical, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -122,7 +122,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsHierarchical, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsHierarchical, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -151,7 +151,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsHierarchical, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsHierarchical, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -183,7 +183,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsHierarchical, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsHierarchical, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -215,7 +215,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsHierarchical, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsHierarchical, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -247,7 +247,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubRetailChangeServiceFactory(contexts.RetailDbContext);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsHierarchical, new StubLocalizeWithDefault<LocalizeResources>(),
+                _authOptionsHierarchical, new StubLocalizeWithDefaultWithLogging<LocalizeResources>(),
                 changeServiceFactory, null);
 
             //ATTEMPT
