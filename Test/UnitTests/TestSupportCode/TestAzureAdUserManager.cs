@@ -40,9 +40,9 @@ public class TestAzureAdUserManager
             TenantType = tenantType
         };
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
-            authOptions, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+            authOptions, new StubLocalizeDefaultWithLogging<LocalizeResources>());
         var tenantAdmin = new AuthTenantAdminService(context, authOptions, 
-            new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
+            new StubLocalizeDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
         var azureAdStub = new StubAzureAdAccessService();
         var azureOptions = Options.Create(new AzureAdOptions{ AzureAdApproaches = "Find,Create"});
 

@@ -1,24 +1,20 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode;
-using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
+using LocalizeMessagesAndErrors;
 using StatusGeneric;
 
 namespace AuthPermissions.BulkLoadServices.Concrete
 {
     /// <summary>
     /// This bulk loads Roles with their permissions from a string with contains a series of lines
+    /// NOTE: Bulk load doesn't use localization because it doesn't provide to the users
     /// </summary>
     public class BulkLoadRolesService : IBulkLoadRolesService
     {
@@ -52,14 +48,14 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             {
                 var perRoleStatus = new StatusGenericHandler();
                 var permissionNames = roleDefinition.PermissionsCommaDelimited
-                    .Split(',').Select(x => x.Trim()).ToList();
+                    .Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToList();
 
                 var roleType = roleDefinition.RoleType;
                 //NOTE: If an advanced permission (i.e. has the display attribute has AutoGenerateFilter = true) is found the roleType is updated to HiddenFromTenant
                 var packedPermissions = _enumPermissionType.PackPermissionsNamesWithValidation(permissionNames,
                     x => perRoleStatus.AddError(
                         $"The permission name '{x}' isn't a valid name in the {_enumPermissionType.Name} enum.",
-                        nameof(permissionNames).CamelToPascal()), () => roleType = RoleTypes.HiddenFromTenant);
+                        permissionNames.Select(y => y.CamelToPascal()).ToArray()), () => roleType = RoleTypes.HiddenFromTenant);
 
                 status.CombineStatuses(perRoleStatus);
                 if (perRoleStatus.IsValid)

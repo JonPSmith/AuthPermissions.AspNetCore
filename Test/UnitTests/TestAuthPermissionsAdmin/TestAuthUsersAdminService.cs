@@ -47,7 +47,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null, 
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //ATTEMPT
             var users = service.QueryAuthUsers()
@@ -78,7 +78,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.FindAuthUserByUserIdAsync("User1");
@@ -101,7 +101,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.FindAuthUserByEmailAsync("User1@gmail.com");
@@ -124,7 +124,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.UpdateDisabledAsync("User2", true);
@@ -158,7 +158,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //ATTEMPT
             var roleNames = await service.GetRoleNamesForUsersAsync("User2",addNone);
@@ -191,7 +191,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.AddNewUserAsync("UserId", "User1@g.com", null,
@@ -218,7 +218,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
             var authUser = (await service.FindAuthUserByEmailAsync("User1@gmail.com")).Result;
 
             //ATTEMPT
@@ -254,7 +254,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
@@ -291,7 +291,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
             var authUser = (await service.FindAuthUserByUserIdAsync("User1")).Result;
 
             //ATTEMPT
@@ -320,7 +320,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
             var authUser = (await service.FindAuthUserByEmailAsync("User2@gmail.com")).Result;
 
             //ATTEMPT
@@ -350,7 +350,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthUsersAdminService(context, null,
-                _authOptionsSingle, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+                _authOptionsSingle, new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //ATTEMPT
             var status = await service.DeleteUserAsync(userId);

@@ -1,15 +1,12 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
+using LocalizeMessagesAndErrors;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -32,6 +29,7 @@ public class ShardingConnections : IShardingConnections
     private readonly ShardingSettingsOption _shardingSettings;
     private readonly AuthPermissionsDbContext _context;
     private readonly AuthPermissionsOptions _options;
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -40,15 +38,17 @@ public class ShardingConnections : IShardingConnections
     /// <param name="shardingSettingsAccessor">Dynamically assesses the ShardingData part of the shardingsetting file</param>
     /// <param name="context">AuthP context - used in <see cref="GetDatabaseInfoNamesWithTenantNamesAsync"/> method</param>
     /// <param name="options"></param>
+    /// <param name="localizeDefault">used to localize any errors or messages</param>
     public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
         IOptionsSnapshot<ShardingSettingsOption> shardingSettingsAccessor,
-        AuthPermissionsDbContext context, AuthPermissionsOptions options)
+        AuthPermissionsDbContext context, AuthPermissionsOptions options, ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor.Value;
         _shardingSettings = shardingSettingsAccessor.Value;
         _context = context;
         _options = options;
+        _localizeDefault = localizeDefault;
 
         //If no sharding settings file, then we provide one default sharding settings data
         //NOTE that the DatabaseInformation class has default values linked to a 
@@ -141,7 +141,10 @@ public class ShardingConnections : IShardingConnections
             throw new AuthPermissionsException(
                 $"Could not find the connection name '{connectionString}' that the sharding database data '{databaseInfoName}' requires.");
 
-        return SetDatabaseInConnectionString(databaseData, connectionString);
+        var status = SetDatabaseInConnectionString(databaseData, connectionString);
+        status.IfErrorsTurnToException();
+
+        return status.Result;
     }
 
     /// <summary>
@@ -153,27 +156,23 @@ public class ShardingConnections : IShardingConnections
     /// <exception cref="ArgumentNullException"></exception>
     public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
     {
-        var status = new StatusGenericHandler();
+        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
 
         if (databaseInfo == null)
             throw new ArgumentNullException(nameof(databaseInfo));
 
         if (!_connectionDict.TryGetValue(databaseInfo.ConnectionName, out var connectionString))
-            return status.AddError(
-                $"The {nameof(DatabaseInformation.ConnectionName)} '{databaseInfo.ConnectionName}' " +
-                "wasn't found in the connection strings.");
+            return status.AddErrorFormatted("NoConnectionString".ClassLocalizeKey(this, true),
+                $"The {nameof(DatabaseInformation.ConnectionName)} '{databaseInfo.ConnectionName}' ",
+                $"wasn't found in the connection strings.");
         try
         {
             SetDatabaseInConnectionString(databaseInfo, connectionString);
         }
-        catch (AuthPermissionsException e)
-        {
-            status.AddError(e.Message);
-        }
         catch
         {
-            status.AddError(
-                "There was an  error when trying to create a connection string. Typically this is because " +
+            status.AddErrorFormatted("BadConnectionString".ClassLocalizeKey(this, true),
+                $"There was an  error when trying to create a connection string. Typically this is because ",
                 $"the connection string doesn't match the {nameof(DatabaseInformation.DatabaseType)}.");
         }
 
@@ -191,23 +190,25 @@ public class ShardingConnections : IShardingConnections
     /// <param name="connectionString"></param>
     /// <returns>A connection string containing the correct database to be used</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    private static string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
+    private IStatusGeneric<string> SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
+        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
+
         switch (databaseInformation.DatabaseType)
         {
             case DatabaseInformation.ShardingSqlServerType:
             {
                 var builder = new SqlConnectionStringBuilder(connectionString);
                 if (string.IsNullOrEmpty(builder.InitialCatalog) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
-                    throw new AuthPermissionsException(
+                    return status.AddErrorString("NoDatabaseDefined".ClassLocalizeKey(this, true),
                         $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
                         "when the connection string doesn't have a database defined.");
 
                 if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
                     //This uses the database that is already in the connection string
-                    return connectionString;
+                    return status.SetResult(connectionString);
                 builder.InitialCatalog = databaseInformation.DatabaseName;
-                return builder.ConnectionString;
+                return status.SetResult(builder.ConnectionString);
             }
             case DatabaseInformation.ShardingPostgresType:
             {
@@ -218,12 +219,12 @@ public class ShardingConnections : IShardingConnections
                         "when the connection string doesn't have a database defined.");
 
                 if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
-                    //This uses the database that is already in the connection string
-                    return connectionString;
+                        //This uses the database that is already in the connection string
+                    return status.SetResult(connectionString);
 
                 builder.Database = databaseInformation.DatabaseName;
-                return builder.ConnectionString;
-            }
+                return status.SetResult(builder.ConnectionString);
+                }
             default:
                 throw new InvalidEnumArgumentException(
                     $"Missing a switch to handle a database type of {databaseInformation.DatabaseType}");

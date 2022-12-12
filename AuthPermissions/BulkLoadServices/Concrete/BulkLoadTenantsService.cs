@@ -1,10 +1,6 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
@@ -19,6 +15,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
     /// <summary>
     /// Bulk load multiple tenants from a list of <see cref="BulkLoadTenantDto"/>
     /// This works with a single-level tenant scheme and a hierarchical tenant scheme
+    /// NOTE: Bulk load doesn't use localization because it doesn't provide to the users
     /// </summary>
     public class BulkLoadTenantsService : IBulkLoadTenantsService
     {

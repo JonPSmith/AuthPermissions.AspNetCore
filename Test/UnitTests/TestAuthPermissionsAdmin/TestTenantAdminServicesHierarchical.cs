@@ -67,7 +67,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical, 
-                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), null, null);
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), null, null);
 
             //ATTEMPT
             var tenants = service.QueryEndLeafTenants().ToList();
@@ -90,7 +90,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), null, null);
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), null, null);
 
             //ATTEMPT
             var children = await service.GetHierarchicalTenantChildrenViaIdAsync(tenantIds[1]);
@@ -121,7 +121,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.AddHierarchicalTenantAsync("LA", tenantIds[1]);
@@ -165,7 +165,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.AddHierarchicalTenantAsync("LA", tenantIds[1], new List<string> { "TenantRole1", "TenantRole2" });
@@ -207,7 +207,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.AddHierarchicalTenantAsync("LA", tenantIds[1], new List<string> { roleName });
@@ -239,7 +239,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.AddHierarchicalTenantAsync("New Company", 0);
@@ -268,7 +268,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var subTenantChangeService = new StubITenantChangeServiceFactory();
             var service = new AuthTenantAdminService(contexts.AuthPContext, _authOptionsHierarchical,
-                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
             //ATTEMPT
             var status = await service.AddHierarchicalTenantAsync("West Coast", tenantIds[0]);
@@ -298,7 +298,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.UpdateTenantNameAsync(tenantIds[1], "West Area");
@@ -338,7 +338,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.MoveHierarchicalTenantToAnotherParentAsync(6, 5);
@@ -384,7 +384,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.MoveHierarchicalTenantToAnotherParentAsync(2, 3);
@@ -433,7 +433,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 var subTenantChangeService = new StubITenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
                 //ATTEMPT
                 var status = await service.MoveHierarchicalTenantToAnotherParentAsync(3, 0);
@@ -486,7 +486,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var subTenantChangeService = new StubITenantChangeServiceFactory();
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(2, parentTenantId);
@@ -517,7 +517,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var subTenantChangeService = new StubITenantChangeServiceFactory();
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), subTenantChangeService, null);
 
             //ATTEMPT
             var status = await service.MoveHierarchicalTenantToAnotherParentAsync(2, 2);
@@ -547,7 +547,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
 
                 //ATTEMPT
                 var status = await service.DeleteTenantAsync(6);
@@ -592,7 +592,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
+                    new StubLocalizeDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
                 options.StopNextDispose();
 
                 //ATTEMPT
@@ -642,7 +642,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
             options.StopNextDispose();
 
             //ATTEMPT
@@ -674,7 +674,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                new StubLocalizeWithDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null);
 
             //ATTEMPT
             var status = await service.DeleteTenantAsync(2);

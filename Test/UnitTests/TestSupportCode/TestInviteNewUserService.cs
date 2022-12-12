@@ -44,7 +44,7 @@ public class TestInviteNewUserService
             EncryptionKey = "asfafffggdgerxbd", TenantType = tenantType
         };
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
-            authOptions, new StubLocalizeWithDefaultWithLogging<LocalizeResources>());
+            authOptions, new StubLocalizeDefaultWithLogging<LocalizeResources>());
         var encryptService = new EncryptDecryptService(authOptions);
         var service = new InviteNewUserService(authOptions, context, encryptService, userAdmin, 
                 new StubAddNewUserManager(userAdmin));

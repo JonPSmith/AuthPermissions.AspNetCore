@@ -16,7 +16,7 @@ public class TestStubLocalizeWithDefault
     public void TestAddErrorString()
     {
         //SETUP
-        var stubLocalizer = new StubLocalizeWithDefaultWithLogging<LocalizeResources>();
+        var stubLocalizer = new StubLocalizeDefaultWithLogging<LocalizeResources>();
 
         //ATTEMPT
         var status = new StatusGenericLocalizer<LocalizeResources>("en", stubLocalizer);
@@ -24,14 +24,14 @@ public class TestStubLocalizeWithDefault
 
         //VERIFY
         status.Errors.Single().ToString().ShouldEqual("An Error");
-        stubLocalizer.SameKeyButDiffFormat.ShouldBeFalse();
+        stubLocalizer.SameKeyButDiffFormat.ShouldEqual(false);
     }
 
     [Fact]
     public void TestSetMessageString()
     {
         //SETUP
-        var stubLocalizer = new StubLocalizeWithDefaultWithLogging<LocalizeResources>();
+        var stubLocalizer = new StubLocalizeDefaultWithLogging<LocalizeResources>();
 
         //ATTEMPT
         var status = new StatusGenericLocalizer<LocalizeResources>("en", stubLocalizer);
@@ -39,7 +39,7 @@ public class TestStubLocalizeWithDefault
 
         //VERIFY
         status.Message.ShouldEqual("Status Message1");
-        stubLocalizer.SameKeyButDiffFormat.ShouldBeFalse();
+        stubLocalizer.SameKeyButDiffFormat.ShouldEqual(false);
     }
 
 
@@ -47,7 +47,7 @@ public class TestStubLocalizeWithDefault
     public void TestSetMessageFormatted()
     {
         //SETUP
-        var stubLocalizer = new StubLocalizeWithDefaultWithLogging<LocalizeResources>();
+        var stubLocalizer = new StubLocalizeDefaultWithLogging<LocalizeResources>();
 
         //ATTEMPT
         var status = new StatusGenericLocalizer<LocalizeResources>("en", stubLocalizer);
@@ -55,14 +55,14 @@ public class TestStubLocalizeWithDefault
 
         //VERIFY
         status.Message.ShouldEqual("Status Message2");
-        stubLocalizer.SameKeyButDiffFormat.ShouldBeFalse();
+        stubLocalizer.SameKeyButDiffFormat.ShouldEqual(false);
     }
 
     [Fact]
     public void TestSetMessage_SameKeyButDiffFormat()
     {
         //SETUP
-        var stubLocalizer = new StubLocalizeWithDefaultWithLogging<LocalizeResources>();
+        var stubLocalizer = new StubLocalizeDefaultWithLogging<LocalizeResources>();
 
         //ATTEMPT
         var status = new StatusGenericLocalizer<LocalizeResources>("en", stubLocalizer);
@@ -70,6 +70,6 @@ public class TestStubLocalizeWithDefault
         status.AddErrorString("test".MethodLocalizeKey(this), "Second Error message");
 
         //VERIFY
-        stubLocalizer.SameKeyButDiffFormat.ShouldBeTrue();
+        stubLocalizer.SameKeyButDiffFormat.ShouldEqual(true);
     }
 }

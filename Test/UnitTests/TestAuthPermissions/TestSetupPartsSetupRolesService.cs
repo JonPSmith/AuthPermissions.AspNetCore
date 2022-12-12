@@ -33,7 +33,6 @@ namespace Test.UnitTests.TestAuthPermissions
         [InlineData("Seven", false)]
         [InlineData("  Seven  ", false)]
         [InlineData("One, Two, Three, Four", false)]
-        [InlineData("", false)]
         public async Task TestAddRolesToDatabaseIfEmptyOneLineNoDescription(string permissionsCommaDelimited, bool valid)
         {
             //SETUP

@@ -21,21 +21,21 @@ public class LocalizationCaptureCommands
     [RunnableInDebugOnly]
     public void WipeLocalizationCaptureDbAndSetToCapture()
     {
-        var stub = new StubLocalizeWithDefaultWithLogging<LocalizationCaptureCommands>();
+        var stub = new StubLocalizeDefaultWithLogging<LocalizationCaptureCommands>();
         stub.WipeLocalizationCaptureDb();
     }
 
     [RunnableInDebugOnly]
     public void DisplayCapturedLocalizations()
     {
-        var stub = new StubLocalizeWithDefaultWithLogging<LocalizationCaptureCommands>();
+        var stub = new StubLocalizeDefaultWithLogging<LocalizationCaptureCommands>();
 
         var entries = stub.ListLocalizationCaptureDb();
 
-        _output.WriteLine($"There are {entries.Count} captured localizations, with {entries.Count(x => x.SameKeyButDiffFormat)} so problems.");
+        _output.WriteLine($"There are {entries.Count} captured localizations, with {entries.Count(x => x.SameKeyButDiffFormat != false)} so problems.");
         foreach (var entry in entries)
         {
-            _output.WriteLine($"ResourceClassType = {entry.ResourceClassType}, LocalizeKey = {entry.LocalizeKey}, {(entry.SameKeyButDiffFormat ? "BAD" : "")}");
+            _output.WriteLine($"ResourceClassFullName = {entry.ResourceClassFullName}, LocalizeKey = {entry.LocalizeKey}, {(entry.SameKeyButDiffFormat != false ? "BAD" : "")}");
             _output.WriteLine($"     Actual Message = {entry.ActualMessage}");
             if (entry.MessageFormat != null )
                 _output.WriteLine($"     Message Format = {entry.MessageFormat}");

@@ -18,7 +18,6 @@ namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
 /// This service defines the admin command to implement the "Access the data of other tenant" feature - see issue #10
 /// It handles the creating, accessing and removing a cookie that carries the DataKey and Name of the tenant to want to access
 /// </summary>
-[LocalizeSetClassName("LinkToTenantDataService")] //This makes the "class" of the localizeKey is shortened to the given name 
 public class LinkToTenantDataService : ILinkToTenantDataService
 {
     private readonly AuthPermissionsDbContext _context;
@@ -67,7 +66,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
         var user = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == currentUserId);
         if (user == null)
-            return status.AddErrorString("UserNotFound".ClassLocalizeKey(this), "Could not find the user you were looking for.");
+            return status.AddErrorString("UserNotFound".ClassLocalizeKey(this, true), "Could not find the user you were looking for.");
 
         if (user.TenantId != null && _options.LinkToTenantType != LinkToTenantTypes.AppAndHierarchicalUsers)
             throw new AuthPermissionsException(
@@ -76,14 +75,14 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
         var tenantToLinkTo = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == tenantId);
         if (tenantToLinkTo == null)
-            return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this), "Could not find the tenant you were looking for.");
+            return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this, true), "Could not find the tenant you were looking for.");
 
         if (status.HasErrors)
             return status;
 
         _cookieAccessor.AddOrUpdateCookie(EncodeCookieContent(tenantToLinkTo), _options.NumMinutesBeforeCookieTimesOut);
 
-        status.SetMessageFormatted("Success".ClassLocalizeKey(this), 
+        status.SetMessageFormatted("Success".ClassLocalizeKey(this, true), 
             $"You are now linked the the data of the tenant called '{tenantToLinkTo.TenantFullName}'");
         return status;
     }

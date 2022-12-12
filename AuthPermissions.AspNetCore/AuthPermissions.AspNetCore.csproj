@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview026" />
+		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview030" />
 	</ItemGroup>
 
 	<ItemGroup>

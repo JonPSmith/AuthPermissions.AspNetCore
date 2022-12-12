@@ -16,7 +16,6 @@ namespace AuthPermissions.AdminCode.Services
     /// <summary>
     /// This provides CRUD access to the AuthP's Users
     /// </summary>
-    [LocalizeSetClassName("UsersAdmin")] //This makes the "class" of the localizeKey is shortened to the given name
     public class AuthUsersAdminService : IAuthUsersAdminService
     {
         private readonly AuthPermissionsDbContext _context;
@@ -91,7 +90,7 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                status.AddErrorString("UserNotFound".ClassLocalizeKey(this), //common error in this class
+                status.AddErrorString("UserNotFound".ClassLocalizeKey(this, true), //common error in this class
                     "Could not find the AuthP User you asked for.", nameof(userId).CamelToPascal());
 
             return status.SetResult(authUser);
@@ -115,7 +114,7 @@ namespace AuthPermissions.AdminCode.Services
                 .SingleOrDefaultAsync(x => x.Email == email);
 
             if (authUser == null)
-                status.AddErrorFormattedWithParams("UserNotFoundEmail".ClassMethodLocalizeKey(this),
+                status.AddErrorFormattedWithParams("UserNotFoundEmail".ClassMethodLocalizeKey(this, true),
                     $"Could not find the AuthP User with the email of {email}.",
                     nameof(email).CamelToPascal());
 
@@ -133,14 +132,14 @@ namespace AuthPermissions.AdminCode.Services
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}");
 
             var authUser = await _context.AuthUsers
                 .SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                return status.AddErrorString("UserNotFound".ClassLocalizeKey(this), //common error in this class
+                return status.AddErrorString("UserNotFound".ClassLocalizeKey(this, true), //common error in this class
                     "Could not find the User you asked for.", nameof(userId).CamelToPascal());
 
             authUser.UpdateIsDisabled(isDisabled);
@@ -223,11 +222,11 @@ namespace AuthPermissions.AdminCode.Services
             string userName, List<string> roleNames, string tenantName = null)
         {
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully added a AuthUser with the name {userName ?? email}");
 
             if (email != null && !email.IsValidEmail())
-                status.AddErrorFormattedWithParams("InvalidEmail".ClassLocalizeKey(this), //common error in this class
+                status.AddErrorFormattedWithParams("InvalidEmail".ClassLocalizeKey(this, true), //common error in this class
                     $"The email '{email}' is not a valid email.", nameof(email).CamelToPascal());
 
             //Find the tenant
@@ -236,7 +235,7 @@ namespace AuthPermissions.AdminCode.Services
                 : await _context.Tenants.Include(x => x.TenantRoles)
                     .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
             if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyItemName && foundTenant == null)
-                status.AddErrorFormattedWithParams("TenantNotFound".ClassLocalizeKey(this), //common error in this class
+                status.AddErrorFormattedWithParams("TenantNotFound".ClassLocalizeKey(this, true), //common error in this class
                     $"A tenant with the name '{tenantName}' wasn't found.", nameof(tenantName).CamelToPascal());
 
             //Find/check the roles
@@ -282,13 +281,13 @@ namespace AuthPermissions.AdminCode.Services
 
             email ??= foundUserStatus.Result.Email;
             userName ??= foundUserStatus.Result.UserName;
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully updated a AuthUser with the name {userName ?? email}");
 
             var authUserToUpdate = foundUserStatus.Result;
 
             if (email != null && !email.IsValidEmail())
-                status.AddErrorFormattedWithParams("InvalidEmail".ClassLocalizeKey(this), //common error in this class
+                status.AddErrorFormattedWithParams("InvalidEmail".ClassLocalizeKey(this, true), //common error in this class
                     $"The email '{email}' is not a valid email.", nameof(email).CamelToPascal());
 
             //Now we update the existing AuthUser's email and userName
@@ -311,7 +310,7 @@ namespace AuthPermissions.AdminCode.Services
                         .SingleOrDefaultAsync(x => x.TenantFullName == tenantName);
 
                 if (!string.IsNullOrEmpty(tenantName) && tenantName != CommonConstants.EmptyItemName && foundTenant == null)
-                    status.AddErrorFormattedWithParams("TenantNotFound".ClassLocalizeKey(this), //common error in this class
+                    status.AddErrorFormattedWithParams("TenantNotFound".ClassLocalizeKey(this, true), //common error in this class
                         $"A tenant with the name '{tenantName}' wasn't found.", nameof(email).CamelToPascal());
 
                 authUserToUpdate.UpdateUserTenant(foundTenant);
@@ -352,13 +351,13 @@ namespace AuthPermissions.AdminCode.Services
             var authUser = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (authUser == null)
-                return status.AddErrorString("UserNotFound".ClassLocalizeKey(this), //common error in this class
+                return status.AddErrorString("UserNotFound".ClassLocalizeKey(this, true), //common error in this class
                     "Could not find the User you asked for.", nameof(userId).CamelToPascal());
 
             _context.Remove(authUser);
             status.CombineStatuses( await _context.SaveChangesWithChecksAsync());
 
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully deleted the user {authUser.UserName ?? authUser.Email}.");
 
             return status;
@@ -450,7 +449,7 @@ namespace AuthPermissions.AdminCode.Services
             //Build useful summary
             var changeStrings = Enum.GetValues<SyncAuthUserChangeTypes>().ToList()
                 .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChangeType == x)}");
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this),
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Sync successful: {(string.Join(", ", changeStrings))}");
 
             return status;
@@ -483,7 +482,7 @@ namespace AuthPermissions.AdminCode.Services
             if (foundRoles.Count != (roleNames?.Count ?? 0))
             {
                 foreach (var badRoleName in roleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
-                    status.AddErrorFormatted("RoleNotFound".ClassMethodLocalizeKey(this),
+                    status.AddErrorFormatted("RoleNotFound".ClassMethodLocalizeKey(this, true),
                         $"The Role '{badRoleName}' was not found in the lists of Roles.");
             }
 
@@ -491,16 +490,16 @@ namespace AuthPermissions.AdminCode.Services
             foreach (var foundRole in foundRoles)
             {
                 if (usersTenant == null && foundRole.RoleType == RoleTypes.TenantAdminAdd)
-                    status.AddErrorFormatted("NonTenantNotAllowed".ClassMethodLocalizeKey(this),
+                    status.AddErrorFormatted("NonTenantNotAllowed".ClassMethodLocalizeKey(this, true),
                         $"The role '{foundRole.RoleName}' isn't allowed to a non-tenant user.");
 
                 if (usersTenant != null && foundRole.RoleType == RoleTypes.HiddenFromTenant)
-                    status.AddErrorFormatted("TenantNotAllowed".ClassMethodLocalizeKey(this), 
+                    status.AddErrorFormatted("TenantNotAllowed".ClassMethodLocalizeKey(this, true), 
                         $"The role '{foundRole.RoleName}' isn't allowed to tenant user.");
                 
                 if (usersTenant != null && foundRole.RoleType == RoleTypes.TenantAdminAdd
                     && !usersTenant.TenantRoles.Contains(foundRole))
-                    status.AddErrorFormatted("RoleNotFoundTenant".ClassMethodLocalizeKey(this), 
+                    status.AddErrorFormatted("RoleNotFoundTenant".ClassMethodLocalizeKey(this, true), 
                         $"The role '{foundRole.RoleName}' wasn't found in the tenant '{usersTenant.TenantFullName}' tenant roles.");
             }
 
