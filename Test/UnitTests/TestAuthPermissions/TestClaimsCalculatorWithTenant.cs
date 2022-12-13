@@ -120,8 +120,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenant = Tenant.CreateSingleTenant("Tenant1").Result
-                         ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
+            var tenant = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
             var role = new RoleToPermissions("Role1", null, $"{((char) 1)}");
             var user = AuthPSetupHelpers.CreateTestAuthUserOk("User1", "User1@g.com", null, 
                 new List<RoleToPermissions>() { role }, tenant);
@@ -151,8 +150,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenant = Tenant.CreateSingleTenant("Tenant1").Result
-                         ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
+            var tenant = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
             tenant.UpdateShardingState("MyConnectionName", false);
             var role = new RoleToPermissions("Role1", null, $"{((char)1)}");
             var user = AuthPSetupHelpers.CreateTestAuthUserOk("User1", "User1@g.com", null, 
@@ -187,8 +185,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenant = Tenant.CreateSingleTenant("Tenant1").Result
-                         ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
+            var tenant = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
             tenant.UpdateShardingState("MyConnectionName", true);
             var role = new RoleToPermissions("Role1", null, $"{((char)1)}");
             var user = AuthPSetupHelpers.CreateTestAuthUserOk("User1", "User1@g.com", null, 
@@ -223,8 +220,7 @@ namespace Test.UnitTests.TestAuthPermissions
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
 
-            var tenant = Tenant.CreateSingleTenant("Tenant1").Result
-                         ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
+            var tenant = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
             var role = new RoleToPermissions("Role1", null, $"{((char)1)}");
             var user = AuthPSetupHelpers.CreateTestAuthUserOk("User1", "User1@g.com", null,
                 new List<RoleToPermissions> { role }, tenant);

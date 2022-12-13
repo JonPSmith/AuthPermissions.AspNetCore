@@ -92,7 +92,7 @@ public class TestSetRemoveStatusService
     public async Task TestTenantDownSingleTenant(TenantDownVersions downVersion)
     {
         //SETUP
-        var testTenant = Tenant.CreateSingleTenant("TestTenant").Result;
+        var testTenant = AuthPSetupHelpers.CreateTestSingleTenantOk("TestTenant");
         SaveTenantToDatabase(testTenant);
 
         var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(testTenant));
@@ -113,7 +113,7 @@ public class TestSetRemoveStatusService
     public async Task TestTenantDownSingleTenant_Remove(TenantDownVersions downVersion)
     {
         //SETUP
-        var testTenant = Tenant.CreateSingleTenant("TestTenant").Result;
+        var testTenant = AuthPSetupHelpers.CreateTestSingleTenantOk("TestTenant");
         SaveTenantToDatabase(testTenant);
 
         var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(testTenant));
@@ -131,7 +131,7 @@ public class TestSetRemoveStatusService
     public async Task TestTenantDown_HierarchicalTenant_NoParent()
     {
         //SETUP
-        var testTenant = Tenant.CreateHierarchicalTenant("TestTenant", null).Result;
+        var testTenant = AuthPSetupHelpers.CreateTestHierarchicalTenantOk("TestTenant", null);
         SaveTenantToDatabase(testTenant);
 
         var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(testTenant));
@@ -149,9 +149,9 @@ public class TestSetRemoveStatusService
     public async Task TestTenantDown_HierarchicalTenant_WithParent()
     {
         //SETUP
-        var parentTenant = Tenant.CreateHierarchicalTenant("Parent", null).Result;
+        var parentTenant = AuthPSetupHelpers.CreateTestHierarchicalTenantOk("Parent", null);
         SaveTenantToDatabase(parentTenant);
-        var childTenant = Tenant.CreateHierarchicalTenant("Child", parentTenant).Result;
+        var childTenant = AuthPSetupHelpers.CreateTestHierarchicalTenantOk("Child", parentTenant);
         SaveTenantToDatabase(childTenant);
 
         var removeService = new SetRemoveStatus(_fsCache, new StubAuthTenantAdminService(parentTenant, childTenant));
@@ -171,7 +171,7 @@ public class TestSetRemoveStatusService
     public async Task TestTenantDown_Sharding(bool hasOwnDb)
     {
         //SETUP
-        var testTenant = Tenant.CreateSingleTenant("TestTenant", null).Result;
+        var testTenant = AuthPSetupHelpers.CreateTestSingleTenantOk("TestTenant", null);
         var context = SaveTenantToDatabase(testTenant);
         testTenant.UpdateShardingState("DatabaseInfoName", hasOwnDb);
         context.SaveChanges();

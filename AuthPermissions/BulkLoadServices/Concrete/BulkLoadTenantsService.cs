@@ -7,6 +7,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -72,7 +73,8 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                     var rolesStatus = GetCheckTenantRoles(tenantDefinition.TenantRolesCommaDelimited,
                         tenantDefinition.TenantName);
                     status.CombineStatuses(rolesStatus);
-                    var tenantStatus = Tenant.CreateSingleTenant(tenantDefinition.TenantName, rolesStatus.Result);
+                    var tenantStatus = Tenant.CreateSingleTenant(tenantDefinition.TenantName, 
+                        new StubLocalizeWithDefault<LocalizeResources>(), rolesStatus.Result);
                     
                     if (status.CombineStatuses(tenantStatus).IsValid)
                     {
@@ -120,7 +122,8 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         var parent = tenantInfo.Parent == null
                             ? null
                             : await _context.Tenants.SingleAsync(x => x.TenantId == tenantInfo.Parent.CreatedTenantId);
-                        var newTenantStatus = Tenant.CreateHierarchicalTenant(fullname, parent, rolesStatus.Result);
+                        var newTenantStatus = Tenant.CreateHierarchicalTenant(fullname, parent, 
+                            new StubLocalizeWithDefault<LocalizeResources>(), rolesStatus.Result);
                         _context.Add(newTenantStatus.Result);
 
                         if (status.IsValid)

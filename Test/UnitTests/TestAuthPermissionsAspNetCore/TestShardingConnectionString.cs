@@ -10,6 +10,7 @@ using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Test.StubClasses;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;
 using Xunit;
@@ -178,11 +179,11 @@ public class TestShardingConnectionString
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var tenant1 = Tenant.CreateSingleTenant("Tenant1").Result;
+        var tenant1 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
         tenant1.UpdateShardingState("Default Database", false);
-        var tenant2 = Tenant.CreateSingleTenant("Tenant3").Result;
+        var tenant2 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant3");
         tenant2.UpdateShardingState("Default Database", false);
-        var tenant3 = Tenant.CreateSingleTenant("Tenant2").Result;
+        var tenant3 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant2");
         tenant3.UpdateShardingState("Another", false);
         context.AddRange(tenant1, tenant2, tenant3);
         context.SaveChanges();
@@ -225,11 +226,11 @@ public class TestShardingConnectionString
 
         if (addTenantDefaultDatabase)
         {
-            var tenant1 = Tenant.CreateSingleTenant("Tenant1").Result;
+            var tenant1 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
             tenant1.UpdateShardingState(FormAuthOptionsForSharding().ShardingDefaultDatabaseInfoName, true);
             context.Add(tenant1);
         }
-        var tenant2 = Tenant.CreateSingleTenant("Tenant2").Result;
+        var tenant2 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant2");
         tenant2.UpdateShardingState("Another", false);
         context.Add(tenant2);
         context.SaveChanges();

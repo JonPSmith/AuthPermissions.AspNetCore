@@ -151,7 +151,7 @@ namespace AuthPermissions.AdminCode.Services
             {
                 var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
-                var newTenantStatus = Tenant.CreateSingleTenant(tenantName, tenantRolesStatus.Result);
+                var newTenantStatus = Tenant.CreateSingleTenant(tenantName, _localizeDefault, tenantRolesStatus.Result);
                 status.SetResult(newTenantStatus.Result);
 
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
@@ -246,7 +246,7 @@ namespace AuthPermissions.AdminCode.Services
 
                 var tenantRolesStatus = await GetRolesWithChecksAsync(tenantRoleNames);
                 status.CombineStatuses(tenantRolesStatus);
-                var newTenantStatus = Tenant.CreateHierarchicalTenant(fullTenantName, parentTenant, tenantRolesStatus.Result);
+                var newTenantStatus = Tenant.CreateHierarchicalTenant(fullTenantName, parentTenant, _localizeDefault, tenantRolesStatus.Result);
                 status.SetResult(newTenantStatus.Result);
                 
                 if (status.CombineStatuses(newTenantStatus).HasErrors)
@@ -355,7 +355,7 @@ namespace AuthPermissions.AdminCode.Services
             if (status.CombineStatuses(tenantRolesStatus).HasErrors)
                 return status;
 
-            var updateStatus = tenant.UpdateTenantRoles(tenantRolesStatus.Result);
+            var updateStatus = tenant.UpdateTenantRoles(tenantRolesStatus.Result, _localizeDefault);
             if (updateStatus.HasErrors)
                 return updateStatus;
 

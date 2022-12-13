@@ -102,17 +102,16 @@ public class TestIssue0013
             var tenantRoles = originalType == RoleTypes.TenantAutoAdd || originalType == RoleTypes.TenantAdminAdd
                 ? new List<RoleToPermissions> { role }
                 : new List<RoleToPermissions>();
-            tenant = Tenant.CreateSingleTenant("Tenant1", tenantRoles).Result;
+            tenant = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1", tenantRoles);
         }
 
         if (originalType == RoleTypes.Normal
             || originalType == RoleTypes.TenantAdminAdd
             || originalType == RoleTypes.HiddenFromTenant)
         {
-            var userStatus = AuthPSetupHelpers.CreateTestAuthUser("User1", "User1@g.com", null,
+            var authUser = AuthPSetupHelpers.CreateTestAuthUserOk("User1", "User1@g.com", null,
                 new List<RoleToPermissions> { role }, tenant);
-            userStatus.IsValid.ShouldBeTrue(userStatus.GetAllErrors());
-            context.Add(userStatus.Result);
+            context.Add(authUser);
         }
 
         context.SaveChanges();

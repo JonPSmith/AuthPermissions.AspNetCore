@@ -49,7 +49,7 @@ public class TestAzureAdUserManager
         var service = new AzureAdNewUserManager(userAdmin, tenantAdmin, azureAdStub, azureOptions);
 
         if (tenantType == TenantTypes.SingleLevel)
-            context.Add(Tenant.CreateSingleTenant("Company").Result);
+            context.Add(AuthPSetupHelpers.CreateTestSingleTenantOk("Company"));
         else if (tenantType == TenantTypes.HierarchicalTenant)
             await context.BulkLoadHierarchicalTenantInDbAsync();
         context.SaveChanges();

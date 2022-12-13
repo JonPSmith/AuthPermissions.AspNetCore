@@ -69,7 +69,7 @@ public class TestLinkToTenantDataService
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var tenant = Tenant.CreateSingleTenant("Tenant1").Result;
+        var tenant = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
         tenant.UpdateShardingState("MyConnectionName", true);
         var authUser = AuthPSetupHelpers.CreateTestAuthUserOk("user1", "user1@g.com", null);
         context.AddRange(authUser, tenant);

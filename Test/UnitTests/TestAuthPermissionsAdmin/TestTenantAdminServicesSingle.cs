@@ -215,8 +215,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var role1 = new RoleToPermissions("TenantRole1", null, $"{(char)1}{(char)3}", RoleTypes.TenantAutoAdd);
             var role2 = new RoleToPermissions("TenantRole2", null, $"{(char)2}{(char)3}", RoleTypes.TenantAdminAdd);
             context.AddRange(role1, role2);
-            var newTenant = Tenant.CreateSingleTenant("Tenant1", new List<RoleToPermissions> { role1 }).Result
-                            ?? throw new AuthPermissionsException("CreateSingleTenant had errors.");
+            var newTenant =
+                AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1", new List<RoleToPermissions> { role1 });
             context.Add(newTenant);
             context.SaveChanges();
 

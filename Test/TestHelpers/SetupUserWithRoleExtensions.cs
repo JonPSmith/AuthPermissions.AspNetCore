@@ -30,9 +30,7 @@ public static class SetupUserWithRoleExtensions
             ? new List<RoleToPermissions> { rolePer2 }
             : new List<RoleToPermissions>();
 
-        var tenant = userHasTenant
-            ? Tenant.CreateSingleTenant("Tenant1", rolesForTenant).Result 
-                ?? throw new AuthPermissionsException("CreateSingleTenant had errors.")
+        var tenant = userHasTenant ? AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1", rolesForTenant)
             : null;
 
         context.AddRange(rolePer1, rolePer2);
@@ -40,12 +38,11 @@ public static class SetupUserWithRoleExtensions
             ? new List<RoleToPermissions>() { rolePer1, rolePer2 }
             : new List<RoleToPermissions>() { rolePer1 };
 
-        var status = AuthPSetupHelpers.CreateTestAuthUser("User1", "User1@g.com", null, rolesForUsers, tenant);
-        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        var authUser = AuthPSetupHelpers.CreateTestAuthUserOk("User1", "User1@g.com", null, rolesForUsers, tenant);
 
-        context.Add(status.Result);
+        context.Add(authUser);
         context.SaveChanges();
 
-        return status.Result;
+        return authUser;
     }
 }

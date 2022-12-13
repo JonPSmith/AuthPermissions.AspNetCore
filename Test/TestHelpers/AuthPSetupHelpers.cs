@@ -13,7 +13,7 @@ using Example4.ShopCode.EfCoreClasses;
 using Example4.ShopCode.EfCoreCode;
 using Example6.SingleLevelSharding.AppStart;
 using Example6.SingleLevelSharding.EfCoreCode;
-using StatusGeneric;
+using LocalizeMessagesAndErrors;
 using Test.StubClasses;
 using Xunit.Extensions.AssertExtensions;
 
@@ -21,22 +21,52 @@ namespace Test.TestHelpers
 {
     public static class AuthPSetupHelpers
     {
-
-        public static IStatusGeneric<AuthUser> CreateTestAuthUser(string userId, string email,
-            string userName, List<RoleToPermissions> roles, Tenant userTenant = null)
-        {
-            return AuthUser.CreateAuthUser(userId, email, userName, roles,
-                new StubLocalizeDefaultWithLogging<LocalizeResources>(), userTenant);
-        }
-
-        public static AuthUser CreateTestAuthUserOk(string userId, string email, string userName, 
+        /// <summary>
+        /// Use this to create a AuthUser in your tests
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="email"></param>
+        /// <param name="userName"></param>
+        /// <param name="roles"></param>
+        /// <param name="userTenant"></param>
+        /// <returns></returns>
+        public static AuthUser CreateTestAuthUserOk(string userId, string email, string userName,
             List<RoleToPermissions> roles = null, Tenant userTenant = null)
         {
-            var status = CreateTestAuthUser(userId, email, userName, roles ?? new List<RoleToPermissions>(), userTenant);
+            var status = AuthUser.CreateAuthUser(userId, email, userName, roles ?? new List<RoleToPermissions>(),
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), userTenant);
             status.IfErrorsTurnToException();
-
             return status.Result;
         }
+
+        /// <summary>
+        /// Use this to create a SingleTenant Tenant in your tests
+        /// </summary>
+        /// <param name="fullTenantName"></param>
+        /// <param name="tenantRoles"></param>
+        /// <returns></returns>
+        public static Tenant CreateTestSingleTenantOk(string fullTenantName, List<RoleToPermissions> tenantRoles = null)
+        {
+            var status = Tenant.CreateSingleTenant(fullTenantName, 
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), tenantRoles);
+            status.IfErrorsTurnToException();
+            return status.Result;
+        }
+
+        /// <summary>
+        /// Use this to create a Hierarchical Tenant in your tests
+        /// </summary>
+        /// <param name="fullTenantName"></param>
+        /// <param name="tenantRoles"></param>
+        /// <returns></returns>
+        public static Tenant CreateTestHierarchicalTenantOk(string fullTenantName, Tenant parent, List<RoleToPermissions> tenantRoles = null)
+        {
+            var status = Tenant.CreateHierarchicalTenant(fullTenantName, parent,
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), tenantRoles);
+            status.IfErrorsTurnToException();
+            return status.Result;
+        }
+
 
         public static AuthPJwtConfiguration CreateTestJwtSetupData(TimeSpan expiresIn = default)
         {
@@ -107,9 +137,9 @@ namespace Test.TestHelpers
         {
             var tenants = new []
             {
-                Tenant.CreateSingleTenant("Tenant1").Result,
-                Tenant.CreateSingleTenant("Tenant2").Result,
-                Tenant.CreateSingleTenant("Tenant3").Result,
+                CreateTestSingleTenantOk("Tenant1"),
+                CreateTestSingleTenantOk("Tenant2"),
+                CreateTestSingleTenantOk("Tenant3"),
             };
 
             context.AddRange(tenants);
@@ -139,9 +169,9 @@ namespace Test.TestHelpers
         {
             var tenants = new List<Tenant>
             {
-                Tenant.CreateSingleTenant("Tenant1").Result,
-                Tenant.CreateSingleTenant("Tenant2").Result,
-                Tenant.CreateSingleTenant("Tenant3").Result,
+                CreateTestSingleTenantOk("Tenant1"),
+                CreateTestSingleTenantOk("Tenant2"),
+                CreateTestSingleTenantOk("Tenant3"),
             };
 
             tenants.ForEach(x => x.UpdateShardingState("Default Database", false));

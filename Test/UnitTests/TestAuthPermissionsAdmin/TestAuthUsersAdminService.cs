@@ -282,8 +282,8 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.Database.EnsureCreated();
 
             await context.SetupRolesInDbAsync();
-            var tenant1 = Tenant.CreateSingleTenant("Tenant1").Result;
-            var tenant2 = Tenant.CreateSingleTenant("Tenant2").Result;
+            var tenant1 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
+            var tenant2 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant2");
             var user = AuthPSetupHelpers.CreateTestAuthUserOk("User1", "User1@gmail.com", "User1 Name",
                 new List<RoleToPermissions>(), addTenant1 ? tenant1 : null);
             context.AddRange(tenant1, tenant2, user);

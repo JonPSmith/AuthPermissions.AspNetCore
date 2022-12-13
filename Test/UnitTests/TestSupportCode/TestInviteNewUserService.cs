@@ -50,7 +50,7 @@ public class TestInviteNewUserService
                 new StubAddNewUserManager(userAdmin));
 
         if (tenantType == TenantTypes.SingleLevel)
-            context.Add(Tenant.CreateSingleTenant("Company").Result);
+            context.Add(AuthPSetupHelpers.CreateTestSingleTenantOk("Company"));
         else if (tenantType == TenantTypes.HierarchicalTenant)
             await context.BulkLoadHierarchicalTenantInDbAsync();
         context.SaveChanges();
