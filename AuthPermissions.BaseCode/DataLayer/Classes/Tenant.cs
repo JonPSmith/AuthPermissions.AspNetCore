@@ -225,7 +225,7 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
                 throw new AuthPermissionsException(
                     $"You must include the tenant's {nameof(TenantRoles)} in your query before you can add/remove an tenant role.");
 
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", localizeDefault);
             return status.CombineStatuses(CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, this, localizeDefault));
         }
 
