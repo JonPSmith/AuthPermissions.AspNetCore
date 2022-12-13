@@ -254,7 +254,7 @@ public class TestInviteNewUserService
         context.Database.EnsureCreated();
 
         var tuple = await CreateInviteAndAddSenderAuthUserAsync(context, tenantType);
-        context.Add( AuthUser.CreateAuthUser("AppAdminId", "AppAdmin@g.com", null, new List<RoleToPermissions>()).Result);
+        context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("AppAdminId", "AppAdmin@g.com", null));
         context.SaveChanges();
 
         context.ChangeTracker.Clear();

@@ -38,6 +38,9 @@ namespace AuthPermissions.BaseCode
         /// <returns></returns>
         public IStatusGeneric CheckThisJwtConfiguration()
         {
+            //This isn't changed to StatusGenericLocalizer because
+            //a) its used while it is called during the registering the services
+            //b) The errors are turned into an exception
             var status = new StatusGenericHandler("AuthP JWT Token config");
 
             if (string.IsNullOrEmpty(Issuer))

@@ -6,6 +6,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using EntityFramework.Exceptions.SqlServer;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -24,7 +25,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             context.Database.EnsureClean();
 
             //ATTEMPT
-            context.Add(AuthUser.CreateAuthUser("123", null, "userName", new List<RoleToPermissions>()).Result);
+            context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", null, "userName"));
             var status = context.SaveChangesWithChecks();
 
             //VERIFY
@@ -40,7 +41,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
-            context.Add(AuthUser.CreateAuthUser("123", "j@gmail.com", "userName", new List<RoleToPermissions>()).Result);
+            context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "j@gmail.com", "userName"));
             var status = context.SaveChangesWithChecks();
 
             //VERIFY
@@ -58,7 +59,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
 
             //ATTEMPT
             var ex = Assert.Throws<AuthPermissionsBadDataException>(() =>
-                AuthUser.CreateAuthUser("123", null, null, new List<RoleToPermissions>()).Result);
+                AuthPSetupHelpers.CreateTestAuthUserOk("123", null, null));
 
             //VERIFY
             ex.Message.ShouldEqual("The Email and UserName can't both be null.");

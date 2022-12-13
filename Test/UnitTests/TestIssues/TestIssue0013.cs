@@ -109,7 +109,7 @@ public class TestIssue0013
             || originalType == RoleTypes.TenantAdminAdd
             || originalType == RoleTypes.HiddenFromTenant)
         {
-            var userStatus = AuthUser.CreateAuthUser("User1", "User1@g.com", null,
+            var userStatus = AuthPSetupHelpers.CreateTestAuthUser("User1", "User1@g.com", null,
                 new List<RoleToPermissions> { role }, tenant);
             userStatus.IsValid.ShouldBeTrue(userStatus.GetAllErrors());
             context.Add(userStatus.Result);

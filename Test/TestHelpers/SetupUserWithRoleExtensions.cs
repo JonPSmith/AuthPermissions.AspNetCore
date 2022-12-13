@@ -2,10 +2,12 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using Test.StubClasses;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers;
@@ -38,7 +40,7 @@ public static class SetupUserWithRoleExtensions
             ? new List<RoleToPermissions>() { rolePer1, rolePer2 }
             : new List<RoleToPermissions>() { rolePer1 };
 
-        var status = AuthUser.CreateAuthUser("User1", "User1@g.com", null, rolesForUsers, tenant);
+        var status = AuthPSetupHelpers.CreateTestAuthUser("User1", "User1@g.com", null, rolesForUsers, tenant);
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
 
         context.Add(status.Result);

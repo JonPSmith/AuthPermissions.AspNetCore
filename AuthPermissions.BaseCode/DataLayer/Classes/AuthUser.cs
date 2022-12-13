@@ -3,8 +3,10 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using LocalizeMessagesAndErrors;
 using StatusGeneric;
 
 namespace AuthPermissions.BaseCode.DataLayer.Classes
@@ -37,12 +39,15 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <param name="email">user's email - especially useful in Web applications</param>
         /// <param name="userName">username - used when using Windows authentication. Generally useful for admin too.</param>
         /// <param name="roles">List of AuthP Roles for this user</param>
+        /// <param name="localizeDefault">This provides the localize service</param>
         /// <param name="userTenant">optional: defines multi-tenant tenant for this user</param>
-        public static IStatusGeneric<AuthUser> CreateAuthUser(string userId, string email, string userName, List<RoleToPermissions> roles, Tenant userTenant = null)
+        public static IStatusGeneric<AuthUser> CreateAuthUser(string userId, string email,
+            string userName, List<RoleToPermissions> roles, ILocalizeWithDefault<LocalizeResources> localizeDefault,
+            Tenant userTenant = null)
         {
-            var status = new StatusGenericHandler<AuthUser>();
-                
-            status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant != null));
+            var status = new StatusGenericLocalizer<AuthUser, LocalizeResources>("en", localizeDefault);
+
+            status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant != null, localizeDefault));
             if (status.HasErrors)
                 return status;
 
@@ -131,55 +136,18 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         // Access methods
 
         /// <summary>
-        /// Adds a RoleToPermissions to the user
-        /// </summary>
-        /// <param name="role"></param>
-        /// <returns>true if added. False if already there</returns>
-        public IStatusGeneric<bool> AddRoleToUser(RoleToPermissions role)
-        {
-            if (role == null) throw new ArgumentNullException(nameof(role));
-            if (_userRoles == null)
-                throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
-
-            var status = new StatusGenericHandler<bool>();
-            status.CombineStatuses(CheckRolesAreValidForUser(new List<RoleToPermissions>{role}, TenantId != null));
-            if (status.HasErrors)
-                return status;
-
-            //already in the user's roles
-            if (_userRoles.Any(x => x.RoleName == role.RoleName))
-                return status.SetResult(false);
-
-            _userRoles.Add(new UserToRole(UserId, role));
-            return status.SetResult(true); ;
-        }
-
-        /// <summary>
-        /// This removes a RoleToPermissions from a user
-        /// </summary>
-        /// <param name="role"></param>
-        /// <returns>true if role was found and removed</returns>
-        public bool RemoveRoleFromUser(RoleToPermissions role)
-        {
-            if (role == null) throw new ArgumentNullException(nameof(role));
-            if (_userRoles == null)
-                throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
-
-            var foundUserToRole = _userRoles.SingleOrDefault(x => x.RoleName == role.RoleName);
-            return _userRoles.Remove(foundUserToRole);
-        }
-
-        /// <summary>
         /// This will replace all the Roles for this AuthUser
         /// </summary>
         /// <param name="roles">List of roles to replace the current user's roles</param>
-        public IStatusGeneric ReplaceAllRoles(List<RoleToPermissions> roles)
+        /// <param name="localizeDefault"></param>
+        public IStatusGeneric ReplaceAllRoles(List<RoleToPermissions> roles, ILocalizeWithDefault<LocalizeResources> localizeDefault)
         {
             if (_userRoles == null)
                 throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
 
-            var status = new StatusGenericHandler();
-            status.CombineStatuses(CheckRolesAreValidForUser(roles, TenantId != null));
+            var status = new StatusGenericLocalizer<LocalizeResources>("en", localizeDefault);
+
+            status.CombineStatuses(CheckRolesAreValidForUser(roles, TenantId != null, localizeDefault));
             if (status.HasErrors)
                 return status;
 
@@ -229,21 +197,25 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// </summary>
         /// <param name="foundRoles"></param>
         /// <param name="tenantUser"></param>
+        /// <param name="localizeDefault">This provides the localize service</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private static IStatusGeneric CheckRolesAreValidForUser( List<RoleToPermissions> foundRoles, bool tenantUser)
+        private static IStatusGeneric CheckRolesAreValidForUser(List<RoleToPermissions> foundRoles, bool tenantUser,
+            ILocalizeWithDefault<LocalizeResources> localizeDefault)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<LocalizeResources>("en", localizeDefault);
 
             foreach (var foundRole in foundRoles)
             {
                 switch (tenantUser)
                 {
                     case true when foundRole.RoleType == RoleTypes.HiddenFromTenant:
-                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it can only be used by the App Admin.");
+                        status.AddErrorFormatted("InvalidRoleHidden".LocalizeKeyBuilder(typeof(AuthUser), true, false, true),
+                            $"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it can only be used by the App Admin.");
                         break;
                     case true when foundRole.RoleType == RoleTypes.TenantAutoAdd:
-                        status.AddError($"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it is automatically to tenant users.");
+                        status.AddErrorFormatted("InvalidRoleAutoAdd".LocalizeKeyBuilder(typeof(AuthUser), true, false, true),
+                        $"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it is automatically to tenant users.");
                         break;
                 }
             }

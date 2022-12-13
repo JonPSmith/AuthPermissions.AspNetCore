@@ -244,7 +244,7 @@ namespace AuthPermissions.AdminCode.Services
             if (status.CombineStatuses(rolesStatus).HasErrors)
                 return status;
 
-            var authUserStatus = AuthUser.CreateAuthUser(userId, email, userName, rolesStatus.Result, foundTenant);
+            var authUserStatus = AuthUser.CreateAuthUser(userId, email, userName, rolesStatus.Result, _localizeDefault, foundTenant);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
 
@@ -330,7 +330,7 @@ namespace AuthPermissions.AdminCode.Services
 
                     updatedRoles = rolesStatus.Result;
                 }
-                authUserToUpdate.ReplaceAllRoles(updatedRoles);
+                status.CombineStatuses(authUserToUpdate.ReplaceAllRoles(updatedRoles, _localizeDefault));
             }
 
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync());

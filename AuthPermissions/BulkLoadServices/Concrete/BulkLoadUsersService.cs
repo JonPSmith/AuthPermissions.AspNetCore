@@ -9,6 +9,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete.Internal;
 using AuthPermissions.SetupCode.Factories;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -115,7 +116,8 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         $"The user {userName} has a tenant name of {userDefine.TenantNameForDataKey} which wasn't found in the auth database."));
             }
 
-            var authUserStatus = AuthUser.CreateAuthUser(userId, userDefine.Email, userName, rolesToPermissions, userTenant);
+            var authUserStatus = AuthUser.CreateAuthUser(userId, userDefine.Email, userName, rolesToPermissions, 
+                new StubLocalizeWithDefault<LocalizeResources>(), userTenant);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
 

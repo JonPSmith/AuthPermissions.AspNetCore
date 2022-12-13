@@ -34,7 +34,7 @@ public class TestLinkToTenantDataService
         context.Database.EnsureCreated();
 
         var tenantIds = context.SetupSingleTenantsInDb();
-        var authUser = AuthUser.CreateAuthUser("user1", "user1@g.com", null, new List<RoleToPermissions>()).Result;
+        var authUser = AuthPSetupHelpers.CreateTestAuthUserOk("user1", "user1@g.com", null);
         context.Add(authUser);
         context.SaveChanges();
         context.ChangeTracker.Clear();
@@ -71,7 +71,7 @@ public class TestLinkToTenantDataService
 
         var tenant = Tenant.CreateSingleTenant("Tenant1").Result;
         tenant.UpdateShardingState("MyConnectionName", true);
-        var authUser = AuthUser.CreateAuthUser("user1", "user1@g.com", null, new List<RoleToPermissions>()).Result;
+        var authUser = AuthPSetupHelpers.CreateTestAuthUserOk("user1", "user1@g.com", null);
         context.AddRange(authUser, tenant);
         context.SaveChanges();
         context.ChangeTracker.Clear();
@@ -110,7 +110,7 @@ public class TestLinkToTenantDataService
         context.Database.EnsureCreated();
 
         var tenantIds = context.SetupSingleTenantsInDb();
-        var authUser = AuthUser.CreateAuthUser("user1", "user1@g.com", null, new List<RoleToPermissions>()).Result;
+        var authUser = AuthPSetupHelpers.CreateTestAuthUserOk("user1", "user1@g.com", null);
         context.Add(authUser);
         context.SaveChanges();
         context.ChangeTracker.Clear();
@@ -156,7 +156,8 @@ public class TestLinkToTenantDataService
 
         var tenantIds = context.SetupSingleTenantsInDb();
         var tenantToLinkTo = context.Tenants.First();
-        var authUser = AuthUser.CreateAuthUser("user1", "user1@g.com", null, new List<RoleToPermissions>(), tenantToLinkTo).Result;
+        var authUser = AuthPSetupHelpers.CreateTestAuthUserOk("user1", "user1@g.com", null, 
+            new List<RoleToPermissions>(), tenantToLinkTo);
         context.Add(authUser);
         context.SaveChanges();
         context.ChangeTracker.Clear();

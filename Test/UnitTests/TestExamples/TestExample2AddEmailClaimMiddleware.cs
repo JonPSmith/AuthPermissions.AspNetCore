@@ -14,7 +14,10 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using TestSupport.EfHelpers;
 using System.Collections.Generic;
 using System.Linq;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
+using LocalizeMessagesAndErrors;
+using Test.StubClasses;
 using Test.TestHelpers;
 
 namespace Test.UnitTests.TestExamples;
@@ -36,7 +39,7 @@ public class TestExample2AddEmailClaimMiddleware
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options, new []{new EmailChangeDetectorService(stubFsCache) });
         context.Database.EnsureCreated();
-        context.Add(AuthUser.CreateAuthUser("userId", "email@google.com", null, new List<RoleToPermissions>()).Result);
+        context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("userId", "email@google.com", null));
         context.SaveChanges();
 
         var services = new ServiceCollection();

@@ -7,6 +7,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.EntityFrameworkCore;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -65,13 +66,13 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
-            context.Add(AuthUser.CreateAuthUser("123", "first@gmail.com", "first", new List<RoleToPermissions>()).Result);
+            context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "first@gmail.com", "first"));
             context.SaveChanges();
 
             context.ChangeTracker.Clear();
 
             //ATTEMPT
-            context.Add(AuthUser.CreateAuthUser("123", "second@gmail.com", "second", new List<RoleToPermissions>()).Result);
+            context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "second@gmail.com", "second"));
             var status = context.SaveChangesWithChecks();
 
             //VERIFY

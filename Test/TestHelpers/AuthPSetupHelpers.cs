@@ -1,10 +1,6 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
@@ -17,12 +13,31 @@ using Example4.ShopCode.EfCoreClasses;
 using Example4.ShopCode.EfCoreCode;
 using Example6.SingleLevelSharding.AppStart;
 using Example6.SingleLevelSharding.EfCoreCode;
+using StatusGeneric;
+using Test.StubClasses;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers
 {
     public static class AuthPSetupHelpers
     {
+
+        public static IStatusGeneric<AuthUser> CreateTestAuthUser(string userId, string email,
+            string userName, List<RoleToPermissions> roles, Tenant userTenant = null)
+        {
+            return AuthUser.CreateAuthUser(userId, email, userName, roles,
+                new StubLocalizeDefaultWithLogging<LocalizeResources>(), userTenant);
+        }
+
+        public static AuthUser CreateTestAuthUserOk(string userId, string email, string userName, 
+            List<RoleToPermissions> roles = null, Tenant userTenant = null)
+        {
+            var status = CreateTestAuthUser(userId, email, userName, roles ?? new List<RoleToPermissions>(), userTenant);
+            status.IfErrorsTurnToException();
+
+            return status.Result;
+        }
+
         public static AuthPJwtConfiguration CreateTestJwtSetupData(TimeSpan expiresIn = default)
         {
 
@@ -64,8 +79,8 @@ namespace Test.TestHelpers
             var tenant = tenantName != null
                 ? context.Tenants.Single(x => x.TenantFullName == tenantName)
                 : null;
-            var user = AuthUser.CreateAuthUser("User1", email, null, 
-                new List<RoleToPermissions>() { rolePer1 }, tenant).Result;
+            var user = CreateTestAuthUserOk("User1", email, null, 
+                new List<RoleToPermissions>() { rolePer1 }, tenant);
             context.Add(user);
             context.SaveChanges();
         }
@@ -81,8 +96,8 @@ namespace Test.TestHelpers
             var userIds = userIdCommaDelimited.Split(',');
             for (int i = 0; i < userIds.Length; i++)
             {
-                var user = AuthUser.CreateAuthUser(userIds[i], $"{userIds[i]}@gmail.com", 
-                    $"first last {i}", rolesInDb.Take(i+1).ToList()).Result;
+                var user = CreateTestAuthUserOk(userIds[i], $"{userIds[i]}@gmail.com", 
+                    $"first last {i}", rolesInDb.Take(i+1).ToList());
                 context.Add(user);
             }
             context.SaveChanges();

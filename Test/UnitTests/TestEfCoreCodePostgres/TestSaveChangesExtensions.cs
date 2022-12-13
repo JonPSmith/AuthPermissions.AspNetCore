@@ -77,13 +77,13 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureClean();
 
-            context.Add(AuthUser.CreateAuthUser("123", "first@gmail.com", "first", new List<RoleToPermissions>()).Result);
+            context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "first@gmail.com", "first"));
             context.SaveChanges();
 
             context.ChangeTracker.Clear();
 
             //ATTEMPT
-            context.Add(AuthUser.CreateAuthUser("123", "second@gmail.com", "second", new List<RoleToPermissions>()).Result);
+            context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "second@gmail.com", "second"));
             var status = context.SaveChangesWithChecks();
 
             //VERIFY
