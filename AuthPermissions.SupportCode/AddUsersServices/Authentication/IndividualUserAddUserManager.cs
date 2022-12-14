@@ -2,7 +2,9 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Identity;
 using StatusGeneric;
 
@@ -21,6 +23,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly UserManager<TIdentity> _userManager;
     private readonly SignInManager<TIdentity> _signInManager;
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -29,12 +32,13 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     /// <param name="tenantAdminService"></param>
     /// <param name="userManager"></param>
     /// <param name="signInManager"></param>
-    public IndividualUserAddUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, UserManager<TIdentity> userManager, SignInManager<TIdentity> signInManager)
+    public IndividualUserAddUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, UserManager<TIdentity> userManager, SignInManager<TIdentity> signInManager, ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
         _authUsersAdmin = authUsersAdmin;
         _tenantAdminService = tenantAdminService;
         _userManager = userManager;
         _signInManager = signInManager;
+        _localizeDefault = localizeDefault;
     }
 
     /// <summary>
@@ -56,10 +60,11 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     /// <returns>status, with error if there an user already</returns>
     public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
-        var status = new StatusGenericHandler();
+        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
-            return status.AddError("There is already an AuthUser with your email, so you can't add another.",
-                nameof(AddNewUserDto.Email));
+            return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true),
+            "There is already an AuthUser with your email, so you can't add another.",
+            nameof(AddNewUserDto.Email));
         return status;
     }
 
@@ -75,7 +80,9 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     {
         UserLoginData = newUser ?? throw new ArgumentNullException(nameof(newUser));
 
-        var status = new StatusGenericHandler { Message = "New user with claims added" };
+        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
+        status.SetMessageString("SuccessAddUser".ClassLocalizeKey(this, true),
+            "New user with claims added");
 
         var user = await _userManager.FindByEmailAsync(newUser.Email);
         if (user == null)
@@ -84,11 +91,13 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
             var result = await _userManager.CreateAsync(user, newUser.Password);
             if (!result.Succeeded)
             {
-                result.Errors.Select(x => x.Description).ToList().ForEach(error => status.AddError(error));
+                result.Errors.Select(x => x.Description).ToList().
+                    ForEach(error => status.AddErrorString(this.AlreadyLocalized(), error));
             }
         }
         else if (!await _userManager.CheckPasswordAsync(user, newUser.Password))
-            status.AddError("The user was already known, but the password was wrong.",
+            status.AddErrorString("ExistUserBadPassword".ClassLocalizeKey(this, true),
+                "The user was already known, but the password was wrong.",
                 nameof(AddNewUserDto.Password));
 
         //We have created the individual user account, so we have the user's UserId.
@@ -117,7 +126,9 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
         var user = await _userManager.FindByEmailAsync(UserLoginData.Email);
         await _signInManager.SignInAsync(user, isPersistent: UserLoginData.IsPersistent);
 
-        var status = new StatusGenericHandler<AddNewUserDto> { Message = "You have been registered and logged in to this application." };
+        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>("en", _localizeDefault);
+        status.SetMessageString("SuccessRegisterLogin".ClassLocalizeKey(this, true),
+       "You have been registered and logged in to this application.");
         return status.SetResult(UserLoginData);
     }
 }

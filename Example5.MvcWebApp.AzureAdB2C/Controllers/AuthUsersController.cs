@@ -35,12 +35,12 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
         }
 
         [HasPermission(Example5Permissions.InviteUsers)]
-        public async Task<ActionResult> InviteUser([FromServices] IAuthTenantAdminService rolesAdmin)
+        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteService)
         {
             var setupInvite = new InviteUserSetup
             {
                 AllRoleNames = await _authUsersAdmin.GetRoleNamesForUsersAsync(User.GetUserIdFromUser()),
-                ExpirationTimesDropdown = InviteNewUserService.ListOfExpirationTimes()
+                ExpirationTimesDropdown = inviteService.ListOfExpirationTimes()
             };
 
             return View(setupInvite);

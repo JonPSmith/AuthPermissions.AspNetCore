@@ -4,9 +4,11 @@
 using System.Security.Cryptography;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.SupportCode.AzureAdServices;
+using LocalizeMessagesAndErrors;
 using Microsoft.Extensions.Options;
 using StatusGeneric;
 
@@ -21,6 +23,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAzureAdAccessService _azureAccessService;
     private readonly AzureAdOptions _azureOptions;
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -30,11 +33,12 @@ public class AzureAdNewUserManager : IAddNewUserManager
     /// <param name="azureAccessService"></param>
     /// <param name="azureOptions"></param>
     public AzureAdNewUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, 
-        IAzureAdAccessService azureAccessService, IOptions<AzureAdOptions> azureOptions)
+        IAzureAdAccessService azureAccessService, IOptions<AzureAdOptions> azureOptions, ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
         _authUsersAdmin = authUsersAdmin;
         _tenantAdminService = tenantAdminService;
         _azureAccessService = azureAccessService;
+        _localizeDefault = localizeDefault;
         _azureOptions = azureOptions.Value;
     }
 
@@ -57,9 +61,10 @@ public class AzureAdNewUserManager : IAddNewUserManager
     /// <returns>status, with error if there an user already</returns>
     public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
-        var status = new StatusGenericHandler();
+        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
-            return status.AddError("There is already an AuthUser with your email, so you can't add another.",
+            return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true),
+                "There is already an AuthUser with your email, so you can't add another.",
                 nameof(AddNewUserDto.Email));
         return status;
     }
@@ -101,9 +106,17 @@ public class AzureAdNewUserManager : IAddNewUserManager
         if (UserLoginData == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
-        var findCreate = UserLoginData.Password == null ? "found" : "registered";
-        var status = new StatusGenericHandler<AddNewUserDto>
-            { Message = $"Successfully {findCreate} your Azure Ad user. Now login via the 'sign in' link." };
+        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>("en", _localizeDefault);
+        if (UserLoginData.Password == null)
+        {
+            status.SetMessageString("SuccessFoundUser".ClassLocalizeKey(this, true),
+                "Successfully found your Azure Ad user. Now login via the 'sign in' link.");
+        }
+        else
+        {
+            status.SetMessageString("SuccessCreatedUser".ClassLocalizeKey(this, true),
+                "Successfully created your Azure Ad user. Now login via the 'sign in' link.");
+        }
         return Task.FromResult<IStatusGeneric<AddNewUserDto>>(status.SetResult(UserLoginData));
     }
 

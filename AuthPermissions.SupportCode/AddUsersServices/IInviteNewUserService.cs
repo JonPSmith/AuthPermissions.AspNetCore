@@ -12,6 +12,13 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 public interface IInviteNewUserService
 {
     /// <summary>
+    /// This provides a selection of expiration times for a user invite.
+    /// If you don't like the expiration times you can create your own version of this code
+    /// </summary>
+    /// <returns></returns>
+    List<KeyValuePair<long, string>> ListOfExpirationTimes();
+
+    /// <summary>
     /// This creates an encrypted string containing the information containing the
     /// invited user's email (for checking) and the AuthP user settings needed to create am AuthP user
     /// </summary>

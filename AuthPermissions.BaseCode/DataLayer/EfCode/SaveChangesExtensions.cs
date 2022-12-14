@@ -39,7 +39,8 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
                 return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError, localizeDefault);
             }
 
-            return new StatusGenericHandler();
+            //This doesn't be changed to StatusGenericLocalizer because this is just sending a valid status
+            return new StatusGenericHandler(); 
         }
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
                 return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError, localizeDefault);
             }
 
+            //This doesn't be changed to StatusGenericLocalizer because this is just sending a valid status
             return new StatusGenericHandler();
         }
 

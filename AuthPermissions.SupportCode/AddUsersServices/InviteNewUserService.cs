@@ -10,6 +10,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StatusGeneric;
@@ -26,6 +27,7 @@ public class InviteNewUserService : IInviteNewUserService
     private readonly IAuthUsersAdminService _usersAdmin;
     private readonly AuthPermissionsOptions _options;
     private readonly IAddNewUserManager _addNewUserManager;
+    private ILocalizeWithDefault<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -37,13 +39,14 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="addNewUserManager"></param>
     public InviteNewUserService(AuthPermissionsOptions options, AuthPermissionsDbContext context,
         IEncryptDecryptService encryptService,
-        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager)
+        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager, ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
         _options = options;
         _context = context;
         _encryptService = encryptService;
         _usersAdmin = usersAdmin;
         _addNewUserManager = addNewUserManager;
+        _localizeDefault = localizeDefault;
     }
 
     /// <summary>
@@ -51,18 +54,30 @@ public class InviteNewUserService : IInviteNewUserService
     /// If you don't like the expiration times you can create your own version of this code
     /// </summary>
     /// <returns></returns>
-    public static List<KeyValuePair<long, string>> ListOfExpirationTimes()
+    public List<KeyValuePair<long, string>> ListOfExpirationTimes()
     {
-        return new List<KeyValuePair<long, string>>
+        var result = new List<KeyValuePair<long, string>>();
+        result.Add(new(default, 
+            _localizeDefault.LocalizeStringMessage("Forever".ClassLocalizeKey(this, true), "en",
+            "Invite is valid forever.")));
+        result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
+            _localizeDefault.LocalizeStringMessage("1Hour".ClassLocalizeKey(this, true), "en",
+                "Invite is only valid for 1 hour from now.")));
+        result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
+            _localizeDefault.LocalizeStringMessage("6Hour".ClassLocalizeKey(this, true), "en",
+                "Invite is only valid for 6 hours from now.")));
+        result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
+            _localizeDefault.LocalizeStringMessage("24Hour".ClassLocalizeKey(this, true), "en",
+                "Invite is only valid for 24 hours from now.")));
+
+        foreach (var numDays in new[]{3, 7, 20})
         {
-            new(default, "Invite is valid forever."),
-            new(DateTime.UtcNow.AddHours(1).Ticks, "Invite is only valid for 1 hour from now."),
-            new(DateTime.UtcNow.AddHours(6).Ticks, "Invite is only valid for 6 hours from now."),
-            new(DateTime.UtcNow.AddDays(1).Ticks, "Invite is only valid for 24 hours from now."),
-            new(DateTime.UtcNow.AddDays(3).Ticks, "Invite is only valid for 3 days from now."),
-            new(DateTime.UtcNow.AddDays(7).Ticks, "Invite is only valid for 7 days from now."),
-            new(DateTime.UtcNow.AddDays(20).Ticks, "Invite is only valid for 20 days from now."),
-        };
+            result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
+                _localizeDefault.LocalizeStringMessage($"{numDays}Days".ClassLocalizeKey(this, true), "en",
+                    $"Invite is only valid for {numDays} days from now.")));
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -77,7 +92,7 @@ public class InviteNewUserService : IInviteNewUserService
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
     public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId)
     {
-        var status = new StatusGenericHandler<string>();
+        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
 
         if (userId == null)
             throw new ArgumentNullException(nameof(userId));
@@ -87,7 +102,8 @@ public class InviteNewUserService : IInviteNewUserService
             throw new AuthPermissionsException("User must be registered with AuthP");
 
         if (string.IsNullOrEmpty(invitedUser.Email) && string.IsNullOrEmpty(invitedUser.UserName))
-            return status.AddError("You must provide an email or username for the invitation.",
+            return status.AddErrorString("EmptyEmailOrUserName".ClassLocalizeKey(this, true),
+                "You must provide an email or username for the invitation.",
                 nameof(AddNewUserDto.Email), nameof(AddNewUserDto.UserName));
 
         Tenant foundTenant = null;
@@ -116,12 +132,14 @@ public class InviteNewUserService : IInviteNewUserService
                     //Check that the tenant is within the scope of the inviting user 
                     if (foundTenant != null && !foundTenant.GetTenantDataKey()
                             .StartsWith(inviterStatus.Result.UserTenant.GetTenantDataKey()))
-                        return status.AddError("The Tenant you have selected isn't within your group.",
+                        return status.AddErrorString("InvalidTenant".ClassLocalizeKey(this, true),
+                            "The Tenant you have selected isn't within your group.",
                             nameof(AddNewUserDto.TenantId));
                 }
 
                 if (invitedUser.TenantId == null)
-                    return status.AddError("You forgot to select a tenant for the invite.",
+                    return status.AddErrorString("SelectTenant".ClassLocalizeKey(this, true), 
+                        "You forgot to select a tenant for the invite.",
                         nameof(AddNewUserDto.TenantId));
             }
 
@@ -130,7 +148,8 @@ public class InviteNewUserService : IInviteNewUserService
                 //check that the tenantId is valid
                 foundTenant ??= await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == invitedUser.TenantId);
                 if (foundTenant == null)
-                    return status.AddError("The tenant you selected isn't correct.",
+                    return status.AddErrorString("BadTenant".ClassLocalizeKey(this, true),
+                        "The tenant you selected isn't correct.",
                         nameof(AddNewUserDto.TenantId));
 
                 if (invitedUser.Roles != null)
@@ -141,14 +160,15 @@ public class InviteNewUserService : IInviteNewUserService
                             && (x.RoleType == RoleTypes.HiddenFromTenant || x.RoleType == RoleTypes.TenantAutoAdd))
                         .Select(x => x.RoleName).ToListAsync();
                     if (badRoles.Any())
-                        return status.AddError("The following Roles aren't allowed for a tenant user: "+string.Join(", ", badRoles),
+                        return status.AddErrorFormattedWithParams("BadRoles".ClassLocalizeKey(this, true),
+                            $"The following Roles aren't allowed for a tenant user: {string.Join(", ", badRoles)}",
                             nameof(AddNewUserDto.Roles));
                 }
             }
         }
 
         if (invitedUser.Roles == null || !invitedUser.Roles.Any())
-            return status.AddError(
+            return status.AddErrorString("NoRoles".ClassLocalizeKey(this, true),
                 "You haven't set up any Roles for the invited user. If you really what the user to have no roles, then select the "
                 + $"'{CommonConstants.EmptyItemName}' dropdown item.",
                 nameof(AddNewUserDto.Roles));
@@ -157,18 +177,40 @@ public class InviteNewUserService : IInviteNewUserService
         //    //set Roles to null
         //    invitedUser.Roles = null;
 
-        status.Message =
-            invitedUser.TenantId == null && _options.TenantType.IsMultiTenant()
-                ? "WARNING: you are creating an invite that will make the user an app admin (i.e. not a tenant). " +
-                  "This is allowable, but only send the invite if you are sure that what you want to do."
-                : $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join " +
-                  (invitedUser.TenantId == null
-                      ? "your application."
-                      : $"the tenant '{foundTenant.TenantFullName}'.");
+        var messages = new List<FormattableString>();
+        string localKey = null;
+
+        if (invitedUser.TenantId == null && _options.TenantType.IsMultiTenant())
+        {
+            localKey = "WarningAdminUser";
+            messages.Add($"WARNING: you are creating an invite that will make the user an app admin (i.e. not a tenant). ");
+            messages.Add($"This is allowable, but only send the invite if you are sure that what you want to do.");
+        }
+        else
+        {
+            if (invitedUser.TenantId == null)
+            {
+                localKey = "SendInviteApp";
+                messages.Add(
+                    $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join your application.");
+            }
+            else
+            {
+                localKey = "SendInviteTenant";
+                messages.Add(
+                    $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join the tenant '{foundTenant.TenantFullName}'.");
+
+            }
+
+        }
 
         if (invitedUser.TimeInviteExpires != default)
-            status.Message +=
-                $" This invite expires on local time {new DateTime(invitedUser.TimeInviteExpires).ToLocalTime():g}.";
+        {
+            localKey += "-Expires";
+            messages.Add($" This invite expires on local time {new DateTime(invitedUser.TimeInviteExpires).ToLocalTime():g}.");
+        }
+
+        status.SetMessageFormatted(localKey.ClassLocalizeKey(this, true), messages.ToArray());
 
         //This setting makes the string shorter
         JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };

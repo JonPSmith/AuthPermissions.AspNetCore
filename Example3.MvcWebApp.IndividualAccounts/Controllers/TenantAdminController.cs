@@ -61,12 +61,12 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 
 
         [HasPermission(Example3Permissions.InviteUsers)]
-        public async Task<ActionResult> InviteUser([FromServices]IAuthTenantAdminService rolesAdmin)
+        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteService)
         {
             var setupInvite = new InviteUserSetup
             {
                 AllRoleNames = await _authUsersAdmin.GetRoleNamesForUsersAsync(User.GetUserIdFromUser()),
-                ExpirationTimesDropdown = InviteNewUserService.ListOfExpirationTimes()
+                ExpirationTimesDropdown = inviteService.ListOfExpirationTimes()
             }; 
 
             return View(setupInvite);

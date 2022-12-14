@@ -46,7 +46,8 @@ public class TestAzureAdUserManager
         var azureAdStub = new StubAzureAdAccessService();
         var azureOptions = Options.Create(new AzureAdOptions{ AzureAdApproaches = "Find,Create"});
 
-        var service = new AzureAdNewUserManager(userAdmin, tenantAdmin, azureAdStub, azureOptions);
+        var service = new AzureAdNewUserManager(userAdmin, tenantAdmin, azureAdStub, azureOptions,
+            new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
         if (tenantType == TenantTypes.SingleLevel)
             context.Add(AuthPSetupHelpers.CreateTestSingleTenantOk("Company"));
