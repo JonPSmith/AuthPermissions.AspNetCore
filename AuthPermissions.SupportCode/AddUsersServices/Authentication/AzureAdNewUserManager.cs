@@ -125,7 +125,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
 
     private async Task<IStatusGeneric<string>> FindOrCreateAzureAdUser(string email)
     {
-        var status = new StatusGenericHandler<string>();
+        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
 
         var approaches = _azureOptions.AzureAdApproaches?.Split(',')
                              .Select(x => x.Trim().ToLower()).ToArray()
@@ -157,7 +157,6 @@ public class AzureAdNewUserManager : IAddNewUserManager
             return newUserStatus;
         }
 
-        return status.AddError($"Could not {string.Join(" or ", approaches)} the Azure AD user.");
-
+        throw new AuthPermissionsException($"Could not {string.Join(" or ", approaches)} the Azure AD user.");
     }
 }

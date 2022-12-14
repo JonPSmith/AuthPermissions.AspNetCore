@@ -239,7 +239,7 @@ public class InviteNewUserService : IInviteNewUserService
     public async Task<IStatusGeneric<AddNewUserDto>> AddUserViaInvite(string inviteParam, 
     string email, string userName, string password = null, bool isPersistent = false)
     {
-        var status = new StatusGenericHandler<AddNewUserDto>();
+        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>("en", _localizeDefault);
         var normalizedEmail = email.Trim().ToLower();
 
         AddNewUserDto newUserData;
@@ -251,15 +251,18 @@ public class InviteNewUserService : IInviteNewUserService
         catch (Exception e)
         {
             //Could add a log here
-            return status.AddError("Sorry, the verification failed.");
+            return status.AddErrorString("VerityFailed".ClassLocalizeKey(this, true),
+                "Sorry, the verification failed.");
         }
 
         if (newUserData.Email!= normalizedEmail)
-            return status.AddError("Sorry, your email didn't match the invite.",
+            return status.AddErrorString("EmailNotMatch".ClassLocalizeKey(this, true),
+                "Sorry, your email didn't match the invite.",
                 nameof(AddNewUserDto.Email));
         if (newUserData.TimeInviteExpires != default 
             && newUserData.TimeInviteExpires < DateTime.UtcNow.Ticks)
-            return status.AddError("The invite has expired. Please contact the person who sent you an invite.");
+            return status.AddErrorString("InviteExpired".ClassLocalizeKey(this, true), 
+                "The invite has expired. Please contact the person who sent you an invite.");
 
         newUserData.UserName = userName;
         newUserData.Password = password;

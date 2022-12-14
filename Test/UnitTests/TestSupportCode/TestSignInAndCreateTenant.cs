@@ -46,7 +46,9 @@ public class TestSignInAndCreateTenant
         var tenantAdmin = new AuthTenantAdminService(context, authOptions,
             new StubLocalizeDefaultWithLogging<LocalizeResources>(), new StubITenantChangeServiceFactory(), null); 
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
-            new StubAddNewUserManager(userAdmin, tenantAdmin), new StubIGetDatabaseForNewTenant());
+            new StubAddNewUserManager(userAdmin, tenantAdmin), 
+            new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+            new StubIGetDatabaseForNewTenant());
 
         return (service, userAdmin);
     }

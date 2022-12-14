@@ -5,6 +5,7 @@ using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using LocalizeMessagesAndErrors;
 using Medallion.Threading.Postgres;
 using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Hosting;
@@ -28,6 +29,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     private readonly IShardingConnections _connectionsService;
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly AuthPermissionsOptions _options;
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// Ctor
@@ -36,14 +38,17 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <param name="connectionsService"></param>
     /// <param name="authDbContext"></param>
     /// <param name="options"></param>
+    /// <param name="localizeDefault"></param>
     public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, 
-        AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options)
+        AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options, 
+        ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
         ShardingSettingFilename = AuthPermissionsOptions.FormShardingSettingsFileName(options.SecondPartOfShardingFile);
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
         _authDbContext = authDbContext;
         _options = options;
+        _localizeDefault = localizeDefault;
     }
 
     /// <summary>
@@ -100,12 +105,12 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         return ApplyChangeWithinDistributedLock(() =>
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
             var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
             if (foundIndex == -1)
-                return status.AddError("Could not find a database info entry with the " +
-                                       $"{nameof(DatabaseInformation.Name)} of '{databaseInfo.Name ?? "< null >"}'");
+                return status.AddErrorFormatted("MissingDatabaseInfo".ClassLocalizeKey(this, true),
+                    $"Could not find a database info entry with the {nameof(DatabaseInformation.Name)} of '{databaseInfo.Name ?? "< null >"}'");
 
             fileContent[foundIndex] = databaseInfo;
             return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
@@ -122,18 +127,19 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         return await ApplyChangeWithinDistributedLockAsync(async () =>
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
             var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
             if (foundIndex == -1)
-                return status.AddError("Could not find a database info entry with the " +
-                                       $"{nameof(DatabaseInformation.Name)} of '{databaseInfoName ?? "< null >"}'");
+                return status.AddErrorFormatted("MissingDatabaseInfo".ClassLocalizeKey(this, true),
+                    $"Could not find a database info entry with the {nameof(DatabaseInformation.Name)} of '{databaseInfoName ?? "< null >"}'");
 
             var tenantsUsingThis = (await _connectionsService.GetDatabaseInfoNamesWithTenantNamesAsync())
                 .SingleOrDefault(x => x.databaseInfoName == databaseInfoName).tenantNames;
             if (tenantsUsingThis.Count > 0)
-                return status.AddError("You can't delete the database information with the " +
-                                       $"{nameof(DatabaseInformation.Name)} of {databaseInfoName} because {tenantsUsingThis.Count} tenant(s) uses this database.");
+                return status.AddErrorFormatted("NoDeleteAsUsed".ClassLocalizeKey(this, true),
+                    $"You can't delete the database information with the {nameof(DatabaseInformation.Name)} of ",
+                    $"{databaseInfoName} because {tenantsUsingThis.Count} tenant(s) uses this database.");
 
             fileContent.RemoveAt(foundIndex);
             return CheckDatabasesInfoAndSaveIfValid(fileContent, null);
@@ -145,18 +151,21 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
 
     private IStatusGeneric CheckDatabasesInfoAndSaveIfValid(List<DatabaseInformation> databasesInfo, DatabaseInformation changedInfo)
     {
-        var status = new StatusGenericHandler
-            { Message = $"Successfully updated the {ShardingSettingFilename} with your changes." };
+        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
+        status.SetMessageFormatted("SuccessUpdate".ClassLocalizeKey(this, true),
+        $"Successfully updated the {ShardingSettingFilename} with your changes.");
 
         //Check Names: not null and unique 
         if (databasesInfo.Any(x => x.Name == null))
-            return status.AddError($"The {nameof(DatabaseInformation.Name)} is null, which isn't allowed.");
+            return status.AddErrorString("DbNameMissing".ClassLocalizeKey(this, true),
+                $"The {nameof(DatabaseInformation.Name)} is null, which isn't allowed.");
         var duplicates = databasesInfo.GroupBy(x => x.Name)
             .Where(g => g.Count() > 1)
             .Select(x => x.Key)
             .ToList();
         if (duplicates.Any())
-            return status.AddError($"The {nameof(DatabaseInformation.Name)} of {String.Join(",", duplicates)} is already used.");
+            return status.AddErrorFormatted("DatabaseInfoDuplicate".ClassLocalizeKey(this, true),
+                $"The {nameof(DatabaseInformation.Name)} of {string.Join(",", duplicates)} is already used.");
 
         //Try creating a valid connection string
         if (changedInfo != null) //if deleted we don't test it

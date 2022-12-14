@@ -2,6 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.BaseCode;
+using LocalizeMessagesAndErrors;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode.ShardingServices;
@@ -12,14 +14,18 @@ namespace AuthPermissions.SupportCode.ShardingServices;
 public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
     private readonly IShardingConnections _shardingService;
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="shardingService"></param>
-    public DemoGetDatabaseForNewTenant(IShardingConnections shardingService)
+    /// <param name="localizeDefault"></param>
+    public DemoGetDatabaseForNewTenant(IShardingConnections shardingService, 
+        ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
         _shardingService = shardingService;
+        _localizeDefault = localizeDefault;
     }
 
     /// <summary>
@@ -33,7 +39,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// <returns>Status with the DatabaseInfoName, or error if it can't find a database to work with</returns>
     public async Task<IStatusGeneric<string>> FindBestDatabaseInfoNameAsync(bool hasOwnDb, string region, string version = null)
     {
-        var status = new StatusGenericHandler<string>();
+        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
 
         //This gets the databases with the info on whether the database is available
         var dbsWithUsers = await _shardingService.GetDatabaseInfoNamesWithTenantNamesAsync();
@@ -55,7 +61,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 
         if (foundDatabaseInfoName == null)
             //This returns an error, but you could create a new database if none are available.
-            status.AddError(
+            status.AddErrorString("NoDbForTenant".ClassLocalizeKey(this, true),
                 "We cannot create the tenant at this time. Please contact the support team with the code: no db available.");
 
         return status;

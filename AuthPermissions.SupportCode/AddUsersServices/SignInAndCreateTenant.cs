@@ -6,6 +6,7 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using AuthPermissions.SupportCode.ShardingServices;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -21,6 +22,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     private readonly AuthPermissionsOptions _options;
     private readonly IAuthTenantAdminService _tenantAdmin;
     private readonly IAddNewUserManager _addNewUserManager;
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
     private readonly IGetDatabaseForNewTenant _getShardingDb;
 
     /// <summary>
@@ -29,13 +31,16 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// <param name="options"></param>
     /// <param name="tenantAdmin"></param>
     /// <param name="addNewUserManager"></param>
+    /// <param name="localizeDefault"></param>
     /// <param name="getShardingDb"></param>
     public SignInAndCreateTenant(AuthPermissionsOptions options, IAuthTenantAdminService tenantAdmin, 
-        IAddNewUserManager addNewUserManager, IGetDatabaseForNewTenant getShardingDb = null)
+        IAddNewUserManager addNewUserManager, ILocalizeWithDefault<LocalizeResources> localizeDefault,
+        IGetDatabaseForNewTenant getShardingDb = null)
     {
         _options = options;
         _tenantAdmin = tenantAdmin;
         _addNewUserManager = addNewUserManager;
+        _localizeDefault = localizeDefault;
         _getShardingDb = getShardingDb;
     }
 
@@ -77,16 +82,18 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         if (newUser == null) throw new ArgumentNullException(nameof(newUser));
         if (tenantData == null) throw new ArgumentNullException(nameof(tenantData));
         if (versionData == null) throw new ArgumentNullException(nameof(versionData));
-        var status = new StatusGenericHandler<AddNewUserDto>();
+        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>("en", _localizeDefault);
 
         if (tenantData.TenantName == null)
-            return status.AddError("You forgot to give a tenant name",
+            return status.AddErrorString("NullTenantName".ClassLocalizeKey(this, true),
+                "You forgot to give a tenant name",
                 nameof(AddNewTenantDto.TenantName));
 
         //Check if tenant name is available
         if (await _tenantAdmin.QueryTenants().AnyAsync(x => x.TenantFullName == tenantData.TenantName))
-            return status.AddError($"The tenant name '{tenantData.TenantName}' is already taken",
-                new[] { nameof(AddNewTenantDto.TenantName) });
+            return status.AddErrorFormattedWithParams("NullTenantName".ClassLocalizeKey(this, true),
+                $"The tenant name '{tenantData.TenantName}' is already taken",
+                nameof(AddNewTenantDto.TenantName));
 
         if (status.CombineStatuses(await _addNewUserManager.CheckNoExistingAuthUserAsync(newUser)).HasErrors)
             return status;
@@ -106,7 +113,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                 nameof(MultiTenantVersionData.HasOwnDbForEachVersion)) ?? tenantData.HasOwnDb;
 
             if (hasOwnDb == null)
-                return status.AddError(
+                return status.AddErrorFormattedWithParams("HasOwnDbNotSet".ClassLocalizeKey(this, true),
                     $"You must set the {nameof(AddNewTenantDto.HasOwnDb)} parameter to true or false",
                     nameof(AddNewTenantDto.HasOwnDb));
 
@@ -171,8 +178,8 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             return status;
         }
 
-        status.Message =
-            $"Successfully created the tenant '{tenantStatus.Result.TenantFullName}' and registered you as the tenant admin.";
+        status.SetMessageFormatted("SuccessSignUp".ClassLocalizeKey(this, true),
+            $"Successfully created the tenant '{tenantStatus.Result.TenantFullName}' and registered you as the tenant admin.");
 
         return status;
     }

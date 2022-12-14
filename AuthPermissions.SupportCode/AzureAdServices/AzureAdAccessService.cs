@@ -4,7 +4,9 @@
 using System.Text.Json;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
+using AuthPermissions.BaseCode;
 using Azure.Identity;
+using LocalizeMessagesAndErrors;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using StatusGeneric;
@@ -21,12 +23,16 @@ public class AzureAdAccessService : IAzureAdAccessService
     private readonly ClientSecretCredential _clientSecretCredential;
     private readonly string[] _scopes = new[] { "https://graph.microsoft.com/.default" };
 
+    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
+
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="options"></param>
-    public AzureAdAccessService(IOptions<AzureAdOptions> options)
+    /// <param name="localizeDefault"></param>
+    public AzureAdAccessService(IOptions<AzureAdOptions> options, ILocalizeWithDefault<LocalizeResources> localizeDefault)
     {
+        _localizeDefault = localizeDefault;
         var value = options.Value;
         _clientSecretCredential = new ClientSecretCredential(value.TenantId, value.ClientId, value.ClientSecret);
     }
@@ -100,13 +106,14 @@ public class AzureAdAccessService : IAzureAdAccessService
     /// <returns>status: if error then return message, otherwise Result holds ID of the newly created Azure AD user</returns>
     public async Task<IStatusGeneric<string>> CreateNewUserAsync(string email, string userName, string temporaryPassword)
     {
-        var status = new StatusGenericHandler<string>();
+        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
 
         if (string.IsNullOrWhiteSpace(temporaryPassword)) throw new ArgumentNullException(nameof(temporaryPassword));
 
         //I have to check that the email otherwise the creating of the MailNickname would fail
         if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
-            return status.AddError("The email was either missing or does not contain a '@'.", "Email");
+            return status.AddErrorString("BadEmail".ClassLocalizeKey(this, true),
+                "The email was either missing or does not contain a '@'.", "Email");
 
         var user = new User
         {
@@ -133,8 +140,9 @@ public class AzureAdAccessService : IAzureAdAccessService
         catch (ServiceException e)
         {
             var errorJson = JsonSerializer.Deserialize<Rootobject>(e.RawResponseBody);
-            if (errorJson.error.code == "Request_BadRequest")
-                return status.AddError($"The Azure AD authorization service says: {errorJson.error.message}");
+            if (errorJson!.error.code == "Request_BadRequest")
+                return status.AddErrorFormatted("BadEmail".ClassLocalizeKey(this, true),
+                $"The Azure AD authorization service says: {errorJson.error.message}");
             throw;
         }
     }
