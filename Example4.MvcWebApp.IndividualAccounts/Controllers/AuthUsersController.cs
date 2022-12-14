@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
+using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -107,7 +109,8 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateUpdate(SetupManualUserChange input)
+        public async Task<ActionResult> CreateUpdate([FromServices] ILocalizeWithDefault<LocalizeResources> localizeDefault,
+            SetupManualUserChange input)
         {
             if (!ModelState.IsValid)
             {
@@ -115,7 +118,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return View(input.FoundChangeType.ToString());
             }
 
-            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin);
+            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, localizeDefault);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

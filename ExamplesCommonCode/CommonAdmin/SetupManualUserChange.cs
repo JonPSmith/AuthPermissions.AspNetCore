@@ -8,8 +8,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using LocalizeMessagesAndErrors;
 using StatusGeneric;
 
 namespace ExamplesCommonCode.CommonAdmin
@@ -56,6 +58,7 @@ namespace ExamplesCommonCode.CommonAdmin
         public static async Task<IStatusGeneric<SetupManualUserChange>> PrepareForUpdateAsync(string userId,
             IAuthUsersAdminService authUsersAdmin)
         {
+            //This will work with localization, because the errors have already been localized.
             var status = new StatusGenericHandler<SetupManualUserChange>();
             var authUserStatus = await authUsersAdmin.FindAuthUserByUserIdAsync(userId);
             if (status.CombineStatuses(authUserStatus).HasErrors)
@@ -93,16 +96,18 @@ namespace ExamplesCommonCode.CommonAdmin
         /// This will add/update an AuthUser using the information provided in this class
         /// </summary>
         /// <param name="authUsersAdmin"></param>
-        /// <param name="context"></param>
+        /// <param name="localizeDefault"></param>
         /// <returns>Status</returns>
-        public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin)
+        public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin,
+            ILocalizeWithDefault<LocalizeResources> localizeDefault)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<LocalizeResources>("en", localizeDefault);
 
             switch (FoundChangeType)
             {
                 case SyncAuthUserChangeTypes.NoChange:
-                    status.Message = $"The user {UserName ?? Email} was marked as NoChange, so no change was applied";
+                    status.SetMessageFormatted("SuccessNoChanges".ClassLocalizeKey(authUsersAdmin, true),
+                    $"The user {UserName ?? Email} was marked as NoChange, so no change was applied");
                     break;
                 case SyncAuthUserChangeTypes.Create:
                     status.CombineStatuses(

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
@@ -225,7 +226,8 @@ namespace Test.UnitTests.TestExamples
             var authUserUpdate = (await SetupManualUserChange.PrepareForUpdateAsync(userId, adminUserService)).Result;
 
             //ATTEMPT
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, 
+                new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -250,7 +252,8 @@ namespace Test.UnitTests.TestExamples
             //ATTEMPT
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.RoleNames = new List<string> {"Area Manager", "Tenant Admin" };
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
+                new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -276,7 +279,8 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.UserId = "newuser@gmail.com";
             authUserUpdate.Email = "newuser@gmail.com";
             authUserUpdate.UserName = "newuser@gmail.com";
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
+                new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -301,7 +305,8 @@ namespace Test.UnitTests.TestExamples
             //ATTEMPT
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.TenantName = "Bad tenant name";
-            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService);
+            var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
+                new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
