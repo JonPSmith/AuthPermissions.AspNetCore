@@ -2,10 +2,12 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using EntityFramework.Exceptions.SqlServer;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -26,7 +28,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
 
             //ATTEMPT
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", null, "userName"));
-            var status = context.SaveChangesWithChecks();
+            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -42,7 +44,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             context.Database.EnsureClean();
 
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "j@gmail.com", "userName"));
-            var status = context.SaveChangesWithChecks();
+            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());

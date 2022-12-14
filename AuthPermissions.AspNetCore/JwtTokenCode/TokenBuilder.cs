@@ -12,6 +12,7 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -75,7 +76,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
 
             var refreshToken = RefreshToken.CreateNewRefreshToken(userId, token.Id);
             _context.Add(refreshToken);
-            var status = await _context.SaveChangesWithChecksAsync();
+            var status = await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>());
             status.IfErrorsTurnToException();
 
             return new TokenAndRefreshToken
@@ -145,7 +146,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             var newRefreshToken = RefreshToken.CreateNewRefreshToken(userId, token.Id);
 
             _context.Add(newRefreshToken);
-            var status = await _context.SaveChangesWithChecksAsync();
+            var status = await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>());
             status.IfErrorsTurnToException();
 
             return (new TokenAndRefreshToken

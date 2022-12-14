@@ -143,7 +143,7 @@ namespace AuthPermissions.AdminCode.Services
                     "Could not find the User you asked for.", nameof(userId).CamelToPascal());
 
             authUser.UpdateIsDisabled(isDisabled);
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             return status;
         }
@@ -249,7 +249,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status;
 
             _context.Add(authUserStatus.Result);
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             return status;
         }
@@ -333,7 +333,7 @@ namespace AuthPermissions.AdminCode.Services
                 status.CombineStatuses(authUserToUpdate.ReplaceAllRoles(updatedRoles, _localizeDefault));
             }
 
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             return status;
         }
@@ -355,7 +355,7 @@ namespace AuthPermissions.AdminCode.Services
                     "Could not find the User you asked for.", nameof(userId).CamelToPascal());
 
             _context.Remove(authUser);
-            status.CombineStatuses( await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses( await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully deleted the user {authUser.UserName ?? authUser.Email}.");
@@ -445,7 +445,7 @@ namespace AuthPermissions.AdminCode.Services
                 }
             }
 
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
             //Build useful summary
             var changeStrings = Enum.GetValues<SyncAuthUserChangeTypes>().ToList()
                 .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChangeType == x)}");

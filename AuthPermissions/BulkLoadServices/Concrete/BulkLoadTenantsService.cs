@@ -87,7 +87,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 if (status.HasErrors)
                     return status;
 
-                return await _context.SaveChangesWithChecksAsync();
+                return await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>());
             }
 
             //--------------------------------------------------
@@ -131,7 +131,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                             _context.Add(newTenantStatus.Result);
                             if ((options.TenantType & TenantTypes.AddSharding) != 0)
                                 newTenantStatus.Result.UpdateShardingState(options.ShardingDefaultDatabaseInfoName, false);
-                            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>()));
 
                             //Now we copy the data so that a child can access to the parent data
                             tenantInfo.CreatedTenantId = newTenantStatus.Result.TenantId;

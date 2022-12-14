@@ -8,6 +8,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using StatusGeneric;
 
 namespace AuthPermissions.BulkLoadServices.Concrete
@@ -67,7 +68,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             }
 
             if (status.IsValid)
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>()));
 
             status.Message = $"Added {roleSetupData.Count} new RoleToPermissions to the auth database"; //If there is an error this message is removed
             return status;

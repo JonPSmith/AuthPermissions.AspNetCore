@@ -58,7 +58,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             }
 
             if (status.IsValid)
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>()));
 
             status.Message = $"Added {userDefinitions.Count} new users with associated data to the auth database";
             return status;

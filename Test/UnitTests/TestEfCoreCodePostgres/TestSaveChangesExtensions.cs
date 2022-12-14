@@ -3,12 +3,14 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Test.Helpers;
+using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -32,7 +34,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
 
             //ATTEMPT
             context.Add(new RoleToPermissions("Test", null, "x"));
-            var status = context.SaveChangesWithChecks();
+            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -57,7 +59,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
 
             //ATTEMPT
             context.Add(new RoleToPermissions("BIG Name", null, "x"));
-            var status = context.SaveChangesWithChecks();
+            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -84,7 +86,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
 
             //ATTEMPT
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "second@gmail.com", "second"));
-            var status = context.SaveChangesWithChecks();
+            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -113,7 +115,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             //ATTEMPT
             context.Add(new RoleToPermissions("Test1", null, "x"));
             context.Add(new RoleToPermissions("Test2", null, "x"));
-            var status = context.SaveChangesWithChecks();
+            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -137,7 +139,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             context.Database.EnsureClean();
 
             context.Add(new RoleToPermissions("Test", null, "x"));
-            context.SaveChangesWithChecks();
+            context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             context.ChangeTracker.Clear();
 
@@ -146,7 +148,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             role.Update("y", "new desc");
             context.Database.ExecuteSqlRaw(
                 "UPDATE authp.\"RoleToPermissions\" SET \"Description\" = 'concurrent desc' WHERE \"RoleName\" = 'Test'");
-            var status = context.SaveChangesWithChecks();
+            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
 
             //VERIFY
             status.IsValid.ShouldBeFalse(status.GetAllErrors());

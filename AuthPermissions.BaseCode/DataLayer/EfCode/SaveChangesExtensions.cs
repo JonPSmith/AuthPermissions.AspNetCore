@@ -3,6 +3,7 @@
 
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using EntityFramework.Exceptions.Common;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StatusGeneric;
@@ -20,8 +21,10 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// This calls SaveChanges, but detects unique constraint and concurrency exception
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="localizeDefault"></param>
         /// <returns>Status</returns>
-        public static IStatusGeneric SaveChangesWithChecks(this DbContext context)
+        public static IStatusGeneric SaveChangesWithChecks(this DbContext context,
+            ILocalizeWithDefault<LocalizeResources> localizeDefault)
         {
             try
             {
@@ -29,11 +32,11 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             }
             catch (UniqueConstraintException e)
             {
-                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.Duplicate);
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.Duplicate, localizeDefault);
             }
             catch (DbUpdateConcurrencyException e)
             {
-                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError);
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError, localizeDefault);
             }
 
             return new StatusGenericHandler();
@@ -43,8 +46,10 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// This calls SaveChangesAsync, but detects unique constraint and concurrency exception
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="localizeDefault"></param>
         /// <returns>Status</returns>
-        public static async Task<IStatusGeneric> SaveChangesWithChecksAsync(this DbContext context)
+        public static async Task<IStatusGeneric> SaveChangesWithChecksAsync(this DbContext context,
+            ILocalizeWithDefault<LocalizeResources> localizeDefault)
         {
             try
             {
@@ -52,11 +57,11 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             }
             catch (UniqueConstraintException e)
             {
-                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.Duplicate);
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.Duplicate, localizeDefault);
             }
             catch (DbUpdateConcurrencyException e)
             {
-                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError);
+                return ConvertExceptionToStatus(e.Entries, ExceptionTypes.ConcurrencyError, localizeDefault);
             }
 
             return new StatusGenericHandler();
@@ -64,9 +69,10 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
 
         private enum ExceptionTypes {Duplicate, ConcurrencyError}
 
-        private static IStatusGeneric ConvertExceptionToStatus(this IReadOnlyList<EntityEntry> entities, ExceptionTypes exceptionType)
+        private static IStatusGeneric ConvertExceptionToStatus(this IReadOnlyList<EntityEntry> entities,
+            ExceptionTypes exceptionType, ILocalizeWithDefault<LocalizeResources> localizeDefault)
         {
-            var status = new StatusGenericHandler();
+            var status = new StatusGenericLocalizer<LocalizeResources>("en", localizeDefault);
 
             //NOTE: These is only one entity in an exception
             if (entities.Any())
@@ -76,16 +82,20 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
 
                 return exceptionType switch
                 {
-                    ExceptionTypes.Duplicate => status.AddError(
+                    ExceptionTypes.Duplicate => status.AddErrorFormatted(
+                        "DuplicateDb".LocalizeKeyBuilder(typeof(SaveChangesExtensions), true, false, true),
                         $"There is already a {typeName} with a value: name = {name}"),
-                    ExceptionTypes.ConcurrencyError => status.AddError(
+                    ExceptionTypes.ConcurrencyError => status.AddErrorFormatted(
+                        "ConcurrencyError".LocalizeKeyBuilder(typeof(SaveChangesExtensions), true, false, true),
                         $"Another user changed the {typeName} with the name = {name}. Please re-read the entity and add you change again."),
                     _ => throw new ArgumentOutOfRangeException(nameof(exceptionType), exceptionType, null)
                 };
             }
 
             //This shouldn't happen, but just in case
-            status.AddError($"There was a {exceptionType} on an auth class.");
+            status.AddErrorFormatted(
+                "UnknownException".LocalizeKeyBuilder(typeof(SaveChangesExtensions), true, false, true), 
+                $"There was a {exceptionType} on an auth class.");
 
             return status;
         }

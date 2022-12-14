@@ -3,8 +3,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthPermissions.AspNetCore.Services
@@ -41,7 +43,7 @@ namespace AuthPermissions.AspNetCore.Services
             if (latestValidRefreshToken != null)
             {
                 latestValidRefreshToken.MarkAsInvalid();
-                var status = await _context.SaveChangesWithChecksAsync();
+                var status = await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>());
                 status.IfErrorsTurnToException();
             }
         }
@@ -59,7 +61,7 @@ namespace AuthPermissions.AspNetCore.Services
                 .ToListAsync();
 
             latestValidRefreshTokens.ForEach(x => x.MarkAsInvalid());
-            var status = await _context.SaveChangesWithChecksAsync();
+            var status = await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>());
             status.IfErrorsTurnToException();
         }
     }

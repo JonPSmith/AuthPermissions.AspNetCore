@@ -140,7 +140,7 @@ namespace AuthPermissions.AdminCode.Services
                     permissionNames.Select(y => y.CamelToPascal()).ToArray());
 
             _context.Add(new RoleToPermissions(roleName, description, packedPermissions, roleType));
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             return status;
         }
@@ -193,7 +193,7 @@ namespace AuthPermissions.AdminCode.Services
             }
 
             existingRolePermission.Update(packedPermissions, description, roleType);
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             return status;
         }
@@ -245,7 +245,7 @@ namespace AuthPermissions.AdminCode.Services
                 return status;
 
             _context.Remove(existingRolePermission);
-            status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             //build the success message
             var successMessages = new List<FormattableString> { $"Successfully deleted the role {roleName}" };

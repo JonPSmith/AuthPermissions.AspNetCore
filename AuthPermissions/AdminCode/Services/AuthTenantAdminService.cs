@@ -175,7 +175,7 @@ namespace AuthPermissions.AdminCode.Services
                 }
 
                 _context.Add(newTenantStatus.Result);
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
                 if (status.HasErrors)
                     return status;
@@ -305,7 +305,7 @@ namespace AuthPermissions.AdminCode.Services
                 }
 
                 _context.Add(newTenantStatus.Result);
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
                 if (status.HasErrors)
                     return status;
@@ -359,7 +359,7 @@ namespace AuthPermissions.AdminCode.Services
             if (updateStatus.HasErrors)
                 return updateStatus;
 
-            return await _context.SaveChangesWithChecksAsync();
+            return await _context.SaveChangesWithChecksAsync(_localizeDefault);
         }
 
         /// <summary>
@@ -420,7 +420,7 @@ namespace AuthPermissions.AdminCode.Services
                         return status.AddErrorString(this.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
                 }
 
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
                 if (status.IsValid)
                     await transaction.CommitAsync();
@@ -497,7 +497,7 @@ namespace AuthPermissions.AdminCode.Services
                 if (errorString != null)
                     return status.AddErrorString(this.AlreadyLocalized(), errorString); //we assume the tenantChangeService localized its messages
 
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
                 if (parentTenant != null)
                     status.SetMessageFormatted("Success-ToTenant".ClassMethodLocalizeKey(this, true),
                         $"Successfully moved the tenant originally named '{originalName}' to ",
@@ -606,7 +606,7 @@ namespace AuthPermissions.AdminCode.Services
                     _context.Remove(tenantToDelete);
                 }
 
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync());
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
                 if (status.IsValid)
                     await transaction.CommitAsync();
@@ -680,7 +680,7 @@ namespace AuthPermissions.AdminCode.Services
                 var previousDataKey = tenant.GetTenantDataKey();
                 tenant.UpdateShardingState(databaseInfoName, hasOwnDb);
 
-                if (status.CombineStatuses(await _context.SaveChangesWithChecksAsync()).HasErrors)
+                if (status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault)).HasErrors)
                     return status;
 
                 if (previousDatabaseInfoName != databaseInfoName)
