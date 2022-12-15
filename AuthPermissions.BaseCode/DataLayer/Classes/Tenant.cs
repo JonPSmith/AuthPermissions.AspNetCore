@@ -296,7 +296,7 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
 
             foreach (var badRole in badRoles)
             {
-                status.AddErrorFormatted("RoleNotTenantRole".LocalizeKeyBuilder(typeof(Tenant),true, false, true),
+                status.AddErrorFormatted("RoleNotTenantRole".StaticClassLocalizeKey(typeof(Tenant), true),
                     $"The Role '{badRole.RoleName}' is not a tenant role, i.e. only roles with a {nameof(RoleToPermissions.RoleType)} of ",
                     $"{nameof(RoleTypes.TenantAutoAdd)} or {nameof(RoleTypes.TenantAdminAdd)} can be added to a tenant.");
             }

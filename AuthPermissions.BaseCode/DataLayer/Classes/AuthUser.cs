@@ -209,11 +209,11 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
                 switch (tenantUser)
                 {
                     case true when foundRole.RoleType == RoleTypes.HiddenFromTenant:
-                        status.AddErrorFormatted("InvalidRoleHidden".LocalizeKeyBuilder(typeof(AuthUser), true, false, true),
+                        status.AddErrorFormatted("InvalidRoleHidden".StaticClassLocalizeKey(typeof(AuthUser), true),
                             $"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it can only be used by the App Admin.");
                         break;
                     case true when foundRole.RoleType == RoleTypes.TenantAutoAdd:
-                        status.AddErrorFormatted("InvalidRoleAutoAdd".LocalizeKeyBuilder(typeof(AuthUser), true, false, true),
+                        status.AddErrorFormatted("InvalidRoleAutoAdd".StaticClassLocalizeKey(typeof(AuthUser), true),
                         $"You cannot add the role '{foundRole.RoleName}' to an Auth tenant user because it is automatically to tenant users.");
                         break;
                 }

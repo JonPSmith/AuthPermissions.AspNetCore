@@ -85,10 +85,10 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
                 return exceptionType switch
                 {
                     ExceptionTypes.Duplicate => status.AddErrorFormatted(
-                        "DuplicateDb".LocalizeKeyBuilder(typeof(SaveChangesExtensions), true, false, true),
+                        "DuplicateDb".StaticClassLocalizeKey(typeof(SaveChangesExtensions), true),
                         $"There is already a {typeName} with a value: name = {name}"),
                     ExceptionTypes.ConcurrencyError => status.AddErrorFormatted(
-                        "ConcurrencyError".LocalizeKeyBuilder(typeof(SaveChangesExtensions), true, false, true),
+                        "ConcurrencyError".StaticClassLocalizeKey(typeof(SaveChangesExtensions), true),
                         $"Another user changed the {typeName} with the name = {name}. Please re-read the entity and add you change again."),
                     _ => throw new ArgumentOutOfRangeException(nameof(exceptionType), exceptionType, null)
                 };
@@ -96,7 +96,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
 
             //This shouldn't happen, but just in case
             status.AddErrorFormatted(
-                "UnknownException".LocalizeKeyBuilder(typeof(SaveChangesExtensions), true, false, true), 
+                "UnknownException".StaticClassLocalizeKey(typeof(SaveChangesExtensions), true), 
                 $"There was a {exceptionType} on an auth class.");
 
             return status;

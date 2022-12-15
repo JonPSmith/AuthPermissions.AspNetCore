@@ -1,6 +1,9 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,14 +28,15 @@ public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TR
     /// </summary>
     public List<LocalizedLog> Logs { get; set; } = new List<LocalizedLog>();
 
+    /// <summary>
+    /// This can contain a possible error. Null if no possible error found.
+    /// </summary>
+    public string? PossibleError { get; set; }
 
     /// <summary>
-    /// This is true if there is an entry in the database with the same Resource/Key, but a different.
-    /// Used in tests of this class.
+    /// Start of a possible error
     /// </summary>
-    public bool? SameKeyButDiffFormat { get; set; }
-
-
+    public const string SameKeyButDiffFormatPrefix = "Possible SameKeyButDiffFormat: ";
 
     public string LocalizeStringMessage(LocalizeKeyData localizeKeyData, string cultureOfMessage, string message)
     {
@@ -89,26 +93,38 @@ public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TR
     /// <param name="localizedLog"></param>
     private void SaveLocalizationToDb(LocalizedLog localizedLog)
     {
+
         using var context = GetLocalizationCaptureDbInstance();
         if (context == null)
             return;
 
-        //This will hold any existing database entries that have the same ResourceFile and LocalizeKey
-        var sameLocalizationReference = context.LocalizedData
+        //This will hold any existing database entries that have the same ResourceFile and LocalizeKey or format
+        var sameKeyOrFormat = context.LocalizedData
             .Where(x => x.ResourceClassFullName == localizedLog.ResourceClassFullName
-                        && x.LocalizeKey == localizedLog.LocalizeKey).ToList();
+                        && (x.LocalizeKey == localizedLog.LocalizeKey
+                            || (x.MessageFormat != null && x.MessageFormat != localizedLog.MessageFormat)
+                            || (x.MessageFormat == null && x.ActualMessage != localizedLog.ActualMessage))).ToList();
 
-        //This is true if there was already an entry with the same ResourceFile / LocalizeKey but a different message
-        SameKeyButDiffFormat = sameLocalizationReference.Any(x =>
-            x.ResourceClassFullName == typeof(TResource).FullName
-            && x.LocalizeKey == localizedLog.LocalizeKey
-            && ((x.MessageFormat != null && x.MessageFormat != localizedLog.MessageFormat)
-                || (x.MessageFormat == null && x.ActualMessage != localizedLog.ActualMessage)));
+        PossibleError = null;
 
-        if (sameLocalizationReference.Any(x =>
+        //This is true if there was already an entry with the same LocalizeKey but a different message
+        var keyButDiffFormatIds = sameKeyOrFormat.
+            Where(x => x.LocalizeKey == localizedLog.LocalizeKey
+                                && ((x.MessageFormat != null && x.MessageFormat != localizedLog.MessageFormat)
+                                    || (x.MessageFormat == null && x.ActualMessage != localizedLog.ActualMessage))
+                                && x.PossibleErrors == null)
+            .Select(x => x.Id).ToArray();
+
+        if (keyButDiffFormatIds.Any())
+        {
+            PossibleError = SameKeyButDiffFormatPrefix +
+                            $"entry(s) with same key have IDs of {string.Join(", ", keyButDiffFormatIds.Select(x => x.ToString()))}";
+        }
+
+        if (sameKeyOrFormat.Any(x =>
                 ((x.MessageFormat != null && x.MessageFormat == localizedLog.MessageFormat)     //Using format: and the same
                  || (x.MessageFormat == null && x.ActualMessage == localizedLog.ActualMessage))  //Using string: and the same
-                && x.SameKeyButDiffFormat == SameKeyButDiffFormat
+                && PossibleError == x.PossibleErrors
                 && x.CallingClassName == localizedLog.CallingClassName
                 && x.CallingMethodName == localizedLog.CallingMethodName
                 && x.SourceLineNumber == localizedLog.SourceLineNumber))
@@ -116,7 +132,7 @@ public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TR
             return;
 
         //set the SameKey before writing to the database
-        localizedLog.SameKeyButDiffFormat = SameKeyButDiffFormat;
+        localizedLog.PossibleErrors = PossibleError;
 
         context.Add(localizedLog);
         context.SaveChanges();
