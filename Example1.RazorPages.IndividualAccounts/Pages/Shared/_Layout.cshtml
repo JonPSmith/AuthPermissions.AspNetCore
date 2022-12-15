@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Threading
+@using Microsoft.Net.Http.Headers
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -31,6 +33,12 @@
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" asp-area="" asp-page="/UserInfo/UserClaims">User's claims</a>
                             </div>
+                        </li>
+                        <li class="nav-link text-dark">
+                            Current culture = @Thread.CurrentThread.CurrentUICulture.DisplayName
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-sm" asp-area="" asp-page="/Localization/SetCulture">Change</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

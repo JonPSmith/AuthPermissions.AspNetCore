@@ -1,12 +1,13 @@
 ﻿@page
 @using Example1.RazorPages.IndividualAccounts.Model
+@using Microsoft.AspNetCore.Identity
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
 }
 
 <div class="text-center">
-    <h1>Example1 - looking at Roles and Permissions</h1>
+    <h2>Example1 - looking at Roles/Permissions, plus localization</h2>
 </div>
 <h4>Application summary</h4>
 <ul>
@@ -34,7 +35,7 @@
     NOTE: The Email address is also the password in these cases.
 </p>
 <ul>
-    @foreach (var user in @Model.Users)
+    @foreach (var user in @Model.Users ?? new List<IdentityUser>() )
     {
         <li><strong>@user.UserName</strong></li>
     }

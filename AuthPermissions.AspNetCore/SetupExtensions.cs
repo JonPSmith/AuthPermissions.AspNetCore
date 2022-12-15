@@ -1,9 +1,6 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.AccessTenantData;
@@ -266,7 +263,7 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddTransient<IBulkLoadUsersService, BulkLoadUsersService>();
 
             //Localization services
-            //NOTE: The developer must register the .NET localization service and add
+            //NOTE: If you want to use the localization services you need to setup / register the .NET IStringLocalizer<TResource> service
             setupData.Services.AddSingleton(typeof(ILocalizeWithDefault<>), typeof(LocalizeWithDefault<>));
 
             //Other services

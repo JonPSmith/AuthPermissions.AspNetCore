@@ -19,7 +19,7 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
         public static readonly List<BulkLoadUserWithRolesTenant> UsersWithRolesDefinition = new()
         {
             new ("Staff@g1.com", null, "Role1"),
-            new ("Mananger@g1.com", null, "Role2"),
+            new ("Manager@g1.com", null, "Role2"),
             new ( "Super@g1.com", null, "SuperAdmin"),
         };
     }

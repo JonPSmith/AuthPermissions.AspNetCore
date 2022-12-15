@@ -1,0 +1,16 @@
+﻿@page
+@model SetCultureModel
+@{
+}
+
+<h3>Select the culture you want</h3>
+
+<form method="post">
+    <div class="col-md-4">
+        <select name="SetLanguage" asp-items="Model.CultureList"></select>
+    </div>
+    <br/>
+    <div class="form-group">
+        <input type="submit" value="Update" class="btn btn-primary"/>
+    </div>
+</form>
