@@ -98,7 +98,7 @@ namespace AuthPermissions.AdminCode.Services
                 .Include(x => x.TenantRoles)
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
             return result == null 
-                ? status.AddErrorString("TenantNotFound".MethodLocalizeKey(this), //common error
+                ? status.AddErrorString("TenantNotFound".ClassLocalizeKey(this, true),  //common error in this class
                     "Could not find the tenant you were looking for.") 
                 : status.SetResult(result);
         }
@@ -161,7 +161,7 @@ namespace AuthPermissions.AdminCode.Services
                 {
                     if (hasOwnDb == null)
                         status.AddErrorString("HasOwnDbInvalid".ClassMethodLocalizeKey(this, true),
-                            $"The {nameof(hasOwnDb)} parameter must be set to true or false when sharding is turned on.",
+                            $"The '{nameof(hasOwnDb)}' parameter must be set to true or false when sharding is turned on.",
                             nameof(hasOwnDb).CamelToPascal());
                     else
                         status.CombineStatuses(await CheckHasOwnDbIsValidAsync((bool)hasOwnDb, databaseInfoName));
@@ -217,8 +217,8 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} before you can use tenants");
             if (tenantName.Contains('|'))
-                return status.AddErrorString("BadChar".ClassMethodLocalizeKey(this, true),
-                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
+                return status.AddErrorString("NameBadChar".ClassLocalizeKey(this, true), //common error in this class
+                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order.",
                         nameof(tenantName).CamelToPascal());
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
@@ -232,7 +232,7 @@ namespace AuthPermissions.AdminCode.Services
                     //We need to find the parent
                     parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == parentTenantId);
                     if (parentTenant == null)
-                        return status.AddErrorString("ParentNotFound".ClassMethodLocalizeKey(this, true), 
+                        return status.AddErrorString("ParentNotFound".ClassLocalizeKey(this, true), //common error in this class
                             "Could not find the parent tenant you asked for.");
 
                     if (!parentTenant.IsHierarchical)
@@ -289,7 +289,7 @@ namespace AuthPermissions.AdminCode.Services
                     else
                     {
                         if (hasOwnDb == null)
-                            return status.AddErrorString("hasOwnDbNotSet".ClassMethodLocalizeKey(this, true),
+                            return status.AddErrorString("HasOwnDbNotSet".ClassMethodLocalizeKey(this, true),
                                 $"The {nameof(hasOwnDb)} parameter must be set to true or false if there is no parent and sharding is turned on.",
                                 nameof(hasOwnDb).CamelToPascal());
 
@@ -342,7 +342,8 @@ namespace AuthPermissions.AdminCode.Services
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} parameter in the AuthP's options");
 
             var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), $"Successfully updated the tenant's Roles.");
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
+                $"Successfully updated the tenant's Roles.");
 
             var tenant = await _context.Tenants.Include(x => x.TenantRoles)
                 .SingleOrDefaultAsync(x => x.TenantId == tenantId);
@@ -374,14 +375,15 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName)
         {
             var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), $"Successfully updated the tenant's name to {newTenantName}.");
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
+                $"Successfully updated the tenant's name to {newTenantName}.");
 
             if (string.IsNullOrEmpty(newTenantName))
                 return status.AddErrorString("TenantNameEmpty".ClassMethodLocalizeKey(this, true),
-                    "The new name was empty", nameof(newTenantName).CamelToPascal());
+                    "The new name was empty.", nameof(newTenantName).CamelToPascal());
             if (newTenantName.Contains('|'))
-                return status.AddErrorString("TenantNameInvalid".ClassMethodLocalizeKey(this, true),
-                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
+                return status.AddErrorString("NameBadChar".ClassLocalizeKey(this, true), //common error in this class
+                                    "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
                         nameof(newTenantName).CamelToPascal());
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
@@ -482,8 +484,8 @@ namespace AuthPermissions.AdminCode.Services
                     //We need to find the parent
                     parentTenant = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == newParentTenantId);
                     if (parentTenant == null)
-                        return status.AddErrorString("ParentNotFound".ClassMethodLocalizeKey(this, true),
-                            "Could not find the parent tenant you asked for.");
+                        return status.AddErrorString("ParentNotFound".ClassLocalizeKey(this, true), //common error in this class
+                                                    "Could not find the parent tenant you asked for.");
 
                     if (tenantsWithChildren.Select(x => x.TenantFullName).Contains(parentTenant.TenantFullName))
                         return status.AddErrorString("ParentIsChild".ClassMethodLocalizeKey(this, true), "You cannot move a tenant one of its children.",
@@ -621,6 +623,7 @@ namespace AuthPermissions.AdminCode.Services
                     "The attempt to create a tenant failed with a system error. Please contact the admin team.");
             }
 
+            messages.Add($".");
             status.SetMessageFormatted(messageKey.ClassMethodLocalizeKey(this, true), messages.ToArray());
             return status;
         }

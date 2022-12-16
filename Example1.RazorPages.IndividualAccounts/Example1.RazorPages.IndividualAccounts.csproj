@@ -25,4 +25,8 @@
     <ProjectReference Include="..\ExamplesCommonCode\ExamplesCommonCode.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+
 </Project>

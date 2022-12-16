@@ -94,7 +94,7 @@ public class TestTenantAdminServicesSharding
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
-        status.GetAllErrors().ShouldEqual("The hasOwnDb parameter must be set to true or false when sharding is turned on.");
+        status.GetAllErrors().ShouldEqual("The 'hasOwnDb' parameter must be set to true or false when sharding is turned on.");
     }
 
     [Fact]

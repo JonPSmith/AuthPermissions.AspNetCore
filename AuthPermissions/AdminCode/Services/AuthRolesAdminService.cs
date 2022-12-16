@@ -111,7 +111,8 @@ namespace AuthPermissions.AdminCode.Services
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), $"Successfully added the new role {roleName}.");
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
+                $"Successfully added the new role {roleName}.");
 
             if (string.IsNullOrEmpty(roleName))
                 return status.AddErrorString("BadRoleName".ClassMethodLocalizeKey(this, true), 
@@ -121,23 +122,18 @@ namespace AuthPermissions.AdminCode.Services
                     $"There is already a Role with the name of '{roleName}'.", nameof(roleName).CamelToPascal());
             
             if (permissionNames == null)
-                return status.AddErrorString("NoRoles".ClassMethodLocalizeKey(this, true), 
+                return status.AddErrorString("NoPermissions".ClassLocalizeKey(this, true), //common error
                     "You must provide at least one permission name.", 
                     permissionNames.Select(y => y.CamelToPascal()).ToArray());
 
             //NOTE: If an advanced permission (i.e. has the display attribute has AutoGenerateFilter = true) is found the roleType is updated to HiddenFromTenant
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
-                x => status.AddErrorFormattedWithParams("InvalidRole".ClassMethodLocalizeKey(this, true),
+                x => status.AddErrorFormattedWithParams("InvalidPermission".ClassMethodLocalizeKey(this, true),
                     $"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.",
                     permissionNames.Select(y => y.CamelToPascal()).ToArray()), () => roleType = RoleTypes.HiddenFromTenant);
 
             if (status.HasErrors)
                 return status;
-
-            if (!packedPermissions.Any())
-                return status.AddErrorString("NoPermissions".ClassLocalizeKey(this, true), //common error in this class
-                    "You must provide at least one permission name.", 
-                    permissionNames.Select(y => y.CamelToPascal()).ToArray());
 
             _context.Add(new RoleToPermissions(roleName, description, packedPermissions, roleType));
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
@@ -160,7 +156,8 @@ namespace AuthPermissions.AdminCode.Services
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
-            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), $"Successfully updated the role {roleName}.");
+            status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
+                $"Successfully updated the role {roleName}.");
             var existingRolePermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
 
             if (existingRolePermission == null)

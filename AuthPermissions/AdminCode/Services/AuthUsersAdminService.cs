@@ -115,7 +115,7 @@ namespace AuthPermissions.AdminCode.Services
 
             if (authUser == null)
                 status.AddErrorFormattedWithParams("UserNotFoundEmail".ClassMethodLocalizeKey(this, true),
-                    $"Could not find the AuthP User with the email of {email}.",
+                    $"Could not find the AuthP User with the email of '{email}'.",
                     nameof(email).CamelToPascal());
 
             return status.SetResult(authUser);
@@ -133,7 +133,7 @@ namespace AuthPermissions.AdminCode.Services
             if (userId == null) throw new ArgumentNullException(nameof(userId));
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
-                $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}");
+                $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}.");
 
             var authUser = await _context.AuthUsers
                 .SingleOrDefaultAsync(x => x.UserId == userId);
@@ -223,7 +223,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
-                $"Successfully added a AuthUser with the name {userName ?? email}");
+                $"Successfully added a AuthUser with the name '{userName ?? email}'.");
 
             if (email != null && !email.IsValidEmail())
                 status.AddErrorFormattedWithParams("InvalidEmail".ClassLocalizeKey(this, true), //common error in this class
@@ -358,7 +358,7 @@ namespace AuthPermissions.AdminCode.Services
             status.CombineStatuses( await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
-                $"Successfully deleted the user {authUser.UserName ?? authUser.Email}.");
+                $"Successfully deleted the user '{authUser.UserName ?? authUser.Email}'.");
 
             return status;
         }
@@ -450,7 +450,7 @@ namespace AuthPermissions.AdminCode.Services
             var changeStrings = Enum.GetValues<SyncAuthUserChangeTypes>().ToList()
                 .Select(x => $"{x} = {changesToApply.Count(y => y.FoundChangeType == x)}");
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
-                $"Sync successful: {(string.Join(", ", changeStrings))}");
+                $"Sync successful: {(string.Join(", ", changeStrings))}.");
 
             return status;
         }
