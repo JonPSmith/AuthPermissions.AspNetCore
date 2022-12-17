@@ -61,7 +61,6 @@ public class LocalizationCaptureCommands
                            "Example1.RazorPages.IndividualAccounts\\Resources\\BaseCode.LocalizeResources.NEW.resx";
         
         //see https://joshclose.github.io/CsvHelper/getting-started/#reading-a-csv-file
-        
         using (var reader = new StreamReader(csvFilePath))
         using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
