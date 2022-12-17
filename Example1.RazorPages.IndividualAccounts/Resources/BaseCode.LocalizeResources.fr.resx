@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AuthRolesAdminService_CreateRoleToPermissionsAsync_Success" xml:space="preserve">
+    <value>Le nouveau rôle {0} a bien été ajouté</value>
+  </data>
+  <data name="AuthRolesAdminService_CreateRoleToPermissionsAsync_BadRoleName" xml:space="preserve">
+    <value>Le nom de rôle n'est pas renseigné</value>
+  </data>
+  <data name="AuthRolesAdminService_CreateRoleToPermissionsAsync_DuplicateRoleName" xml:space="preserve">
+    <value>Il existe déjà un rôle avec le nom de '{0}'</value>
+  </data>
+  <data name="AuthRolesAdminService_NoPermissions" xml:space="preserve">
+    <value>Vous devez fournir au moins un nom d'autorisation.</value>
+  </data>
+  <data name="AuthRolesAdminService_CreateRoleToPermissionsAsync_InvalidPermission" xml:space="preserve">
+    <value>Le nom d'autorisation '{0}' n'est pas un nom valide dans l'énumération {1}.</value>
+  </data>
+  <data name="AuthRolesAdminService_UpdateRoleToPermissionsAsync_Success" xml:space="preserve">
+    <value>Mise à jour réussie du rôle {0}.</value>
+  </data>
+  <data name="AuthRolesAdminService_IncorrectRoleName" xml:space="preserve">
+    <value>Impossible de trouver un rôle appelé {0}.</value>
+  </data>
+  <data name="AuthRolesAdminService_UpdateRoleToPermissionsAsync_InvalidPermission" xml:space="preserve">
+    <value>Le nom d'autorisation '{0}' n'est pas un nom valide dans l'énumération {1}.</value>
+  </data>
+  <data name="AuthRolesAdminService_DeleteRoleAsync_RoleUsedUser" xml:space="preserve">
+    <value>Ce rôle est utilisé dans {0} AuthUsers et vous n'avez pas confirmé la suppression.</value>
+  </data>
+  <data name="AuthRolesAdminService_DeleteRoleAsync_RoleUsedTenant" xml:space="preserve">
+    <value>Ce rôle est utilisé dans les locataires {0} et vous n'avez pas confirmé la suppression.</value>
+  </data>
+  <data name="AuthRolesAdminService_DeleteRoleAsync_Success" xml:space="preserve">
+    <value>Le rôle {0} a bien été supprimé.</value>
+  </data>
+  <data name="AuthRolesAdminService_DeleteRoleAsync_Success-RemoveUsers" xml:space="preserve">
+    <value>Le rôle {0} a bien été supprimé et ce rôle a été supprimé des utilisateurs {1}.</value>
+  </data>
+  <data name="AuthRolesAdminService_DeleteRoleAsync_Success-RemoveTenants" xml:space="preserve">
+    <value>Le rôle {0} a bien été supprimé et ce rôle a été supprimé des locataires {1}.</value>
+  </data>
+  <data name="AuthRolesAdminService_DeleteRoleAsync_Success-RemoveUsers-RemoveTenants" xml:space="preserve">
+    <value>Suppression réussie du rôle {0} et suppression de ce rôle pour {1} utilisateurs et suppression de ce rôle pour {2} locataires.</value>
+  </data>
+  <data name="AuthTenantAdminService_TenantNotFound" xml:space="preserve">
+    <value>Impossible de trouver le locataire que vous recherchiez.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddSingleTenantAsync_Success" xml:space="preserve">
+    <value>Le nouveau locataire {0} a bien été ajouté.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddSingleTenantAsync_HasOwnDbInvalid" xml:space="preserve">
+    <value>Le paramètre 'hasOwnDb' doit être défini sur true ou false lorsque le partitionnement est activé.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddSingleTenantAsync_ExceptionFail" xml:space="preserve">
+    <value>La tentative de création d'un locataire a échoué avec une erreur système. Veuillez contacter l'équipe d'administration.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddHierarchicalTenantAsync_NameBadChar" xml:space="preserve">
+    <value>Le nom du locataire ne doit pas contenir le caractère '|' car ce caractère est utilisé pour séparer les noms dans l'ordre hiérarchique.</value>
+  </data>
+  <data name="AuthTenantAdminService_ParentNotFound" xml:space="preserve">
+    <value>Impossible de trouver le locataire parent que vous avez demandé.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddHierarchicalTenantAsync_Success" xml:space="preserve">
+    <value>Le nouveau locataire hiérarchique {0} a bien été ajouté.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddHierarchicalTenantAsync_InvalidHasOwnDb" xml:space="preserve">
+    <value>Le paramètre {0} ne correspond pas au {0} du parent. Définissez le paramètre {1} sur null pour utiliser la valeur {0} du parent.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddHierarchicalTenantAsync_InvalidDatabaseInfoName" xml:space="preserve">
+    <value>Le paramètre {0} ne correspond pas au {0} du parent. Définissez le paramètre {1} sur null pour utiliser la valeur {0} du parent.</value>
+  </data>
+  <data name="AuthTenantAdminService_AddHierarchicalTenantAsync_HasOwnDbNotSet" xml:space="preserve">
+    <value>Le paramètre hasOwnDb doit être défini sur true ou false s'il n'y a pas de parent et que le partitionnement est activé.</value>
+  </data>
+  <data name="AuthTenantAdminService_UpdateTenantRolesAsync_Success" xml:space="preserve">
+    <value>Mise à jour réussie des rôles du locataire.</value>
+  </data>
+  <data name="AuthTenantAdminService_UpdateTenantNameAsync_TenantNameEmpty" xml:space="preserve">
+    <value>Le nouveau nom était vide.</value>
+  </data>
+  <data name="AuthTenantAdminService_MoveHierarchicalTenantToAnotherParentAsync_NoMoveToSelf" xml:space="preserve">
+    <value>Vous ne pouvez pas déplacer un locataire vers lui-même.</value>
+  </data>
+  <data name="AuthTenantAdminService_MoveHierarchicalTenantToAnotherParentAsync_Success-ToTenant" xml:space="preserve">
+    <value>Déplacement réussi du locataire initialement nommé '{0}' vers le nouveau nommé '{1}'.</value>
+  </data>
+  <data name="AuthTenantAdminService_MoveHierarchicalTenantToAnotherParentAsync_Success-ToTop" xml:space="preserve">
+    <value>Le locataire initialement nommé '{0}' a été déplacé avec succès vers le niveau supérieur.</value>
+  </data>
+  <data name="AuthTenantAdminService_DeleteTenantAsync_BeingUsedAbort" xml:space="preserve">
+    <value>Cette suppression est abandonnée car ce {0} est lié à l'utilisateur '{1}'.</value>
+  </data>
+  <data name="AuthTenantAdminService_DeleteTenantAsync_Success" xml:space="preserve">
+    <value>Le locataire appelé '{0}' a bien été supprimé.</value>
+  </data>
+  <data name="AuthTenantAdminService_DeleteTenantAsync_Success-AndLinked" xml:space="preserve">
+    <value>Le locataire appelé '{0}' et ses {1} locataires liés ont bien été supprimés.</value>
+  </data>
+  <data name="AuthTenantAdminService_MoveToDifferentDatabaseAsync_Success" xml:space="preserve">
+    <value>Déplacement réussi du locataire vers la base de données définie par les informations de base de données portant le nom '{0}'.</value>
+  </data>
+  <data name="AuthTenantAdminService_MoveToDifferentDatabaseAsync_ChildIsInvalid" xml:space="preserve">
+    <value>Pour les locataires hiérarchiques, vous devez fournir le TenantId du locataire supérieur, et non un locataire enfant.</value>
+  </data>
+  <data name="AuthTenantAdminService_MoveToDifferentDatabaseAsync_NoChange" xml:space="preserve">
+    <value>Vous n'avez modifié aucune des pièces de partitionnement, donc rien n'a été changé.</value>
+  </data>
+  <data name="AuthTenantAdminService_MoveToDifferentDatabaseAsync_SuccessNotMoved" xml:space="preserve">
+    <value>Le locataire n'a pas été déplacé mais son {0} a été remplacé par {1}.</value>
+  </data>
+  <data name="AuthTenantAdminService_CheckHasOwnDbIsValidAsync_InvalidDatabase" xml:space="preserve">
+    <value>Le paramètre {0} est vrai, mais le nom de la base de données de partitionnement '{1}' a déjà un ou plusieurs locataires utilisant cette base de données.</value>
+  </data>
+  <data name="AuthTenantAdminService_GetRolesWithChecksAsync_RoleNotFound" xml:space="preserve">
+    <value>Le rôle '{0}' n'a pas été trouvé dans les listes de rôles.</value>
+  </data>
+  <data name="AuthUsersAdminService_UserNotFound" xml:space="preserve">
+    <value>Impossible de trouver l'utilisateur AuthP que vous avez demandé.</value>
+  </data>
+  <data name="AuthUsersAdminService_FindAuthUserByEmailAsync_UserNotFoundEmail" xml:space="preserve">
+    <value>Impossible de trouver l'utilisateur AuthP avec l'e-mail de '{0}'</value>
+  </data>
+  <data name="AuthUsersAdminService_UpdateDisabledAsync_Success" xml:space="preserve">
+    <value>Le {0} de l'utilisateur a été remplacé par {1}.</value>
+  </data>
+  <data name="AuthUsersAdminService_AddNewUserAsync_Success" xml:space="preserve">
+    <value>Ajout réussi d'un AuthUser avec le nom '{0}'.</value>
+  </data>
+  <data name="AuthUsersAdminService_InvalidEmail" xml:space="preserve">
+    <value>L'e-mail '{0}' n'est pas un e-mail valide.</value>
+  </data>
+  <data name="AuthUsersAdminService_TenantNotFound" xml:space="preserve">
+    <value>Un locataire avec le nom '{0}' n'a pas été trouvé.</value>
+  </data>
+  <data name="AuthUsersAdminService_DeleteUserAsync_Success" xml:space="preserve">
+    <value>L'utilisateur '{0}' a bien été supprimé.</value>
+  </data>
+  <data name="AuthUsersAdminService_ApplySyncChangesAsync_Success" xml:space="preserve">
+    <value>Synchronisation réussie : {0}.</value>
+  </data>
+  <data name="AuthUsersAdminService_FindCheckRolesAreValidForUserAsync_RoleNotFound" xml:space="preserve">
+    <value>Le rôle '{0}' n'a pas été trouvé dans les listes de rôles.</value>
+  </data>
+  <data name="AuthUsersAdminService_FindCheckRolesAreValidForUserAsync_NonTenantNotAllowed" xml:space="preserve">
+    <value>Le rôle '{0}' n'est pas autorisé à un utilisateur non locataire.</value>
+  </data>
+  <data name="AuthUsersAdminService_FindCheckRolesAreValidForUserAsync_TenantNotAllowed" xml:space="preserve">
+    <value>Le rôle '{0}' n'est pas autorisé pour l'utilisateur locataire.</value>
+  </data>
+  <data name="AuthUsersAdminService_FindCheckRolesAreValidForUserAsync_RoleNotFoundTenant" xml:space="preserve">
+    <value>Le rôle '{0}' est introuvable dans les rôles de locataire '{1}'.</value>
+  </data>
+</root>
