@@ -27,7 +27,7 @@ public class InviteNewUserService : IInviteNewUserService
     private readonly IAuthUsersAdminService _usersAdmin;
     private readonly AuthPermissionsOptions _options;
     private readonly IAddNewUserManager _addNewUserManager;
-    private IDefaultLocalizer<LocalizeResources> _localizeDefault;
+    private IDefaultLocalizer<ResourceLocalize> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -39,7 +39,7 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="addNewUserManager"></param>
     public InviteNewUserService(AuthPermissionsOptions options, AuthPermissionsDbContext context,
         IEncryptDecryptService encryptService,
-        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager, IDefaultLocalizer<LocalizeResources> localizeDefault)
+        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager, IDefaultLocalizer<ResourceLocalize> localizeDefault)
     {
         _options = options;
         _context = context;
@@ -92,7 +92,7 @@ public class InviteNewUserService : IInviteNewUserService
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
     public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId)
     {
-        var status = new StatusGenericLocalizer<string, LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<string, ResourceLocalize>(_localizeDefault);
 
         if (userId == null)
             throw new ArgumentNullException(nameof(userId));
@@ -239,7 +239,7 @@ public class InviteNewUserService : IInviteNewUserService
     public async Task<IStatusGeneric<AddNewUserDto>> AddUserViaInvite(string inviteParam, 
     string email, string userName, string password = null, bool isPersistent = false)
     {
-        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<AddNewUserDto, ResourceLocalize>(_localizeDefault);
         var normalizedEmail = email.Trim().ToLower();
 
         AddNewUserDto newUserData;

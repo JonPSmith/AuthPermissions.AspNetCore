@@ -29,7 +29,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     private readonly IShardingConnections _connectionsService;
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly AuthPermissionsOptions _options;
-    private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
+    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
 
     /// <summary>
     /// Ctor
@@ -41,7 +41,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <param name="localizeDefault"></param>
     public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, 
         AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options, 
-        IDefaultLocalizer<LocalizeResources> localizeDefault)
+        IDefaultLocalizer<ResourceLocalize> localizeDefault)
     {
         ShardingSettingFilename = AuthPermissionsOptions.FormShardingSettingsFileName(options.SecondPartOfShardingFile);
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
@@ -105,7 +105,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         return ApplyChangeWithinDistributedLock(() =>
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
             var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
             if (foundIndex == -1)
@@ -127,7 +127,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         return await ApplyChangeWithinDistributedLockAsync(async () =>
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
             var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
             if (foundIndex == -1)
@@ -151,7 +151,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
 
     private IStatusGeneric CheckDatabasesInfoAndSaveIfValid(List<DatabaseInformation> databasesInfo, DatabaseInformation changedInfo)
     {
-        var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
         status.SetMessageFormatted("SuccessUpdate".ClassLocalizeKey(this, true),
         $"Successfully updated the {ShardingSettingFilename} with your changes.");
 

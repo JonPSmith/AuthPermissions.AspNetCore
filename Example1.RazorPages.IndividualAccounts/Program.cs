@@ -1,6 +1,8 @@
+// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,7 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
 using Example1.RazorPages.IndividualAccounts.Data;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using RunMethodsSequentially;
 using Microsoft.Extensions.Options;
@@ -44,11 +47,12 @@ public class Program
 
         #region localization - defining the cultures 
         //see https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization#localization-middleware
-        var supportedCultures = new[] { "en", "fr" };
+        var supportedCultures = new[] { "en", "fr"};
         var localizationOptions = new RequestLocalizationOptions()
             .SetDefaultCulture(supportedCultures[0])
             .AddSupportedCultures(supportedCultures)
             .AddSupportedUICultures(supportedCultures);
+
 
         //This defines that the culture is selected by the culture cookie
         localizationOptions.RequestCultureProviders = new List<IRequestCultureProvider>()
@@ -57,9 +61,33 @@ public class Program
             //new AcceptLanguageHeaderRequestCultureProvider(),
             //new QueryStringRequestCultureProvider()
         };
+
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            List<CultureInfo> supportedCultures = new List<CultureInfo>
+            {
+                new ("en"),
+                new ("fr"),
+            };
+            options.DefaultRequestCulture = new RequestCulture("en");
+            options.SupportedCultures = supportedCultures;
+            options.SupportedUICultures = supportedCultures;
+
+            options.RequestCultureProviders = new List<IRequestCultureProvider>()
+            {
+                new CookieRequestCultureProvider(),
+                new AcceptLanguageHeaderRequestCultureProvider(),
+                new QueryStringRequestCultureProvider()
+            };
+        });
         #endregion
 
-        builder.Services.RegisterAuthPermissions<Example1Permissions>()
+        //Register the SimpleLocalizer with its own Resource file
+        //This is used for localization of simple messages
+        builder.Services.RegisterSimpleLocalizer<Example1Resources>();
+
+        builder.Services.RegisterAuthPermissions<Example1Permissions>(
+                options => options.SupportedCultures = supportedCultures)
             .UsingInMemoryDatabase()
             .IndividualAccountsAuthentication()
             .AddRolesPermissionsIfEmpty(AppAuthSetupData.RolesDefinition)
@@ -82,6 +110,8 @@ public class Program
 
         //see https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization#localization-middleware
         app.UseRequestLocalization(localizationOptions);
+        //var options = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+        //app.UseRequestLocalization(options);
 
         #endregion
 

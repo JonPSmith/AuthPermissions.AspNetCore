@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 
 namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
 {

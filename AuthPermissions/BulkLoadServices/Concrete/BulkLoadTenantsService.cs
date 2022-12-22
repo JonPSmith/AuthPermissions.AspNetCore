@@ -74,7 +74,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         tenantDefinition.TenantName);
                     status.CombineStatuses(rolesStatus);
                     var tenantStatus = Tenant.CreateSingleTenant(tenantDefinition.TenantName, 
-                        new StubDefaultLocalizer<LocalizeResources>(), rolesStatus.Result);
+                        new StubDefaultLocalizer<ResourceLocalize>(), rolesStatus.Result);
                     
                     if (status.CombineStatuses(tenantStatus).IsValid)
                     {
@@ -87,7 +87,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 if (status.HasErrors)
                     return status;
 
-                return await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<LocalizeResources>());
+                return await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>());
             }
 
             //--------------------------------------------------
@@ -123,7 +123,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                             ? null
                             : await _context.Tenants.SingleAsync(x => x.TenantId == tenantInfo.Parent.CreatedTenantId);
                         var newTenantStatus = Tenant.CreateHierarchicalTenant(fullname, parent, 
-                            new StubDefaultLocalizer<LocalizeResources>(), rolesStatus.Result);
+                            new StubDefaultLocalizer<ResourceLocalize>(), rolesStatus.Result);
                         _context.Add(newTenantStatus.Result);
 
                         if (status.IsValid)
@@ -131,7 +131,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                             _context.Add(newTenantStatus.Result);
                             if ((options.TenantType & TenantTypes.AddSharding) != 0)
                                 newTenantStatus.Result.UpdateShardingState(options.ShardingDefaultDatabaseInfoName, false);
-                            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<LocalizeResources>()));
+                            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>()));
 
                             //Now we copy the data so that a child can access to the parent data
                             tenantInfo.CreatedTenantId = newTenantStatus.Result.TenantId;

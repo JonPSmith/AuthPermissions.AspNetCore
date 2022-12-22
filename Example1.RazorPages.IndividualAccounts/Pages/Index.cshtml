@@ -1,34 +1,56 @@
 ﻿@page
-@using Example1.RazorPages.IndividualAccounts.Model
+@using LocalizeMessagesAndErrors
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject ISimpleLocalizer SimpleLocalizer
+
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
 }
 
 <div class="text-center">
-    <h2>Example1 - looking at Roles/Permissions, plus localization</h2>
+    <h2>@SimpleLocalizer.LocalizeString(
+            "Example1 - looking at Roles/Permissions, plus localization", this)</h2>
 </div>
+
 <h4>Application summary</h4>
 <ul>
-    <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.AppSummary.Application</li>
-    <li><strong>@nameof(AppSummary.AuthorizationProvider)</strong>:&nbsp;@Model.AppSummary.AuthorizationProvider</li>
-    <li><strong>@nameof(AppSummary.CookieOrToken)</strong>:&nbsp;@Model.AppSummary.CookieOrToken</li>
-    <li><strong>@nameof(AppSummary.MultiTenant)</strong>:&nbsp;@Model.AppSummary.MultiTenant</li>
     <li>
-        <strong>@nameof(AppSummary.Databases)</strong>:&nbsp;
+        <strong>@SimpleLocalizer.LocalizeString("Application", this)</strong>:&nbsp;
+        @SimpleLocalizer.LocalizeString(Model.AppSummary.Application, this)
+    </li>
+    <li>
+        <strong>@SimpleLocalizer.LocalizeString("Authorization Provider", this)</strong>:&nbsp;
+        @SimpleLocalizer.LocalizeString(Model.AppSummary.AuthorizationProvider, this)
+    </li>
+    <li>
+        <strong>@SimpleLocalizer.LocalizeString("Cookie or Token", this)</strong>:&nbsp;
+        @SimpleLocalizer.LocalizeString(Model.AppSummary.CookieOrToken, this)
+    </li>
+    <li>
+        <strong>@SimpleLocalizer.LocalizeString("MultiTenant?", this)</strong>:&nbsp;
+        @SimpleLocalizer.LocalizeString(Model.AppSummary.MultiTenant, this)
+    </li>
+    <li>
+        <strong>@SimpleLocalizer.LocalizeString("Databases", this)</strong>:&nbsp;
         <ul>
             @foreach (var database in Model.AppSummary.Databases)
             {
-                <li>@database</li>
+                <li>@SimpleLocalizer.LocalizeString(database, this)</li>
             }
         </ul>
     </li>
-    @if (@Model.AppSummary.Note != null)
+    @if (Model.AppSummary.Note != null)
     {
-        <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.AppSummary.Note</li>
+        <li>
+            <strong>@SimpleLocalizer.LocalizeString("Note", this)</strong>:&nbsp;
+            @SimpleLocalizer.LocalizeString(Model.AppSummary.Note, this)
+        </li>
     }
 </ul>
+<h4>How to try out this example (in English only)</h4>
+
 <p>
     To test these authorization features you will need some users to log in.
     <br />

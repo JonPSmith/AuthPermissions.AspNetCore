@@ -40,14 +40,14 @@ public class TestAzureAdUserManager
             TenantType = tenantType
         };
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
-            authOptions, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
         var tenantAdmin = new AuthTenantAdminService(context, authOptions, 
-            new StubDefaultLocalizerWithLogging<LocalizeResources>("en"), new StubITenantChangeServiceFactory(), null);
+            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"), new StubITenantChangeServiceFactory(), null);
         var azureAdStub = new StubAzureAdAccessService();
         var azureOptions = Options.Create(new AzureAdOptions{ AzureAdApproaches = "Find,Create"});
 
         var service = new AzureAdNewUserManager(userAdmin, tenantAdmin, azureAdStub, azureOptions,
-            new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
         if (tenantType == TenantTypes.SingleLevel)
             context.Add(AuthPSetupHelpers.CreateTestSingleTenantOk("Company"));

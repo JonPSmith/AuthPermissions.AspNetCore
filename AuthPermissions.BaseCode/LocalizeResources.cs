@@ -7,7 +7,10 @@ namespace AuthPermissions.BaseCode;
 /// This class is used in use of IStringLocalizer within the AuthP code.
 /// This means all the localized entries will be in a resource file who's name starts with this class's name
 /// </summary>
-public class LocalizeResources
+
+//Don't end your TResource class with "Resource"! 
+//see https://blog.mzikmund.com/2017/03/localization-gotcha-missingmanifestresourceexception/
+public class ResourceLocalize
 {
     
 }

@@ -24,7 +24,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// <param name="localizeDefault"></param>
         /// <returns>Status</returns>
         public static IStatusGeneric SaveChangesWithChecks(this DbContext context,
-            IDefaultLocalizer<LocalizeResources> localizeDefault)
+            IDefaultLocalizer<ResourceLocalize> localizeDefault)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// <param name="localizeDefault"></param>
         /// <returns>Status</returns>
         public static async Task<IStatusGeneric> SaveChangesWithChecksAsync(this DbContext context,
-            IDefaultLocalizer<LocalizeResources> localizeDefault)
+            IDefaultLocalizer<ResourceLocalize> localizeDefault)
         {
             try
             {
@@ -72,9 +72,9 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         private enum ExceptionTypes {Duplicate, ConcurrencyError}
 
         private static IStatusGeneric ConvertExceptionToStatus(this IReadOnlyList<EntityEntry> entities,
-            ExceptionTypes exceptionType, IDefaultLocalizer<LocalizeResources> localizeDefault)
+            ExceptionTypes exceptionType, IDefaultLocalizer<ResourceLocalize> localizeDefault)
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>(localizeDefault);
+            var status = new StatusGenericLocalizer<ResourceLocalize>(localizeDefault);
 
             //NOTE: These is only one entity in an exception
             if (entities.Any())

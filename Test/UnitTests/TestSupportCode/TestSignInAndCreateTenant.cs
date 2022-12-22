@@ -42,12 +42,12 @@ public class TestSignInAndCreateTenant
             TenantType = tenantType
         };
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
-            authOptions, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
         var tenantAdmin = new AuthTenantAdminService(context, authOptions,
-            new StubDefaultLocalizerWithLogging<LocalizeResources>("en"), new StubITenantChangeServiceFactory(), null); 
+            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"), new StubITenantChangeServiceFactory(), null); 
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
             new StubAddNewUserManager(userAdmin, tenantAdmin), 
-            new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
+            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"),
             new StubIGetDatabaseForNewTenant());
 
         return (service, userAdmin);

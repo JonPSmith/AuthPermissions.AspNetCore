@@ -29,7 +29,7 @@ public class ShardingConnections : IShardingConnections
     private readonly ShardingSettingsOption _shardingSettings;
     private readonly AuthPermissionsDbContext _context;
     private readonly AuthPermissionsOptions _options;
-    private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
+    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -41,7 +41,7 @@ public class ShardingConnections : IShardingConnections
     /// <param name="localizeDefault">used to localize any errors or messages</param>
     public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
         IOptionsSnapshot<ShardingSettingsOption> shardingSettingsAccessor,
-        AuthPermissionsDbContext context, AuthPermissionsOptions options, IDefaultLocalizer<LocalizeResources> localizeDefault)
+        AuthPermissionsDbContext context, AuthPermissionsOptions options, IDefaultLocalizer<ResourceLocalize> localizeDefault)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor.Value;
@@ -156,7 +156,7 @@ public class ShardingConnections : IShardingConnections
     /// <exception cref="ArgumentNullException"></exception>
     public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
     {
-        var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
 
         if (databaseInfo == null)
             throw new ArgumentNullException(nameof(databaseInfo));
@@ -192,7 +192,7 @@ public class ShardingConnections : IShardingConnections
     /// <exception cref="InvalidEnumArgumentException"></exception>
     private IStatusGeneric<string> SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        var status = new StatusGenericLocalizer<string, LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<string, ResourceLocalize>(_localizeDefault);
 
         switch (databaseInformation.DatabaseType)
         {

@@ -59,8 +59,8 @@ public class TestIndividualUserAddUserManager
 
         services.AddScoped<IGetDataKeyFromUser>(x => new StubGetDataKeyFilter(""));
         services.AddSingleton(typeof(IDefaultLocalizer<>), typeof(DefaultLocalizer<>));
-        services.AddScoped<IDefaultLocalizer<LocalizeResources>>(x =>
-            new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+        services.AddScoped<IDefaultLocalizer<ResourceLocalize>>(x =>
+            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
         services.RegisterAuthPermissions<Example3Permissions>(options =>
         {
             options.TenantType = TenantTypes.SingleLevel;

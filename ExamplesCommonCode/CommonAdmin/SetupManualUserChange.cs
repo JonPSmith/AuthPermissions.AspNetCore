@@ -99,9 +99,9 @@ namespace ExamplesCommonCode.CommonAdmin
         /// <param name="localizeDefault"></param>
         /// <returns>Status</returns>
         public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin,
-            IDefaultLocalizer<LocalizeResources> localizeDefault)
+            IDefaultLocalizer<ResourceLocalize> localizeDefault)
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>(localizeDefault);
+            var status = new StatusGenericLocalizer<ResourceLocalize>(localizeDefault);
 
             switch (FoundChangeType)
             {

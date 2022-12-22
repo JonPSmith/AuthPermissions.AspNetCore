@@ -28,7 +28,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
 
             //ATTEMPT
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", null, "userName"));
-            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -44,7 +44,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             context.Database.EnsureClean();
 
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "j@gmail.com", "userName"));
-            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());

@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthPermissions.BaseCode;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
@@ -14,11 +17,11 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.Localization;
 
 public class SetCultureModel : PageModel
 {
-    private readonly IOptions<RequestLocalizationOptions> _locOptions;
+    private readonly AuthPermissionsOptions _authOptions;
 
-    public SetCultureModel(IOptions<RequestLocalizationOptions> locOptions)
+    public SetCultureModel(AuthPermissionsOptions authOptions)
     {
-        _locOptions = locOptions;
+        _authOptions = authOptions ;
     }
 
     [BindProperty] public List<SelectListItem> CultureList { get; set; }
@@ -26,7 +29,8 @@ public class SetCultureModel : PageModel
 
     public void OnGet()
     {
-        CultureList = _locOptions.Value.SupportedUICultures
+        CultureList = _authOptions.SupportedCultures
+            .Select(x => new CultureInfo(x))
             .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
             .ToList();
     }

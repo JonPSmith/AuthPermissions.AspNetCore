@@ -129,7 +129,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateUpdate([FromServices] IDefaultLocalizer<LocalizeResources> localizeDefault, 
+        public async Task<ActionResult> CreateUpdate([FromServices] IDefaultLocalizer<ResourceLocalize> localizeDefault, 
             SetupManualUserChange input)
         {
             if (!ModelState.IsValid)

@@ -23,7 +23,7 @@ namespace AuthPermissions.AdminCode.Services
     {
         private readonly AuthPermissionsDbContext _context;
         private readonly AuthPermissionsOptions _options;
-        private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
+        private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
         private readonly IAuthPServiceFactory<ITenantChangeService> _tenantChangeServiceFactory;
         private readonly ILogger _logger;
 
@@ -39,7 +39,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="logger"></param>
         public AuthTenantAdminService(AuthPermissionsDbContext context, 
             AuthPermissionsOptions options,
-            IDefaultLocalizer<LocalizeResources> localizeDefault,
+            IDefaultLocalizer<ResourceLocalize> localizeDefault,
             IAuthPServiceFactory<ITenantChangeService> tenantChangeServiceFactory,
             ILogger<AuthTenantAdminService> logger)
         {
@@ -91,7 +91,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status. If successful, then contains the Tenant</returns>
         public async Task<IStatusGeneric<Tenant>> GetTenantViaIdAsync(int tenantId)
         {
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, ResourceLocalize>(_localizeDefault);
 
             var result = await _context.Tenants
                 .Include(x => x.Parent)
@@ -136,7 +136,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<Tenant>> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null,
             bool? hasOwnDb = null, string databaseInfoName = null)
         {
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, ResourceLocalize>(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
                 $"Successfully added the new tenant {tenantName}.");
 
@@ -211,7 +211,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<Tenant>> AddHierarchicalTenantAsync(string tenantName, int parentTenantId,
             List<string> tenantRoleNames = null, bool? hasOwnDb = false, string databaseInfoName = null)
         {
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, ResourceLocalize>(_localizeDefault);
 
             if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
@@ -341,7 +341,7 @@ namespace AuthPermissions.AdminCode.Services
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.TenantType)} parameter in the AuthP's options");
 
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, ResourceLocalize>(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
                 $"Successfully updated the tenant's Roles.");
 
@@ -374,7 +374,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns></returns>
         public async Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName)
         {
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, ResourceLocalize>(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
                 $"Successfully updated the tenant's name to {newTenantName}.");
 
@@ -443,14 +443,14 @@ namespace AuthPermissions.AdminCode.Services
         /// <summary>
         /// This moves a hierarchical tenant to a new parent (which might be null). This changes the TenantFullName and the
         /// TenantDataKey of the selected tenant and all of its children
-        /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="LocalizeResources"/>
+        /// This method uses the <see cref="ITenantChangeService"/> you provided via the <see cref="ResourceLocalize"/>
         /// </summary>
         /// <param name="tenantToMoveId">The primary key of the AuthP tenant to move</param>
         /// <param name="newParentTenantId">Primary key of the new parent, if 0 then you move the tenant to top</param>
         /// <returns>status</returns>
         public async Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(int tenantToMoveId, int newParentTenantId)
         {
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, ResourceLocalize>(_localizeDefault);
 
             if (!_tenantType.IsHierarchical())
                 throw new AuthPermissionsException(
@@ -533,7 +533,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
         public async Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId)
         {
-            var status = new StatusGenericLocalizer<ITenantChangeService, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<ITenantChangeService, ResourceLocalize>(_localizeDefault);
 
             var tenantChangeService = _tenantChangeServiceFactory.GetService();
             status.SetResult(tenantChangeService);
@@ -642,7 +642,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId, bool hasOwnDb,
             string databaseInfoName)
         {
-            var status = new StatusGenericLocalizer<ITenantChangeService, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<ITenantChangeService, ResourceLocalize>(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
             $"Successfully moved the tenant to the database defined by the database information with the name '{databaseInfoName}'.");
 
@@ -722,7 +722,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         private async Task<IStatusGeneric> CheckHasOwnDbIsValidAsync(bool hasOwnDb, string databaseInfoName)
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
             if (!hasOwnDb)
                 return status;
 
@@ -745,7 +745,7 @@ namespace AuthPermissions.AdminCode.Services
         private async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(
             List<string> tenantRoleNames)
         {
-            var status = new StatusGenericLocalizer<List<RoleToPermissions>, LocalizeResources>(_localizeDefault);
+            var status = new StatusGenericLocalizer<List<RoleToPermissions>, ResourceLocalize>(_localizeDefault);
 
             var foundRoles = tenantRoleNames?.Any() == true
                 ? await _context.RoleToPermissions

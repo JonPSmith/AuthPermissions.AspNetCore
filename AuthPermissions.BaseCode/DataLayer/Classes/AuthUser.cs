@@ -41,10 +41,10 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <param name="localizeDefault">This provides the localize service</param>
         /// <param name="userTenant">optional: defines multi-tenant tenant for this user</param>
         public static IStatusGeneric<AuthUser> CreateAuthUser(string userId, string email,
-            string userName, List<RoleToPermissions> roles, IDefaultLocalizer<LocalizeResources> localizeDefault,
+            string userName, List<RoleToPermissions> roles, IDefaultLocalizer<ResourceLocalize> localizeDefault,
             Tenant userTenant = null)
         {
-            var status = new StatusGenericLocalizer<AuthUser, LocalizeResources>(localizeDefault);
+            var status = new StatusGenericLocalizer<AuthUser, ResourceLocalize>(localizeDefault);
 
             status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant != null, localizeDefault));
             if (status.HasErrors)
@@ -139,12 +139,12 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// </summary>
         /// <param name="roles">List of roles to replace the current user's roles</param>
         /// <param name="localizeDefault"></param>
-        public IStatusGeneric ReplaceAllRoles(List<RoleToPermissions> roles, IDefaultLocalizer<LocalizeResources> localizeDefault)
+        public IStatusGeneric ReplaceAllRoles(List<RoleToPermissions> roles, IDefaultLocalizer<ResourceLocalize> localizeDefault)
         {
             if (_userRoles == null)
                 throw new AuthPermissionsException($"You must load the {nameof(UserRoles)} before calling this method");
 
-            var status = new StatusGenericLocalizer<LocalizeResources>(localizeDefault);
+            var status = new StatusGenericLocalizer<ResourceLocalize>(localizeDefault);
 
             status.CombineStatuses(CheckRolesAreValidForUser(roles, TenantId != null, localizeDefault));
             if (status.HasErrors)
@@ -200,9 +200,9 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         private static IStatusGeneric CheckRolesAreValidForUser(List<RoleToPermissions> foundRoles, bool tenantUser,
-            IDefaultLocalizer<LocalizeResources> localizeDefault)
+            IDefaultLocalizer<ResourceLocalize> localizeDefault)
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>(localizeDefault);
+            var status = new StatusGenericLocalizer<ResourceLocalize>(localizeDefault);
 
             foreach (var foundRole in foundRoles)
             {

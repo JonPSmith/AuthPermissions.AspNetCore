@@ -22,7 +22,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     private readonly AuthPermissionsOptions _options;
     private readonly IAuthTenantAdminService _tenantAdmin;
     private readonly IAddNewUserManager _addNewUserManager;
-    private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
+    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
     private readonly IGetDatabaseForNewTenant _getShardingDb;
 
     /// <summary>
@@ -34,7 +34,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// <param name="localizeDefault"></param>
     /// <param name="getShardingDb"></param>
     public SignInAndCreateTenant(AuthPermissionsOptions options, IAuthTenantAdminService tenantAdmin, 
-        IAddNewUserManager addNewUserManager, IDefaultLocalizer<LocalizeResources> localizeDefault,
+        IAddNewUserManager addNewUserManager, IDefaultLocalizer<ResourceLocalize> localizeDefault,
         IGetDatabaseForNewTenant getShardingDb = null)
     {
         _options = options;
@@ -82,7 +82,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         if (newUser == null) throw new ArgumentNullException(nameof(newUser));
         if (tenantData == null) throw new ArgumentNullException(nameof(tenantData));
         if (versionData == null) throw new ArgumentNullException(nameof(versionData));
-        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<AddNewUserDto, ResourceLocalize>(_localizeDefault);
 
         if (tenantData.TenantName == null)
             return status.AddErrorString("NullTenantName".ClassLocalizeKey(this, true),

@@ -29,7 +29,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
 
             //ATTEMPT
             context.Add(new RoleToPermissions("Test", null, "x"));
-            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -51,7 +51,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
 
             //ATTEMPT
             context.Add(new RoleToPermissions("BIG Name", null, "x"));
-            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -75,7 +75,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
 
             //ATTEMPT
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "second@gmail.com", "second"));
-            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -101,7 +101,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             //ATTEMPT
             context.Add(new RoleToPermissions("Test1", null, "x"));
             context.Add(new RoleToPermissions("Test2", null, "x"));
-            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
@@ -122,7 +122,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             context.Database.EnsureClean();
 
             context.Add(new RoleToPermissions("Test", null, "x"));
-            context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             context.ChangeTracker.Clear();
 
@@ -131,7 +131,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             role.Update("y", "new desc");
             context.Database.ExecuteSqlRaw(
                 "UPDATE authp.RoleToPermissions SET Description = N'concurrent desc' WHERE RoleName = N'Test'");
-            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse(status.GetAllErrors());

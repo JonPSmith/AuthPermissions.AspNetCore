@@ -43,7 +43,7 @@ namespace AuthPermissions.AspNetCore.Services
             if (latestValidRefreshToken != null)
             {
                 latestValidRefreshToken.MarkAsInvalid();
-                var status = await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<LocalizeResources>());
+                var status = await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>());
                 status.IfErrorsTurnToException();
             }
         }
@@ -61,7 +61,7 @@ namespace AuthPermissions.AspNetCore.Services
                 .ToListAsync();
 
             latestValidRefreshTokens.ForEach(x => x.MarkAsInvalid());
-            var status = await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<LocalizeResources>());
+            var status = await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>());
             status.IfErrorsTurnToException();
         }
     }

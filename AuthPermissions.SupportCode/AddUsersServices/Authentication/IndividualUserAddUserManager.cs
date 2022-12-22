@@ -23,7 +23,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly UserManager<TIdentity> _userManager;
     private readonly SignInManager<TIdentity> _signInManager;
-    private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
+    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -32,7 +32,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     /// <param name="tenantAdminService"></param>
     /// <param name="userManager"></param>
     /// <param name="signInManager"></param>
-    public IndividualUserAddUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, UserManager<TIdentity> userManager, SignInManager<TIdentity> signInManager, IDefaultLocalizer<LocalizeResources> localizeDefault)
+    public IndividualUserAddUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, UserManager<TIdentity> userManager, SignInManager<TIdentity> signInManager, IDefaultLocalizer<ResourceLocalize> localizeDefault)
     {
         _authUsersAdmin = authUsersAdmin;
         _tenantAdminService = tenantAdminService;
@@ -60,7 +60,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     /// <returns>status, with error if there an user already</returns>
     public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
-        var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
             return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true),
             "There is already an AuthUser with your email, so you can't add another.",
@@ -80,7 +80,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     {
         UserLoginData = newUser ?? throw new ArgumentNullException(nameof(newUser));
 
-        var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
         status.SetMessageString("SuccessAddUser".ClassLocalizeKey(this, true),
             "New user with claims added");
 
@@ -126,7 +126,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
         var user = await _userManager.FindByEmailAsync(UserLoginData.Email);
         await _signInManager.SignInAsync(user, isPersistent: UserLoginData.IsPersistent);
 
-        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>(_localizeDefault);
+        var status = new StatusGenericLocalizer<AddNewUserDto, ResourceLocalize>(_localizeDefault);
         status.SetMessageString("SuccessRegisterLogin".ClassLocalizeKey(this, true),
        "You have been registered and logged in to this application.");
         return status.SetResult(UserLoginData);

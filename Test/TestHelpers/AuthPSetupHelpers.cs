@@ -34,7 +34,7 @@ namespace Test.TestHelpers
             List<RoleToPermissions> roles = null, Tenant userTenant = null)
         {
             var status = AuthUser.CreateAuthUser(userId, email, userName, roles ?? new List<RoleToPermissions>(),
-                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"), userTenant);
+                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"), userTenant);
             status.IfErrorsTurnToException();
             return status.Result;
         }
@@ -48,7 +48,7 @@ namespace Test.TestHelpers
         public static Tenant CreateTestSingleTenantOk(string fullTenantName, List<RoleToPermissions> tenantRoles = null)
         {
             var status = Tenant.CreateSingleTenant(fullTenantName, 
-                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"), tenantRoles);
+                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"), tenantRoles);
             status.IfErrorsTurnToException();
             return status.Result;
         }
@@ -62,7 +62,7 @@ namespace Test.TestHelpers
         public static Tenant CreateTestHierarchicalTenantOk(string fullTenantName, Tenant parent, List<RoleToPermissions> tenantRoles = null)
         {
             var status = Tenant.CreateHierarchicalTenant(fullTenantName, parent,
-                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"), tenantRoles);
+                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"), tenantRoles);
             status.IfErrorsTurnToException();
             return status.Result;
         }

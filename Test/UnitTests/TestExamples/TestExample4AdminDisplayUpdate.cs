@@ -223,7 +223,7 @@ namespace Test.UnitTests.TestExamples
 
             //ATTEMPT
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, 
-                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -249,7 +249,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.RoleNames = new List<string> {"Area Manager", "Tenant Admin" };
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -276,7 +276,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.Email = "newuser@gmail.com";
             authUserUpdate.UserName = "newuser@gmail.com";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -302,7 +302,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.TenantName = "Bad tenant name";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
+                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();
