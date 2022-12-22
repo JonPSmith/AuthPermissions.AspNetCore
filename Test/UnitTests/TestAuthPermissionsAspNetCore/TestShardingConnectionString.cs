@@ -72,7 +72,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>() );
+            null, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en") );
 
         //ATTEMPT
         var databaseData = service.GetAllPossibleShardingData();
@@ -96,7 +96,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            null, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
         
         //ATTEMPT
         var databaseInfo = new DatabaseInformation
@@ -118,7 +118,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            null, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
         //ATTEMPT
         var connectionString = service.FormConnectionString("Another");
@@ -132,7 +132,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            null, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
         //ATTEMPT
         var ex = Assert.Throws<AuthPermissionsBadDataException>( () => service.FormConnectionString("Bad: No DatabaseName"));
@@ -146,7 +146,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
-            null, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            null, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
         //ATTEMPT
         var connectionString = service.FormConnectionString("Default Database");
@@ -160,7 +160,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            null, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
         //ATTEMPT
         var connectionString = service.FormConnectionString("Special Postgres");
@@ -195,7 +195,7 @@ public class TestShardingConnectionString
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
 
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            context, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            context, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
         //ATTEMPT
         var keyPairs = await service.GetDatabaseInfoNamesWithTenantNamesAsync();
@@ -242,7 +242,7 @@ public class TestShardingConnectionString
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
 
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            context, FormAuthOptionsForSharding(), new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            context, FormAuthOptionsForSharding(), new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
         //ATTEMPT
         var keyPairs = await service.GetDatabaseInfoNamesWithTenantNamesAsync();

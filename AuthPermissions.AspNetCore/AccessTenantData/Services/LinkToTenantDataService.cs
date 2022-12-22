@@ -25,7 +25,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     private readonly IAccessTenantDataCookie _cookieAccessor;
 
     private readonly IEncryptDecryptService _encryptorService;
-    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
+    private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// Ctor
@@ -39,7 +39,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         AuthPermissionsDbContext context,
         AuthPermissionsOptions options,
         IAccessTenantDataCookie cookieAccessor,
-        IEncryptDecryptService encryptorService, ILocalizeWithDefault<LocalizeResources> localizeDefault)
+        IEncryptDecryptService encryptorService, IDefaultLocalizer<LocalizeResources> localizeDefault)
     {
         _context = context;
         _options = options;
@@ -58,7 +58,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     /// <exception cref="AuthPermissionsException"></exception>
     public async Task<IStatusGeneric> StartLinkingToTenantDataAsync(string currentUserId, int tenantId)
     {
-        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
+        var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
 
         if (_options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
             throw new AuthPermissionsException(

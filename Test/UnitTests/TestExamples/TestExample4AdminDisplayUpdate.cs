@@ -1,9 +1,6 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
@@ -11,7 +8,6 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using ExamplesCommonCode.CommonAdmin;
@@ -227,7 +223,7 @@ namespace Test.UnitTests.TestExamples
 
             //ATTEMPT
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, 
-                new StubLocalizeDefaultWithLogging<LocalizeResources>());
+                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -253,7 +249,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.RoleNames = new List<string> {"Area Manager", "Tenant Admin" };
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubLocalizeDefaultWithLogging<LocalizeResources>());
+                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -280,7 +276,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.Email = "newuser@gmail.com";
             authUserUpdate.UserName = "newuser@gmail.com";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubLocalizeDefaultWithLogging<LocalizeResources>());
+                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -306,7 +302,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.TenantName = "Bad tenant name";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubLocalizeDefaultWithLogging<LocalizeResources>());
+                new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse();

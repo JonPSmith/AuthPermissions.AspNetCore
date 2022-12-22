@@ -42,24 +42,21 @@ public class Program
             .AddViewLocalization(options => options.ResourcesPath = "Resources");
         #endregion
 
-        #region localization
-        builder.Services.Configure<RequestLocalizationOptions>(options => {
-            List<CultureInfo> supportedCultures = new List<CultureInfo>
-                {
-                    new ("en"),
-                    new ("fr"),
-                };
-            options.DefaultRequestCulture = new RequestCulture("en");
-            options.SupportedCultures = supportedCultures;
-            options.SupportedUICultures = supportedCultures;
+        #region localization - defining the cultures 
+        //see https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization#localization-middleware
+        var supportedCultures = new[] { "en", "fr" };
+        var localizationOptions = new RequestLocalizationOptions()
+            .SetDefaultCulture(supportedCultures[0])
+            .AddSupportedCultures(supportedCultures)
+            .AddSupportedUICultures(supportedCultures);
 
-            options.RequestCultureProviders = new List<IRequestCultureProvider>()
-            {
-                new CookieRequestCultureProvider(),
-                //new AcceptLanguageHeaderRequestCultureProvider(),
-                //new QueryStringRequestCultureProvider()
-            };
-        });
+        //This defines that the culture is selected by the culture cookie
+        localizationOptions.RequestCultureProviders = new List<IRequestCultureProvider>()
+        {
+            new CookieRequestCultureProvider(),
+            //new AcceptLanguageHeaderRequestCultureProvider(),
+            //new QueryStringRequestCultureProvider()
+        };
         #endregion
 
         builder.Services.RegisterAuthPermissions<Example1Permissions>()
@@ -83,8 +80,8 @@ public class Program
 
         #region localization
 
-        var options = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
-        app.UseRequestLocalization(options);
+        //see https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization#localization-middleware
+        app.UseRequestLocalization(localizationOptions);
 
         #endregion
 

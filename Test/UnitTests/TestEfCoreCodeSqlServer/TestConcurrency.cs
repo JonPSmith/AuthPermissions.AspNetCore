@@ -38,7 +38,7 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var entity = context.RoleToPermissions.Single();
             context.Database.ExecuteSqlInterpolated($"UPDATE authp.RoleToPermissions SET PackedPermissionsInRole = 'XYZ' WHERE RoleName = {initial.RoleName}");
             entity.Update("ABC");
-            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeFalse(status.GetAllErrors());

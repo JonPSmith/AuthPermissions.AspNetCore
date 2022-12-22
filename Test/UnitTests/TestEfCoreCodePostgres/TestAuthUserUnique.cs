@@ -34,7 +34,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
 
             //ATTEMPT
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", null, "userName"));
-            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -53,7 +53,7 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             context.Database.EnsureClean();
 
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "j@gmail.com", "userName"));
-            var status = context.SaveChangesWithChecks(new StubLocalizeDefaultWithLogging<LocalizeResources>());
+            var status = context.SaveChangesWithChecks(new StubDefaultLocalizerWithLogging<LocalizeResources>("en"));
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());

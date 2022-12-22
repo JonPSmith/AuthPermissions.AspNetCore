@@ -44,6 +44,11 @@ namespace AuthPermissions.BaseCode
         public string EncryptionKey { get; set; }
 
         /// <summary>
+        /// When using localization you need to provide the supported cultures.
+        /// </summary>
+        public string[] SupportedCultures { get; set; }
+
+        /// <summary>
         /// When using the "Access the data of other tenant" feature this defines when the link cookie times out.
         /// Defaults to 10 hours.
         /// </summary>

@@ -40,7 +40,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -64,7 +64,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -90,7 +90,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -112,7 +112,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -135,7 +135,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -157,7 +157,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -179,7 +179,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             //ATTEMPT
@@ -207,7 +207,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var changeServiceFactory = new StubChangeChangeServiceFactory(contexts.MainContext, this);
             var service = new AuthTenantAdminService(contexts.AuthPContext,
-                _authOptionsSingleSharding, new StubLocalizeDefaultWithLogging<LocalizeResources>(),
+                _authOptionsSingleSharding, new StubDefaultLocalizerWithLogging<LocalizeResources>("en"),
                 changeServiceFactory, null);
 
             var preStatus = await service.AddSingleTenantAsync("Tenant4", null, true, "Other Database");

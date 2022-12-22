@@ -19,7 +19,7 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthRolesAdminService : IAuthRolesAdminService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
+        private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
         private readonly Type _permissionType;
         private readonly bool _isMultiTenant;
 
@@ -30,7 +30,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="options"></param>
         /// <param name="localizeDefault"></param>
         public AuthRolesAdminService(AuthPermissionsDbContext context, AuthPermissionsOptions options,
-            ILocalizeWithDefault<LocalizeResources> localizeDefault)
+            IDefaultLocalizer<LocalizeResources> localizeDefault)
         {
             _context = context;
             _localizeDefault = localizeDefault;
@@ -110,7 +110,7 @@ namespace AuthPermissions.AdminCode.Services
             IEnumerable<string> permissionNames,
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
                 $"Successfully added the new role {roleName}.");
 
@@ -155,7 +155,7 @@ namespace AuthPermissions.AdminCode.Services
             IEnumerable<string> permissionNames,
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully updated the role {roleName}.");
             var existingRolePermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
@@ -205,7 +205,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteRoleAsync(string roleName, bool removeFromUsers)
         {
-            var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
+            var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
 
             var existingRolePermission =
                 await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);

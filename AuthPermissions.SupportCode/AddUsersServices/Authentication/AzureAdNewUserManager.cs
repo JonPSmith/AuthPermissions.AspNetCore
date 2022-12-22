@@ -23,7 +23,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAzureAdAccessService _azureAccessService;
     private readonly AzureAdOptions _azureOptions;
-    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
+    private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -33,7 +33,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
     /// <param name="azureAccessService"></param>
     /// <param name="azureOptions"></param>
     public AzureAdNewUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, 
-        IAzureAdAccessService azureAccessService, IOptions<AzureAdOptions> azureOptions, ILocalizeWithDefault<LocalizeResources> localizeDefault)
+        IAzureAdAccessService azureAccessService, IOptions<AzureAdOptions> azureOptions, IDefaultLocalizer<LocalizeResources> localizeDefault)
     {
         _authUsersAdmin = authUsersAdmin;
         _tenantAdminService = tenantAdminService;
@@ -61,7 +61,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
     /// <returns>status, with error if there an user already</returns>
     public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
-        var status = new StatusGenericLocalizer<LocalizeResources>("en", _localizeDefault);
+        var status = new StatusGenericLocalizer<LocalizeResources>(_localizeDefault);
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
             return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true),
                 "There is already an AuthUser with your email, so you can't add another.",
@@ -106,7 +106,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
         if (UserLoginData == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
-        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>("en", _localizeDefault);
+        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>(_localizeDefault);
         if (UserLoginData.Password == null)
         {
             status.SetMessageString("SuccessFoundUser".ClassLocalizeKey(this, true),
@@ -125,7 +125,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
 
     private async Task<IStatusGeneric<string>> FindOrCreateAzureAdUser(string email)
     {
-        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
+        var status = new StatusGenericLocalizer<string, LocalizeResources>(_localizeDefault);
 
         var approaches = _azureOptions.AzureAdApproaches?.Split(',')
                              .Select(x => x.Trim().ToLower()).ToArray()

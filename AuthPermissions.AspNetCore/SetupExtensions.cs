@@ -264,7 +264,7 @@ namespace AuthPermissions.AspNetCore
 
             //Localization services
             //NOTE: If you want to use the localization services you need to setup / register the .NET IStringLocalizer<TResource> service
-            setupData.Services.AddSingleton(typeof(ILocalizeWithDefault<>), typeof(LocalizeWithDefault<>));
+            setupData.Services.RegisterDefaultLocalizer("en", setupData.Options.SupportedCultures);
 
             //Other services
             setupData.Services.AddTransient<IDisableJwtRefreshToken, DisableJwtRefreshToken>();

@@ -1,9 +1,6 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +9,7 @@ using TestSupport.Helpers;
 namespace Test.StubClasses;
 
 /// <summary>
-/// This provides a simple replacement of the <see cref="LocalizeWithDefault{TResource}"/> which
+/// This provides a simple replacement of the <see cref="DefaultLocalizer{TResource}"/> which
 /// returns the the default message.
 /// It also writes the information on each localized message to a database is the appsettings.json
 /// file in your testing project contains "SaveLocalizesToDb": true.
@@ -20,7 +17,7 @@ namespace Test.StubClasses;
 /// which links to a SQL Server database server where the localized message information is saved to.
 /// </summary>
 /// <typeparam name="TResource"></typeparam>
-public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TResource>
+public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TResource>
 {
     /// <summary>
     /// This contains a list each localization request, with extra data.
@@ -36,21 +33,28 @@ public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TR
     /// <summary>
     /// Start of a possible error
     /// </summary>
-    public const string SameKeyButDiffFormatPrefix = "Possible SameKeyButDiffFormat: ";
+    private const string SameKeyButDiffFormatPrefix = "Possible SameKeyButDiffFormat: ";
 
-    public string LocalizeStringMessage(LocalizeKeyData localizeKeyData, string cultureOfMessage, string message)
+    private readonly string _cultureOfMessage;
+
+    public StubDefaultLocalizerWithLogging(string cultureOfMessage)
+    {
+        _cultureOfMessage = cultureOfMessage;
+    }
+
+    public string LocalizeStringMessage(LocalizeKeyData localizeKeyData, string message)
     {
         if (localizeKeyData == null)
             throw new ArgumentNullException(nameof(localizeKeyData));
 
-        var log = CreateLocalizedLog(localizeKeyData, cultureOfMessage, message, null);
+        var log = CreateLocalizedLog(localizeKeyData, _cultureOfMessage, message, null);
         Logs.Add(log);
 
         SaveLocalizationToDb(log);
         return message;
     }
 
-    public string LocalizeFormattedMessage(LocalizeKeyData localizeKeyData, string cultureOfMessage,
+    public string LocalizeFormattedMessage(LocalizeKeyData localizeKeyData,
         params FormattableString[] formattableStrings)
     {
         if (localizeKeyData == null)
@@ -59,7 +63,7 @@ public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TR
         var actualMessage = string.Join(string.Empty, formattableStrings.Select(x => x.ToString()).ToArray());
         var messageFormat = string.Join(string.Empty, formattableStrings.SelectMany(x => x.Format).ToArray());
 
-        var log = CreateLocalizedLog(localizeKeyData, cultureOfMessage, actualMessage, messageFormat);
+        var log = CreateLocalizedLog(localizeKeyData, _cultureOfMessage, actualMessage, messageFormat);
         Logs.Add(log);
 
         SaveLocalizationToDb(log);
@@ -84,7 +88,7 @@ public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TR
     /// <summary>
     /// This adds information on each localized message, including where it was sent from,
     /// so that you can see what localized messages in your app. Usually you would use the
-    /// <see cref="StubLocalizeDefaultWithLogging{TResource}"/> within your unit tests.
+    /// <see cref="StubDefaultLocalizerWithLogging{TResource}"/> within your unit tests.
     /// It tries to: 
     /// 1) Add a new entry in the database if there isn't an entry containing the same information.
     /// 2) It also sets the <see cref="LocalizedLog"/>.<see cref="LocalizedLog.SameKeyButDiffFormat"/> to true
@@ -198,7 +202,7 @@ public class StubLocalizeDefaultWithLogging<TResource> : ILocalizeWithDefault<TR
     {
         using var context = GetLocalizationCaptureDbInstance(true);
         if (context == null)
-            return null;
+            return new List<LocalizedLog>();
 
         return context.LocalizedData.OrderBy(l => l.ResourceClassFullName).ThenBy(l => l.LocalizeKey)
             .ToList();

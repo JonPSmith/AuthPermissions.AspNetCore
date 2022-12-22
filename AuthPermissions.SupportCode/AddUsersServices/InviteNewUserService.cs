@@ -27,7 +27,7 @@ public class InviteNewUserService : IInviteNewUserService
     private readonly IAuthUsersAdminService _usersAdmin;
     private readonly AuthPermissionsOptions _options;
     private readonly IAddNewUserManager _addNewUserManager;
-    private ILocalizeWithDefault<LocalizeResources> _localizeDefault;
+    private IDefaultLocalizer<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -39,7 +39,7 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="addNewUserManager"></param>
     public InviteNewUserService(AuthPermissionsOptions options, AuthPermissionsDbContext context,
         IEncryptDecryptService encryptService,
-        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager, ILocalizeWithDefault<LocalizeResources> localizeDefault)
+        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager, IDefaultLocalizer<LocalizeResources> localizeDefault)
     {
         _options = options;
         _context = context;
@@ -58,22 +58,22 @@ public class InviteNewUserService : IInviteNewUserService
     {
         var result = new List<KeyValuePair<long, string>>();
         result.Add(new(default, 
-            _localizeDefault.LocalizeStringMessage("Forever".ClassLocalizeKey(this, true), "en",
+            _localizeDefault.LocalizeStringMessage("Forever".ClassLocalizeKey(this, true), 
             "Invite is valid forever.")));
         result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-            _localizeDefault.LocalizeStringMessage("1Hour".ClassLocalizeKey(this, true), "en",
+            _localizeDefault.LocalizeStringMessage("1Hour".ClassLocalizeKey(this, true), 
                 "Invite is only valid for 1 hour from now.")));
         result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-            _localizeDefault.LocalizeStringMessage("6Hour".ClassLocalizeKey(this, true), "en",
+            _localizeDefault.LocalizeStringMessage("6Hour".ClassLocalizeKey(this, true), 
                 "Invite is only valid for 6 hours from now.")));
         result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-            _localizeDefault.LocalizeStringMessage("24Hour".ClassLocalizeKey(this, true), "en",
+            _localizeDefault.LocalizeStringMessage("24Hour".ClassLocalizeKey(this, true),
                 "Invite is only valid for 24 hours from now.")));
 
         foreach (var numDays in new[]{3, 7, 20})
         {
             result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-                _localizeDefault.LocalizeStringMessage($"{numDays}Days".ClassLocalizeKey(this, true), "en",
+                _localizeDefault.LocalizeStringMessage($"{numDays}Days".ClassLocalizeKey(this, true),
                     $"Invite is only valid for {numDays} days from now.")));
         }
 
@@ -92,7 +92,7 @@ public class InviteNewUserService : IInviteNewUserService
     /// <returns>status with message and encrypted string containing the data to send the user in a link</returns>
     public async Task<IStatusGeneric<string>> CreateInviteUserToJoinAsync(AddNewUserDto invitedUser, string userId)
     {
-        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
+        var status = new StatusGenericLocalizer<string, LocalizeResources>(_localizeDefault);
 
         if (userId == null)
             throw new ArgumentNullException(nameof(userId));
@@ -239,7 +239,7 @@ public class InviteNewUserService : IInviteNewUserService
     public async Task<IStatusGeneric<AddNewUserDto>> AddUserViaInvite(string inviteParam, 
     string email, string userName, string password = null, bool isPersistent = false)
     {
-        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>("en", _localizeDefault);
+        var status = new StatusGenericLocalizer<AddNewUserDto, LocalizeResources>(_localizeDefault);
         var normalizedEmail = email.Trim().ToLower();
 
         AddNewUserDto newUserData;

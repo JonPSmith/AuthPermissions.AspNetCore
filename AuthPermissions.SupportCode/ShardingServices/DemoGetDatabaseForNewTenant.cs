@@ -14,7 +14,7 @@ namespace AuthPermissions.SupportCode.ShardingServices;
 public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
     private readonly IShardingConnections _shardingService;
-    private readonly ILocalizeWithDefault<LocalizeResources> _localizeDefault;
+    private readonly IDefaultLocalizer<LocalizeResources> _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -22,7 +22,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// <param name="shardingService"></param>
     /// <param name="localizeDefault"></param>
     public DemoGetDatabaseForNewTenant(IShardingConnections shardingService, 
-        ILocalizeWithDefault<LocalizeResources> localizeDefault)
+        IDefaultLocalizer<LocalizeResources> localizeDefault)
     {
         _shardingService = shardingService;
         _localizeDefault = localizeDefault;
@@ -39,7 +39,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// <returns>Status with the DatabaseInfoName, or error if it can't find a database to work with</returns>
     public async Task<IStatusGeneric<string>> FindBestDatabaseInfoNameAsync(bool hasOwnDb, string region, string version = null)
     {
-        var status = new StatusGenericLocalizer<string, LocalizeResources>("en", _localizeDefault);
+        var status = new StatusGenericLocalizer<string, LocalizeResources>(_localizeDefault);
 
         //This gets the databases with the info on whether the database is available
         var dbsWithUsers = await _shardingService.GetDatabaseInfoNamesWithTenantNamesAsync();

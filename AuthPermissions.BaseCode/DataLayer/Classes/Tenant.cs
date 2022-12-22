@@ -48,7 +48,7 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
         ///     <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
         public static IStatusGeneric<Tenant> CreateSingleTenant(string fullTenantName, 
-            ILocalizeWithDefault<LocalizeResources> localizeDefault, List<RoleToPermissions> tenantRoles = null)
+            IDefaultLocalizer<LocalizeResources> localizeDefault, List<RoleToPermissions> tenantRoles = null)
         {
             var newInstance = new Tenant(fullTenantName, false);
             var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance, localizeDefault);
@@ -65,7 +65,7 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
         /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
         public static IStatusGeneric<Tenant> CreateHierarchicalTenant(string fullTenantName, Tenant parent,
-            ILocalizeWithDefault<LocalizeResources> localizeDefault, List<RoleToPermissions> tenantRoles = null)
+            IDefaultLocalizer<LocalizeResources> localizeDefault, List<RoleToPermissions> tenantRoles = null)
         {
             var newInstance = new Tenant(fullTenantName, true, parent);
             var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance, localizeDefault);
@@ -219,13 +219,13 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <param name="localizeDefault">localization service</param>
         /// <exception cref="AuthPermissionsException"></exception>
         /// <exception cref="AuthPermissionsBadDataException"></exception>
-        public IStatusGeneric UpdateTenantRoles(List<RoleToPermissions> tenantRoles, ILocalizeWithDefault<LocalizeResources> localizeDefault)
+        public IStatusGeneric UpdateTenantRoles(List<RoleToPermissions> tenantRoles, IDefaultLocalizer<LocalizeResources> localizeDefault)
         {
             if (_tenantRoles == null)
                 throw new AuthPermissionsException(
                     $"You must include the tenant's {nameof(TenantRoles)} in your query before you can add/remove an tenant role.");
 
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(localizeDefault);
             return status.CombineStatuses(CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, this, localizeDefault));
         }
 
@@ -285,9 +285,9 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// <exception cref="AuthPermissionsBadDataException"></exception>
         /// <returns>status, with the <see param="thisTenant"/> instance if no errors.</returns>
         private static IStatusGeneric<Tenant> CheckRolesAreAllTenantRolesAndSetTenantRoles(
-            List<RoleToPermissions> tenantRoles, Tenant thisTenant, ILocalizeWithDefault<LocalizeResources> localizeDefault)
+            List<RoleToPermissions> tenantRoles, Tenant thisTenant, IDefaultLocalizer<LocalizeResources> localizeDefault)
         {
-            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>("en", localizeDefault);
+            var status = new StatusGenericLocalizer<Tenant, LocalizeResources>(localizeDefault);
             status.SetResult(thisTenant);
 
             var badRoles = tenantRoles?

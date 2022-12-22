@@ -76,7 +76,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
 
             var refreshToken = RefreshToken.CreateNewRefreshToken(userId, token.Id);
             _context.Add(refreshToken);
-            var status = await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>());
+            var status = await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<LocalizeResources>());
             status.IfErrorsTurnToException();
 
             return new TokenAndRefreshToken
@@ -146,7 +146,7 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             var newRefreshToken = RefreshToken.CreateNewRefreshToken(userId, token.Id);
 
             _context.Add(newRefreshToken);
-            var status = await _context.SaveChangesWithChecksAsync(new StubLocalizeWithDefault<LocalizeResources>());
+            var status = await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<LocalizeResources>());
             status.IfErrorsTurnToException();
 
             return (new TokenAndRefreshToken
