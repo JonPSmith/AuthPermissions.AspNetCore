@@ -21,7 +21,7 @@ namespace AuthPermissions.AdminCode.Services
         private readonly AuthPermissionsDbContext _context;
         private readonly IAuthPServiceFactory<ISyncAuthenticationUsers> _syncAuthenticationUsersFactory;
         private readonly AuthPermissionsOptions _options;
-        private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+        private readonly IDefaultLocalizer _localizeDefault;
 
         /// <summary>
         /// ctor
@@ -82,7 +82,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<AuthUser>> FindAuthUserByUserIdAsync(string userId)
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
-            var status = new StatusGenericLocalizer<AuthUser, ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer<AuthUser>(_localizeDefault);
 
             var authUser = await _context.AuthUsers
                 .Include(x => x.UserRoles)
@@ -104,7 +104,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric<AuthUser>> FindAuthUserByEmailAsync(string email)
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
-            var status = new StatusGenericLocalizer<AuthUser, ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer<AuthUser>(_localizeDefault);
 
             email = email.Trim().ToLower();
 
@@ -468,7 +468,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <exception cref="NotImplementedException"></exception>
         private async Task<IStatusGeneric<List<RoleToPermissions>>> FindCheckRolesAreValidForUserAsync(List<string> roleNames, Tenant usersTenant, string userName)
         {
-            var status = new StatusGenericLocalizer<List<RoleToPermissions>, ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer<List<RoleToPermissions>>(_localizeDefault);
 
             if (roleNames == null || roleNames.SequenceEqual( new List<string> { CommonConstants.EmptyItemName }))
                 //If the only role is the empty item, then return no roles

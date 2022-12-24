@@ -19,7 +19,7 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthRolesAdminService : IAuthRolesAdminService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+        private readonly IDefaultLocalizer _localizeDefault;
         private readonly Type _permissionType;
         private readonly bool _isMultiTenant;
 

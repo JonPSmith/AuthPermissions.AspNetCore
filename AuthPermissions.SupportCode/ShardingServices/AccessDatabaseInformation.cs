@@ -29,7 +29,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     private readonly IShardingConnections _connectionsService;
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly AuthPermissionsOptions _options;
-    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+    private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// Ctor

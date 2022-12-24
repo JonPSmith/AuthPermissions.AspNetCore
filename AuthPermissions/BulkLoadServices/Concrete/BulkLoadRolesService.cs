@@ -68,7 +68,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             }
 
             if (status.IsValid)
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>()));
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer()));
 
             status.Message = $"Added {roleSetupData.Count} new RoleToPermissions to the auth database"; //If there is an error this message is removed
             return status;

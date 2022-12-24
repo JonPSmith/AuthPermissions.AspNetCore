@@ -23,7 +23,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAzureAdAccessService _azureAccessService;
     private readonly AzureAdOptions _azureOptions;
-    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+    private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -106,7 +106,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
         if (UserLoginData == null)
             throw new AuthPermissionsException($"Must call {nameof(SetUserInfoAsync)} before calling this method.");
 
-        var status = new StatusGenericLocalizer<AddNewUserDto, ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer<AddNewUserDto>(_localizeDefault);
         if (UserLoginData.Password == null)
         {
             status.SetMessageString("SuccessFoundUser".ClassLocalizeKey(this, true),
@@ -125,7 +125,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
 
     private async Task<IStatusGeneric<string>> FindOrCreateAzureAdUser(string email)
     {
-        var status = new StatusGenericLocalizer<string, ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer<string>(_localizeDefault);
 
         var approaches = _azureOptions.AzureAdApproaches?.Split(',')
                              .Select(x => x.Trim().ToLower()).ToArray()

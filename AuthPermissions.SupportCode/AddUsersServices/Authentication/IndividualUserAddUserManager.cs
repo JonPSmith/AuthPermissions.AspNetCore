@@ -126,7 +126,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
         var user = await _userManager.FindByEmailAsync(UserLoginData.Email);
         await _signInManager.SignInAsync(user, isPersistent: UserLoginData.IsPersistent);
 
-        var status = new StatusGenericLocalizer<AddNewUserDto, ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer<AddNewUserDto>(_localizeDefault);
         status.SetMessageString("SuccessRegisterLogin".ClassLocalizeKey(this, true),
        "You have been registered and logged in to this application.");
         return status.SetResult(UserLoginData);

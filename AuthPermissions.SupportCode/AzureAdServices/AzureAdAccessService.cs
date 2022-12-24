@@ -23,7 +23,7 @@ public class AzureAdAccessService : IAzureAdAccessService
     private readonly ClientSecretCredential _clientSecretCredential;
     private readonly string[] _scopes = new[] { "https://graph.microsoft.com/.default" };
 
-    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+    private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -106,7 +106,7 @@ public class AzureAdAccessService : IAzureAdAccessService
     /// <returns>status: if error then return message, otherwise Result holds ID of the newly created Azure AD user</returns>
     public async Task<IStatusGeneric<string>> CreateNewUserAsync(string email, string userName, string temporaryPassword)
     {
-        var status = new StatusGenericLocalizer<string, ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer<string>(_localizeDefault);
 
         if (string.IsNullOrWhiteSpace(temporaryPassword)) throw new ArgumentNullException(nameof(temporaryPassword));
 

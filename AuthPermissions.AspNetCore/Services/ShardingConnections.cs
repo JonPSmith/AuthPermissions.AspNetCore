@@ -29,7 +29,7 @@ public class ShardingConnections : IShardingConnections
     private readonly ShardingSettingsOption _shardingSettings;
     private readonly AuthPermissionsDbContext _context;
     private readonly AuthPermissionsOptions _options;
-    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+    private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -192,7 +192,7 @@ public class ShardingConnections : IShardingConnections
     /// <exception cref="InvalidEnumArgumentException"></exception>
     private IStatusGeneric<string> SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        var status = new StatusGenericLocalizer<string, ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer<string>(_localizeDefault);
 
         switch (databaseInformation.DatabaseType)
         {

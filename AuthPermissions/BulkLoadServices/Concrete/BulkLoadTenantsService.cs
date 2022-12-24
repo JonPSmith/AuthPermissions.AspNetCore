@@ -74,7 +74,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                         tenantDefinition.TenantName);
                     status.CombineStatuses(rolesStatus);
                     var tenantStatus = Tenant.CreateSingleTenant(tenantDefinition.TenantName, 
-                        new StubDefaultLocalizer<ResourceLocalize>(), rolesStatus.Result);
+                        new StubDefaultLocalizer(), rolesStatus.Result);
                     
                     if (status.CombineStatuses(tenantStatus).IsValid)
                     {
@@ -123,7 +123,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                             ? null
                             : await _context.Tenants.SingleAsync(x => x.TenantId == tenantInfo.Parent.CreatedTenantId);
                         var newTenantStatus = Tenant.CreateHierarchicalTenant(fullname, parent, 
-                            new StubDefaultLocalizer<ResourceLocalize>(), rolesStatus.Result);
+                            new StubDefaultLocalizer(), rolesStatus.Result);
                         _context.Add(newTenantStatus.Result);
 
                         if (status.IsValid)

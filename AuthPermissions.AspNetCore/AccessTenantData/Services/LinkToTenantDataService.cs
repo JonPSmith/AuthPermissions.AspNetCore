@@ -25,7 +25,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     private readonly IAccessTenantDataCookie _cookieAccessor;
 
     private readonly IEncryptDecryptService _encryptorService;
-    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+    private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// Ctor
@@ -39,7 +39,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
         AuthPermissionsDbContext context,
         AuthPermissionsOptions options,
         IAccessTenantDataCookie cookieAccessor,
-        IEncryptDecryptService encryptorService, IDefaultLocalizer<ResourceLocalize> localizeDefault)
+        IEncryptDecryptService encryptorService, IDefaultLocalizer localizeDefault)
     {
         _context = context;
         _options = options;
