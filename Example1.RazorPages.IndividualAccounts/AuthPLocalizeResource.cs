@@ -3,6 +3,9 @@
 
 namespace Example1.RazorPages.IndividualAccounts;
 
+/// <summary>
+/// This defines the localize resource file groups for the localization within the AuthPermissions.AspNetCore code
+/// </summary>
 public class AuthPLocalizeResource
 {
     

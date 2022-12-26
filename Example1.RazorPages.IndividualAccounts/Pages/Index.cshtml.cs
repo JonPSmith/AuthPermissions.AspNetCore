@@ -15,12 +15,10 @@ namespace Example1.RazorPages.IndividualAccounts.Pages
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IStringLocalizer _localizer;
 
-        public IndexModel(UserManager<IdentityUser> userManager, IStringLocalizerFactory factory)
+        public IndexModel(UserManager<IdentityUser> userManager, IStringLocalizer<AppResourceClass> localizer)
         {
             _userManager = userManager;
-            var type = typeof(ResourceLocalize);
-            var assemblyName = new AssemblyName(type.GetTypeInfo().Assembly.FullName);
-            _localizer = factory.Create("ResourceLocalize", assemblyName.Name);
+            _localizer = localizer;
         }
 
         [ModelBinder] 
@@ -32,8 +30,6 @@ namespace Example1.RazorPages.IndividualAccounts.Pages
         public void OnGet()
         {
             Users = _userManager.Users.ToList();
-            var loc = _localizer["Test"];
-            var result = loc.ResourceNotFound ? "Not found: " + loc.SearchedLocation : loc.Value;
         }
     }
 }

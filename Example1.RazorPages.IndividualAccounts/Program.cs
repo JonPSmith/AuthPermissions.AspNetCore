@@ -84,7 +84,7 @@ public class Program
 
         //Register the SimpleLocalizer with its own Resource file
         //This is used for localization of simple messages
-        builder.Services.RegisterSimpleLocalizer<Example1Resources>();
+        builder.Services.RegisterSimpleLocalizer<AppResourceClass>();
 
         builder.Services.RegisterAuthPermissions<Example1Permissions>()
             .UsingInMemoryDatabase()
