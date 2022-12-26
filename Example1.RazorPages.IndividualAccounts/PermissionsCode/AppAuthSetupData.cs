@@ -10,8 +10,8 @@ namespace Example1.RazorPages.IndividualAccounts.PermissionsCode
     {
         public static readonly List<BulkLoadRolesDto> RolesDefinition = new()
         {
-            new("Role1", null, "Permission1"),
-            new("Role2", null, "Permission1, Permission2"),
+            new("Role1", "Staff Role", "Permission1"),
+            new("Role2",  "Manager Role", "Permission1, Permission2"),
             new("SuperAdmin", "Super admin - only use for setup", "AccessAll"),
         };
 

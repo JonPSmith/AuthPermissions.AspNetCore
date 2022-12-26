@@ -13,12 +13,10 @@ namespace Example1.RazorPages.IndividualAccounts.Pages
     public class IndexModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IStringLocalizer _localizer;
 
-        public IndexModel(UserManager<IdentityUser> userManager, IStringLocalizer<AppResourceClass> localizer)
+        public IndexModel(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
-            _localizer = localizer;
         }
 
         [ModelBinder] 

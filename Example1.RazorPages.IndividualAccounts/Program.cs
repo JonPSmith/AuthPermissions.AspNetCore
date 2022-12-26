@@ -84,7 +84,7 @@ public class Program
 
         //Register the SimpleLocalizer with its own Resource file
         //This is used for localization of simple messages
-        builder.Services.RegisterSimpleLocalizer<AppResourceClass>();
+        builder.Services.RegisterSimpleLocalizer<AppLocalizeResource>();
 
         builder.Services.RegisterAuthPermissions<Example1Permissions>()
             .UsingInMemoryDatabase()
@@ -93,7 +93,7 @@ public class Program
             .AddAuthUsersIfEmpty(AppAuthSetupData.UsersWithRolesDefinition)
             .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
             .RegisterFindUserInfoService<IndividualAccountUserLookup>()
-            .SetupLocalization<AuthPLocalizeResource>(supportedCultures)
+            .SetupAuthPLocalization<AuthPLocalizeResource>(supportedCultures)
             .AddSuperUserToIndividualAccounts()
             .SetupAspNetCoreAndDatabase(options =>
             {

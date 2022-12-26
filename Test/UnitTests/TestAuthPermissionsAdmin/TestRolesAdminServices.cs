@@ -1,20 +1,13 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;

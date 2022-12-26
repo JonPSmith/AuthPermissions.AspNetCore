@@ -6,7 +6,7 @@ namespace Example1.RazorPages.IndividualAccounts;
 /// <summary>
 /// This defines the localize resource file groups for the localization within this ASP.NET Core app
 /// </summary>
-public class AppResourceClass
+public class AppLocalizeResource
 {
 
 }

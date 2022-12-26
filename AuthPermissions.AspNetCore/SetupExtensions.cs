@@ -130,7 +130,7 @@ namespace AuthPermissions.AspNetCore
         /// <param name="supportedCultures">Provide list of supported cultures. This is used to only log
         /// missing resource entries if its supported culture. NOTE: if null, then it will log every missing culture.</param>
         /// <returns></returns>
-        public static AuthSetupData SetupLocalization<TResource>(this AuthSetupData setupData,
+        public static AuthSetupData SetupAuthPLocalization<TResource>(this AuthSetupData setupData,
             string[] supportedCultures)
         {
             setupData.Options.InternalData.AuthPResourceType = typeof(TResource);
