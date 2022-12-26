@@ -38,17 +38,17 @@ public class ShardingConnections : IShardingConnections
     /// <param name="shardingSettingsAccessor">Dynamically assesses the ShardingData part of the shardingsetting file</param>
     /// <param name="context">AuthP context - used in <see cref="GetDatabaseInfoNamesWithTenantNamesAsync"/> method</param>
     /// <param name="options"></param>
-    /// <param name="localizeDefault">used to localize any errors or messages</param>
+    /// <param name="localizeProvider">Provides the used to localize any errors or messages</param>
     public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
         IOptionsSnapshot<ShardingSettingsOption> shardingSettingsAccessor,
-        AuthPermissionsDbContext context, AuthPermissionsOptions options, IDefaultLocalizer<ResourceLocalize> localizeDefault)
+        AuthPermissionsDbContext context, AuthPermissionsOptions options, IAuthPDefaultLocalizer localizeProvider)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor.Value;
         _shardingSettings = shardingSettingsAccessor.Value;
         _context = context;
         _options = options;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
 
         //If no sharding settings file, then we provide one default sharding settings data
         //NOTE that the DatabaseInformation class has default values linked to a 

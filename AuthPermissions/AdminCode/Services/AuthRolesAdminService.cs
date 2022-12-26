@@ -7,6 +7,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
+using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
@@ -28,12 +29,12 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        /// <param name="localizeDefault"></param>
+        /// <param name="localizeProvider"></param>
         public AuthRolesAdminService(AuthPermissionsDbContext context, AuthPermissionsOptions options,
-            IDefaultLocalizer<ResourceLocalize> localizeDefault)
+            IAuthPDefaultLocalizer localizeProvider)
         {
             _context = context;
-            _localizeDefault = localizeDefault;
+            _localizeDefault = localizeProvider.DefaultLocalizer;
             _permissionType = options.InternalData.EnumPermissionsType;
             _isMultiTenant = options.TenantType.IsMultiTenant();
         }

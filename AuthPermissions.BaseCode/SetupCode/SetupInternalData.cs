@@ -36,6 +36,18 @@ namespace AuthPermissions.BaseCode.SetupCode
         /// </summary>
         public bool OverrideShardingConnections { get; set; }
 
+        /// <summary>
+        /// This type defines the localization's recourse type which defines
+        /// the recourse file group that holds the localized version of the AuthP messages.
+        /// If null, then localization is not turned on.
+        /// </summary>
+        public Type AuthPResourceType { get; set; }
+
+        /// <summary>
+        /// When using localization you need to provide the supported cultures.
+        /// </summary>
+        public string[] SupportedCultures { get; set; }
+
 
         /// <summary>
         /// This holds the classes containing the definition of a RolesToPermission database class

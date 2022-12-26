@@ -43,7 +43,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
             var service = new AuthUsersAdminService(context, authenticationServiceFactory, 
-                _authOptionsSingle, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                _authOptionsSingle, "en".SetupAuthPLoggingLocalizer());
 
             //ATTEMPT
             var changes = await service.SyncAndShowChangesAsync();
@@ -76,7 +76,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
             var service = new AuthUsersAdminService(context, authenticationServiceFactory,
-                _authOptionsSingle, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                _authOptionsSingle, "en".SetupAuthPLoggingLocalizer());
 
             //ATTEMPT
             var changes = await service.SyncAndShowChangesAsync();
@@ -111,7 +111,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
             var authenticationServiceFactory = new StubSyncAuthenticationUsersFactory();
             var service = new AuthUsersAdminService(context, authenticationServiceFactory,
-                _authOptionsSingle, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                _authOptionsSingle, "en".SetupAuthPLoggingLocalizer());
             var changes = await service.SyncAndShowChangesAsync();
 
             //ATTEMPT

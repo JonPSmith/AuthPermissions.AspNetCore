@@ -86,14 +86,14 @@ public class Program
         //This is used for localization of simple messages
         builder.Services.RegisterSimpleLocalizer<Example1Resources>();
 
-        builder.Services.RegisterAuthPermissions<Example1Permissions>(
-                options => options.SupportedCultures = supportedCultures)
+        builder.Services.RegisterAuthPermissions<Example1Permissions>()
             .UsingInMemoryDatabase()
             .IndividualAccountsAuthentication()
             .AddRolesPermissionsIfEmpty(AppAuthSetupData.RolesDefinition)
             .AddAuthUsersIfEmpty(AppAuthSetupData.UsersWithRolesDefinition)
             .RegisterAuthenticationProviderReader<SyncIndividualAccountUsers>()
             .RegisterFindUserInfoService<IndividualAccountUserLookup>()
+            .SetupLocalization<AuthPLocalizeResource>(supportedCultures)
             .AddSuperUserToIndividualAccounts()
             .SetupAspNetCoreAndDatabase(options =>
             {

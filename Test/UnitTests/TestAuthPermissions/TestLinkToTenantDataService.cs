@@ -48,8 +48,8 @@ public class TestLinkToTenantDataService
 
         var cookieStub = new StubIAccessTenantDataCookie();
         var encyptor = new EncryptDecryptService(authOptions);
-        var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor, 
-            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+        var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor,
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var status = await service.StartLinkingToTenantDataAsync(authUser.UserId, tenantIds[1]);
@@ -86,7 +86,7 @@ public class TestLinkToTenantDataService
         var cookieStub = new StubIAccessTenantDataCookie();
         var encyptor = new EncryptDecryptService(authOptions);
         var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor,
-            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var status = await service.StartLinkingToTenantDataAsync(authUser.UserId, tenant.TenantId);
@@ -125,7 +125,7 @@ public class TestLinkToTenantDataService
         var cookieStub = new StubIAccessTenantDataCookie();
         var encyptor = new EncryptDecryptService(authOptions);
         var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor,
-            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         try
@@ -172,7 +172,7 @@ public class TestLinkToTenantDataService
         var cookieStub = new StubIAccessTenantDataCookie();
         var encyptor = new EncryptDecryptService(authOptions);
         var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor,
-            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         try
@@ -208,7 +208,7 @@ public class TestLinkToTenantDataService
         var cookieStub = new StubIAccessTenantDataCookie();
         var encyptor = new EncryptDecryptService(authOptions);
         var service = new LinkToTenantDataService(context, authOptions, cookieStub, encyptor,
-            new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         cookieStub.CookieValue = null;

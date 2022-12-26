@@ -34,18 +34,19 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     /// <param name="options"></param>
     /// <param name="cookieAccessor"></param>
     /// <param name="encryptorService"></param>
-    /// <param name="localizeDefault"></param>
+    /// <param name="localizeProvider"></param>
     public LinkToTenantDataService( 
         AuthPermissionsDbContext context,
         AuthPermissionsOptions options,
         IAccessTenantDataCookie cookieAccessor,
-        IEncryptDecryptService encryptorService, IDefaultLocalizer localizeDefault)
+        IEncryptDecryptService encryptorService,
+        IAuthPDefaultLocalizer localizeProvider)
     {
         _context = context;
         _options = options;
         _cookieAccessor = cookieAccessor;
         _encryptorService = encryptorService;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
     /// <summary>

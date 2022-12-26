@@ -11,6 +11,7 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
+using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using StatusGeneric;
 
@@ -96,12 +97,12 @@ namespace ExamplesCommonCode.CommonAdmin
         /// This will add/update an AuthUser using the information provided in this class
         /// </summary>
         /// <param name="authUsersAdmin"></param>
-        /// <param name="localizeDefault"></param>
+        /// <param name="localizeProvider"></param>
         /// <returns>Status</returns>
         public async Task<IStatusGeneric> ChangeAuthUserFromDataAsync(IAuthUsersAdminService authUsersAdmin,
-            IDefaultLocalizer<ResourceLocalize> localizeDefault)
+            IAuthPDefaultLocalizer localizeProvider)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(localizeDefault);
+            var status = new StatusGenericLocalizer(localizeProvider.DefaultLocalizer);
 
             switch (FoundChangeType)
             {

@@ -6,6 +6,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SetupCode.Factories;
 using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
@@ -29,15 +30,15 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="context"></param>
         /// <param name="syncAuthenticationUsersFactory">A factory to create an authentication sync provider</param>
         /// <param name="options">auth options</param>
-        /// <param name="localizeDefault">localization</param>
+        /// <param name="localizeProvider"></param>
         public AuthUsersAdminService(AuthPermissionsDbContext context,
             IAuthPServiceFactory<ISyncAuthenticationUsers> syncAuthenticationUsersFactory,
-            AuthPermissionsOptions options, IDefaultLocalizer<ResourceLocalize> localizeDefault)
+            AuthPermissionsOptions options, IAuthPDefaultLocalizer localizeProvider)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _syncAuthenticationUsersFactory = syncAuthenticationUsersFactory;
             _options = options;
-            _localizeDefault = localizeDefault;
+            _localizeDefault = localizeProvider.DefaultLocalizer;
         }
 
         /// <summary>

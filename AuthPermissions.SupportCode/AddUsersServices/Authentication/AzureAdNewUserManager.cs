@@ -7,6 +7,7 @@ using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AzureAdServices;
 using LocalizeMessagesAndErrors;
 using Microsoft.Extensions.Options;
@@ -32,13 +33,14 @@ public class AzureAdNewUserManager : IAddNewUserManager
     /// <param name="tenantAdminService"></param>
     /// <param name="azureAccessService"></param>
     /// <param name="azureOptions"></param>
+    /// <param name="localizeProvider"></param>
     public AzureAdNewUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, 
-        IAzureAdAccessService azureAccessService, IOptions<AzureAdOptions> azureOptions, IDefaultLocalizer<ResourceLocalize> localizeDefault)
+        IAzureAdAccessService azureAccessService, IOptions<AzureAdOptions> azureOptions, IAuthPDefaultLocalizer localizeProvider)
     {
         _authUsersAdmin = authUsersAdmin;
         _tenantAdminService = tenantAdminService;
         _azureAccessService = azureAccessService;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
         _azureOptions = azureOptions.Value;
     }
 

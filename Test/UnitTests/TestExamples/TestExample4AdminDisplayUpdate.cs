@@ -14,6 +14,7 @@ using ExamplesCommonCode.CommonAdmin;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Test.StubClasses;
+using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
@@ -223,7 +224,7 @@ namespace Test.UnitTests.TestExamples
 
             //ATTEMPT
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService, 
-                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                "en".SetupAuthPLoggingLocalizer());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -249,7 +250,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.RoleNames = new List<string> {"Area Manager", "Tenant Admin" };
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                "en".SetupAuthPLoggingLocalizer());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -276,7 +277,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.Email = "newuser@gmail.com";
             authUserUpdate.UserName = "newuser@gmail.com";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                "en".SetupAuthPLoggingLocalizer());
 
             //VERIFY
             status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -302,7 +303,7 @@ namespace Test.UnitTests.TestExamples
             authUserUpdate.FoundChangeType = SyncAuthUserChangeTypes.Update;
             authUserUpdate.TenantName = "Bad tenant name";
             var status = await authUserUpdate.ChangeAuthUserFromDataAsync(adminUserService,
-                new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                "en".SetupAuthPLoggingLocalizer());
 
             //VERIFY
             status.IsValid.ShouldBeFalse();

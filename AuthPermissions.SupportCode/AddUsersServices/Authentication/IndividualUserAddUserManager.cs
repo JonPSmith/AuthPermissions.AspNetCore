@@ -4,6 +4,7 @@
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Identity;
 using StatusGeneric;
@@ -23,7 +24,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly UserManager<TIdentity> _userManager;
     private readonly SignInManager<TIdentity> _signInManager;
-    private readonly IDefaultLocalizer<ResourceLocalize> _localizeDefault;
+    private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// ctor
@@ -32,13 +33,15 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     /// <param name="tenantAdminService"></param>
     /// <param name="userManager"></param>
     /// <param name="signInManager"></param>
-    public IndividualUserAddUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService, UserManager<TIdentity> userManager, SignInManager<TIdentity> signInManager, IDefaultLocalizer<ResourceLocalize> localizeDefault)
+    /// <param name="localizeProvider"></param>
+    public IndividualUserAddUserManager(IAuthUsersAdminService authUsersAdmin, IAuthTenantAdminService tenantAdminService,
+        UserManager<TIdentity> userManager, SignInManager<TIdentity> signInManager, IAuthPDefaultLocalizer localizeProvider)
     {
         _authUsersAdmin = authUsersAdmin;
         _tenantAdminService = tenantAdminService;
         _userManager = userManager;
         _signInManager = signInManager;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
     /// <summary>

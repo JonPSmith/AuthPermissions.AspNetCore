@@ -29,7 +29,7 @@ public class SetCultureModel : PageModel
 
     public void OnGet()
     {
-        CultureList = _authOptions.SupportedCultures
+        CultureList = _authOptions.InternalData.SupportedCultures
             .Select(x => new CultureInfo(x))
             .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
             .ToList();

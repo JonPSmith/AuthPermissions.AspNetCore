@@ -6,6 +6,7 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices;
 using Example5.MvcWebApp.AzureAdB2C.Models;
 using Example5.MvcWebApp.AzureAdB2C.PermissionCode;
@@ -129,7 +130,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateUpdate([FromServices] IDefaultLocalizer<ResourceLocalize> localizeDefault, 
+        public async Task<ActionResult> CreateUpdate([FromServices] IAuthPDefaultLocalizer localizeProvider, 
             SetupManualUserChange input)
         {
             if (!ModelState.IsValid)
@@ -138,7 +139,7 @@ namespace Example5.MvcWebApp.AzureAdB2C.Controllers
                 return View(input.FoundChangeType.ToString(),  input.FoundChangeType);
             }
 
-            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, localizeDefault);
+            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, localizeProvider);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });

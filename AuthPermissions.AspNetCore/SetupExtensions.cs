@@ -122,6 +122,24 @@ namespace AuthPermissions.AspNetCore
         }
 
         /// <summary>
+        /// This sets up the AuthP localization system, which uses the Net.LocalizeMessagesAndErrors library
+        /// </summary>
+        /// <typeparam name="TResource">This should be a class within your ASP.NET Core app which
+        /// has .NET localization setup</typeparam>
+        /// <param name="setupData"></param>
+        /// <param name="supportedCultures">Provide list of supported cultures. This is used to only log
+        /// missing resource entries if its supported culture. NOTE: if null, then it will log every missing culture.</param>
+        /// <returns></returns>
+        public static AuthSetupData SetupLocalization<TResource>(this AuthSetupData setupData,
+            string[] supportedCultures)
+        {
+            setupData.Options.InternalData.AuthPResourceType = typeof(TResource);
+            setupData.Options.InternalData.SupportedCultures = supportedCultures;
+
+            return setupData;
+        }
+
+        /// <summary>
         /// This allows you to replace the default <see cref="ShardingConnections"/> code with you own code.
         /// This allows you to add you own approach to managing sharding databases
         /// NOTE: The <see cref="IOptionsSnapshot{TOptions}"/> of the connection strings and the sharding settings file are still registered
@@ -264,7 +282,8 @@ namespace AuthPermissions.AspNetCore
 
             //Localization services
             //NOTE: If you want to use the localization services you need to setup / register the .NET IStringLocalizer<TResource> service
-            setupData.Services.RegisterDefaultLocalizer("en", setupData.Options.SupportedCultures);
+            setupData.Services.RegisterDefaultLocalizer("en", setupData.Options.InternalData.SupportedCultures);
+            setupData.Services.AddSingleton<IAuthPDefaultLocalizer, AuthPDefaultLocalizer>();
 
             //Other services
             setupData.Services.AddTransient<IDisableJwtRefreshToken, DisableJwtRefreshToken>();

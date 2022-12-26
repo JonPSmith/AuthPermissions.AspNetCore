@@ -4,6 +4,7 @@
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using AuthPermissions.SupportCode.ShardingServices;
 using LocalizeMessagesAndErrors;
@@ -31,16 +32,16 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// <param name="options"></param>
     /// <param name="tenantAdmin"></param>
     /// <param name="addNewUserManager"></param>
-    /// <param name="localizeDefault"></param>
+    /// <param name="localizeProvider"></param>
     /// <param name="getShardingDb"></param>
     public SignInAndCreateTenant(AuthPermissionsOptions options, IAuthTenantAdminService tenantAdmin, 
-        IAddNewUserManager addNewUserManager, IDefaultLocalizer<ResourceLocalize> localizeDefault,
+        IAddNewUserManager addNewUserManager, IAuthPDefaultLocalizer localizeProvider,
         IGetDatabaseForNewTenant getShardingDb = null)
     {
         _options = options;
         _tenantAdmin = tenantAdmin;
         _addNewUserManager = addNewUserManager;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
         _getShardingDb = getShardingDb;
     }
 

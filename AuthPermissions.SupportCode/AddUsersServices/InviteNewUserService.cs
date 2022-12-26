@@ -9,6 +9,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
@@ -39,14 +40,14 @@ public class InviteNewUserService : IInviteNewUserService
     /// <param name="addNewUserManager"></param>
     public InviteNewUserService(AuthPermissionsOptions options, AuthPermissionsDbContext context,
         IEncryptDecryptService encryptService,
-        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager, IDefaultLocalizer<ResourceLocalize> localizeDefault)
+        IAuthUsersAdminService usersAdmin, IAddNewUserManager addNewUserManager, IAuthPDefaultLocalizer localizeProvider)
     {
         _options = options;
         _context = context;
         _encryptService = encryptService;
         _usersAdmin = usersAdmin;
         _addNewUserManager = addNewUserManager;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
     /// <summary>

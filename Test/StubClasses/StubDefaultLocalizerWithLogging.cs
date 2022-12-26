@@ -9,15 +9,14 @@ using TestSupport.Helpers;
 namespace Test.StubClasses;
 
 /// <summary>
-/// This provides a simple replacement of the <see cref="DefaultLocalizer{TResource}"/> which
+/// This provides a simple replacement of the <see cref="IDefaultLocalizer"/> which
 /// returns the the default message.
 /// It also writes the information on each localized message to a database is the appsettings.json
 /// file in your testing project contains "SaveLocalizesToDb": true.
 /// If "SaveLocalizesToDb" is True, then there needs to be a connection string called "LocalizationCaptureDb"
 /// which links to a SQL Server database server where the localized message information is saved to.
 /// </summary>
-/// <typeparam name="TResource"></typeparam>
-public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TResource>
+public class StubDefaultLocalizerWithLogging : IDefaultLocalizer
 {
     /// <summary>
     /// This contains a list each localization request, with extra data.
@@ -36,10 +35,12 @@ public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TRes
     private const string SameKeyButDiffFormatPrefix = "Possible SameKeyButDiffFormat: ";
 
     private readonly string _cultureOfMessage;
+    private readonly Type _resourceType;
 
-    public StubDefaultLocalizerWithLogging(string cultureOfMessage)
+    public StubDefaultLocalizerWithLogging(string cultureOfMessage, Type resourceType)
     {
         _cultureOfMessage = cultureOfMessage;
+        _resourceType = resourceType;
     }
 
     public string LocalizeStringMessage(LocalizeKeyData localizeKeyData, string message)
@@ -80,7 +81,7 @@ public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TRes
         var localizeKey = localizeKeyData.LocalizeKey ?? "already localize";
         var callingClassName = GetFormattedName(localizeKeyData.CallingClass);
 
-        return new LocalizedLog(typeof(TResource), localizeKey,
+        return new LocalizedLog(_resourceType, localizeKey,
             cultureOfMessage, actualMessage, messageFormat,
             callingClassName, localizeKeyData.MethodName, localizeKeyData.SourceLineNumber);
     }
@@ -91,7 +92,8 @@ public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TRes
     /// <see cref="StubDefaultLocalizerWithLogging{TResource}"/> within your unit tests.
     /// It tries to: 
     /// 1) Add a new entry in the database if there isn't an entry containing the same information.
-    /// 2) It also sets the <see cref="LocalizedLog"/>.<see cref="LocalizedLog.SameKeyButDiffFormat"/> to true
+    /// 2) If two or more entries have the same key but a different format then the
+    /// <see cref="LocalizedLog"/>.<see cref="LocalizedLog.PossibleErrors"/> will contain an error
     /// if an existing entry with the same ResourceFile / LocalizeKey, but a different different message.
     /// </summary>
     /// <param name="localizedLog"></param>
@@ -103,7 +105,7 @@ public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TRes
             return;
 
         //This will hold any existing database entries that have the same ResourceFile and LocalizeKey or format
-        var sameKeyOrFormat = context.LocalizedData
+        var sameKeyOrFormat = context.LocalizedData!
             .Where(x => x.ResourceClassFullName == localizedLog.ResourceClassFullName
                         && (x.LocalizeKey == localizedLog.LocalizeKey
                             || (x.MessageFormat != null && x.MessageFormat != localizedLog.MessageFormat)
@@ -194,7 +196,7 @@ public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TRes
         if (context.Database.EnsureCreated())
             return;
         //The database exists so wipe the entries
-        context.RemoveRange(context.LocalizedData.ToList());
+        context.RemoveRange(context.LocalizedData?.ToList() ?? new List<LocalizedLog>());
         context.SaveChanges();
     }
 
@@ -204,7 +206,7 @@ public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TRes
         if (context == null)
             return new List<LocalizedLog>();
 
-        return context.LocalizedData.OrderBy(l => l.ResourceClassFullName).ThenBy(l => l.LocalizeKey)
+        return context.LocalizedData!.OrderBy(l => l.ResourceClassFullName).ThenBy(l => l.LocalizeKey)
             .ToList();
     }
 
@@ -215,6 +217,6 @@ public class StubDefaultLocalizerWithLogging<TResource> : IDefaultLocalizer<TRes
         public LocalizationCaptureDb(DbContextOptions<LocalizationCaptureDb> options)
             : base(options) { }
 
-        public DbSet<LocalizedLog> LocalizedData { get; set; }
+        public DbSet<LocalizedLog>? LocalizedData { get; set; }
     }
 }

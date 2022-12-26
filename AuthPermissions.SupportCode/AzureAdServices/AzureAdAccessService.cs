@@ -5,6 +5,7 @@ using System.Text.Json;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.SetupCode;
 using Azure.Identity;
 using LocalizeMessagesAndErrors;
 using Microsoft.Extensions.Options;
@@ -29,10 +30,10 @@ public class AzureAdAccessService : IAzureAdAccessService
     /// ctor
     /// </summary>
     /// <param name="options"></param>
-    /// <param name="localizeDefault"></param>
-    public AzureAdAccessService(IOptions<AzureAdOptions> options, IDefaultLocalizer<ResourceLocalize> localizeDefault)
+    /// <param name="localizeProvider"></param>
+    public AzureAdAccessService(IOptions<AzureAdOptions> options, IAuthPDefaultLocalizer localizeProvider)
     {
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer; ;
         var value = options.Value;
         _clientSecretCredential = new ClientSecretCredential(value.TenantId, value.ClientId, value.ClientSecret);
     }

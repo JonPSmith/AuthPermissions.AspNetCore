@@ -5,6 +5,7 @@ using System.Text.Json;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using Medallion.Threading.Postgres;
 using Medallion.Threading.SqlServer;
@@ -38,17 +39,17 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <param name="connectionsService"></param>
     /// <param name="authDbContext"></param>
     /// <param name="options"></param>
-    /// <param name="localizeDefault"></param>
+    /// <param name="localizeProvider"></param>
     public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, 
         AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options, 
-        IDefaultLocalizer<ResourceLocalize> localizeDefault)
+        IAuthPDefaultLocalizer localizeProvider)
     {
         ShardingSettingFilename = AuthPermissionsOptions.FormShardingSettingsFileName(options.SecondPartOfShardingFile);
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
         _authDbContext = authDbContext;
         _options = options;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
     /// <summary>

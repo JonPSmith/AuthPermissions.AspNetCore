@@ -44,10 +44,10 @@ public class TestInviteNewUserService
             EncryptionKey = "asfafffggdgerxbd", TenantType = tenantType
         };
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
-            authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            authOptions, "en".SetupAuthPLoggingLocalizer());
         var encryptService = new EncryptDecryptService(authOptions);
         var service = new InviteNewUserService(authOptions, context, encryptService, userAdmin, 
-                new StubAddNewUserManager(userAdmin), new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+                new StubAddNewUserManager(userAdmin), "en".SetupAuthPLoggingLocalizer());
 
         if (tenantType == TenantTypes.SingleLevel)
             context.Add(AuthPSetupHelpers.CreateTestSingleTenantOk("Company"));

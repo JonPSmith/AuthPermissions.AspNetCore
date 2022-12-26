@@ -34,18 +34,18 @@ namespace AuthPermissions.AdminCode.Services
         /// </summary>
         /// <param name="context"></param>
         /// <param name="options"></param>
-        /// <param name="localizeDefault"></param>
+        /// <param name="localizeProvider"></param>
         /// <param name="tenantChangeServiceFactory"></param>
         /// <param name="logger"></param>
         public AuthTenantAdminService(AuthPermissionsDbContext context, 
             AuthPermissionsOptions options,
-            IDefaultLocalizer<ResourceLocalize> localizeDefault,
+            IAuthPDefaultLocalizer localizeProvider,
             IAuthPServiceFactory<ITenantChangeService> tenantChangeServiceFactory,
             ILogger<AuthTenantAdminService> logger)
         {
             _context = context;
             _options = options;
-            _localizeDefault = localizeDefault;
+            _localizeDefault = localizeProvider.DefaultLocalizer;
             _tenantChangeServiceFactory = tenantChangeServiceFactory;
             _logger = logger;
 

@@ -47,7 +47,7 @@ public class TestExample2RoleChangedDetectorService
         stubFsCache.ClearAll();
 
         var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
-            authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            authOptions, "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var users = authAdmin.QueryAuthUsers().Include(x => x.UserRoles).ToList();
@@ -77,7 +77,7 @@ public class TestExample2RoleChangedDetectorService
         stubFsCache.ClearAll();
 
         var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(),
-            authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            authOptions, "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         await authAdmin.UpdateUserAsync("User1", roleNames: new List<string> { "Role1", "Role2" });
@@ -110,7 +110,7 @@ public class TestExample2RoleChangedDetectorService
         stubFsCache.ClearAll();
 
         var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(),
-            authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            authOptions, "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         await authAdmin.UpdateUserAsync("User3", roleNames: new List<string> { "Role1" });
@@ -143,7 +143,7 @@ public class TestExample2RoleChangedDetectorService
         stubFsCache.ClearAll();
 
         var authAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(),
-            authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+            authOptions, "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         await authAdmin.UpdateUserAsync("User2", roleNames: new List<string> { });
@@ -175,7 +175,7 @@ public class TestExample2RoleChangedDetectorService
         context.ChangeTracker.Clear();
         stubFsCache.ClearAll();
 
-        var rolesAdmin = new AuthRolesAdminService(context, authOptions, new StubDefaultLocalizerWithLogging<ResourceLocalize>("en"));
+        var rolesAdmin = new AuthRolesAdminService(context, authOptions, "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         await rolesAdmin.UpdateRoleToPermissionsAsync("Role2", new List<string> { "One", "Three" }, null);

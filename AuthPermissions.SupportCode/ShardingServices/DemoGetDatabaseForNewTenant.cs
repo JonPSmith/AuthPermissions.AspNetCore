@@ -3,6 +3,7 @@
 
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using StatusGeneric;
 
@@ -20,12 +21,12 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// ctor
     /// </summary>
     /// <param name="shardingService"></param>
-    /// <param name="localizeDefault"></param>
+    /// <param name="localizeProvider"></param>
     public DemoGetDatabaseForNewTenant(IShardingConnections shardingService, 
-        IDefaultLocalizer<ResourceLocalize> localizeDefault)
+        IAuthPDefaultLocalizer localizeProvider)
     {
         _shardingService = shardingService;
-        _localizeDefault = localizeDefault;
+        _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.Models;
 using ExamplesCommonCode.CommonAdmin;
 using LocalizeMessagesAndErrors;
@@ -109,7 +110,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateUpdate([FromServices] IDefaultLocalizer<ResourceLocalize> localizeDefault,
+        public async Task<ActionResult> CreateUpdate([FromServices] IAuthPDefaultLocalizer localizeProvider,
             SetupManualUserChange input)
         {
             if (!ModelState.IsValid)
@@ -118,7 +119,7 @@ namespace Example4.MvcWebApp.IndividualAccounts.Controllers
                 return View(input.FoundChangeType.ToString());
             }
 
-            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, localizeDefault);
+            var status = await input.ChangeAuthUserFromDataAsync(_authUsersAdmin, localizeProvider);
             if (status.HasErrors)
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
