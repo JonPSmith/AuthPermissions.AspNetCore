@@ -1,7 +1,12 @@
 ﻿@page
+@using LocalizeMessagesAndErrors
+@inject ISimpleLocalizer SimpleLocalizer
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Example1.RazorPages.IndividualAccounts.Pages.AuthRoles.CreateModel
 
-<h3>Creating a new Role</h3>
+<h3>
+    @SimpleLocalizer.LocalizeString("Creating a new Role", this)
+</h3>
 
 <hr />
 <div class="row">

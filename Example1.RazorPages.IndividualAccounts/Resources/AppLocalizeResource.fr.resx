@@ -141,11 +141,29 @@
   <data name="SimpleLocalizer(Cookie)" xml:space="preserve">
     <value>Cookie</value>
   </data>
+  <data name="SimpleLocalizer(Create new role)" xml:space="preserve">
+    <value>Créer un nouveau rôle</value>
+  </data>
+  <data name="SimpleLocalizer(Creating a new Role)" xml:space="preserve">
+    <value>Créer un nouveau rôle</value>
+  </data>
   <data name="SimpleLocalizer(Databases)" xml:space="preserve">
     <value>Bases de données</value>
   </data>
+  <data name="SimpleLocalizer(Delete)" xml:space="preserve">
+    <value>Effacer</value>
+  </data>
+  <data name="SimpleLocalizer(Description)" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="SimpleLocalizer(Edit" xml:space="preserve">
+    <value>Éditer</value>
+  </data>
   <data name="SimpleLocalizer(Example1 - looking at Roles/Permissions, plus localization)" xml:space="preserve">
     <value>Exemple 1 - examen des rôles/autorisations, plus la localisation</value>
+  </data>
+  <data name="SimpleLocalizer(Group)" xml:space="preserve">
+    <value>Groupe</value>
   </data>
   <data name="SimpleLocalizer(Individual accounts: InMemory Database)" xml:space="preserve">
     <value>Comptes individuels : base de données InMemory</value>
@@ -155,6 +173,24 @@
   </data>
   <data name="SimpleLocalizer(Note)" xml:space="preserve">
     <value>Noter</value>
+  </data>
+  <data name="SimpleLocalizer(Permission)" xml:space="preserve">
+    <value>Autorisation</value>
+  </data>
+  <data name="SimpleLocalizer(Permissions)" xml:space="preserve">
+    <value>Autorisations</value>
+  </data>
+  <data name="SimpleLocalizer(Role Name)" xml:space="preserve">
+    <value>Nom de rôle</value>
+  </data>
+  <data name="SimpleLocalizer(Select)" xml:space="preserve">
+    <value>Sélectionner</value>
+  </data>
+  <data name="SimpleLocalizer(Selected)" xml:space="preserve">
+    <value>Choisi</value>
+  </data>
+  <data name="SimpleLocalizer(Selected?)" xml:space="preserve">
+    <value>Choisi?</value>
   </data>
   <data name="SimpleLocalizer(Shows basics of Roles and permissions, plus multi-language support.)" xml:space="preserve">
     <value>Affiche les bases des rôles et des autorisations, ainsi que la prise en charge multilingue.</value>

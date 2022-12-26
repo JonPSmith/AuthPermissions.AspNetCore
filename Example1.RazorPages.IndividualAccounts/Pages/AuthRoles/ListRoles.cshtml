@@ -1,4 +1,7 @@
 ﻿@page
+@inject ISimpleLocalizer SimpleLocalizer
+@using LocalizeMessagesAndErrors
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Example1.RazorPages.IndividualAccounts.Pages.AuthRoles.ListRolesModel
 
 <h1>Manage roles</h1>
@@ -8,20 +11,22 @@
     <h3 class="text-primary">@Model.Message</h3>
 }
 
-<a class="btn btn-primary" asp-area="" asp-page=".\Create">Create new role</a>
+<a class="btn btn-primary" asp-area="" asp-page=".\Create">
+    @SimpleLocalizer.LocalizeString("Create new role", this)
+</a>
 <p></p>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                RoleName
+                @SimpleLocalizer.LocalizeString("Role Name", this)
             </th>
             <th>
-                Description
+                @SimpleLocalizer.LocalizeString("Description", this)
             </th>
             <th>
-                #Permissions
+                #@SimpleLocalizer.LocalizeString("Permissions", this)
             </th>
             <th></th>
         </tr>
@@ -43,9 +48,13 @@
                 </td>
                 <td>
                     <!--This should have User.HasPermission(Example4Permissions.RoleChange around them-->
-                    <a asp-area="" asp-page=".\Edit" asp-route-rolename="@item.RoleName">Edit</a>
+                    <a asp-area="" asp-page=".\Edit" asp-route-rolename="@item.RoleName">
+                        @SimpleLocalizer.LocalizeString("Edit", this)
+                    </a>
                     |
-                    <a asp-area="" asp-page=".\Delete" asp-route-rolename="@item.RoleName">Delete</a>
+                    <a asp-area="" asp-page=".\Delete" asp-route-rolename="@item.RoleName">
+                        @SimpleLocalizer.LocalizeString("Delete", this)
+                    </a>
                 </td>
             </tr>
         }
