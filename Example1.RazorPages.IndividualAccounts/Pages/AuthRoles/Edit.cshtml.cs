@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using ExamplesCommonCode.CommonAdmin;
+using GenericServices.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -40,9 +41,12 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthRoles
             var status = await _authRolesAdmin
                 .UpdateRoleToPermissionsAsync(Data.RoleName, Data.GetSelectedPermissionNames(), Data.Description);
 
-            return status.HasErrors
-                ? RedirectToPage("ErrorPage", new { allErrors = status.GetAllErrors() })
-                : RedirectToPage("ListRoles", new { message = status.Message });
+            if (status.IsValid)
+                return RedirectToPage("ListRoles", new { message = status.Message });
+
+            //Errors 
+            status.CopyErrorsToModelState(ModelState);
+            return Page();
         }
 
     }

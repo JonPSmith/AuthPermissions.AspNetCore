@@ -123,6 +123,15 @@
   <data name="SimpleLocalizer(Application)" xml:space="preserve">
     <value>Application</value>
   </data>
+  <data name="SimpleLocalizer(Apply sync change)" xml:space="preserve">
+    <value>Appliquer le changement de synchronisation</value>
+  </data>
+  <data name="SimpleLocalizer(Are you sure you want to delete the {0} ?)" xml:space="preserve">
+    <value>Voulez-vous vraiment supprimer le {0} ?</value>
+  </data>
+  <data name="SimpleLocalizer(Are you sure you want to delete this user?)" xml:space="preserve">
+    <value>Voulez-vous vraiment supprimer cet utilisateur ?</value>
+  </data>
   <data name="SimpleLocalizer(ASP.NET Core's individual accounts)" xml:space="preserve">
     <value>Comptes individuels d'ASP.NET Core</value>
   </data>
@@ -135,6 +144,15 @@
   <data name="SimpleLocalizer(AuthPermissions: In-memory database (uses SQLite in-memory))" xml:space="preserve">
     <value>AuthPermissions : base de données en mémoire (utilise SQLite en mémoire)</value>
   </data>
+  <data name="SimpleLocalizer(Cancel)" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="SimpleLocalizer(Change type)" xml:space="preserve">
+    <value>Changer le type</value>
+  </data>
+  <data name="SimpleLocalizer(Changes needed based on authentication provider's users)" xml:space="preserve">
+    <value>Modifications nécessaires en fonction des utilisateurs du fournisseur d'authentification</value>
+  </data>
   <data name="SimpleLocalizer(Cookie or Token)" xml:space="preserve">
     <value>Cookie ou jeton</value>
   </data>
@@ -144,11 +162,17 @@
   <data name="SimpleLocalizer(Create new role)" xml:space="preserve">
     <value>Créer un nouveau rôle</value>
   </data>
+  <data name="SimpleLocalizer(Create)" xml:space="preserve">
+    <value>Créer</value>
+  </data>
   <data name="SimpleLocalizer(Creating a new Role)" xml:space="preserve">
     <value>Créer un nouveau rôle</value>
   </data>
   <data name="SimpleLocalizer(Databases)" xml:space="preserve">
     <value>Bases de données</value>
+  </data>
+  <data name="SimpleLocalizer(Delete AuthUser)" xml:space="preserve">
+    <value>Supprimer l'utilisateur authentifié</value>
   </data>
   <data name="SimpleLocalizer(Delete)" xml:space="preserve">
     <value>Effacer</value>
@@ -156,8 +180,20 @@
   <data name="SimpleLocalizer(Description)" xml:space="preserve">
     <value>Description</value>
   </data>
-  <data name="SimpleLocalizer(Edit" xml:space="preserve">
+  <data name="SimpleLocalizer(Edit the user's information)" xml:space="preserve">
+    <value>Modifier les informations de l'utilisateur</value>
+  </data>
+  <data name="SimpleLocalizer(Edit | Delete)" xml:space="preserve">
+    <value>Modifier | Effacer</value>
+  </data>
+  <data name="SimpleLocalizer(Edit)" xml:space="preserve">
     <value>Éditer</value>
+  </data>
+  <data name="SimpleLocalizer(Editing {0} role.)" xml:space="preserve">
+    <value>Modification du rôle {0}</value>
+  </data>
+  <data name="SimpleLocalizer(Email)" xml:space="preserve">
+    <value>E-mail</value>
   </data>
   <data name="SimpleLocalizer(Example1 - looking at Roles/Permissions, plus localization)" xml:space="preserve">
     <value>Exemple 1 - examen des rôles/autorisations, plus la localisation</value>
@@ -171,6 +207,9 @@
   <data name="SimpleLocalizer(MultiTenant?)" xml:space="preserve">
     <value>Multilocataire ?</value>
   </data>
+  <data name="SimpleLocalizer(NoChange)" xml:space="preserve">
+    <value>Pas de changement</value>
+  </data>
   <data name="SimpleLocalizer(Note)" xml:space="preserve">
     <value>Noter</value>
   </data>
@@ -180,8 +219,17 @@
   <data name="SimpleLocalizer(Permissions)" xml:space="preserve">
     <value>Autorisations</value>
   </data>
+  <data name="SimpleLocalizer(Role description)" xml:space="preserve">
+    <value>Description du rôle</value>
+  </data>
   <data name="SimpleLocalizer(Role Name)" xml:space="preserve">
     <value>Nom de rôle</value>
+  </data>
+  <data name="SimpleLocalizer(Roles count)" xml:space="preserve">
+    <value>Les rôles comptent</value>
+  </data>
+  <data name="SimpleLocalizer(Roles)" xml:space="preserve">
+    <value>Rôles</value>
   </data>
   <data name="SimpleLocalizer(Select)" xml:space="preserve">
     <value>Sélectionner</value>
@@ -194,5 +242,17 @@
   </data>
   <data name="SimpleLocalizer(Shows basics of Roles and permissions, plus multi-language support.)" xml:space="preserve">
     <value>Affiche les bases des rôles et des autorisations, ainsi que la prise en charge multilingue.</value>
+  </data>
+  <data name="SimpleLocalizer(Sync with authentication provider's users)" xml:space="preserve">
+    <value>Synchroniser avec les utilisateurs du fournisseur d'authentification</value>
+  </data>
+  <data name="SimpleLocalizer(There are no changes to apply to the AuthUsers)" xml:space="preserve">
+    <value>Il n'y a aucun changement à appliquer aux AuthUsers</value>
+  </data>
+  <data name="SimpleLocalizer(Update)" xml:space="preserve">
+    <value>Mise à jour</value>
+  </data>
+  <data name="SimpleLocalizer(UserName)" xml:space="preserve">
+    <value>Nom d'utilisateur</value>
   </data>
 </root>

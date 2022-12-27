@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
+using GenericServices.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -26,9 +27,13 @@ namespace Example1.RazorPages.IndividualAccounts.Pages.AuthUsers
         public async Task<IActionResult> OnPost()
         {
             var status = await _authUsersAdmin.ApplySyncChangesAsync(Data);
-            return status.HasErrors 
-                ? RedirectToPage("ErrorPage", new { allErrors = status.GetAllErrors() }) 
-                : RedirectToPage("ListUsers", new { message = status.Message });
+
+            if (status.IsValid)
+                return RedirectToPage("ListUsers", new { message = status.Message });
+
+            //Errors 
+            status.CopyErrorsToModelState(ModelState);
+            return Page();
         }
     }
 }

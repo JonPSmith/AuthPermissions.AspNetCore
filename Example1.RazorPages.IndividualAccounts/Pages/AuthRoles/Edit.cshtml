@@ -1,7 +1,12 @@
 ﻿@page
+@using LocalizeMessagesAndErrors
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Example1.RazorPages.IndividualAccounts.Pages.AuthRoles.EditModel
+@inject ISimpleLocalizer SimpleLocalizer
 
-<div class="h3">Editing <span class="h1">@Model.Data.RoleName</span> role.</div>
+<div class="h3">
+    @SimpleLocalizer.LocalizeFormatted($"Editing {Model.Data.RoleName} role.", this)
+</div>
 
 <hr />
 <div class="row">
@@ -10,7 +15,9 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @Html.HiddenFor(x => x.Data.RoleName)
             <div>
-                <label class="control-label">Role description</label>
+                <label class="control-label">
+                    @SimpleLocalizer.LocalizeString("Role description", this)
+                </label>
                 <input asp-for="Data.Description" class="form-control" />
                 <span asp-validation-for="Data.Description" class="text-danger"></span>
             </div>
@@ -22,8 +29,11 @@
         </div>
 
         <div class="form-group">
-            <input type="submit" value="Update" class="btn btn-primary" />
-            <a class="btn btn-secondary" asp-area="" asp-page=".\ListRoles">Cancel</a>
+            <input type="submit" value=@SimpleLocalizer.LocalizeString("Update", this)
+                   class="btn btn-primary" />
+            <a class="btn btn-secondary" asp-area="" asp-page=".\ListRoles">
+                @SimpleLocalizer.LocalizeString("Cancel", this)
+            </a>
         </div>
     </form>
 </div>

@@ -3,6 +3,11 @@
 @inject ISimpleLocalizer SimpleLocalizer
 @model RoleCreateUpdateDto
 
+@{
+    var selectedLocalized = SimpleLocalizer.LocalizeString("Selected", this);
+    var selectLocalized = SimpleLocalizer.LocalizeString("Select", this);
+}
+
 <table class="table">
     <thead>
     <tr>
@@ -40,10 +45,11 @@
                     @Model.PermissionsWithSelect[i].Selected,
                     new { id = Model.PermissionsWithSelect[i].PermissionName})
                 <button type="button" class='btn-sm  @(Model.PermissionsWithSelect[i].Selected ? "btn-primary" : "btn-secondary")'
-                        onclick="TogglePermissionSelect(this, '@Model.PermissionsWithSelect[i].PermissionName')">
+                        onclick="TogglePermissionSelect(this, '@Model.PermissionsWithSelect[i].PermissionName',
+                        '@selectLocalized', '@selectedLocalized')">
                     @(Model.PermissionsWithSelect[i].Selected 
-                        ? SimpleLocalizer.LocalizeString("Selected", this)
-                        : SimpleLocalizer.LocalizeString("Select", this))
+                        ? selectedLocalized
+                        : selectLocalized)
                 </button>
             </td>
         </tr>

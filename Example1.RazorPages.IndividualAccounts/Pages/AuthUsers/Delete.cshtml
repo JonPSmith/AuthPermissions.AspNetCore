@@ -1,9 +1,14 @@
 ﻿@page
+@using LocalizeMessagesAndErrors
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Example1.RazorPages.IndividualAccounts.Pages.AuthUsers.DeleteModel
+@inject ISimpleLocalizer SimpleLocalizer
 
 <h1>Delete AuthUser</h1>
 
-<h3>Are you sure you want to delete this user?</h3>
+<h3>
+    @SimpleLocalizer.LocalizeString("Are you sure you want to delete this user?", this)
+</h3>
 <div>
     <dl class="row">
 
@@ -22,7 +27,10 @@
     </dl>
     <form method="post">
         @Html.HiddenFor(model => model.UserId)
-        <input type="submit" value="Delete" class="btn btn-danger" />
-        <a class="btn btn-secondary" asp-area="" asp-page=".\ListUsers">Cancel</a>
+        <input type="submit" value=@SimpleLocalizer.LocalizeString("Delete", this)
+               class="btn btn-danger" />
+        <a class="btn btn-secondary" asp-area="" asp-page=".\ListUsers">
+            @SimpleLocalizer.LocalizeString("Cancel", this)
+        </a>
     </form>
 </div>

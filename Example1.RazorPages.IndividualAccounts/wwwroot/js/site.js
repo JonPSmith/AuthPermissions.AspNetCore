@@ -4,14 +4,14 @@
 // Write your JavaScript code.
 
 //Used in Edit / Create of a Role
-function TogglePermissionSelect(button, idOfInput) {
-    if ($(button).text().trim() === 'Selected') {
-        $(button).text('Select');
+function TogglePermissionSelect(button, idOfInput, selectLocalized, selectedLocalized) {
+    if ($(button).text().trim() === selectedLocalized) {
+        $(button).text(selectLocalized);
         $(button).removeClass('btn-primary');
         $(button).addClass('btn-secondary');
         $('#' + idOfInput).val(false);
     } else {
-        $(button).text('Selected');
+        $(button).text(selectedLocalized);
         $(button).removeClass('btn-secondary');
         $(button).addClass('btn-primary');
         $('#' + idOfInput).val(true);

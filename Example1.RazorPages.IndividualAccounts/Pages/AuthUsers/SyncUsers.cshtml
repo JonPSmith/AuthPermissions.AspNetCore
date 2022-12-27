@@ -1,22 +1,29 @@
 ﻿@page
 @using global::AuthPermissions.AdminCode
+@using LocalizeMessagesAndErrors
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Example1.RazorPages.IndividualAccounts.Pages.AuthUsers.SyncUsersModel
+@inject ISimpleLocalizer SimpleLocalizer
 
 @if (!@Model.Data.Any())
 {
-    <h3>There are no changes to apply to the AuthUsers</h3>
+    <h3>
+        @SimpleLocalizer.LocalizeString("There are no changes to apply to the AuthUsers", this)
+    </h3>
     return;
 }
 
-<h3>Changes needed based on authentication provider's users</h3>
+<h3>
+    @SimpleLocalizer.LocalizeString("Changes needed based on authentication provider's users", this)
+</h3>
 <form method="post">
     <table class="table">
         <thead>
             <tr>
-                <th>Change type</th>
-                <th>Email</th>
-                <th>UserName</th>
-                <th>Roles Count</th>
+                <th>@SimpleLocalizer.LocalizeString("Change type", this)</th>
+                <th>@SimpleLocalizer.LocalizeString("Email", this)</th>
+                <th>@SimpleLocalizer.LocalizeString("UserName", this)</th>
+                <th>@SimpleLocalizer.LocalizeString("Roles count", this)</th>
             </tr>
         </thead>
         <tbody>
@@ -24,7 +31,7 @@
             {
                 <tr>
                     <td>
-                        @Model.Data[i].FoundChangeType
+                        @SimpleLocalizer.LocalizeString(Model.Data[i].FoundChangeType.ToString(), this)
                         @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.UserId)}", Model.Data[i].UserId)
                         @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.FoundChangeType)}", Model.Data[i].FoundChangeType)
                     </td>
@@ -44,8 +51,10 @@
         </tbody>
     </table>
 
-    <button class="btn btn-primary">Apply Sync Changes</button>
-    <a class="btn btn-secondary" asp-area="" asp-page=".\ListUsers">Cancel</a>
+    <button class="btn btn-primary">@SimpleLocalizer.LocalizeString("Apply sync change", this)</button>
+    <a class="btn btn-secondary" asp-area="" asp-page=".\ListUsers">
+        @SimpleLocalizer.LocalizeString("Cancel", this)
+    </a>
 </form>
 
 

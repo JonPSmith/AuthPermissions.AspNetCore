@@ -1,5 +1,8 @@
 ﻿@page
+@using LocalizeMessagesAndErrors
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model ListUsersModel
+@inject ISimpleLocalizer SimpleLocalizer
 
 <h1>Auth users</h1>
 
@@ -8,23 +11,25 @@
     <h3 class="text-primary">@Model.Message</h3>
 }
 
-<a class="btn btn-primary" asp-area="" asp-page=".\SyncUsers">Sync with authentication provider's users</a>
+<a class="btn btn-primary" asp-area="" asp-page=".\SyncUsers">
+    @SimpleLocalizer.LocalizeString("Sync with authentication provider's users", this)
+</a>
 <p></p>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                UserName
+                @SimpleLocalizer.LocalizeString("UserName", this)
             </th>
             <th>
-                Email
+                @SimpleLocalizer.LocalizeString("Email", this)
             </th>
             <th>
-                AuthRoles
+                @SimpleLocalizer.LocalizeString("Roles", this)
             </th>
             <th>
-                Edit | Delete
+                @SimpleLocalizer.LocalizeString("Edit | Delete", this)
             </th>
         </tr>
     </thead>
@@ -42,9 +47,13 @@
                     @string.Join(", ", item.RoleNames)
                 </td>
                 <td>
-                    <a asp-area="" asp-page=".\Edit" asp-route-userId="@item.UserId">Edit</a>
+                    <a asp-area="" asp-page=".\Edit" asp-route-userId="@item.UserId">
+                        @SimpleLocalizer.LocalizeString("Edit", this)
+                    </a>
                     |
-                    <a asp-area="" asp-page=".\Delete" asp-route-userId="@item.UserId">Delete</a>
+                    <a asp-area="" asp-page=".\Delete" asp-route-userId="@item.UserId">
+                        @SimpleLocalizer.LocalizeString("Delete", this)
+                    </a>
                 </td>
             </tr>
         }
