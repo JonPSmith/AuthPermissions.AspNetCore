@@ -129,7 +129,7 @@ namespace AuthPermissions.AdminCode.Services
 
             //NOTE: If an advanced permission (i.e. has the display attribute has AutoGenerateFilter = true) is found the roleType is updated to HiddenFromTenant
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
-                x => status.AddErrorFormattedWithParams("InvalidPermission".ClassMethodLocalizeKey(this, true),
+                x => status.AddErrorFormattedWithParams("InvalidPermission".ClassLocalizeKey(this, true), //common error
                     $"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.",
                     permissionNames.Select(y => y.CamelToPascal()).ToArray()), () => roleType = RoleTypes.HiddenFromTenant);
 
@@ -168,7 +168,7 @@ namespace AuthPermissions.AdminCode.Services
             var originalRoleType = existingRolePermission.RoleType;
 
             var packedPermissions = _permissionType.PackPermissionsNamesWithValidation(permissionNames,
-                x => status.AddErrorFormattedWithParams("InvalidPermission".ClassMethodLocalizeKey(this, true), 
+                x => status.AddErrorFormattedWithParams("InvalidPermission".ClassLocalizeKey(this, true), //common error
                     $"The permission name '{x}' isn't a valid name in the {_permissionType.Name} enum.", 
                     permissionNames.Select(y => y.CamelToPascal()).ToArray()), 
                 () => roleType = RoleTypes.HiddenFromTenant);
