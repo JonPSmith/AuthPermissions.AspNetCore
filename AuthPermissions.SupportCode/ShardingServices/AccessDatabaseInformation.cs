@@ -11,7 +11,6 @@ using Medallion.Threading.Postgres;
 using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode.ShardingServices;
@@ -111,7 +110,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
             if (foundIndex == -1)
                 return status.AddErrorFormatted("MissingDatabaseInfo".ClassLocalizeKey(this, true),
-                    $"Could not find a database info entry with the {nameof(DatabaseInformation.Name)} of '{databaseInfo.Name ?? "< null >"}'");
+                    $"Could not find a database info entry with the {nameof(DatabaseInformation.Name)} of '{databaseInfo.Name ?? "< null >"}'.");
 
             fileContent[foundIndex] = databaseInfo;
             return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);

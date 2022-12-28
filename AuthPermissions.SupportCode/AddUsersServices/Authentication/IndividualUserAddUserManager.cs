@@ -65,7 +65,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     {
         var status = new StatusGenericLocalizer(_localizeDefault);
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
-            return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true),
+            return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true), //common message
             "There is already an AuthUser with your email, so you can't add another.",
             nameof(AddNewUserDto.Email));
         return status;
@@ -85,7 +85,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
 
         var status = new StatusGenericLocalizer(_localizeDefault);
         status.SetMessageString("SuccessAddUser".ClassLocalizeKey(this, true),
-            "New user with claims added");
+            "New user with claims added.");
 
         var user = await _userManager.FindByEmailAsync(newUser.Email);
         if (user == null)
@@ -100,7 +100,8 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
         }
         else if (!await _userManager.CheckPasswordAsync(user, newUser.Password))
             status.AddErrorString("ExistUserBadPassword".ClassLocalizeKey(this, true),
-                "The user was already known, but the password was wrong.",
+                //the problem is that the user was already known, but the password was wrong
+                "Your user is invalid.",
                 nameof(AddNewUserDto.Password));
 
         //We have created the individual user account, so we have the user's UserId.

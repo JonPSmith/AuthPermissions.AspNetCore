@@ -4,7 +4,6 @@
 using System.Text.Json;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Azure.Identity;
 using LocalizeMessagesAndErrors;
@@ -142,7 +141,7 @@ public class AzureAdAccessService : IAzureAdAccessService
         {
             var errorJson = JsonSerializer.Deserialize<Rootobject>(e.RawResponseBody);
             if (errorJson!.error.code == "Request_BadRequest")
-                return status.AddErrorFormatted("BadEmail".ClassLocalizeKey(this, true),
+                return status.AddErrorFormatted("BadAuthorization".ClassLocalizeKey(this, true),
                 $"The Azure AD authorization service says: {errorJson.error.message}");
             throw;
         }

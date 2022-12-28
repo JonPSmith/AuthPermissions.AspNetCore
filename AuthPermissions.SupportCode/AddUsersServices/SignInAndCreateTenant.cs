@@ -87,13 +87,13 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
 
         if (tenantData.TenantName == null)
             return status.AddErrorString("NullTenantName".ClassLocalizeKey(this, true),
-                "You forgot to give a tenant name",
+                "You forgot to give a tenant name.",
                 nameof(AddNewTenantDto.TenantName));
 
         //Check if tenant name is available
         if (await _tenantAdmin.QueryTenants().AnyAsync(x => x.TenantFullName == tenantData.TenantName))
-            return status.AddErrorFormattedWithParams("NullTenantName".ClassLocalizeKey(this, true),
-                $"The tenant name '{tenantData.TenantName}' is already taken",
+            return status.AddErrorFormattedWithParams("DuplicateTenantName".ClassLocalizeKey(this, true),
+                $"The tenant name '{tenantData.TenantName}' is already taken.",
                 nameof(AddNewTenantDto.TenantName));
 
         if (status.CombineStatuses(await _addNewUserManager.CheckNoExistingAuthUserAsync(newUser)).HasErrors)
@@ -114,8 +114,8 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                 nameof(MultiTenantVersionData.HasOwnDbForEachVersion)) ?? tenantData.HasOwnDb;
 
             if (hasOwnDb == null)
-                return status.AddErrorFormattedWithParams("HasOwnDbNotSet".ClassLocalizeKey(this, true),
-                    $"You must set the {nameof(AddNewTenantDto.HasOwnDb)} parameter to true or false",
+                return status.AddErrorString("HasOwnDbNotSet".ClassLocalizeKey(this, true),
+                    $"You must set the {nameof(AddNewTenantDto.HasOwnDb)} parameter to true or false.",
                     nameof(AddNewTenantDto.HasOwnDb));
 
             //This method will find a database for the new tenant when using sharding

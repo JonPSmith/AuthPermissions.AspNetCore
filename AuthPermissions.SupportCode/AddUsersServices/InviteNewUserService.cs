@@ -62,19 +62,19 @@ public class InviteNewUserService : IInviteNewUserService
             _localizeDefault.LocalizeStringMessage("Forever".ClassLocalizeKey(this, true), 
             "Invite is valid forever.")));
         result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-            _localizeDefault.LocalizeStringMessage("1Hour".ClassLocalizeKey(this, true), 
+            _localizeDefault.LocalizeStringMessage("Expiration-1Hour".ClassLocalizeKey(this, true), 
                 "Invite is only valid for 1 hour from now.")));
         result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-            _localizeDefault.LocalizeStringMessage("6Hour".ClassLocalizeKey(this, true), 
-                "Invite is only valid for 6 hours from now.")));
+            _localizeDefault.LocalizeFormattedMessage("Expiration-Hours".ClassLocalizeKey(this, true), 
+                $"Invite is only valid for {6} hours from now.")));
         result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-            _localizeDefault.LocalizeStringMessage("24Hour".ClassLocalizeKey(this, true),
-                "Invite is only valid for 24 hours from now.")));
+            _localizeDefault.LocalizeFormattedMessage("Expiration-Hours".ClassLocalizeKey(this, true),
+                $"Invite is only valid for {24} hours from now.")));
 
         foreach (var numDays in new[]{3, 7, 20})
         {
             result.Add(new(DateTime.UtcNow.AddHours(1).Ticks,
-                _localizeDefault.LocalizeStringMessage($"{numDays}Days".ClassLocalizeKey(this, true),
+                _localizeDefault.LocalizeFormattedMessage("Expiration-Days".ClassLocalizeKey(this, true),
                     $"Invite is only valid for {numDays} days from now.")));
         }
 
@@ -179,11 +179,11 @@ public class InviteNewUserService : IInviteNewUserService
         //    invitedUser.Roles = null;
 
         var messages = new List<FormattableString>();
-        string localKey = null;
+        string successEndingKey = null;
 
         if (invitedUser.TenantId == null && _options.TenantType.IsMultiTenant())
         {
-            localKey = "WarningAdminUser";
+            successEndingKey = "WarningAdminUser";
             messages.Add($"WARNING: you are creating an invite that will make the user an app admin (i.e. not a tenant). ");
             messages.Add($"This is allowable, but only send the invite if you are sure that what you want to do.");
         }
@@ -191,13 +191,13 @@ public class InviteNewUserService : IInviteNewUserService
         {
             if (invitedUser.TenantId == null)
             {
-                localKey = "SendInviteApp";
+                successEndingKey = "SendInviteApp";
                 messages.Add(
                     $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join your application.");
             }
             else
             {
-                localKey = "SendInviteTenant";
+                successEndingKey = "SendInviteTenant";
                 messages.Add(
                     $"Please send the url to the user '{invitedUser.Email ?? invitedUser.UserName}' which allow them to join the tenant '{foundTenant.TenantFullName}'.");
 
@@ -207,11 +207,11 @@ public class InviteNewUserService : IInviteNewUserService
 
         if (invitedUser.TimeInviteExpires != default)
         {
-            localKey += "-Expires";
+            successEndingKey += "-Expires";
             messages.Add($" This invite expires on local time {new DateTime(invitedUser.TimeInviteExpires).ToLocalTime():g}.");
         }
 
-        status.SetMessageFormatted(localKey.ClassLocalizeKey(this, true), messages.ToArray());
+        status.SetMessageFormatted(("Success-"+successEndingKey).ClassLocalizeKey(this, true), messages.ToArray());
 
         //This setting makes the string shorter
         JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
