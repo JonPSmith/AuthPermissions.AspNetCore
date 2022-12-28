@@ -58,7 +58,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             }
 
             if (status.IsValid)
-                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>()));
+                status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer()));
 
             status.Message = $"Added {userDefinitions.Count} new users with associated data to the auth database";
             return status;
@@ -117,7 +117,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
             }
 
             var authUserStatus = AuthUser.CreateAuthUser(userId, userDefine.Email, userName, rolesToPermissions, 
-                new StubDefaultLocalizer<ResourceLocalize>(), userTenant);
+                new StubDefaultLocalizer(), userTenant);
             if (status.CombineStatuses(authUserStatus).HasErrors)
                 return status;
 

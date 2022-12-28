@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -59,7 +58,7 @@ public class LinkToTenantDataService : ILinkToTenantDataService
     /// <exception cref="AuthPermissionsException"></exception>
     public async Task<IStatusGeneric> StartLinkingToTenantDataAsync(string currentUserId, int tenantId)
     {
-        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer(_localizeDefault);
 
         if (_options.LinkToTenantType == LinkToTenantTypes.NotTurnedOn)
             throw new AuthPermissionsException(
@@ -67,7 +66,8 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
         var user = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == currentUserId);
         if (user == null)
-            return status.AddErrorString("UserNotFound".ClassLocalizeKey(this, true), "Could not find the user you were looking for.");
+            return status.AddErrorString("UserNotFound".ClassLocalizeKey(this, true), //common 
+                "Could not find the user you were looking for.");
 
         if (user.TenantId != null && _options.LinkToTenantType != LinkToTenantTypes.AppAndHierarchicalUsers)
             throw new AuthPermissionsException(
@@ -76,7 +76,8 @@ public class LinkToTenantDataService : ILinkToTenantDataService
 
         var tenantToLinkTo = await _context.Tenants.SingleOrDefaultAsync(x => x.TenantId == tenantId);
         if (tenantToLinkTo == null)
-            return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this, true), "Could not find the tenant you were looking for.");
+            return status.AddErrorString("TenantNotFound".ClassLocalizeKey(this, true), 
+                "Could not find the tenant you were looking for.");
 
         if (status.HasErrors)
             return status;

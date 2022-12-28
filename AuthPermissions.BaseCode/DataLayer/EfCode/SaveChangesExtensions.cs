@@ -74,7 +74,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         private static IStatusGeneric ConvertExceptionToStatus(this IReadOnlyList<EntityEntry> entities,
             ExceptionTypes exceptionType, IDefaultLocalizer localizeDefault)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(localizeDefault);
+            var status = new StatusGenericLocalizer(localizeDefault);
 
             //NOTE: These is only one entity in an exception
             if (entities.Any())

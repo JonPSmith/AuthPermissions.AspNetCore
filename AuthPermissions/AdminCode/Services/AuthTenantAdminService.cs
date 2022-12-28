@@ -380,7 +380,7 @@ namespace AuthPermissions.AdminCode.Services
 
             if (string.IsNullOrEmpty(newTenantName))
                 return status.AddErrorString("TenantNameEmpty".ClassMethodLocalizeKey(this, true),
-                    "The new name was empty.", nameof(newTenantName).CamelToPascal());
+                    "The new tenant name was empty.", nameof(newTenantName).CamelToPascal());
             if (newTenantName.Contains('|'))
                 return status.AddErrorString("NameBadChar".ClassLocalizeKey(this, true), //common error in this class
                                     "The tenant name must not contain the character '|' because that character is used to separate the names in the hierarchical order",
@@ -488,7 +488,8 @@ namespace AuthPermissions.AdminCode.Services
                                                     "Could not find the parent tenant you asked for.");
 
                     if (tenantsWithChildren.Select(x => x.TenantFullName).Contains(parentTenant.TenantFullName))
-                        return status.AddErrorString("ParentIsChild".ClassMethodLocalizeKey(this, true), "You cannot move a tenant one of its children.",
+                        return status.AddErrorString("ParentIsChild".ClassMethodLocalizeKey(this, true), 
+                            "You cannot move a tenant one of its children.",
                             nameof(newParentTenantId).CamelToPascal());
                 }
 
@@ -722,7 +723,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         private async Task<IStatusGeneric> CheckHasOwnDbIsValidAsync(bool hasOwnDb, string databaseInfoName)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             if (!hasOwnDb)
                 return status;
 

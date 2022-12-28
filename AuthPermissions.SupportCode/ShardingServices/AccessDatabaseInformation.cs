@@ -106,7 +106,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         return ApplyChangeWithinDistributedLock(() =>
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
             if (foundIndex == -1)
@@ -128,7 +128,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         return await ApplyChangeWithinDistributedLockAsync(async () =>
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             var fileContent = ReadShardingSettingsFile();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
             if (foundIndex == -1)
@@ -152,7 +152,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
 
     private IStatusGeneric CheckDatabasesInfoAndSaveIfValid(List<DatabaseInformation> databasesInfo, DatabaseInformation changedInfo)
     {
-        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer(_localizeDefault);
         status.SetMessageFormatted("SuccessUpdate".ClassLocalizeKey(this, true),
         $"Successfully updated the {ShardingSettingFilename} with your changes.");
 

@@ -1,11 +1,10 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
@@ -23,12 +22,12 @@ internal class ChangeRoleTypeChecks
         _context = context;
     }
 
-
-    public async Task<IStatusGeneric> CheckRoleTypeChangeAsync(RoleTypes originalRoleType, RoleTypes newRoleType, string roleName)
+    public async Task<IStatusGeneric> CheckRoleTypeChangeAsync(RoleTypes originalRoleType, 
+        RoleTypes newRoleType, string roleName, IDefaultLocalizer localizeDefault)
     {
-        var status = new StatusGenericHandler();
-        var errorPrefix = $"You can't change Role {roleName} from {originalRoleType} to {newRoleType} because ";
-        string errorSuffix;
+        var status = new StatusGenericLocalizer(localizeDefault);
+        FormattableString errorPrefix = $"You can't change Role {roleName} from {originalRoleType} to {newRoleType} because ";
+        FormattableString errorSuffix;
 
         switch (originalRoleType, newRoleType)
         {
@@ -39,19 +38,20 @@ internal class ChangeRoleTypeChecks
             case (RoleTypes.HiddenFromTenant, RoleTypes.TenantAdminAdd): //ERROR, 	impossible
                 errorSuffix = await UserErrorMessageAsync(roleName, false);
                 if (errorSuffix != null)
-                    status.AddError(errorPrefix + errorSuffix);
+                    status.AddErrorFormatted("UserError".ClassLocalizeKey(this, true),
+                        errorPrefix, errorSuffix);
                 return status;
             case (RoleTypes.Normal, RoleTypes.HiddenFromTenant): //Error if user has tenant, impossible
             case (RoleTypes.TenantAdminAdd, RoleTypes.HiddenFromTenant): //Error if user has tenant, 	ERROR
                 errorSuffix = await UserErrorMessageAsync(roleName, true);
-                if (errorSuffix != null)
-                    status.AddError(errorPrefix + errorSuffix);
+                status.AddErrorFormatted("UserError".ClassLocalizeKey(this, true),
+                    errorPrefix, errorSuffix);
                 return status;
             case (RoleTypes.TenantAutoAdd, RoleTypes.Normal): //impossible, ERROR
             case (RoleTypes.TenantAutoAdd, RoleTypes.HiddenFromTenant): //impossible, 	ERROR
                 errorSuffix = await TenantErrorMessageAsync(roleName);
-                if (errorSuffix != null)
-                    status.AddError(errorPrefix + errorSuffix);
+                status.AddErrorFormatted("TenantError".ClassLocalizeKey(this, true),
+                    errorPrefix, errorSuffix);
                 return status;
             case (RoleTypes.TenantAutoAdd, RoleTypes.TenantAdminAdd): //impossible, 	OK
             case (RoleTypes.TenantAdminAdd, RoleTypes.Normal): //impossible,	OK
@@ -63,7 +63,7 @@ internal class ChangeRoleTypeChecks
         }
     }
 
-    private async Task<string> UserErrorMessageAsync(string roleName, bool filterOutNonTenantUsers)
+    private async Task<FormattableString> UserErrorMessageAsync(string roleName, bool filterOutNonTenantUsers)
     {
         var query = _context.AuthUsers.Where(x => x.UserRoles.Any(y => y.RoleName == roleName));
         if (filterOutNonTenantUsers)
@@ -72,17 +72,17 @@ internal class ChangeRoleTypeChecks
         var numBadUser = await query.CountAsync();
         return numBadUser > 0
             ? $"{numBadUser} users are linked to it."
-            : null;
+            : (FormattableString)null;
     }
 
-    private async Task<string> TenantErrorMessageAsync(string roleName)
+    private async Task<FormattableString> TenantErrorMessageAsync(string roleName)
     {
         var numBadUser = await _context.RoleToPermissions.Where(x => x.RoleName == roleName)
             //.Select(x => x.Tenants.Select(y => y.TenantFullName))
             .CountAsync() ;
         return numBadUser > 0
             ? $"{numBadUser} tenants are linked to it."
-            : null;
+            : (FormattableString)null;
     }
 
 }

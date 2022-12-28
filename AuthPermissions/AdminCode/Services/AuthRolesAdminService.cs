@@ -111,7 +111,7 @@ namespace AuthPermissions.AdminCode.Services
             IEnumerable<string> permissionNames,
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true), 
                 $"Successfully added the new role {roleName}.");
 
@@ -156,7 +156,7 @@ namespace AuthPermissions.AdminCode.Services
             IEnumerable<string> permissionNames,
             string description, RoleTypes roleType = RoleTypes.Normal)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully updated the role {roleName}.");
             var existingRolePermission = await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);
@@ -186,7 +186,7 @@ namespace AuthPermissions.AdminCode.Services
                 //We need to check that the new RoleType matches where they are used
                 var roleChecker = new ChangeRoleTypeChecks(_context);
                 if (status.CombineStatuses(
-                        await roleChecker.CheckRoleTypeChangeAsync(originalRoleType, roleType,roleName)).HasErrors)
+                        await roleChecker.CheckRoleTypeChangeAsync(originalRoleType, roleType,roleName, _localizeDefault)).HasErrors)
                     return status;
             }
 
@@ -206,7 +206,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteRoleAsync(string roleName, bool removeFromUsers)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
 
             var existingRolePermission =
                 await _context.RoleToPermissions.SingleOrDefaultAsync(x => x.RoleName == roleName);

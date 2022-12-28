@@ -156,7 +156,7 @@ public class ShardingConnections : IShardingConnections
     /// <exception cref="ArgumentNullException"></exception>
     public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
     {
-        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer(_localizeDefault);
 
         if (databaseInfo == null)
             throw new ArgumentNullException(nameof(databaseInfo));

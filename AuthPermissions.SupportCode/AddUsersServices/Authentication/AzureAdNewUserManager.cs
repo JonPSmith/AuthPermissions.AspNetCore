@@ -63,7 +63,7 @@ public class AzureAdNewUserManager : IAddNewUserManager
     /// <returns>status, with error if there an user already</returns>
     public async Task<IStatusGeneric> CheckNoExistingAuthUserAsync(AddNewUserDto newUser)
     {
-        var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+        var status = new StatusGenericLocalizer(_localizeDefault);
         if ((await _authUsersAdmin.FindAuthUserByEmailAsync(newUser.Email))?.Result != null)
             return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true),
                 "There is already an AuthUser with your email, so you can't add another.",

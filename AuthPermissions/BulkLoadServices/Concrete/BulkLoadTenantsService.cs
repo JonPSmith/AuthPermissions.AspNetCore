@@ -7,6 +7,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
+using LocalizeMessagesAndErrors;
 using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
@@ -87,7 +88,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                 if (status.HasErrors)
                     return status;
 
-                return await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>());
+                return await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer());
             }
 
             //--------------------------------------------------
@@ -131,7 +132,7 @@ namespace AuthPermissions.BulkLoadServices.Concrete
                             _context.Add(newTenantStatus.Result);
                             if ((options.TenantType & TenantTypes.AddSharding) != 0)
                                 newTenantStatus.Result.UpdateShardingState(options.ShardingDefaultDatabaseInfoName, false);
-                            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer<ResourceLocalize>()));
+                            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(new StubDefaultLocalizer()));
 
                             //Now we copy the data so that a child can access to the parent data
                             tenantInfo.CreatedTenantId = newTenantStatus.Result.TenantId;

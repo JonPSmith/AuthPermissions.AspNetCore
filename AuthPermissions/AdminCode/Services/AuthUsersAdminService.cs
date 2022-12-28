@@ -132,7 +132,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> UpdateDisabledAsync(string userId, bool isDisabled)
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully changed the user's {nameof(AuthUser.IsDisabled)} to {isDisabled}.");
 
@@ -222,7 +222,7 @@ namespace AuthPermissions.AdminCode.Services
         public async Task<IStatusGeneric> AddNewUserAsync(string userId, string email,
             string userName, List<string> roleNames, string tenantName = null)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully added a AuthUser with the name '{userName ?? email}'.");
 
@@ -274,7 +274,7 @@ namespace AuthPermissions.AdminCode.Services
         {
             if (userId == null) throw new ArgumentNullException(nameof(userId));
 
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
             
             var foundUserStatus = await FindAuthUserByUserIdAsync(userId);
             if (status.CombineStatuses(foundUserStatus).HasErrors)
@@ -347,7 +347,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>status</returns>
         public async Task<IStatusGeneric> DeleteUserAsync(string userId)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
 
             var authUser = await _context.AuthUsers.SingleOrDefaultAsync(x => x.UserId == userId);
 
@@ -418,7 +418,7 @@ namespace AuthPermissions.AdminCode.Services
         /// <returns>Status</returns>
         public async Task<IStatusGeneric> ApplySyncChangesAsync(IEnumerable<SyncAuthUserWithChange> changesToApply)
         {
-            var status = new StatusGenericLocalizer<ResourceLocalize>(_localizeDefault);
+            var status = new StatusGenericLocalizer(_localizeDefault);
 
             foreach (var syncChange in changesToApply)
             {
