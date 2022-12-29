@@ -4,6 +4,7 @@
 using LocalizeMessagesAndErrors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using TestSupport.EfHelpers;
 using TestSupport.Helpers;
 
 namespace Test.StubClasses;
@@ -193,11 +194,7 @@ public class StubDefaultLocalizerWithLogging : IDefaultLocalizer
         if (context == null)
             return;
 
-        if (context.Database.EnsureCreated())
-            return;
-        //The database exists so wipe the entries
-        context.RemoveRange(context.LocalizedData?.ToList() ?? new List<LocalizedLog>());
-        context.SaveChanges();
+        context.Database.EnsureClean();
     }
 
     public List<LocalizedLog> ListLocalizationCaptureDb()
