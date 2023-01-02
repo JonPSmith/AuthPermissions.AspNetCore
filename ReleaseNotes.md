@@ -1,5 +1,9 @@
 # Release Notes
 
+## 4.1.0
+
+- Adds a service which can handle multiple languages (known in .NET a localization)
+
 ## 4.0.0
 
 - Improved feature: Now supports .NET6 and .NET 7 frameworks.

@@ -13,8 +13,6 @@ using Example4.ShopCode.EfCoreClasses;
 using Example4.ShopCode.EfCoreCode;
 using Example6.SingleLevelSharding.AppStart;
 using Example6.SingleLevelSharding.EfCoreCode;
-using LocalizeMessagesAndErrors;
-using Test.StubClasses;
 using Xunit.Extensions.AssertExtensions;
 
 namespace Test.TestHelpers

@@ -4,15 +4,13 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-- Now supports .NET6 and .NET 7 frameworks.
-- Updated all the .NET 6 NuGets to the latest versions.
-- Simplification (non-breaking): All tenant version now have a `DataKey` of length of 250.
+		Adds a service which can handle multiple languages (known in .NET a localization)
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>

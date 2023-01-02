@@ -1,4 +1,4 @@
-Name,Value,Comment
+﻿Name,Value,Comment
 AuthRolesAdminService_CreateRoleToPermissionsAsync_Success,Successfully added the new role {0}.,AuthPermissions project
 AuthRolesAdminService_CreateRoleToPermissionsAsync_BadRoleName,The RoleName isn't filled in,
 AuthRolesAdminService_CreateRoleToPermissionsAsync_DuplicateRoleName,There is already a Role with the name of '{0}'.,
@@ -61,7 +61,7 @@ LinkToTenantDataService_UserNotFound,Could not find the user you were looking fo
 LinkToTenantDataService_TenantNotFound,Could not find the tenant you were looking for.,
 LinkToTenantDataService_Success,You are now linked the the data of the tenant called '{0}',
 ShardingConnections_NoConnectionString,The {0} '{1}' wasn't found in the connection strings.,
-ShardingConnections_BadConnectionString,There was an� error when trying to create a connection string. Typically this is because the connection string doesn't match the {0}.,
+ShardingConnections_BadConnectionString,There was an  error when trying to create a connection string. Typically this is because the connection string doesn't match the {0}.,
 ShardingConnections_NoDatabaseDefined,The DatabaseName can't be null or empty when the connection string doesn't have a database defined.,
 AuthUser_InvalidRoleHidden,You cannot add the role '{0}' to an Auth tenant user because it can only be used by the App Admin.,
 AuthUser_InvalidRoleAutoAdd,You cannot add the role '{0}' to an Auth tenant user because it is automatically to tenant users.,AuthPermissions.BaseCode project
@@ -107,3 +107,5 @@ AccessDatabaseInformation_SuccessUpdate,Successfully updated the {0} with your c
 AccessDatabaseInformation_DbNameMissing,"The Name is null, which isn't allowed.",
 AccessDatabaseInformation_DatabaseInfoDuplicate,The {0} of {1} is already used.,
 DemoGetDatabaseForNewTenant_NoDbForTenant,We cannot create the tenant at this time. Please contact the support team with the code: no db available.,
+StatusGenericLocalizer_MessageHasOneError,Failed with 1 error.,StatusGenericLocalizer
+StatusGenericLocalizer_MessageHasManyErrors,Failed with {0} errors.,

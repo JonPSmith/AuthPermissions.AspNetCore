@@ -54,7 +54,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0-preview034" />
+		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0" />
 		<PackageReference Include="ResXResourceReader.NetStandard" Version="1.1.0" />
 		<PackageReference Include="CsvHelper" Version="30.0.1" />
 	</ItemGroup>
