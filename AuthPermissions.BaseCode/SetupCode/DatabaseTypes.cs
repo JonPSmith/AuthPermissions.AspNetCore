@@ -23,6 +23,11 @@ namespace AuthPermissions.BaseCode.SetupCode
         /// <summary>
         /// Postgres database is used
         /// </summary>
-        Postgres
+        Postgres,
+        /// <summary>
+        /// This says that you have provided a database type other than the built-in <see cref="SqlServer"/> or <see cref="Postgres"/>.
+        /// </summary>
+        CustomDatabase
+
     }
 }
