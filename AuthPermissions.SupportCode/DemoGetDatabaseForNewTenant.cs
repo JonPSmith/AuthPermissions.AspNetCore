@@ -1,12 +1,12 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using StatusGeneric;
 
-namespace AuthPermissions.SupportCode.ShardingServices;
+namespace AuthPermissions.SupportCode;
 
 /// <summary>
 /// This is a demo implementation of the <see cref="IGetDatabaseForNewTenant"/> interface

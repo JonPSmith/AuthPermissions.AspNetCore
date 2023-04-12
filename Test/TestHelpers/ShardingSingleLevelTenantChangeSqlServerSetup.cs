@@ -34,8 +34,8 @@ public class ShardingSingleLevelTenantChangeSqlServerSetup : IDisposable
         var shardingOptions = new DbContextOptionsBuilder<ShardingSingleDbContext>()
             .UseSqlServer("bad connection string", dbOptions =>
                 dbOptions.MigrationsHistoryTable(StartupExtensions.ShardingSingleDbContextHistoryName)).Options;
-        MainContext = new ShardingSingleDbContext(shardingOptions, new StubGetShardingData("Default Database", caller));
-        OtherContext = new ShardingSingleDbContext(shardingOptions, new StubGetShardingData("Other Database", caller));
+        MainContext = new ShardingSingleDbContext(shardingOptions, new StubGetShardingData("Default Database", caller, AuthPContext));
+        OtherContext = new ShardingSingleDbContext(shardingOptions, new StubGetShardingData("Other Database", caller, AuthPContext));
 
         AuthPContext.Database.EnsureClean();
         MainContext.Database.EnsureClean();
@@ -44,8 +44,11 @@ public class ShardingSingleLevelTenantChangeSqlServerSetup : IDisposable
 
     private class StubGetShardingData : IGetShardingDataFromUser
     {
-        public StubGetShardingData(string connectionName, object caller)
+        private readonly AuthPermissionsDbContext _context;
+
+        public StubGetShardingData(string connectionName, object caller, AuthPermissionsDbContext context)
         {
+            _context = context;
             ConnectionString = new StubConnectionsService(caller).FormConnectionString(connectionName)
                                ?? throw new NotImplementedException("Don't know that connection name");
             DataKey = connectionName == "Other Database"

@@ -1,35 +1,34 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Text.Json;
-using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
-using Medallion.Threading.Postgres;
-using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
-namespace AuthPermissions.SupportCode.ShardingServices;
+namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This class contains CRUD methods to the sharding settings which contains a list of <see cref="DatabaseInformation"/> 
 /// </summary>
 public class AccessDatabaseInformation : IAccessDatabaseInformation
 {
+    private readonly AuthPermissionsDbContext _authDbContext;
+    private readonly IShardingConnections _connectionsService;
+    private readonly IDefaultLocalizer _localizeDefault;
+    private readonly AuthPermissionsOptions _options;
+
+    private readonly string _settingsFilePath;
+
     /// <summary>
     /// Name of the sharding file
     /// </summary>
     public readonly string ShardingSettingFilename;
-
-    private readonly string _settingsFilePath;
-    private readonly IShardingConnections _connectionsService;
-    private readonly AuthPermissionsDbContext _authDbContext;
-    private readonly AuthPermissionsOptions _options;
-    private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// Ctor
@@ -86,7 +85,12 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
-        return ApplyChangeWithinDistributedLock(() =>
+        if (!_connectionsService.DatabaseProviderMethods.TryGetValue(databaseInfo.DatabaseType,
+                out IDatabaseSpecificMethods databaseSpecificMethods))
+            throw new AuthPermissionsException($"The {databaseInfo.DatabaseType} database provider isn't supported");
+
+        return databaseSpecificMethods.ChangeDatabaseInformationWithinDistributedLock(
+            _authDbContext.Database.GetConnectionString(), () =>
         {
             var fileContent = ReadShardingSettingsFile();
             fileContent.Add(databaseInfo);
@@ -103,7 +107,12 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric UpdateDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
-        return ApplyChangeWithinDistributedLock(() =>
+        if (!_connectionsService.DatabaseProviderMethods.TryGetValue(databaseInfo.DatabaseType,
+                out IDatabaseSpecificMethods databaseSpecificMethods))
+            throw new AuthPermissionsException($"The {databaseInfo.DatabaseType} database provider isn't supported");
+
+        return databaseSpecificMethods.ChangeDatabaseInformationWithinDistributedLock(
+            _authDbContext.Database.GetConnectionString(), () =>
         {
             var status = new StatusGenericLocalizer(_localizeDefault);
             var fileContent = ReadShardingSettingsFile();
@@ -121,11 +130,17 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// This removes a <see cref="DatabaseInformation"/> with the same <see cref="DatabaseInformation.Name"/> as the databaseInfoName.
     /// If there are no errors it will update the sharding settings file in the application
     /// </summary>
-    /// <param databaseInfoName="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> </param>
+    /// <param name="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> </param>
     /// <returns>status containing a success message, or errors</returns>
     public async Task<IStatusGeneric> RemoveDatabaseInfoToJsonFileAsync(string databaseInfoName)
     {
-        return await ApplyChangeWithinDistributedLockAsync(async () =>
+        var databaseType = _options.InternalData.AuthPDatabaseType.ToString();
+        if (!_connectionsService.DatabaseProviderMethods.TryGetValue(databaseType,
+                out IDatabaseSpecificMethods databaseSpecificMethods))
+            throw new AuthPermissionsException($"The {databaseType} database provider isn't supported");
+
+        return await databaseSpecificMethods.ChangeDatabaseInformationWithinDistributedLockAsync(
+            _authDbContext.Database.GetConnectionString(), async () =>
         {
             var status = new StatusGenericLocalizer(_localizeDefault);
             var fileContent = ReadShardingSettingsFile();
@@ -179,55 +194,5 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
         File.WriteAllText(_settingsFilePath, jsonString);
 
         return status;
-    }
-
-    private IStatusGeneric ApplyChangeWithinDistributedLock(Func<IStatusGeneric> runInLock)
-    {
-        if (_authDbContext.Database.IsSqlServer())
-        {
-            var myDistributedLock = new SqlDistributedLock("Sharding!", _authDbContext.Database.GetConnectionString()!);
-            using (myDistributedLock.Acquire())
-            {
-                return runInLock();
-            }
-        }
-        
-        if (_authDbContext.Database.IsNpgsql())
-        {
-            //See this as to why the name is 9 digits long https://github.com/madelson/DistributedLock/blob/master/docs/DistributedLock.Postgres.md#implementation-notes
-            var myDistributedLock = new PostgresDistributedLock(new PostgresAdvisoryLockKey("Sharding!", allowHashing: true), _authDbContext.Database.GetConnectionString()!); // e. g. if we are using SQL Server
-            using (myDistributedLock.Acquire())
-            {
-                return runInLock();
-            }
-        }
-
-        //its using some form of in-memory database so don't bother with a lock 
-        return runInLock();
-    }
-
-    private async Task<IStatusGeneric> ApplyChangeWithinDistributedLockAsync(Func<Task<IStatusGeneric>> runInLockAsync)
-    {
-        if (_authDbContext.Database.IsSqlServer())
-        {
-            var myDistributedLock = new SqlDistributedLock("Sharding!", _authDbContext.Database.GetConnectionString()!);
-            using (await myDistributedLock.AcquireAsync())
-            {
-                return await runInLockAsync();
-            }
-        }
-
-        if (_authDbContext.Database.IsNpgsql())
-        {
-            //See this as to why the name is 9 digits long https://github.com/madelson/DistributedLock/blob/master/docs/DistributedLock.Postgres.md#implementation-notes
-            var myDistributedLock = new PostgresDistributedLock(new PostgresAdvisoryLockKey("Sharding!", allowHashing: true), _authDbContext.Database.GetConnectionString()!); // e. g. if we are using SQL Server
-            using (await myDistributedLock.AcquireAsync())
-            {
-                return await runInLockAsync();
-            }
-        }
-
-        //its using some form of in-memory database so don't bother with a lock 
-        return await runInLockAsync();
     }
 }

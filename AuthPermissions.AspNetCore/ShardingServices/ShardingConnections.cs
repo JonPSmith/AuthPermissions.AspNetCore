@@ -1,24 +1,21 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.ComponentModel;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Npgsql;
 using StatusGeneric;
 
-namespace AuthPermissions.AspNetCore.Services;
+namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This is used to get all the connection strings in the appsettings file
 /// </summary>
-public class ConnectionStringsOption : Dictionary<string, string> { }
+public class ConnectionStringsOption : Dictionary<string, string> {}
 
 /// <summary>
 /// This service manages access to databases when <see cref="TenantTypes.AddSharding"/> is turned on
@@ -26,10 +23,20 @@ public class ConnectionStringsOption : Dictionary<string, string> { }
 public class ShardingConnections : IShardingConnections
 {
     private readonly ConnectionStringsOption _connectionDict;
-    private readonly ShardingSettingsOption _shardingSettings;
     private readonly AuthPermissionsDbContext _context;
-    private readonly AuthPermissionsOptions _options;
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly AuthPermissionsOptions _options;
+    private readonly ShardingSettingsOption _shardingSettings;
+
+    /// <summary>
+    /// This contains the methods with are specific to a database provider
+    /// </summary>
+    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
+
+    /// <summary>
+    /// This returns the supported database provider that can be used for multi tenant sharding
+    /// </summary>
+    public string[] SupportedDatabaseProviders => DatabaseProviderMethods.Keys.ToArray();
 
     /// <summary>
     /// ctor
@@ -38,16 +45,20 @@ public class ShardingConnections : IShardingConnections
     /// <param name="shardingSettingsAccessor">Dynamically assesses the ShardingData part of the shardingsetting file</param>
     /// <param name="context">AuthP context - used in <see cref="GetDatabaseInfoNamesWithTenantNamesAsync"/> method</param>
     /// <param name="options"></param>
+    /// <param name="databaseProviderMethods"></param>
     /// <param name="localizeProvider">Provides the used to localize any errors or messages</param>
     public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
         IOptionsSnapshot<ShardingSettingsOption> shardingSettingsAccessor,
-        AuthPermissionsDbContext context, AuthPermissionsOptions options, IAuthPDefaultLocalizer localizeProvider)
+        AuthPermissionsDbContext context, AuthPermissionsOptions options, 
+        IEnumerable<IDatabaseSpecificMethods> databaseProviderMethods,
+        IAuthPDefaultLocalizer localizeProvider)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor.Value;
         _shardingSettings = shardingSettingsAccessor.Value;
         _context = context;
         _options = options;
+        DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.DatabaseProviderType.ToString());
         _localizeDefault = localizeProvider.DefaultLocalizer;
 
         //If no sharding settings file, then we provide one default sharding settings data
@@ -57,6 +68,8 @@ public class ShardingConnections : IShardingConnections
             DatabaseInformation.FormDefaultDatabaseInfo(options)
         };
     }
+
+
 
     /// <summary>
     /// This returns all the database names in the sharding settings file
@@ -88,13 +101,13 @@ public class ShardingConnections : IShardingConnections
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
     public async Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
-        var nameAndConnectionName  = await _context.Tenants
-            .Select(x => new { ConnectionName = x.DatabaseInfoName, x})
+        var nameAndConnectionName = await _context.Tenants
+            .Select(x => new { ConnectionName = x.DatabaseInfoName, x })
             .ToListAsync();
-            
+
         var grouped = nameAndConnectionName.GroupBy(x => x.ConnectionName)
             .ToDictionary(x => x.Key,
-                y => y.Select(z => new {z.x.HasOwnDb, z.x.TenantFullName}));
+                y => y.Select(z => new { z.x.HasOwnDb, z.x.TenantFullName }));
 
         var result = new List<(string databaseInfoName, bool? hasOwnDb, List<string>)>();
         //Add sharding database names that have no tenants in them so that you can see all the connection string  names
@@ -104,23 +117,14 @@ public class ShardingConnections : IShardingConnections
                 ? (databaseInfoName,
                     databaseInfoName == _options.ShardingDefaultDatabaseInfoName
                         ? false //The default DatabaseInfoName contains the AuthP information, so its a shared database
-                        : grouped[databaseInfoName].FirstOrDefault()?.HasOwnDb,  
+                        : grouped[databaseInfoName].FirstOrDefault()?.HasOwnDb,
                     grouped[databaseInfoName].Select(x => x.TenantFullName).ToList())
-                : (databaseInfoName, 
+                : (databaseInfoName,
                     databaseInfoName == _options.ShardingDefaultDatabaseInfoName ? false : null,
                     new List<string>()));
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// This returns a list of the DatabaseType supported by this implementation of the <see cref="IShardingConnections"/>
-    /// </summary>
-    /// <returns>The strings defining the different database types that are supported</returns>
-    public string[] GetSupportedDatabaseTypes()
-    {
-        return new string []{ DatabaseInformation.ShardingSqlServerType, DatabaseInformation.ShardingPostgresType };
     }
 
     /// <summary>
@@ -140,10 +144,13 @@ public class ShardingConnections : IShardingConnections
         if (!_connectionDict.TryGetValue(databaseData.ConnectionName, out var connectionString))
             throw new AuthPermissionsException(
                 $"Could not find the connection name '{connectionString}' that the sharding database data '{databaseInfoName}' requires.");
-
-        var status = SetDatabaseInConnectionString(databaseData, connectionString);
+        
+        if (!DatabaseProviderMethods.TryGetValue(databaseData.DatabaseType,
+                out IDatabaseSpecificMethods databaseSpecificMethods))
+            throw new AuthPermissionsException($"The {databaseData.DatabaseType} database provider isn't supported");
+        
+        var status = databaseSpecificMethods.SetDatabaseInConnectionString(databaseData, connectionString);
         status.IfErrorsTurnToException();
-
         return status.Result;
     }
 
@@ -165,9 +172,13 @@ public class ShardingConnections : IShardingConnections
             return status.AddErrorFormatted("NoConnectionString".ClassLocalizeKey(this, true),
                 $"The {nameof(DatabaseInformation.ConnectionName)} '{databaseInfo.ConnectionName}' ",
                 $"wasn't found in the connection strings.");
+
+        if (!DatabaseProviderMethods.TryGetValue(databaseInfo.DatabaseType,
+                out IDatabaseSpecificMethods databaseSpecificMethods))
+            throw new AuthPermissionsException($"The {databaseInfo.DatabaseType} database provider isn't supported");
         try
         {
-            SetDatabaseInConnectionString(databaseInfo, connectionString);
+            databaseSpecificMethods.SetDatabaseInConnectionString(databaseInfo, connectionString);
         }
         catch
         {
@@ -177,57 +188,5 @@ public class ShardingConnections : IShardingConnections
         }
 
         return status;
-    }
-
-    //-----------------------------------------------------
-    // private methods
-
-    /// <summary>
-    /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString
-    /// NOTE: If the <see cref="DatabaseInformation.DatabaseName"/> is null / empty, then it returns the connectionString with no change
-    /// </summary>
-    /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
-    /// <param name="connectionString"></param>
-    /// <returns>A connection string containing the correct database to be used</returns>
-    /// <exception cref="InvalidEnumArgumentException"></exception>
-    private IStatusGeneric<string> SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
-    {
-        var status = new StatusGenericLocalizer<string>(_localizeDefault);
-
-        switch (databaseInformation.DatabaseType)
-        {
-            case DatabaseInformation.ShardingSqlServerType:
-            {
-                var builder = new SqlConnectionStringBuilder(connectionString);
-                if (string.IsNullOrEmpty(builder.InitialCatalog) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
-                    return status.AddErrorString("NoDatabaseDefined".ClassLocalizeKey(this, true),
-                        $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
-                        "when the connection string doesn't have a database defined.");
-
-                if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
-                    //This uses the database that is already in the connection string
-                    return status.SetResult(connectionString);
-                builder.InitialCatalog = databaseInformation.DatabaseName;
-                return status.SetResult(builder.ConnectionString);
-            }
-            case DatabaseInformation.ShardingPostgresType:
-            {
-                var builder = new NpgsqlConnectionStringBuilder(connectionString);
-                if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
-                    throw new AuthPermissionsException(
-                        $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
-                        "when the connection string doesn't have a database defined.");
-
-                if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
-                        //This uses the database that is already in the connection string
-                    return status.SetResult(connectionString);
-
-                builder.Database = databaseInformation.DatabaseName;
-                return status.SetResult(builder.ConnectionString);
-                }
-            default:
-                throw new InvalidEnumArgumentException(
-                    $"Missing a switch to handle a database type of {databaseInformation.DatabaseType}");
-        }
     }
 }

@@ -1,16 +1,11 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SupportCode.ShardingServices;
 using Test.Helpers;
 using Test.StubClasses;
 using Test.TestHelpers;
@@ -20,7 +15,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestSupportCode;
+namespace Test.UnitTests.TestSharding;
 
 public class TestAccessDatabaseInformation
 {
@@ -31,32 +26,32 @@ public class TestAccessDatabaseInformation
         _output = output;
     }
 
-    private AuthPermissionsOptions FormAuthOptionsForSharding()
+    private static AuthPermissionsOptions FormAuthOptionsForSharding(AuthPDatabaseTypes dbType = AuthPDatabaseTypes.SqlServer)
     {
         var options = new AuthPermissionsOptions
         {
             SecondPartOfShardingFile = "Test",
             InternalData =
             {
-                AuthPDatabaseType = AuthPDatabaseTypes.SqlServer
+                AuthPDatabaseType = dbType
             }
         };
         return options;
     }
 
 
-    private void ResetShardingSettingsFile()
+    private static void ResetShardingSettingsFile()
     {
         var testData = new ShardingSettingsOption
         {
             ShardingDatabases = new List<DatabaseInformation>
             {
-                new (){ Name = "Default Database", ConnectionName = "UnitTestConnection", DatabaseType = "SqlServer"},
-                new (){ Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "UnitTestConnection", DatabaseType = "SqlServer" },
-                new (){ Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = "Postgres" }
+                new (){ Name = "Default Database", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer)},
+                new (){ Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer) },
+                new (){ Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = nameof(AuthPDatabaseTypes.Postgres) }
             }
         };
-        var jsonString = JsonSerializer.Serialize(testData, new JsonSerializerOptions{ WriteIndented = true });
+        var jsonString = JsonSerializer.Serialize(testData, new JsonSerializerOptions { WriteIndented = true });
         var filepath = Path.Combine(TestData.GetTestDataDir(), "shardingsettings.Test.json");
         File.WriteAllText(filepath, jsonString);
     }
@@ -80,9 +75,9 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
-        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test"};
+        var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
@@ -105,7 +100,7 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\", EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
@@ -132,7 +127,7 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
@@ -140,7 +135,10 @@ public class TestAccessDatabaseInformation
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var databaseInfo = new DatabaseInformation { Name = name, ConnectionName = "UnitTestConnection" };
+        var databaseInfo = new DatabaseInformation
+        {
+            DatabaseType = nameof(AuthPDatabaseTypes.SqlServer), Name = name, ConnectionName = "UnitTestConnection"
+        };
         var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
 
         //VERIFY
@@ -149,27 +147,28 @@ public class TestAccessDatabaseInformation
         service.ReadShardingSettingsFile().Count.ShouldEqual(status.IsValid ? 4 : 3);
     }
 
-    [Theory]
-    [InlineData("PostgreSqlConnection", true)]
-    [InlineData("BadConnectionName", false)]
-    public void TestUpdateDatabaseInfoToJsonFile(string connectionName, bool isValid)
+    [Fact]
+    public void TestUpdateDatabaseInfoToJsonFile()
     {
         //SETUP
         ResetShardingSettingsFile();
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
-        var stubCon = new StubConnectionsService(this, !isValid);
+        var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var databaseInfo = new DatabaseInformation { Name = "Default Database", ConnectionName = connectionName };
+        var databaseInfo = new DatabaseInformation
+        {
+            DatabaseType = nameof(AuthPDatabaseTypes.SqliteInMemory),
+            Name = "Default Database", ConnectionName = "PostgreSqlConnection"
+        };
         var status = service.UpdateDatabaseInfoToJsonFile(databaseInfo);
 
         //VERIFY
-        _output.WriteLine(status.IsValid ? status.Message : status.GetAllErrors());
-        status.IsValid.ShouldEqual(isValid);
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
     }
 
     [Theory]
@@ -179,7 +178,7 @@ public class TestAccessDatabaseInformation
     {
         //SETUP
         ResetShardingSettingsFile();
-        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
@@ -211,10 +210,14 @@ public class TestAccessDatabaseInformation
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        Parallel.ForEach(new string[] {"Name1", "Name2", "Name3"}, 
+        Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },
             name =>
             {
-                var databaseInfo = new DatabaseInformation { Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection" };
+                var databaseInfo = new DatabaseInformation
+                {
+                    DatabaseType = nameof(AuthPDatabaseTypes.SqlServer),
+                    Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection"
+                };
                 var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
                 status.IsValid.ShouldBeTrue();
             });
@@ -240,13 +243,17 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(AuthPDatabaseTypes.Postgres), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },
             name =>
             {
-                var databaseInfo = new DatabaseInformation { Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection" };
+                var databaseInfo = new DatabaseInformation
+                {
+                    DatabaseType = nameof(AuthPDatabaseTypes.Postgres),
+                    Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection"
+                };
                 var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
                 status.IsValid.ShouldBeTrue();
             });

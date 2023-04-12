@@ -1,6 +1,5 @@
 ﻿using AuthPermissions.AspNetCore;
-using AuthPermissions.AspNetCore.Services;
-using AuthPermissions.SupportCode.ShardingServices;
+using AuthPermissions.AspNetCore.ShardingServices;
 using Example6.MvcWebApp.Sharding.Models;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +29,7 @@ public class ShardingController : Controller
         var dto = new DatabaseInformationEdit
         {
             AllPossibleConnectionNames = service.GetConnectionStringNames(),
-            PossibleDatabaseTypes = service.GetSupportedDatabaseTypes()
+            PossibleDatabaseTypes = service.SupportedDatabaseProviders
         };
 
         return View(dto);
@@ -57,7 +56,7 @@ public class ShardingController : Controller
         {
             DatabaseInfo = _dbInfoService.GetDatabaseInformationByName(name),
             AllPossibleConnectionNames = service.GetConnectionStringNames(),
-            PossibleDatabaseTypes = service.GetSupportedDatabaseTypes()
+            PossibleDatabaseTypes = service.SupportedDatabaseProviders
         };
 
         if (dto.DatabaseInfo == null)

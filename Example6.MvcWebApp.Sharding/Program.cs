@@ -4,12 +4,12 @@
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.DownStatusCode;
-using AuthPermissions.SupportCode.ShardingServices;
 using Example6.MvcWebApp.Sharding.Data;
 using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Example6.SingleLevelSharding.AppStart;

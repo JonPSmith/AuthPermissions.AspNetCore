@@ -4,13 +4,14 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>4.2.0-preview001</version>
+    <version>5.0.0-preview001</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-		Preview version containing features to allow a developer to use a database type not directly supported by AuthP
+		- BREAKING CHANGE(small): If you are using sharding with your multi-tenant app, then read the UpdateToVersion5.md file.
+		- New feature: You can use any database provider supported by EF Core, not just SQLServer and Postgres - see documentation for more details
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>

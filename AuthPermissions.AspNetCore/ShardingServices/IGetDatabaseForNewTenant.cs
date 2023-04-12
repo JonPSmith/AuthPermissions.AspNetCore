@@ -1,16 +1,15 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.SetupCode;
 using StatusGeneric;
 
-namespace AuthPermissions.AspNetCore.Services;
+namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This defined a service that will find a database for a new tenant when using sharding.
 /// </summary>
-public interface IShardingSelectDatabase
+public interface IGetDatabaseForNewTenant
 {
     /// <summary>
     /// This will look for a database for a new tenant when <see cref="TenantTypes.AddSharding"/> is on
@@ -18,6 +17,7 @@ public interface IShardingSelectDatabase
     /// </summary>
     /// <param name="hasOwnDb">If true the tenant needs its own database. False means it shares a database.</param>
     /// <param name="region">If not null this provides geographic information to pick the nearest database server.</param>
+    /// <param name="version">Optional: provides the version name in case that effects the database selection</param>
     /// <returns>Status with the DatabaseInfoName, or error if it can't find a database to work with</returns>
-    Task<IStatusGeneric<string>> FindBestDatabaseInfoNameAsync(bool hasOwnDb, string region);
+    Task<IStatusGeneric<string>> FindBestDatabaseInfoNameAsync(bool hasOwnDb, string region, string version = null);
 }

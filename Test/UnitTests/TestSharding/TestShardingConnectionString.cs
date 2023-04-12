@@ -1,15 +1,13 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using TestSupport.Helpers;
@@ -17,7 +15,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
 
-namespace Test.UnitTests.TestAuthPermissionsAspNetCore;
+namespace Test.UnitTests.TestSharding;
 
 public class TestShardingConnectionString
 {
@@ -39,7 +37,7 @@ public class TestShardingConnectionString
         _shardingSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ShardingSettingsOption>>();
     }
 
-    private AuthPermissionsOptions FormAuthOptionsForSharding(bool sqlServer = true)
+    private static AuthPermissionsOptions FormAuthOptionsForSharding(bool sqlServer = true)
     {
         var options = new AuthPermissionsOptions
         {
@@ -71,8 +69,9 @@ public class TestShardingConnectionString
     public void TestGetAllConnectionStrings()
     {
         //SETUP
-        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer() );
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
+            null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var databaseData = service.GetAllPossibleShardingData();
@@ -95,9 +94,10 @@ public class TestShardingConnectionString
     public void TestFormingConnectionString(string connectionName, bool isValid)
     {
         //SETUP
-        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
-        
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
+            null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
+
         //ATTEMPT
         var databaseInfo = new DatabaseInformation
         {
@@ -117,8 +117,9 @@ public class TestShardingConnectionString
     public void TestGetNamedConnectionStringSqlServer()
     {
         //SETUP
-        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
+            null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var connectionString = service.FormConnectionString("Another");
@@ -131,11 +132,12 @@ public class TestShardingConnectionString
     public void TestGetNamedConnectionStringSqlServer_NoDatabaseName()
     {
         //SETUP
-        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
+            null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var ex = Assert.Throws<AuthPermissionsBadDataException>( () => service.FormConnectionString("Bad: No DatabaseName"));
+        var ex = Assert.Throws<AuthPermissionsBadDataException>(() => service.FormConnectionString("Bad: No DatabaseName"));
 
         //VERIFY
         ex.Message.ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
@@ -146,7 +148,8 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
-            null, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+            null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var connectionString = service.FormConnectionString("Default Database");
@@ -159,8 +162,9 @@ public class TestShardingConnectionString
     public void TestGetNamedConnectionStringPostgres()
     {
         //SETUP
-        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            null, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
+            null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var connectionString = service.FormConnectionString("Special Postgres");
@@ -194,8 +198,9 @@ public class TestShardingConnectionString
         var services = new ServiceCollection();
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
 
-        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            context, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
+            context, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var keyPairs = await service.GetDatabaseInfoNamesWithTenantNamesAsync();
@@ -210,7 +215,7 @@ public class TestShardingConnectionString
         });
     }
 
-    
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -241,8 +246,9 @@ public class TestShardingConnectionString
         var services = new ServiceCollection();
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
 
-        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot, 
-            context, FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+        var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
+            context, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var keyPairs = await service.GetDatabaseInfoNamesWithTenantNamesAsync();

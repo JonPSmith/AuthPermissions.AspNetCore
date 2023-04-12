@@ -1,13 +1,10 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using AuthPermissions.BaseCode.SetupCode;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using StatusGeneric;
 
-namespace AuthPermissions.AspNetCore.Services;
+namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This is used when <see cref="TenantTypes.AddSharding"/> is turned on.
@@ -15,6 +12,16 @@ namespace AuthPermissions.AspNetCore.Services;
 /// </summary>
 public interface IShardingConnections
 {
+    /// <summary>
+    /// This contains the methods with are specific to a database provider
+    /// </summary>
+    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
+
+    /// <summary>
+    /// This returns the supported database provider that can be used for multi tenant sharding
+    /// </summary>
+    public string[] SupportedDatabaseProviders { get; }
+
     /// <summary>
     /// This returns all the database names in the sharding settings file
     /// See <see cref="ShardingSettingsOption"/> for the format of that file
@@ -36,12 +43,6 @@ public interface IShardingConnections
     /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
     Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
-
-    /// <summary>
-    /// This returns a list of the DatabaseType supported by this implementation of the <see cref="IShardingConnections"/>
-    /// </summary>
-    /// <returns>The strings defining the different database types that are supported</returns>
-    string[] GetSupportedDatabaseTypes();
 
     /// <summary>
     /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a

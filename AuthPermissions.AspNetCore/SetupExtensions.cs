@@ -10,6 +10,7 @@ using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -139,6 +140,24 @@ namespace AuthPermissions.AspNetCore
             return setupData;
         }
 
+
+
+        /// <summary>
+        /// This sets up the Sharding feature.
+        /// </summary>
+        /// <param name="setupData"></param>
+        /// <returns></returns>
+        public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData)
+        {
+            if (!setupData.Options.TenantType.IsMultiTenant())
+                throw new AuthPermissionsException(
+                    $"You must define what type of multi-tenant structure you want, i.e {TenantTypes.SingleLevel} or {TenantTypes.HierarchicalTenant}.");
+
+            setupData.Options.TenantType |= TenantTypes.AddSharding;
+
+            return setupData;
+        }
+
         /// <summary>
         /// This allows you to replace the default <see cref="ShardingConnections"/> code with you own code.
         /// This allows you to add you own approach to managing sharding databases
@@ -157,26 +176,6 @@ namespace AuthPermissions.AspNetCore
 
             setupData.Services.AddScoped<IShardingConnections, TYourShardingCode>();
             setupData.Options.InternalData.OverrideShardingConnections = true;
-
-            return setupData;
-        }
-
-        /// <summary>
-        /// This allows you to register your implementation of the <see cref="IShardingSelectDatabase"/> service.
-        /// This service is used in the "sign up" feature in the SupportCode part, or if you want to use this in your own code.
-        /// </summary>
-        /// <typeparam name="TGetDatabase">Your class that implements the <see cref="IShardingSelectDatabase"/> interface.</typeparam>
-        /// <param name="setupData"></param>
-        /// <returns></returns>
-        /// <exception cref="AuthPermissionsException"></exception>
-        public static AuthSetupData RegisterShardingGetDatabase<TGetDatabase>(this AuthSetupData setupData)
-            where TGetDatabase : class, IShardingSelectDatabase
-        {
-            if (!setupData.Options.TenantType.IsSharding())
-                throw new AuthPermissionsException(
-                    $"The sharding feature isn't turned on so adding your {nameof(IShardingSelectDatabase)} service isn't useful.");
-
-            setupData.Services.AddScoped<IShardingSelectDatabase, TGetDatabase>();
 
             return setupData;
         }
@@ -326,6 +325,11 @@ namespace AuthPermissions.AspNetCore
                 //This adds the sharding settings file to the configuration
                 var shardingFileName = AuthPermissionsOptions.FormShardingSettingsFileName(setupData.Options.SecondPartOfShardingFile);
                 setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
+
+                setupData.Services.AddScoped<IAccessDatabaseInformation, AccessDatabaseInformation>();
+                //Register the SqlServer and Postgres database-specific methods
+                setupData.Services.AddScoped<IDatabaseSpecificMethods, SqlServerDatabaseSpecificMethods>();
+                setupData.Services.AddScoped<IDatabaseSpecificMethods, PostgresDatabaseSpecificMethods>();
 
                 if (!setupData.Options.InternalData.OverrideShardingConnections)
                     //Don't add the default service if the developer has added their own service

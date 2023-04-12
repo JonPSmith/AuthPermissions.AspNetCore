@@ -1,9 +1,7 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-
-namespace AuthPermissions.AspNetCore.Services;
+namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This contains the data in the sharding settings file

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AuthPermissions.AspNetCore.Services;
-using Npgsql.PostgresTypes;
+using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.BaseCode.SetupCode;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using StatusGeneric;
+using Test.TestHelpers;
 using TestSupport.Helpers;
 
 namespace Test.StubClasses;
@@ -13,12 +13,26 @@ namespace Test.StubClasses;
 public class StubConnectionsService : IShardingConnections
 {
     private readonly object _caller;
-    private readonly bool _badConnectionString;
 
-    public StubConnectionsService(object caller, bool badConnectionString = false)
+    /// <summary>
+    /// This contains the methods with are specific to a database provider
+    /// </summary>
+    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
+
+    /// <summary>
+    /// This returns the supported database provider that can be used for multi tenant sharding
+    /// </summary>
+    public string[] SupportedDatabaseProviders => DatabaseProviderMethods.Keys.ToArray();
+
+    public StubConnectionsService(object caller)
     {
+        DatabaseProviderMethods = new Dictionary<string, IDatabaseSpecificMethods>
+        {
+            { nameof(AuthPDatabaseTypes.SqlServer), new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()) },
+            { nameof(AuthPDatabaseTypes.Postgres), new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()) },
+            { nameof(AuthPDatabaseTypes.SqliteInMemory), new StubSqliteInMemoryDatabaseSpecificMethods() },
+        };
         _caller = caller;
-        _badConnectionString = badConnectionString;
     }
 
     public List<DatabaseInformation> GetAllPossibleShardingData()
@@ -36,16 +50,9 @@ public class StubConnectionsService : IShardingConnections
         return new[] { "UnitTestConnection", "PostgreSqlConnection" };
     }
 
-    public string[] GetSupportedDatabaseTypes()
-    {
-        return new string[] { "SqlServer", "Postgres" };
-    }
-
     public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
     {
         var status = new StatusGenericHandler();
-        if (_badConnectionString)
-            status.AddError("Bad connection string");
         return status;
     }
 
