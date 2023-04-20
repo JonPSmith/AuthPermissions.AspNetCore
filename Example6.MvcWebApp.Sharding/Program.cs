@@ -83,7 +83,7 @@ builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>
 builder.Services.AddSingleton<IDatabaseStateChangeEvent, TenantKeyOrShardChangeService>(); //triggers the "update claims on a change" feature
 builder.Services.AddTransient<ISetRemoveStatus, SetRemoveStatus>();
 //AuthP version 5 and above: REMOVE THIS LINE. This now done via the SetupMultiTenantSharding extension method
-builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
+//builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
 
 builder.Services.RegisterExample6Invoices(builder.Configuration);
 
