@@ -140,20 +140,25 @@ namespace AuthPermissions.AspNetCore
             return setupData;
         }
 
-
-
         /// <summary>
-        /// This sets up the Sharding feature.
+        /// This sets up the AuthP Sharding feature that 
+        /// You must have set the <see cref="AuthPermissionsOptions.TenantType"/>
+        /// before calling this extension method
         /// </summary>
         /// <param name="setupData"></param>
+        /// <param name="environmentName">The second part of the sharding settings filename.
+        /// Typically is the name of the application's environment name to make sure the
+        /// production sharding settings file isn't overwritten by the local, debug file.</param>
         /// <returns></returns>
-        public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData)
+        public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData, string environmentName)
         {
+            if (environmentName == null) throw new ArgumentNullException(nameof(environmentName));
             if (!setupData.Options.TenantType.IsMultiTenant())
                 throw new AuthPermissionsException(
                     $"You must define what type of multi-tenant structure you want, i.e {TenantTypes.SingleLevel} or {TenantTypes.HierarchicalTenant}.");
 
             setupData.Options.TenantType |= TenantTypes.AddSharding;
+            setupData.Options.SecondPartOfShardingFile = environmentName;
 
             return setupData;
         }

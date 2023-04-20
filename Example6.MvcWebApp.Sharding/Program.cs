@@ -39,11 +39,14 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
     options.TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding;
     options.EncryptionKey = builder.Configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
     options.PathToFolderToLock = builder.Environment.WebRootPath;
+    //AuthP version 5 and above - this is handled by the SetupMultiTenantSharding extension method
     options.SecondPartOfShardingFile = builder.Environment.EnvironmentName;
     options.Configuration = builder.Configuration;
 })
     //NOTE: This uses the same database as the individual accounts DB
     .UsingEfCoreSqlServer(connectionString)
+    //AuthP version 5 and above: Use this method to configure sharding
+    .SetupMultiTenantSharding(builder.Environment.EnvironmentName)
     .IndividualAccountsAuthentication()
     .RegisterAddClaimToUser<AddTenantNameClaim>()
     .RegisterAddClaimToUser<AddGlobalChangeTimeClaim>()
@@ -78,8 +81,9 @@ builder.Services.AddDistributedFileStoreCache(options =>
 //manually add services from the AuthPermissions.SupportCode project
 builder.Services.AddSingleton<IGlobalChangeTimeService, GlobalChangeTimeService>(); //used for "update claims on a change" feature
 builder.Services.AddSingleton<IDatabaseStateChangeEvent, TenantKeyOrShardChangeService>(); //triggers the "update claims on a change" feature
-builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
 builder.Services.AddTransient<ISetRemoveStatus, SetRemoveStatus>();
+//AuthP version 5 and above: REMOVE THIS LINE. This now done via the SetupMultiTenantSharding extension method
+builder.Services.AddTransient<IAccessDatabaseInformation, AccessDatabaseInformation>();
 
 builder.Services.RegisterExample6Invoices(builder.Configuration);
 
