@@ -58,7 +58,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     {
         if (!File.Exists(_settingsFilePath))
             return new List<DatabaseInformation>
-                { DatabaseInformation.FormDefaultDatabaseInfo(_options)};
+                { DatabaseInformation.FormDefaultDatabaseInfo(_options, _authDbContext)};
 
         var fileContext = File.ReadAllText(_settingsFilePath);
         var content = JsonSerializer.Deserialize<ShardingSettingsOption>(fileContext,

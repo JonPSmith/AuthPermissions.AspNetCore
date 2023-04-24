@@ -3,8 +3,8 @@
     {
       "Name": "Default Database",
       "DatabaseName": null,
-      "ConnectionName": "UnitTestConnection",
-      "DatabaseType": "SqlServer"
+      "ConnectionName": "PostgreSqlConnection",
+      "DatabaseType": "SqliteInMemory"
     },
     {
       "Name": "Other Database",

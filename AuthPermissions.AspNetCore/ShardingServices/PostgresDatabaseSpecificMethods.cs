@@ -3,11 +3,9 @@
 
 using System.ComponentModel;
 using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using Medallion.Threading.Postgres;
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using StatusGeneric;
 
@@ -33,7 +31,7 @@ public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
     /// <summary>
     /// This contains the type of Database Provider the service supports
     /// </summary>
-    public AuthPDatabaseTypes DatabaseProviderType => AuthPDatabaseTypes.Postgres;
+    public string DatabaseProviderShortName => "Postgres";
 
     /// <summary>
     /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString

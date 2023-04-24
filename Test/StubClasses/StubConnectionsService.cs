@@ -30,7 +30,7 @@ public class StubConnectionsService : IShardingConnections
         {
             { nameof(AuthPDatabaseTypes.SqlServer), new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()) },
             { nameof(AuthPDatabaseTypes.Postgres), new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()) },
-            { nameof(AuthPDatabaseTypes.SqliteInMemory), new StubSqliteInMemoryDatabaseSpecificMethods() },
+            { nameof(AuthPDatabaseTypes.SqliteInMemory), new StubSqliteDatabaseSpecificMethods() },
         };
         _caller = caller;
     }

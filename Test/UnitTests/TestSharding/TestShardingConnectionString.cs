@@ -37,14 +37,15 @@ public class TestShardingConnectionString
         _shardingSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ShardingSettingsOption>>();
     }
 
-    private static AuthPermissionsOptions FormAuthOptionsForSharding(bool sqlServer = true)
+    private static AuthPermissionsOptions FormAuthOptionsForSharding(
+        AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
     {
         var options = new AuthPermissionsOptions
         {
             SecondPartOfShardingFile = "Test",
             InternalData =
             {
-                AuthPDatabaseType = sqlServer ? AuthPDatabaseTypes.SqlServer : AuthPDatabaseTypes.Postgres
+                AuthPDatabaseType = databaseType
             }
         };
         return options;
@@ -63,6 +64,46 @@ public class TestShardingConnectionString
         databaseDefault.DatabaseName.ShouldBeNull();
         databaseDefault.ConnectionName.ShouldEqual("DefaultConnection");
         databaseDefault.DatabaseType.ShouldEqual("SqlServer");
+    }
+
+    [Fact]
+    public void TestDefaultShardingDatabaseData_CustomDatabase()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        var context = new AuthPermissionsDbContext(options);
+
+        //ATTEMPT
+        var databaseDefault = DatabaseInformation.FormDefaultDatabaseInfo(
+            FormAuthOptionsForSharding(AuthPDatabaseTypes.CustomDatabase), context);
+
+        //VERIFY
+        databaseDefault.Name.ShouldEqual("Default Database");
+        databaseDefault.DatabaseName.ShouldBeNull();
+        databaseDefault.ConnectionName.ShouldEqual("DefaultConnection");
+        databaseDefault.DatabaseType.ShouldEqual("Sqlite");
+    }
+
+
+    [Fact]
+    public void TestDefaultShardingDatabaseData_CustomDatabase_NoContext()
+    {
+        //SETUP
+
+        //ATTEMPT
+        try
+        {
+            var databaseDefault = DatabaseInformation.FormDefaultDatabaseInfo(
+                FormAuthOptionsForSharding(AuthPDatabaseTypes.CustomDatabase));
+        }
+        catch (AuthPermissionsException e)
+        {
+            e.Message.ShouldEqual("When using a custom database provide, then you must provide an instance of the AuthPermissionsDbContext context.");
+            return;
+        }
+
+        //VERIFY
+        true.ShouldBeFalse();
     }
 
     [Fact]
@@ -163,7 +204,8 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnections(_connectSnapshot, _shardingSnapshot,
-            null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            null, FormAuthOptionsForSharding(AuthPDatabaseTypes.Postgres), 
+            ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT

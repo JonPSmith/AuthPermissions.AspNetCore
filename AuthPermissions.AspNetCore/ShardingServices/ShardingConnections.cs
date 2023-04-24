@@ -58,14 +58,14 @@ public class ShardingConnections : IShardingConnections
         _shardingSettings = shardingSettingsAccessor.Value;
         _context = context;
         _options = options;
-        DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.DatabaseProviderType.ToString());
+        DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.DatabaseProviderShortName);
         _localizeDefault = localizeProvider.DefaultLocalizer;
 
         //If no sharding settings file, then we provide one default sharding settings data
         //NOTE that the DatabaseInformation class has default values linked to a 
         _shardingSettings.ShardingDatabases ??= new List<DatabaseInformation>
         {
-            DatabaseInformation.FormDefaultDatabaseInfo(options)
+            DatabaseInformation.FormDefaultDatabaseInfo(options, _context)
         };
     }
 

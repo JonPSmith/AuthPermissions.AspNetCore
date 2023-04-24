@@ -3,17 +3,16 @@
 
 using System.ComponentModel;
 using AuthPermissions.AspNetCore.ShardingServices;
-using AuthPermissions.BaseCode.SetupCode;
 using StatusGeneric;
 
 namespace Test.StubClasses;
 
-public class StubSqliteInMemoryDatabaseSpecificMethods : IDatabaseSpecificMethods
+public class StubSqliteDatabaseSpecificMethods : IDatabaseSpecificMethods
 {
     /// <summary>
-    /// This contains the type of Database Provider the service supports
+    /// This contains the short name of Database Provider the service supports
     /// </summary>
-    public AuthPDatabaseTypes DatabaseProviderType { get; } = AuthPDatabaseTypes.SqliteInMemory;
+    public string DatabaseProviderShortName => "Sqlite";
 
     /// <summary>
     /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString

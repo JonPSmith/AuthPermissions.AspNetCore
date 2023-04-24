@@ -2,12 +2,10 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using Medallion.Threading.SqlServer;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.ShardingServices;
@@ -29,9 +27,9 @@ public class SqlServerDatabaseSpecificMethods : IDatabaseSpecificMethods
     }
 
     /// <summary>
-    /// This contains the type of Database Provider the service supports
+    /// This contains the short name of Database Provider the service supports
     /// </summary>
-    public AuthPDatabaseTypes DatabaseProviderType => AuthPDatabaseTypes.SqlServer;
+    public string DatabaseProviderShortName => "SqlServer";
 
     /// <summary>
     /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString
