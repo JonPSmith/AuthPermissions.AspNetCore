@@ -8,6 +8,7 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This contains sharding methods that are specific database providers.
+/// e.g. it provides methods that are unique for each database type.
 /// There are two build-in versions for SqlServer and Postgres, which as built in.
 /// If the developer wants to use a different database provider (referred as "CustomDatabase"),
 /// then they need to provide a version with the correct 
