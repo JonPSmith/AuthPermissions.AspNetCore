@@ -160,27 +160,57 @@ namespace AuthPermissions.AspNetCore
             setupData.Options.TenantType |= TenantTypes.AddSharding;
             setupData.Options.SecondPartOfShardingFile = environmentName;
 
-            return setupData;
-        }
-
-        /// <summary>
-        /// This allows you to replace the default <see cref="ShardingConnections"/> code with you own code.
-        /// This allows you to add you own approach to managing sharding databases
-        /// NOTE: The <see cref="IOptionsSnapshot{TOptions}"/> of the connection strings and the sharding settings file are still registered
-        /// </summary>
-        /// <typeparam name="TYourShardingCode">Your class that implements the <see cref="IShardingConnections"/> interface.</typeparam>
-        /// <param name="setupData"></param>
-        /// <returns></returns>
-        /// <exception cref="AuthPermissionsException"></exception>
-        public static AuthSetupData ReplaceShardingConnections<TYourShardingCode>(this AuthSetupData setupData)
-            where TYourShardingCode : class, IShardingConnections
-        {
-            if (!setupData.Options.TenantType.IsSharding())
+            if (setupData.Options.Configuration == null)
                 throw new AuthPermissionsException(
-                    $"The sharding feature isn't turned on so you can't override the {nameof(ShardingConnections)} service.");
+                    $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
 
-            setupData.Services.AddScoped<IShardingConnections, TYourShardingCode>();
-            setupData.Options.InternalData.OverrideShardingConnections = true;
+            //This gets access to the ConnectionStrings
+            setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
+            //This gets access to the ShardingData in the separate sharding settings file
+            setupData.Services.Configure<ShardingSettingsOption>(setupData.Options.Configuration);
+            //This adds the sharding settings file to the configuration
+            var shardingFileName = AuthPermissionsOptions.FormShardingSettingsFileName(setupData.Options.SecondPartOfShardingFile);
+            setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
+
+            setupData.Services.AddScoped<IAccessDatabaseInformation, AccessDatabaseInformation>();
+            setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
+            setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
+
+            switch (setupData.Options.InternalData.AuthPDatabaseType)
+            {
+                case AuthPDatabaseTypes.NotSet:
+                    throw new AuthPermissionsException("You must define what database type you will be using.");
+                case AuthPDatabaseTypes.SqliteInMemory:
+                    setupData.Services.AddScoped<IDatabaseSpecificMethods, SqliteInMemorySpecificMethods>();
+                    break;
+                case AuthPDatabaseTypes.SqlServer:
+                    setupData.Services.AddScoped<IDatabaseSpecificMethods, SqlServerDatabaseSpecificMethods>();
+                    break;
+                case AuthPDatabaseTypes.Postgres:
+                    setupData.Services.AddScoped<IDatabaseSpecificMethods, PostgresDatabaseSpecificMethods>();
+                    break;
+                case AuthPDatabaseTypes.CustomDatabase:
+                    throw new AuthPermissionsException(
+                        $"If you are using a custom database you must build your own version of the {nameof(SetupMultiTenantSharding)} extension method."); ;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            switch (setupData.Options.LinkToTenantType)
+            {
+                case LinkToTenantTypes.OnlyAppUsers:
+                    setupData.Services
+                        .AddScoped<IGetShardingDataFromUser, GetShardingDataUserAccessTenantData>();
+                    break;
+                case LinkToTenantTypes.AppAndHierarchicalUsers:
+                    setupData.Services
+                        .AddScoped<IGetShardingDataFromUser,
+                            GetShardingDataAppAndHierarchicalUsersAccessTenantData>();
+                    break;
+                default:
+                    setupData.Services.AddScoped<IGetShardingDataFromUser, GetShardingDataUserNormal>();
+                    break;
+            }
 
             return setupData;
         }
@@ -319,43 +349,7 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
             if (setupData.Options.TenantType.IsSharding())
             {
-                if (setupData.Options.Configuration == null)
-                    throw new AuthPermissionsException(
-                        $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
 
-                //This gets access to the ConnectionStrings
-                setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
-                //This gets access to the ShardingData in the separate sharding settings file
-                setupData.Services.Configure<ShardingSettingsOption>(setupData.Options.Configuration);
-                //This adds the sharding settings file to the configuration
-                var shardingFileName = AuthPermissionsOptions.FormShardingSettingsFileName(setupData.Options.SecondPartOfShardingFile);
-                setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
-
-                setupData.Services.AddScoped<IAccessDatabaseInformation, AccessDatabaseInformation>();
-                //Register the SqlServer and Postgres database-specific methods
-                setupData.Services.AddScoped<IDatabaseSpecificMethods, SqlServerDatabaseSpecificMethods>();
-                setupData.Services.AddScoped<IDatabaseSpecificMethods, PostgresDatabaseSpecificMethods>();
-
-                if (!setupData.Options.InternalData.OverrideShardingConnections)
-                    //Don't add the default service if the developer has added their own service
-                    setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
-                setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
-
-                switch (setupData.Options.LinkToTenantType)
-                {
-                    case LinkToTenantTypes.OnlyAppUsers:
-                        setupData.Services
-                            .AddScoped<IGetShardingDataFromUser, GetShardingDataUserAccessTenantData>();
-                        break;
-                    case LinkToTenantTypes.AppAndHierarchicalUsers:
-                        setupData.Services
-                            .AddScoped<IGetShardingDataFromUser,
-                                GetShardingDataAppAndHierarchicalUsersAccessTenantData>();
-                        break;
-                    default:
-                        setupData.Services.AddScoped<IGetShardingDataFromUser, GetShardingDataUserNormal>();
-                        break;
-                }
             }
             else
             {
