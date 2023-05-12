@@ -79,7 +79,7 @@ public class TestAccessDatabaseInformation
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
+        var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
         //ATTEMPT
         var databaseInfo = service.ReadShardingSettingsFile();
@@ -104,7 +104,7 @@ public class TestAccessDatabaseInformation
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\", EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
+        var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -131,7 +131,7 @@ public class TestAccessDatabaseInformation
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
+        var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -156,7 +156,7 @@ public class TestAccessDatabaseInformation
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
+        var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -182,7 +182,7 @@ public class TestAccessDatabaseInformation
         var context = new AuthPermissionsDbContext(options);
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
+        var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -206,7 +206,7 @@ public class TestAccessDatabaseInformation
         context.Database.EnsureCreated();
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
+        var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -242,7 +242,7 @@ public class TestAccessDatabaseInformation
         context.Database.EnsureCreated();
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
-        var service = new AccessDatabaseInformation(stubEnv, stubCon, context,
+        var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
             FormAuthOptionsForSharding(AuthPDatabaseTypes.Postgres), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT

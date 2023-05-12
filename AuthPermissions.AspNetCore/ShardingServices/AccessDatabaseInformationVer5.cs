@@ -14,9 +14,10 @@ using StatusGeneric;
 namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
-/// This class contains CRUD methods to the sharding settings which contains a list of <see cref="DatabaseInformation"/> 
+/// This class contains CRUD methods to the sharding settings which contains a list of <see cref="DatabaseInformation"/>
+/// The "Ver5" added the name makes sure users using this will get a compile error. See the UpdateToVersion5.md file
 /// </summary>
-public class AccessDatabaseInformation : IAccessDatabaseInformation
+public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
 {
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly IShardingConnections _connectionsService;
@@ -38,7 +39,7 @@ public class AccessDatabaseInformation : IAccessDatabaseInformation
     /// <param name="authDbContext"></param>
     /// <param name="options"></param>
     /// <param name="localizeProvider"></param>
-    public AccessDatabaseInformation(IWebHostEnvironment env, IShardingConnections connectionsService, 
+    public AccessDatabaseInformationVer5(IWebHostEnvironment env, IShardingConnections connectionsService, 
         AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options, 
         IAuthPDefaultLocalizer localizeProvider)
     {

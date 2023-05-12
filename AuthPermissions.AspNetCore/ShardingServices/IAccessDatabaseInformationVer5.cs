@@ -6,9 +6,10 @@ using StatusGeneric;
 namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
-/// This defines the CRUD methods to the sharding settings file which contains a list of <see cref="DatabaseInformation"/> 
+/// This defines the CRUD methods to the sharding settings file which contains a list of <see cref="DatabaseInformation"/>
+/// The "Ver5" added the name makes sure users using this will get a compile error. See the UpdateToVersion5.md file 
 /// </summary>
-public interface IAccessDatabaseInformation
+public interface IAccessDatabaseInformationVer5
 {
     /// <summary>
     /// This will return a list of <see cref="DatabaseInformation"/> in the sharding settings file in the application

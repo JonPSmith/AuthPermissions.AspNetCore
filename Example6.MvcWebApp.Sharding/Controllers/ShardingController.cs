@@ -8,9 +8,9 @@ namespace Example6.MvcWebApp.Sharding.Controllers;
 
 public class ShardingController : Controller
 {
-    private readonly IAccessDatabaseInformation _dbInfoService;
+    private readonly IAccessDatabaseInformationVer5 _dbInfoService;
 
-    public ShardingController(IAccessDatabaseInformation dbInfoService)
+    public ShardingController(IAccessDatabaseInformationVer5 dbInfoService)
     {
         _dbInfoService = dbInfoService;
     }
