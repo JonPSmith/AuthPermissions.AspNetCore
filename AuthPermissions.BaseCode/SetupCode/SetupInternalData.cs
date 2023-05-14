@@ -31,12 +31,6 @@ namespace AuthPermissions.BaseCode.SetupCode
         public AuthPAuthenticationTypes AuthPAuthenticationType { get; set; }
 
         /// <summary>
-        /// If this is true, then the developer used the ReplaceShardingConnections
-        /// method to add their own ShardingConnections service
-        /// </summary>
-        public bool OverrideShardingConnections { get; set; }
-
-        /// <summary>
         /// This type defines the localization's recourse type which defines
         /// the recourse file group that holds the localized version of the AuthP messages.
         /// If null, then localization is not turned on.
