@@ -46,7 +46,7 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
     //NOTE: This uses the same database as the individual accounts DB
     .UsingEfCoreSqlServer(connectionString)
     //AuthP version 5 and above: Use this method to configure sharding
-    .SetupMultiTenantSharding(builder.Environment.EnvironmentName)
+    .SetupMultiTenantSharding()
     .IndividualAccountsAuthentication()
     .RegisterAddClaimToUser<AddTenantNameClaim>()
     .RegisterAddClaimToUser<AddGlobalChangeTimeClaim>()
