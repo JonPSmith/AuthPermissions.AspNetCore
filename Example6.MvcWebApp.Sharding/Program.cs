@@ -39,7 +39,6 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
     options.TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding;
     options.EncryptionKey = builder.Configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
     options.PathToFolderToLock = builder.Environment.WebRootPath;
-    //AuthP version 5 and above - this is handled by the SetupMultiTenantSharding extension method
     options.SecondPartOfShardingFile = builder.Environment.EnvironmentName;
     options.Configuration = builder.Configuration;
 })

@@ -171,6 +171,27 @@ namespace AuthPermissions.AspNetCore
             setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
             setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
 
+            switch (setupData.Options.LinkToTenantType)
+            {
+                case LinkToTenantTypes.OnlyAppUsers:
+                    setupData.Services
+                        .AddScoped<IGetShardingDataFromUser, GetShardingDataUserAccessTenantData>();
+                    break;
+                case LinkToTenantTypes.AppAndHierarchicalUsers:
+                    setupData.Services
+                        .AddScoped<IGetShardingDataFromUser,
+                            GetShardingDataAppAndHierarchicalUsersAccessTenantData>();
+                    break;
+                default:
+                    setupData.Services.AddScoped<IGetShardingDataFromUser, GetShardingDataUserNormal>();
+                    break;
+            }
+
+            //This sets up a single IDatabaseSpecificMethods for shading using your selected database.
+            //There are few alternatives
+            //1. If you want your shard tenants using a different database, e.g. Postgres for AuthPermissionsDbContext but SqlServer for tenants
+            //2. You can have multiple database types for sharding, e.g. Postgres and SqlServer
+            //3. If you are using the custom database feature you should remove the switch and select your custom IDatabaseSpecificMethods service
             switch (setupData.Options.InternalData.AuthPDatabaseType)
             {
                 case AuthPDatabaseTypes.NotSet:
@@ -189,22 +210,6 @@ namespace AuthPermissions.AspNetCore
                         $"If you are using a custom database you must build your own version of the {nameof(SetupMultiTenantSharding)} extension method."); ;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-
-            switch (setupData.Options.LinkToTenantType)
-            {
-                case LinkToTenantTypes.OnlyAppUsers:
-                    setupData.Services
-                        .AddScoped<IGetShardingDataFromUser, GetShardingDataUserAccessTenantData>();
-                    break;
-                case LinkToTenantTypes.AppAndHierarchicalUsers:
-                    setupData.Services
-                        .AddScoped<IGetShardingDataFromUser,
-                            GetShardingDataAppAndHierarchicalUsersAccessTenantData>();
-                    break;
-                default:
-                    setupData.Services.AddScoped<IGetShardingDataFromUser, GetShardingDataUserNormal>();
-                    break;
             }
 
             return setupData;
