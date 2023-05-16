@@ -12,7 +12,6 @@ using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
-using Microsoft.Data.SqlClient;
 using Npgsql;
 
 namespace Test.UnitTests.TestSharding;
