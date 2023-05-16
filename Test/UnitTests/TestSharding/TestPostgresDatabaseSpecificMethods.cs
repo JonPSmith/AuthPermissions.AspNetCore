@@ -12,6 +12,8 @@ using Test.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
+using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace Test.UnitTests.TestSharding;
 
@@ -24,28 +26,48 @@ public class TestPostgresDatabaseSpecificMethods
         _output = output;
     }
 
-    private DatabaseInformation _databaseInfo = new DatabaseInformation
+    private DatabaseInformation SetupDatabaseInformation(bool nameIsNull)
     {
-        Name = "EntryName",
-        DatabaseType = nameof(AuthPDatabaseTypes.Postgres),
-        DatabaseName = "TestDatabase",
-        ConnectionName = "DefaultConnection"
-    };
+        return new DatabaseInformation
+        {
+            Name = "EntryName",
+            DatabaseType = nameof(AuthPDatabaseTypes.SqlServer),
+            DatabaseName = nameIsNull ? null : "TestDatabase",
+            ConnectionName = "DefaultConnection"
+        };
+    }
 
-
-    [Fact]
-    public void TestSetDatabaseInConnectionStringOk()
+    [Theory]
+    [InlineData(true, "OriginalName")]
+    [InlineData(false, "TestDatabase")]
+    public void TestSetDatabaseInConnectionStringOk(bool nullName, string dbName)
     {
         //SETUP
         var service = new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var status = service.SetDatabaseInConnectionString(_databaseInfo, 
-            "host=127.0.0.1;Database=AuthP-Test;Username=xxx;Password=yyy");
+        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
+            "host=127.0.0.1;Database=OriginalName;Username=xxx;Password=yyy");
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        status.Result.ShouldEqual("Host=127.0.0.1;Database=TestDatabase;Username=xxx;Password=yyy");
+        var builder = new NpgsqlConnectionStringBuilder(status.Result);
+        builder.Database.ShouldEqual(dbName);
+    }
+
+    [Fact]
+    public void TestSetDatabaseInConnectionStringBad()
+    {
+        //SETUP
+        var service = new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+
+        //ATTEMPT
+        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
+            "host=127.0.0.1;Username=xxx;Password=yyy");
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse(status.GetAllErrors());
+        status.GetAllErrors().ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
     }
 
     [Fact]

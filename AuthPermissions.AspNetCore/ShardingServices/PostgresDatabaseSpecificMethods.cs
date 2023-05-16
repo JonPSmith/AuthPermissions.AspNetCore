@@ -27,7 +27,6 @@ public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
         _localizeDefault = localizeDefault;
     }
 
-
     /// <summary>
     /// This contains the type of Database Provider the service supports
     /// </summary>
@@ -47,7 +46,7 @@ public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
 
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
-            throw new AuthPermissionsException(
+            return status.AddErrorString("NoDatabaseDefined".ClassLocalizeKey(this, true),
                 $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
                 "when the connection string doesn't have a database defined.");
 

@@ -12,6 +12,7 @@ using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
+using Microsoft.Data.SqlClient;
 
 namespace Test.UnitTests.TestSharding;
 
@@ -24,27 +25,48 @@ public class TestSqlServerDatabaseSpecificMethods
         _output = output;
     }
 
-    private DatabaseInformation _databaseInfo = new DatabaseInformation
+    private DatabaseInformation SetupDatabaseInformation(bool nameIsNull)
     {
-        Name = "EntryName",
-        DatabaseType = nameof(AuthPDatabaseTypes.SqlServer),
-        DatabaseName = "TestDatabase",
-        ConnectionName = "DefaultConnection"
-    };
+        return new DatabaseInformation
+        {
+            Name = "EntryName",
+            DatabaseType = nameof(AuthPDatabaseTypes.SqlServer),
+            DatabaseName = nameIsNull ? null : "TestDatabase",
+            ConnectionName = "DefaultConnection"
+        };
+    }
 
-
-    [Fact]
-    public void TestSetDatabaseInConnectionStringOk()
+    [Theory]
+    [InlineData(true, "OriginalName")]
+    [InlineData(false, "TestDatabase")]
+    public void TestSetDatabaseInConnectionStringOk(bool nullName, string dbName)
     {
         //SETUP
         var service = new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var status = service.SetDatabaseInConnectionString(_databaseInfo, "Server=(localdb)\\mssqllocaldb;Database=OriginalName");
+        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
+            "Server=(localdb)\\mssqllocaldb;Database=OriginalName");
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        status.Result.ShouldEqual("Data Source=(localdb)\\mssqllocaldb;Initial Catalog=TestDatabase");
+        var builder = new SqlConnectionStringBuilder(status.Result);
+        builder.InitialCatalog.ShouldEqual(dbName);
+    }
+
+    [Fact]
+    public void TestSetDatabaseInConnectionStringBad()
+    {
+        //SETUP
+        var service = new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+
+        //ATTEMPT
+        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
+            "Server=(localdb)\\mssqllocaldb");
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse(status.GetAllErrors()); 
+        status.GetAllErrors().ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
     }
 
     [Fact]
