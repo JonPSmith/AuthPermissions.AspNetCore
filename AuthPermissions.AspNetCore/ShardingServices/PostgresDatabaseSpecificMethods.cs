@@ -16,17 +16,6 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 /// </summary>
 public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
 {
-    private readonly IAuthPDefaultLocalizer _localizeDefault;
-
-    /// <summary>
-    /// Ctor
-    /// </summary>
-    /// <param name="localizeDefault"></param>
-    public PostgresDatabaseSpecificMethods(IAuthPDefaultLocalizer localizeDefault)
-    {
-        _localizeDefault = localizeDefault;
-    }
-
     /// <summary>
     /// This contains the type of Database Provider the service supports
     /// </summary>
@@ -40,22 +29,20 @@ public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
     /// <param name="connectionString"></param>
     /// <returns>A connection string containing the correct database to be used, or errors</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    public IStatusGeneric<string> SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
+    public string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        var status = new StatusGenericLocalizer<string>(_localizeDefault.DefaultLocalizer);
-
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
-            return status.AddErrorString("NoDatabaseDefined".ClassLocalizeKey(this, true),
+            throw new AuthPermissionsException(
                 $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
                 "when the connection string doesn't have a database defined.");
 
         if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
             //This uses the database that is already in the connection string
-            return status.SetResult(connectionString);
+            return connectionString;
 
         builder.Database = databaseInformation.DatabaseName;
-        return status.SetResult(builder.ConnectionString);
+        return builder.ConnectionString;
     }
 
     /// <summary>

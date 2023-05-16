@@ -19,14 +19,14 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 public class SqliteInMemorySpecificMethods : IDatabaseSpecificMethods
 {
     private readonly AuthPermissionsOptions _options;
-    private readonly IAuthPDefaultLocalizer _localizeDefault;
 
-
-    public SqliteInMemorySpecificMethods(AuthPermissionsOptions options,
-        IAuthPDefaultLocalizer localizeDefault)
+    /// <summary>
+    /// Ctor
+    /// </summary>
+    /// <param name="options"></param>
+    public SqliteInMemorySpecificMethods(AuthPermissionsOptions options)
     {
         _options = options;
-        _localizeDefault = localizeDefault;
     }
 
     /// <summary>
@@ -40,11 +40,9 @@ public class SqliteInMemorySpecificMethods : IDatabaseSpecificMethods
     /// <param name="databaseInformation"></param>
     /// <param name="connectionString"></param>
     /// <returns></returns>
-    public IStatusGeneric<string> SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
+    public string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        var status = new StatusGenericLocalizer<string>(_localizeDefault.DefaultLocalizer);
-        var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
-        return status.SetResult(connectionStringBuilder.ToString());
+        return (new SqliteConnectionStringBuilder { DataSource = ":memory:" }).ConnectionString;
     }
 
     /// <summary>

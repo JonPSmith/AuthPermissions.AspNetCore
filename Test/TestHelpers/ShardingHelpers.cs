@@ -12,8 +12,8 @@ public static class ShardingHelpers
     {
         return new List<IDatabaseSpecificMethods>
         {
-            new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()),
-            new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()),
+            new SqlServerDatabaseSpecificMethods(),
+            new PostgresDatabaseSpecificMethods(),
         };
     }
 }

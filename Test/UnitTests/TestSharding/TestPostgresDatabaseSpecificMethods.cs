@@ -6,6 +6,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
+using AuthPermissions.BaseCode.CommonCode;
 using StatusGeneric;
 using Test.Helpers;
 using Test.TestHelpers;
@@ -42,15 +43,14 @@ public class TestPostgresDatabaseSpecificMethods
     public void TestSetDatabaseInConnectionStringOk(bool nullName, string dbName)
     {
         //SETUP
-        var service = new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new PostgresDatabaseSpecificMethods();
 
         //ATTEMPT
-        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
+        var connectionString = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
             "host=127.0.0.1;Database=OriginalName;Username=xxx;Password=yyy");
 
         //VERIFY
-        status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        var builder = new NpgsqlConnectionStringBuilder(status.Result);
+        var builder = new NpgsqlConnectionStringBuilder(connectionString);
         builder.Database.ShouldEqual(dbName);
     }
 
@@ -58,15 +58,15 @@ public class TestPostgresDatabaseSpecificMethods
     public void TestSetDatabaseInConnectionStringBad()
     {
         //SETUP
-        var service = new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new PostgresDatabaseSpecificMethods();
 
         //ATTEMPT
-        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
-            "host=127.0.0.1;Username=xxx;Password=yyy");
+        var ex = Assert.Throws<AuthPermissionsException>(() => 
+            service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
+            "host=127.0.0.1;Username=xxx;Password=yyy"));
 
         //VERIFY
-        status.IsValid.ShouldBeFalse(status.GetAllErrors());
-        status.GetAllErrors().ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
+        ex.Message.ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class TestPostgresDatabaseSpecificMethods
         var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var service = new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new PostgresDatabaseSpecificMethods();
         var logs = new ConcurrentStack<string>();
 
         //ATTEMPT
@@ -110,7 +110,7 @@ public class TestPostgresDatabaseSpecificMethods
         var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var service = new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new PostgresDatabaseSpecificMethods();
         var logs = new ConcurrentStack<string>();
 
         async Task TaskAsync(int i)

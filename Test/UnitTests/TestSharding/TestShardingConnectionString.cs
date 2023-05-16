@@ -178,7 +178,7 @@ public class TestShardingConnectionString
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var ex = Assert.Throws<AuthPermissionsBadDataException>(() => service.FormConnectionString("Bad: No DatabaseName"));
+        var ex = Assert.Throws<AuthPermissionsException>(() => service.FormConnectionString("Bad: No DatabaseName"));
 
         //VERIFY
         ex.Message.ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");

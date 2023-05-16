@@ -22,10 +22,9 @@ public class StubSqliteDatabaseSpecificMethods : IDatabaseSpecificMethods
     /// <param name="connectionString"></param>
     /// <returns>A connection string containing the correct database to be used, or errors</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    public IStatusGeneric<string> SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
+    public string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
     {
-        var status = new StatusGenericHandler<string>();
-        return status.SetResult($"Data Source={databaseInformation.DatabaseName}.sqlite");
+        return $"Data Source={databaseInformation.DatabaseName}.sqlite";
     }
 
     /// <summary>

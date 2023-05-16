@@ -28,8 +28,8 @@ public class StubConnectionsService : IShardingConnections
     {
         DatabaseProviderMethods = new Dictionary<string, IDatabaseSpecificMethods>
         {
-            { nameof(AuthPDatabaseTypes.SqlServer), new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()) },
-            { nameof(AuthPDatabaseTypes.Postgres), new PostgresDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer()) },
+            { nameof(AuthPDatabaseTypes.SqlServer), new SqlServerDatabaseSpecificMethods() },
+            { nameof(AuthPDatabaseTypes.Postgres), new PostgresDatabaseSpecificMethods() },
             { nameof(AuthPDatabaseTypes.SqliteInMemory), new StubSqliteDatabaseSpecificMethods() },
         };
         _caller = caller;

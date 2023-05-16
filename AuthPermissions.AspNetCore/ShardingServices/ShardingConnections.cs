@@ -149,9 +149,7 @@ public class ShardingConnections : IShardingConnections
                 out IDatabaseSpecificMethods databaseSpecificMethods))
             throw new AuthPermissionsException($"The {databaseData.DatabaseType} database provider isn't supported");
         
-        var status = databaseSpecificMethods.SetDatabaseInConnectionString(databaseData, connectionString);
-        status.IfErrorsTurnToException();
-        return status.Result;
+        return databaseSpecificMethods.SetDatabaseInConnectionString(databaseData, connectionString);
     }
 
     /// <summary>

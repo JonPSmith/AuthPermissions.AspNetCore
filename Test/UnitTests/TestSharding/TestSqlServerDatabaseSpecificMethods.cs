@@ -6,6 +6,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
+using AuthPermissions.BaseCode.CommonCode;
 using StatusGeneric;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -42,15 +43,14 @@ public class TestSqlServerDatabaseSpecificMethods
     public void TestSetDatabaseInConnectionStringOk(bool nullName, string dbName)
     {
         //SETUP
-        var service = new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new SqlServerDatabaseSpecificMethods();
 
         //ATTEMPT
-        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
+        var connectionString = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
             "Server=(localdb)\\mssqllocaldb;Database=OriginalName");
 
         //VERIFY
-        status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        var builder = new SqlConnectionStringBuilder(status.Result);
+        var builder = new SqlConnectionStringBuilder(connectionString);
         builder.InitialCatalog.ShouldEqual(dbName);
     }
 
@@ -58,15 +58,15 @@ public class TestSqlServerDatabaseSpecificMethods
     public void TestSetDatabaseInConnectionStringBad()
     {
         //SETUP
-        var service = new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new SqlServerDatabaseSpecificMethods();
 
         //ATTEMPT
-        var status = service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
-            "Server=(localdb)\\mssqllocaldb");
+        var ex = Assert.Throws<AuthPermissionsException>(() =>
+            service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
+                "Server=(localdb)\\mssqllocaldb"));
 
         //VERIFY
-        status.IsValid.ShouldBeFalse(status.GetAllErrors()); 
-        status.GetAllErrors().ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
+        ex.Message.ShouldEqual("The DatabaseName can't be null or empty when the connection string doesn't have a database defined.");
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class TestSqlServerDatabaseSpecificMethods
         var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var service = new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new SqlServerDatabaseSpecificMethods();
         var logs = new ConcurrentStack<string>();
 
         //ATTEMPT
@@ -110,7 +110,7 @@ public class TestSqlServerDatabaseSpecificMethods
         var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var service = new SqlServerDatabaseSpecificMethods("en".SetupAuthPLoggingLocalizer());
+        var service = new SqlServerDatabaseSpecificMethods();
         var logs = new ConcurrentStack<string>();
 
         async Task TaskAsync(int i)
