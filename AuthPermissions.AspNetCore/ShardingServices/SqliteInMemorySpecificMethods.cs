@@ -30,9 +30,19 @@ public class SqliteInMemorySpecificMethods : IDatabaseSpecificMethods
     }
 
     /// <summary>
-    /// This contains the short name of Database Provider 
+    /// This is used select the <see cref="IDatabaseSpecificMethods"/> from the AuthP's <see cref="SetupInternalData.AuthPDatabaseType"/>
     /// </summary>
-    public string DatabaseProviderShortName => "SqliteInMemory";
+    public AuthPDatabaseTypes AuthPDatabaseType => AuthPDatabaseTypes.SqliteInMemory;
+
+    /// <summary>
+    /// <summary>
+    /// This contains the short name of EF Core Database Provider that this service supports
+    /// e.g. "SqlServer" instead of "Microsoft.EntityFrameworkCore.SqlServer"
+    /// Useful when use showing database type to a user and used internal
+    /// NOTE: The name MUST contain the last part of the DbContext.Database.ProviderName , e.g. PostgreSQL
+    /// </summary>
+    /// </summary>
+    public string DatabaseProviderShortName => "Sqlite";
 
     /// <summary>
     /// This simply returns a in-memory connection string

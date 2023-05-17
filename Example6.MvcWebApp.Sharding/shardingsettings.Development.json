@@ -13,12 +13,6 @@
       "DatabaseType": "SqlServer"
     },
     {
-      "Name": "DatabaseCentral1",
-      "DatabaseName": "asp.net-Example6.Sharding_Central1",
-      "ConnectionName": "CentralServer",
-      "DatabaseType": "SqlServer"
-    },
-    {
       "Name": "DatabaseEast1",
       "DatabaseName": "asp.net-Example6.Sharding_East1",
       "ConnectionName": "EastCoastServer",

@@ -3,9 +3,7 @@
 
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.SetupCode;
-using LocalizeMessagesAndErrors.UnitTestingCode;
 using StatusGeneric;
-using Test.TestHelpers;
 using TestSupport.Helpers;
 
 namespace Test.StubClasses;
@@ -17,21 +15,28 @@ public class StubConnectionsService : IShardingConnections
     /// <summary>
     /// This contains the methods with are specific to a database provider
     /// </summary>
-    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
+    public IReadOnlyDictionary<AuthPDatabaseTypes, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
 
     /// <summary>
     /// This returns the supported database provider that can be used for multi tenant sharding
     /// </summary>
-    public string[] SupportedDatabaseProviders => DatabaseProviderMethods.Keys.ToArray();
+    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> ShardingDatabaseProviders { get; }
 
     public StubConnectionsService(object caller)
     {
-        DatabaseProviderMethods = new Dictionary<string, IDatabaseSpecificMethods>
+        DatabaseProviderMethods = new Dictionary<AuthPDatabaseTypes, IDatabaseSpecificMethods>
         {
-            { nameof(AuthPDatabaseTypes.SqlServer), new SqlServerDatabaseSpecificMethods() },
-            { nameof(AuthPDatabaseTypes.Postgres), new PostgresDatabaseSpecificMethods() },
-            { nameof(AuthPDatabaseTypes.SqliteInMemory), new StubSqliteDatabaseSpecificMethods() },
+            { AuthPDatabaseTypes.SqlServer, new SqlServerDatabaseSpecificMethods() },
+            { AuthPDatabaseTypes.Postgres, new PostgresDatabaseSpecificMethods() },
+            { AuthPDatabaseTypes.SqliteInMemory, new StubSqliteDatabaseSpecificMethods() },
         };
+        ShardingDatabaseProviders = new Dictionary<string, IDatabaseSpecificMethods>
+        {
+            { "SqlServer", new SqlServerDatabaseSpecificMethods() },
+            { "PostgreSQL", new PostgresDatabaseSpecificMethods() },
+            { "SqliteInMemory", new StubSqliteDatabaseSpecificMethods() },
+        };
+
         _caller = caller;
     }
 

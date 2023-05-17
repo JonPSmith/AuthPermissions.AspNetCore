@@ -71,7 +71,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// <summary>
     /// This returns the <see cref="DatabaseInformation"/> where its <see cref="DatabaseInformation.Name"/> matches the databaseInfoName property.
     /// </summary>
-    /// <param databaseInfoName="databaseInfoName"></param>
+    /// <param name="databaseInfoName"></param>
     /// <returns>If no matching database information found, then it returns null</returns>
     public DatabaseInformation GetDatabaseInformationByName(string databaseInfoName)
     {
@@ -82,13 +82,14 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// This adds a new <see cref="DatabaseInformation"/> to the list in the current sharding settings file.
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
-    /// <param databaseInfoName="databaseInfo"></param>
+    /// <param name="databaseInfo"></param>
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
-        if (!_connectionsService.DatabaseProviderMethods.TryGetValue(databaseInfo.DatabaseType,
+        var authDbShortDatabaseName = _authDbContext.GetProviderShortName();
+        if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
                 out IDatabaseSpecificMethods databaseSpecificMethods))
-            throw new AuthPermissionsException($"The {databaseInfo.DatabaseType} database provider isn't supported");
+            throw new AuthPermissionsException($"The {authDbShortDatabaseName} database provider isn't supported.");
 
         return databaseSpecificMethods.ChangeDatabaseInformationWithinDistributedLock(
             _authDbContext.Database.GetConnectionString(), () =>
@@ -108,9 +109,10 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric UpdateDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
     {
-        if (!_connectionsService.DatabaseProviderMethods.TryGetValue(databaseInfo.DatabaseType,
+        var authDbShortDatabaseName = _authDbContext.GetProviderShortName();
+        if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
                 out IDatabaseSpecificMethods databaseSpecificMethods))
-            throw new AuthPermissionsException($"The {databaseInfo.DatabaseType} database provider isn't supported");
+            throw new AuthPermissionsException($"The {authDbShortDatabaseName} database provider isn't supported.");
 
         return databaseSpecificMethods.ChangeDatabaseInformationWithinDistributedLock(
             _authDbContext.Database.GetConnectionString(), () =>
@@ -135,10 +137,10 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// <returns>status containing a success message, or errors</returns>
     public async Task<IStatusGeneric> RemoveDatabaseInfoToJsonFileAsync(string databaseInfoName)
     {
-        var databaseType = _options.InternalData.AuthPDatabaseType.ToString();
-        if (!_connectionsService.DatabaseProviderMethods.TryGetValue(databaseType,
+        var authDbShortDatabaseName =  _authDbContext.GetProviderShortName();
+        if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
                 out IDatabaseSpecificMethods databaseSpecificMethods))
-            throw new AuthPermissionsException($"The {databaseType} database provider isn't supported");
+            throw new AuthPermissionsException($"The {authDbShortDatabaseName} database provider isn't supported.");
 
         return await databaseSpecificMethods.ChangeDatabaseInformationWithinDistributedLockAsync(
             _authDbContext.Database.GetConnectionString(), async () =>

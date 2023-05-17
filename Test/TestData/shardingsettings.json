@@ -16,7 +16,7 @@
       "Name": "PostgreSql1",
       "DatabaseName": "StubTest",
       "ConnectionName": "PostgreSqlConnection",
-      "DatabaseType": "Postgres"
+      "DatabaseType": "PostgreSQL"
     }
   ]
 }

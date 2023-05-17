@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="TestData\combinedshardingsettings.json" />
     <None Remove="TestData\example3-appsettings.json" />
   </ItemGroup>
 	

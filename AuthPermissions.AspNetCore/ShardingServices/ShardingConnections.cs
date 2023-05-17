@@ -31,12 +31,12 @@ public class ShardingConnections : IShardingConnections
     /// <summary>
     /// This contains the methods with are specific to a database provider
     /// </summary>
-    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
+    public IReadOnlyDictionary<AuthPDatabaseTypes,IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
 
     /// <summary>
-    /// This returns the supported database provider that can be used for multi tenant sharding
+    /// This returns the names of supported database provider that can be used for multi tenant sharding
     /// </summary>
-    public string[] SupportedDatabaseProviders => DatabaseProviderMethods.Keys.ToArray();
+    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> ShardingDatabaseProviders { get; }
 
     /// <summary>
     /// ctor
@@ -58,7 +58,8 @@ public class ShardingConnections : IShardingConnections
         _shardingSettings = shardingSettingsAccessor.Value;
         _context = context;
         _options = options;
-        DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.DatabaseProviderShortName);
+        DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.AuthPDatabaseType);
+        ShardingDatabaseProviders = DatabaseProviderMethods.Values.ToDictionary(x => x.DatabaseProviderShortName);
         _localizeDefault = localizeProvider.DefaultLocalizer;
 
         //If no sharding settings file, then we provide one default sharding settings data
@@ -68,9 +69,7 @@ public class ShardingConnections : IShardingConnections
             DatabaseInformation.FormDefaultDatabaseInfo(options, _context)
         };
     }
-
-
-
+    
     /// <summary>
     /// This returns all the database names in the sharding settings file
     /// See <see cref="ShardingSettingsOption"/> for the format of that file
@@ -144,8 +143,8 @@ public class ShardingConnections : IShardingConnections
         if (!_connectionDict.TryGetValue(databaseData.ConnectionName, out var connectionString))
             throw new AuthPermissionsException(
                 $"Could not find the connection name '{connectionString}' that the sharding database data '{databaseInfoName}' requires.");
-        
-        if (!DatabaseProviderMethods.TryGetValue(databaseData.DatabaseType,
+
+        if (!ShardingDatabaseProviders.TryGetValue(databaseData.DatabaseType,
                 out IDatabaseSpecificMethods databaseSpecificMethods))
             throw new AuthPermissionsException($"The {databaseData.DatabaseType} database provider isn't supported");
         
@@ -171,7 +170,7 @@ public class ShardingConnections : IShardingConnections
                 $"The {nameof(DatabaseInformation.ConnectionName)} '{databaseInfo.ConnectionName}' ",
                 $"wasn't found in the connection strings.");
 
-        if (!DatabaseProviderMethods.TryGetValue(databaseInfo.DatabaseType,
+        if (!ShardingDatabaseProviders.TryGetValue(databaseInfo.DatabaseType,
                 out IDatabaseSpecificMethods databaseSpecificMethods))
             throw new AuthPermissionsException($"The {databaseInfo.DatabaseType} database provider isn't supported");
         try

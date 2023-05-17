@@ -15,12 +15,12 @@ public interface IShardingConnections
     /// <summary>
     /// This contains the methods with are specific to a database provider
     /// </summary>
-    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
+    public IReadOnlyDictionary<AuthPDatabaseTypes, IDatabaseSpecificMethods> DatabaseProviderMethods { get; }
 
     /// <summary>
     /// This returns the supported database provider that can be used for multi tenant sharding
     /// </summary>
-    public string[] SupportedDatabaseProviders { get; }
+    public IReadOnlyDictionary<string, IDatabaseSpecificMethods> ShardingDatabaseProviders { get; }
 
     /// <summary>
     /// This returns all the database names in the sharding settings file

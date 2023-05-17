@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.SetupCode;
 using Medallion.Threading.SqlServer;
 using Microsoft.Data.SqlClient;
 using StatusGeneric;
@@ -14,8 +15,17 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 /// </summary>
 public class SqlServerDatabaseSpecificMethods : IDatabaseSpecificMethods
 {
+
     /// <summary>
-    /// This contains the short name of Database Provider the service supports
+    /// This is used select the <see cref="IDatabaseSpecificMethods"/> from the AuthP's <see cref="SetupInternalData.AuthPDatabaseType"/>
+    /// </summary>
+    public AuthPDatabaseTypes AuthPDatabaseType => AuthPDatabaseTypes.SqlServer;
+
+    /// <summary>
+    /// This contains the short name of EF Core Database Provider that this service supports
+    /// e.g. "SqlServer" instead of "Microsoft.EntityFrameworkCore.SqlServer"
+    /// Useful when use showing database type to a user and used internal
+    /// NOTE: The name MUST contain the last part of the DbContext.Database.ProviderName , e.g. PostgreSQL
     /// </summary>
     public string DatabaseProviderShortName => "SqlServer";
 

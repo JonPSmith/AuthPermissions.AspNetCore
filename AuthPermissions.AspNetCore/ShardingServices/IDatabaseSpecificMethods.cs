@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel;
+using AuthPermissions.BaseCode.SetupCode;
 using StatusGeneric;
 
 namespace AuthPermissions.AspNetCore.ShardingServices;
@@ -16,8 +17,15 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 public interface IDatabaseSpecificMethods
 {
     /// <summary>
+    /// This is used select the <see cref="IDatabaseSpecificMethods"/> from the AuthP's <see cref="SetupInternalData.AuthPDatabaseType"/>
+    /// </summary>
+    public AuthPDatabaseTypes AuthPDatabaseType { get; }
+
+    /// <summary>
     /// This contains the short name of EF Core Database Provider that this service supports
-    /// e.g. "SqlServer" instead of "Microsoft.EntityFrameworkCore.SqlServer"  
+    /// e.g. "SqlServer" instead of "Microsoft.EntityFrameworkCore.SqlServer"
+    /// Useful when use showing database type to a user and used internal
+    /// NOTE: The name MUST contain the last part of the DbContext.Database.ProviderName , e.g. PostgreSQL
     /// </summary>
     public string DatabaseProviderShortName { get; }
 

@@ -215,8 +215,6 @@ public class TestShardingConnectionString
         connectionString.ShouldEqual("Host=127.0.0.1;Database=MyDatabase;Username=postgres;Password=LetMeIn");
     }
 
-
-
     [Fact]
     public async Task TestQueryTenantsSingle()
     {

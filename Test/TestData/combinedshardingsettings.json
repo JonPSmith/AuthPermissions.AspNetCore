@@ -27,7 +27,7 @@
       "Name": "Special Postgres",
       "DatabaseName": "MyDatabase",
       "ConnectionName": "PostgresConnection",
-      "DatabaseType": "Postgres"
+      "DatabaseType": "PostgreSQL"
     }
   ]
 }

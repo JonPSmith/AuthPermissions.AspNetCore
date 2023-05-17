@@ -3,12 +3,18 @@
 
 using System.ComponentModel;
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.BaseCode.SetupCode;
 using StatusGeneric;
 
 namespace Test.StubClasses;
 
 public class StubSqliteDatabaseSpecificMethods : IDatabaseSpecificMethods
 {
+    /// <summary>
+    /// This is used select the <see cref="IDatabaseSpecificMethods"/> from the AuthP's <see cref="SetupInternalData.AuthPDatabaseType"/>
+    /// </summary>
+    public AuthPDatabaseTypes AuthPDatabaseType => AuthPDatabaseTypes.CustomDatabase;
+
     /// <summary>
     /// This contains the short name of Database Provider the service supports
     /// </summary>

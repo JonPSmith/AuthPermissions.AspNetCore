@@ -62,13 +62,12 @@ public class DatabaseInformation
                 case AuthPDatabaseTypes.SqlServer:
                     return "SqlServer";
                 case AuthPDatabaseTypes.Postgres:
-                    return "Postgres";
+                    return "PostgreSQL";
                 case AuthPDatabaseTypes.CustomDatabase:
                     if(authPContext == null)
                         throw new AuthPermissionsException(
                             "When using a custom database provide, then you must provide an instance of the AuthPermissionsDbContext context.");
-                    var fullProviderName = authPContext.ProviderName;
-                    return fullProviderName.Substring(fullProviderName.LastIndexOf('.')+1);
+                    return authPContext.GetProviderShortName();
                 default:
                     throw new ArgumentOutOfRangeException();
             }
