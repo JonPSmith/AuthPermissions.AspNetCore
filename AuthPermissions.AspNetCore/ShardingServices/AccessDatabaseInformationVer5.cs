@@ -55,7 +55,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// This will return a list of <see cref="DatabaseInformation"/> in the sharding settings file in the application
     /// </summary>
     /// <returns>If no file, then returns the default list</returns>
-    public List<DatabaseInformation> ReadShardingSettingsFile()
+    public List<DatabaseInformation> ReadAllShardingInformation()
     {
         if (!File.Exists(_settingsFilePath))
             return new List<DatabaseInformation>
@@ -75,7 +75,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// <returns>If no matching database information found, then it returns null</returns>
     public DatabaseInformation GetDatabaseInformationByName(string databaseInfoName)
     {
-        return ReadShardingSettingsFile().SingleOrDefault(x => x.Name == databaseInfoName);
+        return ReadAllShardingInformation().SingleOrDefault(x => x.Name == databaseInfoName);
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// </summary>
     /// <param name="databaseInfo"></param>
     /// <returns>status containing a success message, or errors</returns>
-    public IStatusGeneric AddDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
+    public IStatusGeneric AddDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo)
     {
         var authDbShortDatabaseName = _authDbContext.GetProviderShortName();
         if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
@@ -94,7 +94,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
         return databaseSpecificMethods.ChangeDatabaseInformationWithinDistributedLock(
             _authDbContext.Database.GetConnectionString(), () =>
         {
-            var fileContent = ReadShardingSettingsFile();
+            var fileContent = ReadAllShardingInformation();
             fileContent.Add(databaseInfo);
             return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
         });
@@ -107,7 +107,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// </summary>
     /// <param databaseInfoName="databaseInfo"></param>
     /// <returns>status containing a success message, or errors</returns>
-    public IStatusGeneric UpdateDatabaseInfoToJsonFile(DatabaseInformation databaseInfo)
+    public IStatusGeneric UpdateDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo)
     {
         var authDbShortDatabaseName = _authDbContext.GetProviderShortName();
         if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
@@ -118,7 +118,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
             _authDbContext.Database.GetConnectionString(), () =>
         {
             var status = new StatusGenericLocalizer(_localizeDefault);
-            var fileContent = ReadShardingSettingsFile();
+            var fileContent = ReadAllShardingInformation();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
             if (foundIndex == -1)
                 return status.AddErrorFormatted("MissingDatabaseInfo".ClassLocalizeKey(this, true),
@@ -135,7 +135,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// </summary>
     /// <param name="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> </param>
     /// <returns>status containing a success message, or errors</returns>
-    public async Task<IStatusGeneric> RemoveDatabaseInfoToJsonFileAsync(string databaseInfoName)
+    public async Task<IStatusGeneric> RemoveDatabaseInfoFromShardingInformationAsync(string databaseInfoName)
     {
         var authDbShortDatabaseName =  _authDbContext.GetProviderShortName();
         if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
@@ -146,7 +146,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
             _authDbContext.Database.GetConnectionString(), async () =>
         {
             var status = new StatusGenericLocalizer(_localizeDefault);
-            var fileContent = ReadShardingSettingsFile();
+            var fileContent = ReadAllShardingInformation();
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
             if (foundIndex == -1)
                 return status.AddErrorFormatted("MissingDatabaseInfo".ClassLocalizeKey(this, true),

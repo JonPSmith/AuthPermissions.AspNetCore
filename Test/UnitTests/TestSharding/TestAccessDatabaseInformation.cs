@@ -82,7 +82,7 @@ public class TestAccessDatabaseInformation
         var service = new AccessDatabaseInformationVer5(stubEnv, stubCon, context,
            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
         //ATTEMPT
-        var databaseInfo = service.ReadShardingSettingsFile();
+        var databaseInfo = service.ReadAllShardingInformation();
 
         //VERIFY
         foreach (var databaseInformation in databaseInfo)
@@ -108,7 +108,7 @@ public class TestAccessDatabaseInformation
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var databaseInfo = service.ReadShardingSettingsFile();
+        var databaseInfo = service.ReadAllShardingInformation();
 
         //VERIFY
         foreach (var databaseInformation in databaseInfo)
@@ -139,12 +139,12 @@ public class TestAccessDatabaseInformation
         {
             DatabaseType = nameof(AuthPDatabaseTypes.SqlServer), Name = name, ConnectionName = "UnitTestConnection"
         };
-        var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
+        var status = service.AddDatabaseInfoToShardingInformation(databaseInfo);
 
         //VERIFY
         _output.WriteLine(status.IsValid ? status.Message : status.GetAllErrors());
         status.IsValid.ShouldEqual(isValid);
-        service.ReadShardingSettingsFile().Count.ShouldEqual(status.IsValid ? 4 : 3);
+        service.ReadAllShardingInformation().Count.ShouldEqual(status.IsValid ? 4 : 3);
     }
 
     [Fact]
@@ -165,7 +165,7 @@ public class TestAccessDatabaseInformation
             DatabaseType = nameof(AuthPDatabaseTypes.SqliteInMemory),
             Name = "Default Database", ConnectionName = "PostgreSqlConnection"
         };
-        var status = service.UpdateDatabaseInfoToJsonFile(databaseInfo);
+        var status = service.UpdateDatabaseInfoToShardingInformation(databaseInfo);
 
         //VERIFY
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
@@ -186,7 +186,7 @@ public class TestAccessDatabaseInformation
             FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var status = await service.RemoveDatabaseInfoToJsonFileAsync(name);
+        var status = await service.RemoveDatabaseInfoFromShardingInformationAsync(name);
 
         //VERIFY
         _output.WriteLine(status.IsValid ? status.Message : status.GetAllErrors());
@@ -218,18 +218,18 @@ public class TestAccessDatabaseInformation
                     DatabaseType = nameof(AuthPDatabaseTypes.SqlServer),
                     Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection"
                 };
-                var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
+                var status = service.AddDatabaseInfoToShardingInformation(databaseInfo);
                 status.IsValid.ShouldBeTrue();
             });
 
 
         //VERIFY
-        var databaseInfo = service.ReadShardingSettingsFile();
+        var databaseInfo = service.ReadAllShardingInformation();
         foreach (var databaseInformation in databaseInfo)
         {
             _output.WriteLine(databaseInformation.ToString());
         }
-        service.ReadShardingSettingsFile().Count.ShouldEqual(6);
+        service.ReadAllShardingInformation().Count.ShouldEqual(6);
     }
 
     [Fact]
@@ -254,16 +254,16 @@ public class TestAccessDatabaseInformation
                     DatabaseType = nameof(AuthPDatabaseTypes.Postgres),
                     Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection"
                 };
-                var status = service.AddDatabaseInfoToJsonFile(databaseInfo);
+                var status = service.AddDatabaseInfoToShardingInformation(databaseInfo);
                 status.IsValid.ShouldBeTrue();
             });
 
         //VERIFY
-        var databaseInfo = service.ReadShardingSettingsFile();
+        var databaseInfo = service.ReadAllShardingInformation();
         foreach (var databaseInformation in databaseInfo)
         {
             _output.WriteLine(databaseInformation.ToString());
         }
-        service.ReadShardingSettingsFile().Count.ShouldEqual(6);
+        service.ReadAllShardingInformation().Count.ShouldEqual(6);
     }
 }

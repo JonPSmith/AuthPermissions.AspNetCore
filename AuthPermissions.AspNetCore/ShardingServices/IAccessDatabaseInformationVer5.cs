@@ -14,13 +14,13 @@ public interface IAccessDatabaseInformationVer5
     /// <summary>
     /// This will return a list of <see cref="DatabaseInformation"/> in the sharding settings file in the application
     /// </summary>
-    /// <returns>If no file, then returns the default list</returns>
-    List<DatabaseInformation> ReadShardingSettingsFile();
+    /// <returns>If data, then returns the default list. This handles the situation where the <see cref="DatabaseInformation"/> isn't set up.</returns>
+    List<DatabaseInformation> ReadAllShardingInformation();
 
     /// <summary>
     /// This returns the <see cref="DatabaseInformation"/> where its <see cref="DatabaseInformation.Name"/> matches the databaseInfoName property.
     /// </summary>
-    /// <param databaseInfoName="databaseInfoName"></param>
+    /// <param name="databaseInfoName">The Name of the <see cref="DatabaseInformation"/> you are looking for</param>
     /// <returns>If no matching database information found, then it returns null</returns>
     DatabaseInformation GetDatabaseInformationByName(string databaseInfoName);
 
@@ -28,24 +28,24 @@ public interface IAccessDatabaseInformationVer5
     /// This adds a new <see cref="DatabaseInformation"/> to the list in the current sharding settings file.
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
-    /// <param databaseInfoName="databaseInfo"></param>
+    /// <param name="databaseInfo">Adds a new <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> to the sharding data.</param>
     /// <returns>status containing a success message, or errors</returns>
-    IStatusGeneric AddDatabaseInfoToJsonFile(DatabaseInformation databaseInfo);
+    IStatusGeneric AddDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo);
 
     /// <summary>
     /// This updates a <see cref="DatabaseInformation"/> already in the sharding settings file.
     /// It uses the <see cref="DatabaseInformation.Name"/> in the provided in the <see cref="DatabaseInformation"/> parameter.
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
-    /// <param databaseInfoName="databaseInfo"></param>
+    /// <param name="databaseInfo">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> and updates it.</param>
     /// <returns>status containing a success message, or errors</returns>
-    IStatusGeneric UpdateDatabaseInfoToJsonFile(DatabaseInformation databaseInfo);
+    IStatusGeneric UpdateDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo);
 
     /// <summary>
     /// This removes a <see cref="DatabaseInformation"/> with the same <see cref="DatabaseInformation.Name"/> as the databaseInfoName.
     /// If there are no errors it will update the sharding settings file in the application
     /// </summary>
-    /// <param databaseInfoName="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> </param>
+    /// <param name="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> and removes it.</param>
     /// <returns>status containing a success message, or errors</returns>
-    Task<IStatusGeneric> RemoveDatabaseInfoToJsonFileAsync(string databaseInfoName);
+    Task<IStatusGeneric> RemoveDatabaseInfoFromShardingInformationAsync(string databaseInfoName);
 }

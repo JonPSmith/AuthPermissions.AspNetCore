@@ -20,7 +20,7 @@ public class ShardingController : Controller
     {
         ViewBag.Message = message;
 
-        return View(_dbInfoService.ReadShardingSettingsFile());
+        return View(_dbInfoService.ReadAllShardingInformation());
     }
 
     [HasPermission(Example6Permissions.TenantCreate)]
@@ -40,7 +40,7 @@ public class ShardingController : Controller
     [HasPermission(Example6Permissions.TenantCreate)]
     public IActionResult Create(DatabaseInformationEdit data)
     {
-        var status = _dbInfoService.AddDatabaseInfoToJsonFile(data.DatabaseInfo);
+        var status = _dbInfoService.AddDatabaseInfoToShardingInformation(data.DatabaseInfo);
 
         if (status.HasErrors)
             return RedirectToAction(nameof(ErrorDisplay),
@@ -71,7 +71,7 @@ public class ShardingController : Controller
     [HasPermission(Example6Permissions.AddDatabaseInfo)]
     public ActionResult Edit(DatabaseInformationEdit data)
     {
-        var status = _dbInfoService.UpdateDatabaseInfoToJsonFile(data.DatabaseInfo);
+        var status = _dbInfoService.UpdateDatabaseInfoToShardingInformation(data.DatabaseInfo);
 
         if (status.HasErrors)
             return RedirectToAction(nameof(ErrorDisplay),
@@ -95,7 +95,7 @@ public class ShardingController : Controller
     [HasPermission(Example6Permissions.RemoveDatabaseInfo)]
     public async Task<IActionResult> Remove(string nameToRemove, bool dummyValue)
     {
-        var status = await _dbInfoService.RemoveDatabaseInfoToJsonFileAsync(nameToRemove);
+        var status = await _dbInfoService.RemoveDatabaseInfoFromShardingInformationAsync(nameToRemove);
 
         return status.HasErrors
             ? RedirectToAction(nameof(ErrorDisplay),
