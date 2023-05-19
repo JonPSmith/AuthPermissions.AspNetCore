@@ -14,10 +14,10 @@ using StatusGeneric;
 namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
-/// This class contains CRUD methods to the sharding settings which contains a list of <see cref="DatabaseInformation"/>
-/// The "Ver5" added the name makes sure users using this will get a compile error. See the UpdateToVersion5.md file
+/// This class contains CRUD methods to the sharding settings stored in a json file, referred to as shardingsettings.json
+/// Using a shardingsettings.json and .NET's IOptions provides a very fast read (~25 ns) entry to the data.
 /// </summary>
-public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
+public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
 {
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly IShardingConnections _connectionsService;
@@ -39,7 +39,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// <param name="authDbContext"></param>
     /// <param name="options"></param>
     /// <param name="localizeProvider"></param>
-    public AccessDatabaseInformationVer5(IWebHostEnvironment env, IShardingConnections connectionsService, 
+    public AccessDatabaseInformationJsonFile(IWebHostEnvironment env, IShardingConnections connectionsService, 
         AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options, 
         IAuthPDefaultLocalizer localizeProvider)
     {
@@ -71,7 +71,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// <summary>
     /// This returns the <see cref="DatabaseInformation"/> where its <see cref="DatabaseInformation.Name"/> matches the databaseInfoName property.
     /// </summary>
-    /// <param name="databaseInfoName"></param>
+    /// <param name="databaseInfoName">The Name of the <see cref="DatabaseInformation"/> you are looking for</param>
     /// <returns>If no matching database information found, then it returns null</returns>
     public DatabaseInformation GetDatabaseInformationByName(string databaseInfoName)
     {
@@ -82,7 +82,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// This adds a new <see cref="DatabaseInformation"/> to the list in the current sharding settings file.
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
-    /// <param name="databaseInfo"></param>
+    /// <param name="databaseInfo">Adds a new <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> to the sharding data.</param>
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo)
     {
@@ -105,7 +105,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// It uses the <see cref="DatabaseInformation.Name"/> in the provided in the <see cref="DatabaseInformation"/> parameter.
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
-    /// <param databaseInfoName="databaseInfo"></param>
+    /// <param name="databaseInfo">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> and updates it.</param>
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric UpdateDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo)
     {
@@ -133,7 +133,7 @@ public class AccessDatabaseInformationVer5 : IAccessDatabaseInformationVer5
     /// This removes a <see cref="DatabaseInformation"/> with the same <see cref="DatabaseInformation.Name"/> as the databaseInfoName.
     /// If there are no errors it will update the sharding settings file in the application
     /// </summary>
-    /// <param name="databaseInfoName">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> </param>
+    /// <param name="databaseInfoName">Looks for the <see cref="DatabaseInformation"/> with this <see cref="DatabaseInformation.Name"/> </param>
     /// <returns>status containing a success message, or errors</returns>
     public async Task<IStatusGeneric> RemoveDatabaseInfoFromShardingInformationAsync(string databaseInfoName)
     {

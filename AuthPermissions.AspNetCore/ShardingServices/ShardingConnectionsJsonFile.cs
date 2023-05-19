@@ -20,7 +20,7 @@ public class ConnectionStringsOption : Dictionary<string, string> {}
 /// <summary>
 /// This service manages access to databases when <see cref="TenantTypes.AddSharding"/> is turned on
 /// </summary>
-public class ShardingConnections : IShardingConnections
+public class ShardingConnectionsJsonFile : IShardingConnections
 {
     private readonly ConnectionStringsOption _connectionDict;
     private readonly AuthPermissionsDbContext _context;
@@ -47,7 +47,7 @@ public class ShardingConnections : IShardingConnections
     /// <param name="options"></param>
     /// <param name="databaseProviderMethods"></param>
     /// <param name="localizeProvider">Provides the used to localize any errors or messages</param>
-    public ShardingConnections(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
+    public ShardingConnectionsJsonFile(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
         IOptionsSnapshot<ShardingSettingsOption> shardingSettingsAccessor,
         AuthPermissionsDbContext context, AuthPermissionsOptions options, 
         IEnumerable<IDatabaseSpecificMethods> databaseProviderMethods,

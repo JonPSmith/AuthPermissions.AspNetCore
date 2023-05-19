@@ -36,7 +36,7 @@ builder.Services.AddControllersWithViews()
 
 builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
 {
-    options.TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding;
+    options.TenantType = TenantTypes.SingleLevel;
     options.EncryptionKey = builder.Configuration[nameof(AuthPermissionsOptions.EncryptionKey)];
     options.PathToFolderToLock = builder.Environment.WebRootPath;
     options.SecondPartOfShardingFile = builder.Environment.EnvironmentName;

@@ -4,7 +4,7 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>5.0.0-preview009</version>
+    <version>5.0.0-preview010</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>

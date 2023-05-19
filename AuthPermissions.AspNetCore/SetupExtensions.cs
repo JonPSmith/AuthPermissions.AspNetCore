@@ -167,8 +167,8 @@ namespace AuthPermissions.AspNetCore
             var shardingFileName = AuthPermissionsOptions.FormShardingSettingsFileName(setupData.Options.SecondPartOfShardingFile);
             setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
 
-            setupData.Services.AddScoped<IAccessDatabaseInformationVer5, AccessDatabaseInformationVer5>();
-            setupData.Services.AddScoped<IShardingConnections, ShardingConnections>();
+            setupData.Services.AddScoped<IAccessDatabaseInformationVer5, AccessDatabaseInformationJsonFile>();
+            setupData.Services.AddScoped<IShardingConnections, ShardingConnectionsJsonFile>();
             setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
 
             switch (setupData.Options.LinkToTenantType)

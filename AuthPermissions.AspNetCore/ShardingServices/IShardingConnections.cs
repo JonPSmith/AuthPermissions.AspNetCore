@@ -23,12 +23,12 @@ public interface IShardingConnections
     public IReadOnlyDictionary<string, IDatabaseSpecificMethods> ShardingDatabaseProviders { get; }
 
     /// <summary>
-    /// This returns all the database names in the sharding settings file
+    /// This returns all the database names in the DatabaseInformation data
     /// See <see cref="ShardingSettingsOption"/> for the format of that file
-    /// NOTE: If the sharding settings file is missing, or there is no "ShardingData" section,
-    /// then it will return one <see cref="ShardingSettingsOption"/> that uses the "DefaultConnection" connection string
+    /// NOTE: If there is no DatabaseInformation data, then it will return one
+    /// <see cref="DatabaseInformation"/> that uses the "DefaultConnection" connection string
     /// </summary>
-    /// <returns>A list of <see cref="DatabaseInformation"/> from the sharding settings file</returns>
+    /// <returns>A list of <see cref="DatabaseInformation"/> from the DatabaseInformation data</returns>
     List<DatabaseInformation> GetAllPossibleShardingData();
 
     /// <summary>
@@ -38,7 +38,7 @@ public interface IShardingConnections
     IEnumerable<string> GetConnectionStringNames();
 
     /// <summary>
-    /// This returns all the database info names in the sharding settings file, with a list of tenant name linked to each connection name
+    /// This returns all the database info names in the DatabaseInformation data, with a list of tenant name linked to each connection name
     /// </summary>
     /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
@@ -46,7 +46,7 @@ public interface IShardingConnections
 
     /// <summary>
     /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a
-    /// a valid connection string. Useful when adding or editing the data in the shardingsettings file.
+    /// a valid connection string. Useful when adding or editing the data in the DatabaseInformation data.
     /// </summary>
     /// <param name="databaseInfo">The full definition of the <see cref="DatabaseInformation"/> for this database info</param>
     /// <returns></returns>
@@ -54,7 +54,7 @@ public interface IShardingConnections
     IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo);
 
     /// <summary>
-    /// This will provide the connection string for the entry with the given sharding database info name
+    /// This will provide the connection string for the entry with the given DatabaseInformation with the given databaseInfoName
     /// </summary>
     /// <param name="databaseInfoName">The name of sharding database info we want to access</param>
     /// <returns>The connection string, or null if not found</returns>
