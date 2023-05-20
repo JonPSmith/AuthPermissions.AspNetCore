@@ -76,14 +76,16 @@ public class AzureAdNewUserManager : IAddNewUserManager
     /// This returns the userId of the AzureAD user, which is uses to create the <see cref="AuthUser"/> with the Roles, Tenants, etc. 
     /// </summary>
     /// <param name="newUser">The information for creating an AuthUser </param>
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser)
+    /// <returns>Returns the user Id</returns>
+    public async Task<IStatusGeneric<AuthUser>> SetUserInfoAsync(AddNewUserDto newUser)
     {
         UserLoginData = newUser ?? throw new ArgumentNullException(nameof(newUser));
+        var status = new StatusGenericLocalizer<AuthUser>(_localizeDefault);
 
         var azureUserStatus = await FindOrCreateAzureAdUser(UserLoginData.Email);
 
-        if (azureUserStatus.HasErrors)
-            return azureUserStatus;
+        if (status.CombineStatuses(azureUserStatus).HasErrors)
+            return status;
 
         //We have found or created the Azure AD user, so we have the user's UserId.
         //Now we create the AuthUser using the data we have been given
@@ -120,6 +122,17 @@ public class AzureAdNewUserManager : IAddNewUserManager
                 "Successfully created your Azure Ad user. Now login via the 'sign in' link.");
         }
         return Task.FromResult<IStatusGeneric<AddNewUserDto>>(status.SetResult(UserLoginData));
+    }
+
+    /// <summary>
+    /// If something happens that makes the user invalid, then this will remove the AuthUser.
+    /// Used in <see cref="SignInAndCreateTenant"/> if something goes wrong and we want to undo the tenant
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public Task<IStatusGeneric> RemoveAuthUserAsync(string userId)
+    {
+        return _authUsersAdmin.DeleteUserAsync(userId);
     }
 
     //--------------------------------------------------

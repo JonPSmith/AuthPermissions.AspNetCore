@@ -2,8 +2,8 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Identity;
@@ -79,11 +79,11 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     /// <param name="newUser">The information for creating an AuthUser
     /// It also checks if there is a user already, which could happen if the user's login failed</param>
     /// <returns>status</returns>
-    public async Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser)
+    public async Task<IStatusGeneric<AuthUser>> SetUserInfoAsync(AddNewUserDto newUser)
     {
         UserLoginData = newUser ?? throw new ArgumentNullException(nameof(newUser));
 
-        var status = new StatusGenericLocalizer(_localizeDefault);
+        var status = new StatusGenericLocalizer<AuthUser>(_localizeDefault);
         status.SetMessageString("SuccessAddUser".ClassLocalizeKey(this, true),
             "New user with claims added.");
 
@@ -111,10 +111,11 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
             ? null
             : (await _tenantAdminService.GetTenantViaIdAsync((int)newUser.TenantId)).Result?.TenantFullName;
 
-        status.CombineStatuses(await _authUsersAdmin.AddNewUserAsync(user.Id, 
-            newUser.Email, newUser.UserName, newUser.Roles, tenantName));
+        if (status.HasErrors)
+            return status;
 
-        return status;
+        return await _authUsersAdmin.AddNewUserAsync(user.Id,
+            newUser.Email, newUser.UserName, newUser.Roles, tenantName);
     }
 
     /// <summary>
@@ -134,5 +135,16 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
         status.SetMessageString("SuccessRegisterLogin".ClassLocalizeKey(this, true),
        "You have been registered and logged in to this application.");
         return status.SetResult(UserLoginData);
+    }
+
+    /// <summary>
+    /// If something happens that makes the user invalid, then this will remove the AuthUser.
+    /// Used in <see cref="SignInAndCreateTenant"/> if something goes wrong and we want to undo the tenant
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public Task<IStatusGeneric> RemoveAuthUserAsync(string userId)
+    {
+        return _authUsersAdmin.DeleteUserAsync(userId);
     }
 }

@@ -218,11 +218,11 @@ namespace AuthPermissions.AdminCode.Services
         /// <param name="userName"></param>
         /// <param name="roleNames">The rolenames of this user - if null then assumes no roles</param>
         /// <param name="tenantName">optional: full name of the tenant</param>
-        /// <returns></returns>
-        public async Task<IStatusGeneric> AddNewUserAsync(string userId, string email,
+        /// <returns>Status, with created AuthUser</returns>
+        public async Task<IStatusGeneric<AuthUser>> AddNewUserAsync(string userId, string email,
             string userName, List<string> roleNames, string tenantName = null)
         {
-            var status = new StatusGenericLocalizer(_localizeDefault);
+            var status = new StatusGenericLocalizer<AuthUser>(_localizeDefault);
             status.SetMessageFormatted("Success".ClassMethodLocalizeKey(this, true),
                 $"Successfully added a AuthUser with the name '{userName ?? email}'.");
 
@@ -252,6 +252,7 @@ namespace AuthPermissions.AdminCode.Services
             _context.Add(authUserStatus.Result);
             status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
 
+            status.SetResult(authUserStatus.Result);
             return status;
         }
 

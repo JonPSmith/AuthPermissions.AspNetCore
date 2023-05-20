@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
@@ -39,7 +40,8 @@ public interface IAddNewUserManager
     /// it adds the new user AuthP information into the database to be read within the login event
     /// </summary>
     /// <param name="newUser">The information for creating an AuthUser </param>
-    Task<IStatusGeneric> SetUserInfoAsync(AddNewUserDto newUser);
+    /// <returns>Returns the user Id</returns>
+    Task<IStatusGeneric<AuthUser>> SetUserInfoAsync(AddNewUserDto newUser);
 
     /// <summary>
     /// Optional: this logs in the user if the authentication handler can do that
@@ -47,4 +49,13 @@ public interface IAddNewUserManager
     /// <returns>status with the final <see cref="AddNewUserDto"/> setting.
     /// This is needed in the Azure AD version, as it creates a temporary password.</returns>
     Task<IStatusGeneric<AddNewUserDto>> LoginAsync();
+
+    /// <summary>
+    /// If something happens that makes the user invalid, then this will remove the AuthUser.
+    /// Used in <see cref="SignInAndCreateTenant"/> if something goes wrong and we want to undo the tenant
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<IStatusGeneric> RemoveAuthUserAsync(string userId);
+
 }

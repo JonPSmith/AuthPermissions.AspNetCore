@@ -1,12 +1,8 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
@@ -32,10 +28,11 @@ public class TestSignInAndCreateTenant
         _output = output;
     }
 
-
     private static (SignInAndCreateTenant service, AuthUsersAdminService userAdmin)
         CreateISignInAndCreateTenant(AuthPermissionsDbContext context,
-            TenantTypes tenantType = TenantTypes.NotUsingTenants)
+            TenantTypes tenantType = TenantTypes.NotUsingTenants,
+            IGetDatabaseForNewTenant overrideNormal = null,
+            bool loginReturnsError = false)
     {
         var authOptions = new AuthPermissionsOptions
         {
@@ -46,9 +43,9 @@ public class TestSignInAndCreateTenant
         var tenantAdmin = new AuthTenantAdminService(context, authOptions,
             "en".SetupAuthPLoggingLocalizer(), new StubITenantChangeServiceFactory(), null); 
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
-            new StubAddNewUserManager(userAdmin, tenantAdmin), 
+            new StubAddNewUserManager(userAdmin, tenantAdmin, loginReturnsError), context,
             "en".SetupAuthPLoggingLocalizer(),
-            new StubIGetDatabaseForNewTenant());
+            overrideNormal ?? new StubIGetDatabaseForNewTenant(false));
 
         return (service, userAdmin);
     }
@@ -163,6 +160,81 @@ public class TestSignInAndCreateTenant
         var tenant = context.Tenants.Single();
         tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
         tenant.DatabaseInfoName.ShouldEqual(databaseInfoName);
+    }
 
+    [Fact]
+    public async Task TestAddUserAndNewTenantAsync_Sharding_UndoTenant()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var getDbCauseError = new StubIGetDatabaseForNewTenant(true);
+        var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding, getDbCauseError);
+        var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
+        var rolesSetup = new BulkLoadRolesService(context, authSettings);
+        await rolesSetup.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
+
+        var userData = new AddNewUserDto { Email = "me!@g1.com" };
+        var tenantData = new AddNewTenantDto
+        {
+            TenantName = "New Tenant",
+            Version = "Free",
+            HasOwnDb = true,
+        };
+        Example3CreateTenantVersions.TenantSetupData.HasOwnDbForEachVersion = new Dictionary<string, bool?>()
+        {
+            { "Free", true },
+        };
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
+
+        //VERIFY
+        context.ChangeTracker.Clear();
+        status.IsValid.ShouldBeFalse(status.GetAllErrors());
+        context.Tenants.Count().ShouldEqual(0);
+    }
+
+    [Fact]
+    public async Task TestAddUserAndNewTenantAsync_Sharding_UndoOnBadUser()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var getDbCauseError = new StubIGetDatabaseForNewTenant(false);
+        var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding, 
+            getDbCauseError, true);
+        var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
+        var rolesSetup = new BulkLoadRolesService(context, authSettings);
+        await rolesSetup.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
+
+        var userData = new AddNewUserDto { Email = "me@g.com" };
+        var tenantData = new AddNewTenantDto
+        {
+            TenantName = "New Tenant",
+            Version = "Free",
+            HasOwnDb = true,
+        };
+        Example3CreateTenantVersions.TenantSetupData.HasOwnDbForEachVersion = new Dictionary<string, bool?>()
+        {
+            { "Free", true },
+        };
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
+
+        //VERIFY
+        context.ChangeTracker.Clear();
+        status.IsValid.ShouldBeFalse();
+        context.Tenants.Count().ShouldEqual(0);
+        getDbCauseError.RemoveLastDatabaseCalled.ShouldBeTrue();
     }
 }

@@ -33,11 +33,13 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// If the hasOwnDb is true, then it will find an empty database,
     /// otherwise it will look for database containing multiple tenants
     /// </summary>
+    /// <param name="tenantId">The tenantId is there if you want to create a new database.</param>
     /// <param name="hasOwnDb">If true the tenant needs its own database. False means it shares a database.</param>
     /// <param name="region">If not null this provides geographic information to pick the nearest database server.</param>
     /// <param name="version">Optional: provides the version name in case that effects the database selection</param>
     /// <returns>Status with the DatabaseInfoName, or error if it can't find a database to work with</returns>
-    public async Task<IStatusGeneric<string>> FindBestDatabaseInfoNameAsync(bool hasOwnDb, string region, string version = null)
+    public async Task<IStatusGeneric<string>> FindOrCreateDatabaseAsync(int tenantId, bool hasOwnDb, string region,
+        string version = null)
     {
         var status = new StatusGenericLocalizer<string>(_localizeDefault);
 
@@ -65,5 +67,16 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
                 "We cannot create the tenant at this time. Please contact the support team with the code: no db available.");
 
         return status;
+    }
+
+    /// <summary>
+    /// If called it will undo what the <see cref="IGetDatabaseForNewTenant.FindOrCreateDatabaseAsync"/> did.
+    /// This is called if there was a problem with the new user such that the new tenant would be removed.
+    /// </summary>
+    /// <returns></returns>
+    public Task RemoveLastDatabaseSetupAsync()
+    {
+        //This doesn't do anything as this service doesn't create new database, it only looks for an existing database.
+        return Task.CompletedTask;
     }
 }
