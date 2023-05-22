@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
@@ -45,9 +44,9 @@ public class StubIGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// This is called if there was a problem with the new user such that the new tenant would be removed.
     /// </summary>
     /// <returns></returns>
-    public Task RemoveLastDatabaseSetupAsync()
+    public Task<IStatusGeneric> RemoveLastDatabaseSetupAsync()
     {
         RemoveLastDatabaseCalled = true;
-        return Task.CompletedTask;
+        return Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
     }
 }

@@ -5,6 +5,7 @@ using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
+using Microsoft.Graph;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode;
@@ -75,9 +76,9 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// This is called if there was a problem with the new user such that the new tenant would be removed.
     /// </summary>
     /// <returns></returns>
-    public Task RemoveLastDatabaseSetupAsync()
+    public Task<IStatusGeneric> RemoveLastDatabaseSetupAsync()
     {
         //This doesn't do anything as this service doesn't create new database, it only looks for an existing database.
-        return Task.CompletedTask;
+        return  Task.FromResult<IStatusGeneric>(new StatusGenericLocalizer(_localizeDefault));
     }
 }

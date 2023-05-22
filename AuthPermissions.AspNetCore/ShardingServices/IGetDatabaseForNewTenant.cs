@@ -25,8 +25,8 @@ public interface IGetDatabaseForNewTenant
 
     /// <summary>
     /// If called it will undo what the <see cref="FindOrCreateDatabaseAsync"/> did.
-    /// This is called if there was a problem with the new user such that the new tenant would be removed.
+    /// This is called if there was a problem with the new user such that the new tenant would be deleted.
     /// </summary>
-    /// <returns></returns>
-    Task RemoveLastDatabaseSetupAsync();
+    /// <returns>Status</returns>
+    Task<IStatusGeneric> RemoveLastDatabaseSetupAsync();
 }
