@@ -47,7 +47,7 @@ public class TestSignInAndCreateTenant
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
             new StubAddNewUserManager(userAdmin, tenantAdmin, loginReturnsError), context,
             "en".SetupAuthPLoggingLocalizer(),
-            overrideNormal ?? new StubIGetDatabaseForNewTenant(false));
+            overrideNormal ?? new StubIGetDatabaseForNewTenant(context, false));
 
         return (service, userAdmin);
     }
@@ -200,7 +200,7 @@ public class TestSignInAndCreateTenant
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var getDbCauseError = new StubIGetDatabaseForNewTenant(true);
+        var getDbCauseError = new StubIGetDatabaseForNewTenant(context,true);
         var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding, getDbCauseError);
         var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
         var rolesSetup = new BulkLoadRolesService(context, authSettings);
@@ -237,7 +237,7 @@ public class TestSignInAndCreateTenant
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var getDbCauseError = new StubIGetDatabaseForNewTenant(false);
+        var getDbCauseError = new StubIGetDatabaseForNewTenant(context,false);
         var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding, 
             getDbCauseError, true);
         var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };

@@ -3,6 +3,7 @@
 
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using StatusGeneric;
@@ -15,17 +16,21 @@ namespace AuthPermissions.SupportCode;
 public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
     private readonly IShardingConnections _shardingService;
+    private readonly AuthPermissionsDbContext _context;
     private readonly IDefaultLocalizer _localizeDefault;
 
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="shardingService"></param>
+    /// <param name="context"></param>
     /// <param name="localizeProvider"></param>
-    public DemoGetDatabaseForNewTenant(IShardingConnections shardingService, 
+    public DemoGetDatabaseForNewTenant(IShardingConnections shardingService,
+        AuthPermissionsDbContext context,
         IAuthPDefaultLocalizer localizeProvider)
     {
         _shardingService = shardingService;
+        _context = context;
         _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
@@ -40,10 +45,10 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// <param name="region">If not null this provides geographic information to pick the nearest database server.</param>
     /// <param name="version">Optional: provides the version name in case that effects the database selection</param>
     /// <returns>Status with the DatabaseInfoName, or error if it can't find a database to work with</returns>
-    public async Task<IStatusGeneric<string>> FindOrCreateDatabaseAsync(Tenant tenant, bool hasOwnDb, string region,
+    public async Task<IStatusGeneric<Tenant>> FindOrCreateDatabaseAsync(Tenant tenant, bool hasOwnDb, string region,
         string version = null)
     {
-        var status = new StatusGenericLocalizer<string>(_localizeDefault);
+        var status = new StatusGenericLocalizer<Tenant>(_localizeDefault);
 
         //This gets the databases with the info on whether the database is available
         var dbsWithUsers = await _shardingService.GetDatabaseInfoNamesWithTenantNamesAsync();
@@ -68,7 +73,11 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
             status.AddErrorString("NoDbForTenant".ClassLocalizeKey(this, true),
                 "We cannot create the tenant at this time. Please contact the support team with the code: no db available.");
 
-        return status;
+        //Now set up the sharding parts of the tenant
+        tenant.UpdateShardingState(foundDatabaseInfoName, hasOwnDb);
+        status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
+
+        return status.SetResult(tenant);
     }
 
     /// <summary>

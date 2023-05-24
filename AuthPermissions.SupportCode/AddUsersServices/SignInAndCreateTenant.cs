@@ -127,7 +127,6 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         //   a. Call the FindOrCreateDatabaseAsync to get the database and return the DatabaseInfoName
         //   b. If OK, then update the tenant with the sharding data
         Tenant newTenant = null;
-        string databaseInfoName = null;
         try
         {
             //NOTE: you mustn't exit this try / catch if you have errors, as we need to "clean up" if there errors
@@ -144,14 +143,8 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                     //This method will find a database for the new tenant when using sharding
                     var dbStatus = await _getShardingDb.FindOrCreateDatabaseAsync(newTenant, 
                         hasOwnDb, tenantData.Region, tenantData.Version);
-                    databaseInfoName = dbStatus.Result;
-
-                    if (status.CombineStatuses(dbStatus).IsValid)
-                    {
-                        //Now set up the sharding parts of the tenant
-                        newTenant.UpdateShardingState(databaseInfoName, hasOwnDb);
-                        status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
-                    }
+                    newTenant = dbStatus.Result ?? newTenant;
+                    status.CombineStatuses(dbStatus);
                 }
             }
         }
@@ -171,7 +164,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             if (newTenant != null)
             {
                 await _tenantAdmin.DeleteTenantAsync(newTenant.TenantId);
-                if (databaseInfoName != null)
+                if (newTenant.DatabaseInfoName != null)
                     await _getShardingDb.RemoveLastDatabaseSetupAsync();
             }
 
@@ -220,7 +213,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                 await _addNewUserManager.RemoveAuthUserAsync(newAuthUser.UserId);
             if (newTenant != null)
                 await _tenantAdmin.DeleteTenantAsync(newTenant.TenantId);
-            if (databaseInfoName != null)
+            if (newTenant?.DatabaseInfoName != null)
                 await _getShardingDb.RemoveLastDatabaseSetupAsync();
 
             return status;
