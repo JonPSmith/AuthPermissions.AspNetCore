@@ -713,6 +713,39 @@ namespace AuthPermissions.AdminCode.Services
         }
 
         //----------------------------------------------------------
+        // Common methods
+
+        /// <summary>
+        /// This finds the roles with the given names from the AuthP database. Returns errors if not found
+        /// NOTE: The Tenant checks that the role's <see cref="RoleToPermissions.RoleType"/> are valid for a tenant
+        /// </summary>
+        /// <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
+        /// <returns>Status</returns>
+        public async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(
+            List<string> tenantRoleNames)
+        {
+            var status = new StatusGenericLocalizer<List<RoleToPermissions>>(_localizeDefault);
+
+            var foundRoles = tenantRoleNames?.Any() == true
+                ? await _context.RoleToPermissions
+                    .Where(x => tenantRoleNames.Contains(x.RoleName))
+                    .Distinct()
+                    .ToListAsync()
+                : new List<RoleToPermissions>();
+
+            if (foundRoles.Count != (tenantRoleNames?.Count ?? 0))
+            {
+                foreach (var badRoleName in tenantRoleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
+                {
+                    status.AddErrorFormatted("RoleNotFound".ClassMethodLocalizeKey(this, true),
+                        $"The Role '{badRoleName}' was not found in the lists of Roles.");
+                }
+            }
+
+            return status.SetResult(foundRoles);
+        }
+
+        //----------------------------------------------------------
         // private methods
 
         /// <summary>
@@ -735,36 +768,6 @@ namespace AuthPermissions.AdminCode.Services
                     $"'{databaseInfoName}' already has tenant(s) using that database.");
 
             return status;
-        }
-
-        /// <summary>
-        /// This finds the roles with the given names from the AuthP database. Returns errors if not found
-        /// NOTE: The Tenant checks that the role's <see cref="RoleToPermissions.RoleType"/> are valid for a tenant
-        /// </summary>
-        /// <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
-        /// <returns>Status</returns>
-        private async Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(
-            List<string> tenantRoleNames)
-        {
-            var status = new StatusGenericLocalizer<List<RoleToPermissions>>(_localizeDefault);
-
-            var foundRoles = tenantRoleNames?.Any() == true
-                ? await _context.RoleToPermissions
-                    .Where(x => tenantRoleNames.Contains(x.RoleName))
-                    .Distinct()
-                    .ToListAsync()
-                : new List<RoleToPermissions>();
-
-            if (foundRoles.Count != (tenantRoleNames?.Count ?? 0))
-            {
-                foreach (var badRoleName in tenantRoleNames.Where(x => !foundRoles.Select(y => y.RoleName).Contains(x)))
-                {
-                    status.AddErrorFormatted("RoleNotFound".ClassMethodLocalizeKey(this, true),
-                        $"The Role '{badRoleName}' was not found in the lists of Roles.");
-                }
-            }
-
-            return status.SetResult(foundRoles);
         }
     }
 }

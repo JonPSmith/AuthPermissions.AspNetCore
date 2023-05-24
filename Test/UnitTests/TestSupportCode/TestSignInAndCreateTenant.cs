@@ -4,11 +4,13 @@
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.SupportCode.AddUsersServices;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.EntityFrameworkCore;
 using Test.StubClasses;
 using Test.TestHelpers;
@@ -160,6 +162,34 @@ public class TestSignInAndCreateTenant
         var tenant = context.Tenants.Single();
         tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
         tenant.DatabaseInfoName.ShouldEqual(databaseInfoName);
+    }
+
+    [Fact]
+    public async Task TestAddUserAndNewTenantAsync_ExistingTenant()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel);
+        var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
+        var rolesSetup = new BulkLoadRolesService(context, authSettings);
+        await rolesSetup.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
+        context.Add(Tenant.CreateSingleTenant("Existing Tenant", new StubDefaultLocalizer()).Result);
+        context.SaveChanges();
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var userData = new AddNewUserDto { Email = "me!@g1.com" };
+        var tenantData = new AddNewTenantDto { TenantName = "Existing Tenant" };
+        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
+
+        //VERIFY
+        context.ChangeTracker.Clear();
+        status.IsValid.ShouldBeFalse();
+        status.GetAllErrors().ShouldEqual("The tenant name 'Existing Tenant' is already taken.");
     }
 
     [Fact]

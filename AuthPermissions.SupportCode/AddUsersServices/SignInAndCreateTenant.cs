@@ -132,21 +132,26 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         {
             //NOTE: you mustn't exit this try / catch if you have errors, as we need to "clean up" if there errors
 
-            var tenantStatus = await CreateTheTenant(tenantData, tenantRoles);
+            var tenantStatus = await CreateTenantWithoutShardingAndSave(tenantData, tenantRoles);
             newTenant = tenantStatus.Result;
-
-            if (status.CombineStatuses(tenantStatus).IsValid && _options.TenantType.IsSharding())
+            
+            if (status.CombineStatuses(tenantStatus).IsValid)
             {
-                //This method will find a database for the new tenant when using sharding
-                var dbStatus = await _getShardingDb.FindOrCreateDatabaseAsync(newTenant, 
-                        hasOwnDb, tenantData.Region, tenantData.Version);
-                databaseInfoName = dbStatus.Result;
-
-                if (status.CombineStatuses(dbStatus).IsValid)
+                _context.Add(newTenant);
+                if (status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault)).IsValid && 
+                    _options.TenantType.IsSharding())
                 {
-                    //Now set up the sharding parts of the tenant
-                    newTenant.UpdateShardingState(databaseInfoName, hasOwnDb);
-                    status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
+                    //This method will find a database for the new tenant when using sharding
+                    var dbStatus = await _getShardingDb.FindOrCreateDatabaseAsync(newTenant, 
+                        hasOwnDb, tenantData.Region, tenantData.Version);
+                    databaseInfoName = dbStatus.Result;
+
+                    if (status.CombineStatuses(dbStatus).IsValid)
+                    {
+                        //Now set up the sharding parts of the tenant
+                        newTenant.UpdateShardingState(databaseInfoName, hasOwnDb);
+                        status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
+                    }
                 }
             }
         }
@@ -211,8 +216,10 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         {
             //Delete the tenant if anything went wrong, because the user most likely will want to try again
             //We need to remove the AuthUser to allow the tenant from be deleted
-            await _addNewUserManager.RemoveAuthUserAsync(newAuthUser.UserId);
-            await _tenantAdmin.DeleteTenantAsync(newTenant.TenantId);
+            if (newAuthUser != null)
+                await _addNewUserManager.RemoveAuthUserAsync(newAuthUser.UserId);
+            if (newTenant != null)
+                await _tenantAdmin.DeleteTenantAsync(newTenant.TenantId);
             if (databaseInfoName != null)
                 await _getShardingDb.RemoveLastDatabaseSetupAsync();
 
@@ -254,18 +261,28 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     }
 
     /// <summary>
-    /// This creates the Tenant (single or Hierarchical) without any sharding added
+    /// This creates the Tenant (single or Hierarchical) without any sharding added and saves it to the db
     /// </summary>
     /// <param name="tenantData"></param>
     /// <param name="tenantRoles"></param>
     /// <returns></returns>
-    private async Task<IStatusGeneric<Tenant>> CreateTheTenant(AddNewTenantDto tenantData, List<string> tenantRoles)
+    private async Task<IStatusGeneric<Tenant>> CreateTenantWithoutShardingAndSave(AddNewTenantDto tenantData, List<string> tenantRoles)
     {
-        var tenantStatus = _options.TenantType.IsSingleLevel()
-            ? await _tenantAdmin.AddSingleTenantAsync(tenantData.TenantName, tenantRoles)
-            : await _tenantAdmin.AddHierarchicalTenantAsync(tenantData.TenantName, 0,
-                tenantRoles);
-        return tenantStatus;
+        var status = new StatusGenericLocalizer<Tenant>(_localizeDefault);
+
+        var tenantRolesStatus = await _tenantAdmin.GetRolesWithChecksAsync(tenantRoles);
+        if (status.CombineStatuses(tenantRolesStatus).HasErrors)
+            return status;
+
+        status = (StatusGenericLocalizer<Tenant>)(_options.TenantType.IsSingleLevel()
+            ? Tenant.CreateSingleTenant(tenantData.TenantName, _localizeDefault, tenantRolesStatus.Result)
+            //Note: The added tenant is always a top-level tenant, i.e. it has no parent
+            : Tenant.CreateHierarchicalTenant(tenantData.TenantName, null, _localizeDefault, tenantRolesStatus.Result));
+
+        if (status.IsValid)
+            status.CombineStatuses(await _context.SaveChangesWithChecksAsync(_localizeDefault));
+
+        return status;
     }
 
     private T GetDirectoryWithChecks<T>(string versionString, Dictionary<string, T> versionDirectory, string nameOfVersionData)

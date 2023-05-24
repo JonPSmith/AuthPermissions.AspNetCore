@@ -5,7 +5,6 @@ using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
-using Microsoft.Graph;
 using StatusGeneric;
 
 namespace AuthPermissions.SupportCode;
@@ -35,7 +34,8 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// If the hasOwnDb is true, then it will find an empty database,
     /// otherwise it will look for database containing multiple tenants
     /// </summary>
-    /// <param name="tenant">This is the tenant that you want to find/create a new database.</param>
+    /// <param name="tenant">This is the tenant that you want to find/create a new database.
+    /// NOTE: The tenant hasn't been written to the database at this stage, so the TenantId is zero.</param>
     /// <param name="hasOwnDb">If true the tenant needs its own database. False means it shares a database.</param>
     /// <param name="region">If not null this provides geographic information to pick the nearest database server.</param>
     /// <param name="version">Optional: provides the version name in case that effects the database selection</param>

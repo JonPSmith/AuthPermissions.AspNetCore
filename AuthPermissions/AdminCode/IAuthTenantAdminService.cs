@@ -120,5 +120,13 @@ namespace AuthPermissions.AdminCode
         /// <returns>status</returns>
         Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId,
             bool hasOwnDb, string databaseInfoName);
+
+        /// <summary>
+        /// This finds the roles with the given names from the AuthP database. Returns errors if not found
+        /// NOTE: The Tenant checks that the role's <see cref="RoleToPermissions.RoleType"/> are valid for a tenant
+        /// </summary>
+        /// <param name="tenantRoleNames">List of role name. Can be null, which means no roles to add</param>
+        /// <returns>Status</returns>
+        Task<IStatusGeneric<List<RoleToPermissions>>> GetRolesWithChecksAsync(List<string> tenantRoleNames);
     }
 }
