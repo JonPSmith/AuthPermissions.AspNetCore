@@ -48,7 +48,7 @@ public class TestAccessDatabaseInformation
             {
                 new (){ Name = "Default Database", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer)},
                 new (){ Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer) },
-                new (){ Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = nameof(AuthPDatabaseTypes.Postgres) }
+                new (){ Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = nameof(AuthPDatabaseTypes.PostgreSQL) }
             }
         };
         var jsonString = JsonSerializer.Serialize(testData, new JsonSerializerOptions { WriteIndented = true });
@@ -243,7 +243,7 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(AuthPDatabaseTypes.Postgres), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL), "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },
@@ -251,7 +251,7 @@ public class TestAccessDatabaseInformation
             {
                 var databaseInfo = new DatabaseInformation
                 {
-                    DatabaseType = nameof(AuthPDatabaseTypes.Postgres),
+                    DatabaseType = nameof(AuthPDatabaseTypes.PostgreSQL),
                     Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection"
                 };
                 var status = service.AddDatabaseInfoToShardingInformation(databaseInfo);

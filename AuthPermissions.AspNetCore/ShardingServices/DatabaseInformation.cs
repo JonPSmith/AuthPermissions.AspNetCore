@@ -61,7 +61,7 @@ public class DatabaseInformation
                     return "Sqlite";
                 case AuthPDatabaseTypes.SqlServer:
                     return "SqlServer";
-                case AuthPDatabaseTypes.Postgres:
+                case AuthPDatabaseTypes.PostgreSQL:
                     return "PostgreSQL";
                 case AuthPDatabaseTypes.CustomDatabase:
                     if(authPContext == null)

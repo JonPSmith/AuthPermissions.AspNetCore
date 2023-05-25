@@ -112,7 +112,7 @@ namespace AuthPermissions
                         .MigrationsAssembly("AuthPermissions.PostgreSql"));
                     EntityFramework.Exceptions.PostgreSQL.ExceptionProcessorExtensions.UseExceptionProcessor(options);
                 });
-            setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.Postgres;
+            setupData.Options.InternalData.AuthPDatabaseType = AuthPDatabaseTypes.PostgreSQL;
 
             setupData.Options.InternalData.RunSequentiallyOptions =
                 setupData.Services.RegisterRunMethodsSequentially(options =>

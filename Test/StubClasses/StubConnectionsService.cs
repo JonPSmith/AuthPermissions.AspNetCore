@@ -27,7 +27,7 @@ public class StubConnectionsService : IShardingConnections
         DatabaseProviderMethods = new Dictionary<AuthPDatabaseTypes, IDatabaseSpecificMethods>
         {
             { AuthPDatabaseTypes.SqlServer, new SqlServerDatabaseSpecificMethods() },
-            { AuthPDatabaseTypes.Postgres, new PostgresDatabaseSpecificMethods() },
+            { AuthPDatabaseTypes.PostgreSQL, new PostgresDatabaseSpecificMethods() },
             { AuthPDatabaseTypes.SqliteInMemory, new StubSqliteDatabaseSpecificMethods() },
         };
         ShardingDatabaseProviders = new Dictionary<string, IDatabaseSpecificMethods>

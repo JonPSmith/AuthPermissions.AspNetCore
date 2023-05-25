@@ -204,7 +204,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
-            null, FormAuthOptionsForSharding(AuthPDatabaseTypes.Postgres), 
+            null, FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL), 
             ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 

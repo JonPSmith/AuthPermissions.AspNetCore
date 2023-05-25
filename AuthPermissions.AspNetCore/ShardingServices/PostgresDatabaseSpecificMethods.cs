@@ -18,7 +18,7 @@ public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
     /// <summary>
     /// This is used select the <see cref="IDatabaseSpecificMethods"/> from the AuthP's <see cref="SetupInternalData.AuthPDatabaseType"/>
     /// </summary>
-    public AuthPDatabaseTypes AuthPDatabaseType => AuthPDatabaseTypes.Postgres;
+    public AuthPDatabaseTypes AuthPDatabaseType => AuthPDatabaseTypes.PostgreSQL;
 
     /// <summary>
     /// This contains the short name of EF Core Database Provider that this service supports

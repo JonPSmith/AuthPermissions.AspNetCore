@@ -202,7 +202,7 @@ namespace AuthPermissions.AspNetCore
                 case AuthPDatabaseTypes.SqlServer:
                     setupData.Services.AddScoped<IDatabaseSpecificMethods, SqlServerDatabaseSpecificMethods>();
                     break;
-                case AuthPDatabaseTypes.Postgres:
+                case AuthPDatabaseTypes.PostgreSQL:
                     setupData.Services.AddScoped<IDatabaseSpecificMethods, PostgresDatabaseSpecificMethods>();
                     break;
                 case AuthPDatabaseTypes.CustomDatabase:

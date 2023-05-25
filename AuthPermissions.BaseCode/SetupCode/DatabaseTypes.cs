@@ -21,11 +21,11 @@ namespace AuthPermissions.BaseCode.SetupCode
         /// </summary>
         SqlServer,
         /// <summary>
-        /// Postgres database is used
+        /// Postgres database is used (NOTE: the Enum name matches the EF Core's ProviderName
         /// </summary>
-        Postgres,
+        PostgreSQL,
         /// <summary>
-        /// This says that you have provided a database type other than the built-in <see cref="SqlServer"/> or <see cref="Postgres"/>.
+        /// This says that you have provided a database type other than the built-in <see cref="SqlServer"/> or <see cref="PostgreSQL"/>.
         /// </summary>
         CustomDatabase
 
