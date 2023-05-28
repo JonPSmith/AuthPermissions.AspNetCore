@@ -1,12 +1,13 @@
 ﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthPermissions.AspNetCore.ShardingServices;
+namespace AuthPermissions.BaseCode;
 
 /// <summary>
-/// method to get the Database Provider short name
+/// Simple method to get the short name of a EF Core database provider
 /// </summary>
 public static class ProviderNameExtension
 {
@@ -18,6 +19,10 @@ public static class ProviderNameExtension
     /// <returns></returns>
     public static string GetProviderShortName(this DbContext context)
     {
+        if (context == null)
+            throw new AuthPermissionsException(
+                "When using a custom database provide, then you must provide an instance of the AuthPermissionsDbContext context.");
+
         var lastPart = context.Database.ProviderName!.Split('.').Last();
         if (lastPart == "EntityFrameworkCore")
         {

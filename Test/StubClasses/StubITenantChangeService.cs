@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.SetupCode.Factories;
@@ -45,7 +46,7 @@ namespace Test.StubClasses
                 _errorMessage = errorMessage;
             }
 
-            public Task<string> CreateNewTenantAsync(Tenant tenant)
+            public Task<string> CreateNewTenantAsync(Tenant tenant, DatabaseInformation databaseInformation = null)
             {
                 _factory.NewTenantName = tenant.TenantFullName;
 

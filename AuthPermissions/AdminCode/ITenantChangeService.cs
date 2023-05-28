@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 
 namespace AuthPermissions.AdminCode
@@ -22,9 +23,11 @@ namespace AuthPermissions.AdminCode
         /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
         /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children
         /// </summary>
-        /// <param name="tenant"></param>
+        /// <param name="tenant">The tenant data used to create a new tenant</param>
+        /// <param name="databaseInformation">Optional: If sharding and "sign up" feature  you need to provide the DatabaseInformation.
+        /// This overcomes a problem that the ShardingConnectionsJsonFile doesn't update quickly enough.</param>
         /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
-        Task<string> CreateNewTenantAsync(Tenant tenant);
+        Task<string> CreateNewTenantAsync(Tenant tenant, DatabaseInformation databaseInformation = null);
 
         //----------------------------------------------------
         // Single-level only methods

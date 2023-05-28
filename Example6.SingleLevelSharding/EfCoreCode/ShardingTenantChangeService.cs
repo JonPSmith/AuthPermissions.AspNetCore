@@ -5,6 +5,7 @@ using System.Data;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using Example6.SingleLevelSharding.EfCoreClasses;
@@ -46,9 +47,11 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// <summary>
     /// This creates a <see cref="CompanyTenant"/> in the given database
     /// </summary>
-    /// <param name="tenant"></param>
-    /// <returns>Null if no errors, otherwise string is shown as an error to the user</returns>
-    public async Task<string> CreateNewTenantAsync(Tenant tenant)
+    /// <param name="tenant">The tenant data used to create a new tenant</param>
+    /// <param name="databaseInformation">Optional: If sharding and "sign up" feature  you need to provide the DatabaseInformation.
+    /// This overcomes a problem that the ShardingConnectionsJsonFile doesn't update quickly enough.</param>
+    /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
+    public async Task<string> CreateNewTenantAsync(Tenant tenant, DatabaseInformation databaseInformation = null)
     {
         using var context = GetShardingSingleDbContext(tenant.DatabaseInfoName, tenant.GetTenantDataKey());
         if (context == null)

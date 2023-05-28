@@ -7,6 +7,7 @@ using System.Data;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using Example3.InvoiceCode.EfCoreClasses;
@@ -38,9 +39,11 @@ namespace Example3.InvoiceCode.EfCoreCode
         /// You should apply multiple changes within a transaction so that if any fails then any previous changes will be rolled back.
         /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children
         /// </summary>
-        /// <param name="tenant"></param>
+        /// <param name="tenant">The tenant data used to create a new tenant</param>
+        /// <param name="databaseInformation">Optional: If sharding and "sign up" feature  you need to provide the DatabaseInformation.
+        /// This overcomes a problem that the ShardingConnectionsJsonFile doesn't update quickly enough.</param>
         /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
-        public async Task<string> CreateNewTenantAsync(Tenant tenant)
+        public async Task<string> CreateNewTenantAsync(Tenant tenant, DatabaseInformation databaseInformation = null)
         {
             var newCompanyTenant = new CompanyTenant
             {
