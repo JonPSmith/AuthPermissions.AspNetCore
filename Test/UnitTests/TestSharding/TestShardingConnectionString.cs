@@ -21,7 +21,7 @@ public class TestShardingConnectionString
 {
     private readonly ITestOutputHelper _output;
     private readonly IOptionsSnapshot<ConnectionStringsOption> _connectSnapshot;
-    private readonly IOptionsSnapshot<ShardingSettingsOption> _shardingSnapshot;
+    private readonly IOptionsMonitor<ShardingSettingsOption> _shardingMonitor;
 
     public TestShardingConnectionString(ITestOutputHelper output)
     {
@@ -34,7 +34,7 @@ public class TestShardingConnectionString
         var serviceProvider = services.BuildServiceProvider();
 
         _connectSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
-        _shardingSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ShardingSettingsOption>>();
+        _shardingMonitor = serviceProvider.GetRequiredService<IOptionsMonitor<ShardingSettingsOption>>();
     }
 
     private static AuthPermissionsOptions FormAuthOptionsForSharding(
@@ -110,7 +110,7 @@ public class TestShardingConnectionString
     public void TestGetAllConnectionStrings()
     {
         //SETUP
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
@@ -135,7 +135,7 @@ public class TestShardingConnectionString
     public void TestFormingConnectionString(string connectionName, bool isValid)
     {
         //SETUP
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
@@ -158,7 +158,7 @@ public class TestShardingConnectionString
     public void TestGetNamedConnectionStringSqlServer()
     {
         //SETUP
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
@@ -173,7 +173,7 @@ public class TestShardingConnectionString
     public void TestGetNamedConnectionStringSqlServer_NoDatabaseName()
     {
         //SETUP
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
@@ -188,7 +188,7 @@ public class TestShardingConnectionString
     public void TestGetNamedConnectionStringDefaultDatabase()
     {
         //SETUP
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             null, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
@@ -203,7 +203,7 @@ public class TestShardingConnectionString
     public void TestGetNamedConnectionStringPostgres()
     {
         //SETUP
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             null, FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL), 
             ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
@@ -238,7 +238,7 @@ public class TestShardingConnectionString
         var services = new ServiceCollection();
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
 
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             context, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
@@ -286,7 +286,7 @@ public class TestShardingConnectionString
         var services = new ServiceCollection();
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
 
-        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingSnapshot,
+        var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             context, FormAuthOptionsForSharding(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 

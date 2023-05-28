@@ -26,7 +26,11 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     private readonly AuthPermissionsDbContext _context;
     private readonly IDefaultLocalizer _localizeDefault;
     private readonly AuthPermissionsOptions _options;
-    private readonly ShardingSettingsOption _shardingSettings;
+
+    /// <summary>
+    /// This contains the most up to date data in the shardingsettings json file
+    /// </summary>
+    private List<DatabaseInformation> _databaseInformation;
 
     /// <summary>
     /// This contains the methods with are specific to a database provider
@@ -48,26 +52,21 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// <param name="databaseProviderMethods"></param>
     /// <param name="localizeProvider">Provides the used to localize any errors or messages</param>
     public ShardingConnectionsJsonFile(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
-        IOptionsSnapshot<ShardingSettingsOption> shardingSettingsAccessor,
+        IOptionsMonitor<ShardingSettingsOption> shardingSettingsAccessor,
         AuthPermissionsDbContext context, AuthPermissionsOptions options, 
         IEnumerable<IDatabaseSpecificMethods> databaseProviderMethods,
         IAuthPDefaultLocalizer localizeProvider)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor.Value;
-        _shardingSettings = shardingSettingsAccessor.Value;
         _context = context;
         _options = options;
+        SetDatabaseInformation(shardingSettingsAccessor.CurrentValue);
+        shardingSettingsAccessor.OnChange(SetDatabaseInformation);
+
         DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.AuthPDatabaseType);
         ShardingDatabaseProviders = DatabaseProviderMethods.Values.ToDictionary(x => x.DatabaseProviderShortName);
         _localizeDefault = localizeProvider.DefaultLocalizer;
-
-        //If no sharding settings file, then we provide one default sharding settings data
-        //NOTE that the DatabaseInformation class has default values linked to a 
-        _shardingSettings.ShardingDatabases ??= new List<DatabaseInformation>
-        {
-            DatabaseInformation.FormDefaultDatabaseInfo(options, _context)
-        };
     }
     
     /// <summary>
@@ -79,7 +78,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// <returns>A list of <see cref="DatabaseInformation"/> from the sharding settings file</returns>
     public List<DatabaseInformation> GetAllPossibleShardingData()
     {
-        return _shardingSettings.ShardingDatabases;
+        return _databaseInformation;
     }
 
     /// <summary>
@@ -110,7 +109,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
 
         var result = new List<(string databaseInfoName, bool? hasOwnDb, List<string>)>();
         //Add sharding database names that have no tenants in them so that you can see all the connection string  names
-        foreach (var databaseInfoName in _shardingSettings.ShardingDatabases.Select(x => x.Name))
+        foreach (var databaseInfoName in _databaseInformation.Select(x => x.Name))
         {
             result.Add(grouped.ContainsKey(databaseInfoName)
                 ? (databaseInfoName,
@@ -130,15 +129,16 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// This will provide the connection string for the entry with the given database info name
     /// </summary>
     /// <param name="databaseInfoName">The name of sharding database info we want to access</param>
-    /// <returns>The connection string, or null if not found</returns>
+    /// <returns>The connection string, or throw exception</returns>
     public string FormConnectionString(string databaseInfoName)
     {
         if (databaseInfoName == null)
             throw new AuthPermissionsException("The name of the database date can't be null");
 
-        var databaseData = _shardingSettings.ShardingDatabases.SingleOrDefault(x => x.Name == databaseInfoName);
+        var databaseData = _databaseInformation.SingleOrDefault(x => x.Name == databaseInfoName);
         if (databaseData == null)
-            return null;
+            throw new AuthPermissionsException(
+                $"The database information with the name of '{databaseInfoName}' wasn't founds.");
 
         if (!_connectionDict.TryGetValue(databaseData.ConnectionName, out var connectionString))
             throw new AuthPermissionsException(
@@ -185,5 +185,19 @@ public class ShardingConnectionsJsonFile : IShardingConnections
         }
 
         return status;
+    }
+
+    //--------------------------------------------
+    //private methods
+
+    /// <summary>
+    /// This takes to information from the OptionsMonitor and sets the _databaseInformation parameter
+    /// </summary>
+    /// <returns></returns>
+    private void SetDatabaseInformation(ShardingSettingsOption fromMonitor )
+    {
+        _databaseInformation = (fromMonitor.ShardingDatabases == null || !fromMonitor.ShardingDatabases.Any())
+            ? new List<DatabaseInformation> { DatabaseInformation.FormDefaultDatabaseInfo(_options, _context) }
+            : fromMonitor.ShardingDatabases;
     }
 }
