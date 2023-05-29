@@ -2,12 +2,12 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
+using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using Microsoft.EntityFrameworkCore;
 
-namespace AuthPermissions.BaseCode;
+namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This class holds the information about each database used by the AuthP sharding feature

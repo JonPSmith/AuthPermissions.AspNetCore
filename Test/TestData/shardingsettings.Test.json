@@ -3,8 +3,8 @@
     {
       "Name": "Default Database",
       "DatabaseName": null,
-      "ConnectionName": "UnitTestConnection",
-      "DatabaseType": "SqlServer"
+      "ConnectionName": "PostgreSqlConnection",
+      "DatabaseType": "SqliteInMemory"
     },
     {
       "Name": "Other Database",
@@ -16,24 +16,6 @@
       "Name": "PostgreSql1",
       "DatabaseName": "StubTest",
       "ConnectionName": "PostgreSqlConnection",
-      "DatabaseType": "PostgreSQL"
-    },
-    {
-      "Name": "Name1",
-      "DatabaseName": "DatabaseName1",
-      "ConnectionName": "UnitTestConnection",
-      "DatabaseType": "PostgreSQL"
-    },
-    {
-      "Name": "Name2",
-      "DatabaseName": "DatabaseName2",
-      "ConnectionName": "UnitTestConnection",
-      "DatabaseType": "PostgreSQL"
-    },
-    {
-      "Name": "Name3",
-      "DatabaseName": "DatabaseName3",
-      "ConnectionName": "UnitTestConnection",
       "DatabaseType": "PostgreSQL"
     }
   ]

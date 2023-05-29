@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
@@ -37,10 +38,8 @@ namespace Example4.ShopCode.EfCoreCode
         /// NOTE: With hierarchical tenants you cannot be sure that the tenant has, or will have, children so we always add a retail
         /// </summary>
         /// <param name="tenant">The tenant data used to create a new tenant</param>
-        /// <param name="databaseInformation">Optional: If sharding and "sign up" feature  you need to provide the DatabaseInformation.
-        /// This overcomes a problem that the ShardingConnectionsJsonFile doesn't update quickly enough.</param>
         /// <returns>Returns null if all OK, otherwise the create is rolled back and the return string is shown to the user</returns>
-        public async Task<string> CreateNewTenantAsync(Tenant tenant, DatabaseInformation databaseInformation = null)
+        public async Task<string> CreateNewTenantAsync(Tenant tenant)
         {
             _context.Add(new RetailOutlet(tenant.TenantId, tenant.TenantFullName, tenant.GetTenantDataKey()));
             await _context.SaveChangesAsync();

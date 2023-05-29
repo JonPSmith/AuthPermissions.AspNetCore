@@ -168,8 +168,8 @@ namespace AuthPermissions.AspNetCore
             setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
 
             setupData.Services.AddScoped<IAccessDatabaseInformationVer5, AccessDatabaseInformationJsonFile>();
-            setupData.Services.AddScoped<IShardingConnections, ShardingConnectionsJsonFile>();
-            setupData.Services.AddScoped<ILinkToTenantDataService, LinkToTenantDataService>();
+            setupData.Services.AddTransient<IShardingConnections, ShardingConnectionsJsonFile>();
+            setupData.Services.AddTransient<ILinkToTenantDataService, LinkToTenantDataService>();
 
             switch (setupData.Options.LinkToTenantType)
             {
