@@ -2,15 +2,17 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>5.0.0-preview012</version>
+    <version>5.0.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-		- BREAKING CHANGE(small): If you are using sharding with your multi-tenant app, then read the UpdateToVersion5.md file.
-		- New feature: You can use any database provider supported by EF Core, not just SQLServer and Postgres - see documentation for more details
-	</releaseNotes>
+		- BREAKING CHANGE(medium): If you are using sharding with your multi-tenant app, then read the UpdateToVersion5.md file.
+		- New feature: You can now use a custom database provider with the AuthP library - see documentation for more details.
+		- New feature: It easier to setup sharding / hybrid multi-tenant application via extension method called SetupMultiTenantSharding
+		- New feature: Ability to replace parts of the sharding services, e.g. store sharding data in a database instead of a json file.
+    </releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
     <icon>images\AuthPermissionsAspNetCoreNuGetIcon.png</icon>

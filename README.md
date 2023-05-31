@@ -10,8 +10,9 @@ The AuthP is an open-source library under the MIT licence (and remain as a open-
 
 The AuthP library is being built in versions (see [roadmap](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2)). If you have already built your application using an older version, then you need to look at the following "how up update" documents
 
-- From Migrating from AuthPermissions.AspNetCore 1.* to 1.0 see [UpdateToVersion2.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md)
+- From Migrating from AuthPermissions.AspNetCore 2, 3 or 4.* to 5.0 see [UpdateToVersion3.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion5.md)
 - From Migrating from AuthPermissions.AspNetCore 2.* to 3.0 see [UpdateToVersion3.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion3.md)
+- From Migrating from AuthPermissions.AspNetCore 1.* to 1.0 see [UpdateToVersion2.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md)
 
 The AuthP library also:
 

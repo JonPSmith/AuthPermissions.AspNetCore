@@ -1,8 +1,8 @@
 # Updating your code from AuthPermissions.AspNetCore 4.* to 5.0
 
-Version 5.0.0 of the AuthPermissions.AspNetCore library (shortened to **AuthP** from now on) contains various new features (LINK TO roadmap), but this document only covers **BREAKING CHANGES** in version 5.0.0, which are in _sharding_ multi-tenant applications.
+Version 5.0.0 of the AuthPermissions.AspNetCore library (shortened to **AuthP** from now on) contains various new features (LINK TO roadmap), but this document covers **BREAKING CHANGES** in version 5.0.0, which are in _sharding_ multi-tenant applications. I purposely cause compile errors so that the breaking changes are obvious to you.
 
-_NOTE: I purposely cause compile errors so that the breaking changes are obvious to you._
+_NOTE: The fill list of changes !!! Links to article and documentation ._
 
 ## TABLE OF CONTENT
 
@@ -43,7 +43,7 @@ Because of the new custom database feature the `DatabaseType` in your shardingse
 
 The problem with Postgres database is `Npgsql.EntityFrameworkCore.PostgreSQL` so the short name is `PostgreSQL`, not `Postgres`
 
-_Solution:_ make sure your shardingsetting.json entries that use Postgres has the  `DatabaseType` set to "PostgreSQL".  
+_Solution:_ make sure your shardingsetting.json entries that use Postgres has the `DatabaseType` set to "PostgreSQL".  
 _NOTE: If you don't change this you will have an exception with the following message._
 
 ```text
