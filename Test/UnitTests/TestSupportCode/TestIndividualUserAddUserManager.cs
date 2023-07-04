@@ -99,7 +99,7 @@ public class TestIndividualUserAddUserManager
         context.AddMultipleUsersWithRolesInDb();
 
         var service = _serviceProvider.GetRequiredService<IAddNewUserManager>();
-        var userData = new AddNewUserDto { Email = email };
+        var userData = new AddNewUserDto { Email = email, Password = "NewUser@g1.com" };
 
         context.ChangeTracker.Clear();
 
@@ -108,6 +108,29 @@ public class TestIndividualUserAddUserManager
 
         //VERIFY
         status.IsValid.ShouldEqual(isValid);
+    }
+
+    [Theory]
+    [InlineData("123", false)]
+    [InlineData("NewUser@g1.com", true)]
+    public async Task TestCheckNoExistingAuthUserAsync_Password(string password, bool isValid)
+    {
+        //SETUP
+        var context = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
+        context.Database.EnsureClean();
+        context.AddMultipleUsersWithRolesInDb();
+
+        var service = _serviceProvider.GetRequiredService<IAddNewUserManager>();
+        var userData = new AddNewUserDto { Email = "AnotherEmail", Password = password };
+
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = await service.CheckNoExistingAuthUserAsync(userData);
+
+        //VERIFY
+        status.IsValid.ShouldEqual(isValid);
+        _output.WriteLine(status.GetAllErrors());
     }
 
     [Fact]

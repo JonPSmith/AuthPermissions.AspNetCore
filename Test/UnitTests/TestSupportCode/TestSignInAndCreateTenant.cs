@@ -206,7 +206,7 @@ public class TestSignInAndCreateTenant
         var rolesSetup = new BulkLoadRolesService(context, authSettings);
         await rolesSetup.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
 
-        var userData = new AddNewUserDto { Email = "me!@g1.com" };
+        var userData = new AddNewUserDto { Email = "Me!@g1.com"};
         var tenantData = new AddNewTenantDto
         {
             TenantName = "New Tenant",

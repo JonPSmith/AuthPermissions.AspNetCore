@@ -163,9 +163,10 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
 
             if (newTenant != null)
             {
-                await _tenantAdmin.DeleteTenantAsync(newTenant.TenantId);
                 if (newTenant.DatabaseInfoName != null)
                     await _getShardingDb.RemoveLastDatabaseSetupAsync();
+
+                await _tenantAdmin.DeleteTenantAsync(newTenant.TenantId);
             }
 
             return status;

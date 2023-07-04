@@ -57,7 +57,7 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
     public AddNewUserDto UserLoginData { get; private set; }
 
     /// <summary>
-    /// This makes a quick check that the user isn't already has an AuthUser 
+    /// This makes a quick check that the user isn't already has an AuthUser and the password is valid
     /// </summary>
     /// <param name="newUser"></param>
     /// <returns>status, with error if there an user already</returns>
@@ -68,6 +68,20 @@ public class IndividualUserAddUserManager<TIdentity> : IAddNewUserManager
             return status.AddErrorString("ExistingUser".ClassLocalizeKey(this, true), //common message
             "There is already an AuthUser with your email, so you can't add another.",
             nameof(AddNewUserDto.Email));
+
+        //Check the password matches the 
+        var passwordValidator = new PasswordValidator<TIdentity>();
+        var checkPassword = await passwordValidator.ValidateAsync(_userManager, null, newUser.Password);
+        if (!checkPassword.Succeeded)
+        {
+            foreach (var passwordError in checkPassword.Errors)
+            {
+                status.AddErrorString("BadPasswordFormat".ClassLocalizeKey(this, true),
+                    passwordError.Description, nameof(AddNewUserDto.Password));
+            }
+        }
+
+
         return status;
     }
 

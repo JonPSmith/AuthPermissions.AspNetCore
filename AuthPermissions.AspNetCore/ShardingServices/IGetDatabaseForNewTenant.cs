@@ -26,8 +26,10 @@ public interface IGetDatabaseForNewTenant
     Task<IStatusGeneric<Tenant>> FindOrCreateDatabaseAsync(Tenant tenant, bool hasOwnDb, string region, string version = null);
 
     /// <summary>
-    /// If called it will undo what the <see cref="FindOrCreateDatabaseAsync"/> did.
+    /// If called it will undo what the <see cref="FindOrCreateDatabaseAsync"/> did,
+    /// i.e. deleting the database (or at least use tenantChangeService to delete the data) and remove the sharding data.  
     /// This is called if there was a problem with the new user such that the new tenant would be deleted.
+    /// NOTE: This method may be called even if the <see cref="FindOrCreateDatabaseAsync"/> hasn't been called.
     /// </summary>
     /// <returns>Status</returns>
     Task<IStatusGeneric> RemoveLastDatabaseSetupAsync();

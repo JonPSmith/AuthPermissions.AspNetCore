@@ -19,6 +19,7 @@ public class StubIGetDatabaseForNewTenant : IGetDatabaseForNewTenant
         _context = context;
         _returnError = returnError;
     }
+    private Tenant _tenant;
 
     public bool RemoveLastDatabaseCalled { get; private set; }
 
@@ -36,6 +37,7 @@ public class StubIGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     public Task<IStatusGeneric<Tenant>> FindOrCreateDatabaseAsync(Tenant tenant, bool hasOwnDb, string region,
         string version)
     {
+        _tenant = tenant;
         var status = new StatusGenericHandler<Tenant>();
         if (_returnError)
             return Task.FromResult(status.AddError("An Error"));
@@ -54,6 +56,7 @@ public class StubIGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     public Task<IStatusGeneric> RemoveLastDatabaseSetupAsync()
     {
         RemoveLastDatabaseCalled = true;
+        _context.Tenants.Remove(_tenant);
         return Task.FromResult<IStatusGeneric>(new StatusGenericHandler());
     }
 }

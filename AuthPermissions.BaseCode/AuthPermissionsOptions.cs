@@ -22,7 +22,7 @@ namespace AuthPermissions.BaseCode
         public TenantTypes TenantType { get; set; }
 
         /// <summary>
-        /// If sharding is turned on, then you can define the sharding database data to use if not 
+        /// If sharding is turned on, then this parameter defines the name of the connection string for the main database.
         /// This defaults to "Default Database", which should be set up to link to the database that also contains the AuthP data
         /// </summary>
         public string ShardingDefaultDatabaseInfoName { get; set; } = "Default Database";

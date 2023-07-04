@@ -23,14 +23,10 @@ public class ConnectionStringsOption : Dictionary<string, string> {}
 public class ShardingConnectionsJsonFile : IShardingConnections
 {
     private readonly ConnectionStringsOption _connectionDict;
+    private readonly IOptionsMonitor<ShardingSettingsOption> _shardingSettingsAccessor;
     private readonly AuthPermissionsDbContext _context;
     private readonly IDefaultLocalizer _localizeDefault;
     private readonly AuthPermissionsOptions _options;
-
-    /// <summary>
-    /// This contains the most up to date data in the shardingsettings json file
-    /// </summary>
-    private List<DatabaseInformation> _databaseInformation;
 
     /// <summary>
     /// This contains the methods with are specific to a database provider
@@ -59,10 +55,9 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor.Value;
+        _shardingSettingsAccessor = shardingSettingsAccessor;
         _context = context;
         _options = options;
-        SetDatabaseInformation(shardingSettingsAccessor.CurrentValue);
-        shardingSettingsAccessor.OnChange(SetDatabaseInformation);
 
         DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.AuthPDatabaseType);
         ShardingDatabaseProviders = DatabaseProviderMethods.Values.ToDictionary(x => x.DatabaseProviderShortName);
@@ -78,7 +73,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// <returns>A list of <see cref="DatabaseInformation"/> from the sharding settings file</returns>
     public List<DatabaseInformation> GetAllPossibleShardingData()
     {
-        return _databaseInformation;
+        return GetDatabaseInformation();
     }
 
     /// <summary>
@@ -109,7 +104,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
 
         var result = new List<(string databaseInfoName, bool? hasOwnDb, List<string>)>();
         //Add sharding database names that have no tenants in them so that you can see all the connection string  names
-        foreach (var databaseInfoName in _databaseInformation.Select(x => x.Name))
+        foreach (var databaseInfoName in GetDatabaseInformation().Select(x => x.Name))
         {
             result.Add(grouped.ContainsKey(databaseInfoName)
                 ? (databaseInfoName,
@@ -135,14 +130,14 @@ public class ShardingConnectionsJsonFile : IShardingConnections
         if (databaseInfoName == null)
             throw new AuthPermissionsException("The name of the database date can't be null");
 
-        var databaseData = _databaseInformation.SingleOrDefault(x => x.Name == databaseInfoName);
+        var databaseData = GetDatabaseInformation().SingleOrDefault(x => x.Name == databaseInfoName);
         if (databaseData == null)
             throw new AuthPermissionsException(
                 $"The database information with the name of '{databaseInfoName}' wasn't founds.");
 
         if (!_connectionDict.TryGetValue(databaseData.ConnectionName, out var connectionString))
             throw new AuthPermissionsException(
-                $"Could not find the connection name '{connectionString}' that the sharding database data '{databaseInfoName}' requires.");
+                $"Could not find the connection name '{databaseData.ConnectionName}' that the sharding database data '{databaseInfoName}' requires.");
 
         if (!ShardingDatabaseProviders.TryGetValue(databaseData.DatabaseType,
                 out IDatabaseSpecificMethods databaseSpecificMethods))
@@ -191,13 +186,12 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     //private methods
 
     /// <summary>
-    /// This takes to information from the OptionsMonitor and sets the _databaseInformation parameter
+    /// This gets the most up to date data in the shardingsettings json file
     /// </summary>
-    /// <returns></returns>
-    private void SetDatabaseInformation(ShardingSettingsOption fromMonitor )
+    private List<DatabaseInformation> GetDatabaseInformation()
     {
-        _databaseInformation = (fromMonitor.ShardingDatabases == null || !fromMonitor.ShardingDatabases.Any())
+        return _shardingSettingsAccessor.CurrentValue == null || !_shardingSettingsAccessor.CurrentValue.ShardingDatabases.Any()
             ? new List<DatabaseInformation> { DatabaseInformation.FormDefaultDatabaseInfo(_options, _context) }
-            : fromMonitor.ShardingDatabases;
+            : _shardingSettingsAccessor.CurrentValue.ShardingDatabases;
     }
 }
