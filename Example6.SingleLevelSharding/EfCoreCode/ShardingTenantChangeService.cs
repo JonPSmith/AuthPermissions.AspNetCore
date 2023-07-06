@@ -5,7 +5,6 @@ using System.Data;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.AspNetCore.ShardingServices;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using Example6.SingleLevelSharding.EfCoreClasses;
@@ -98,10 +97,18 @@ public class ShardingTenantChangeService : ITenantChangeService
         if (context == null)
             return $"There is no connection string with the name {tenant.DatabaseInfoName}.";
 
+        //If the database doesn't exist then log it and return
+        if (!await context.Database.CanConnectAsync())
+        {
+            _logger.LogWarning("DeleteTenantData: asked to remove tenant data / database, but no database found. " +
+                               $"Tenant name = {tenant?.TenantFullName ?? "- not available -"}");
+            return null;
+        }
+
         await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
         try
         {
-            await DeleteTenantData(tenant.GetTenantDataKey(), context);
+            await DeleteTenantData(tenant.GetTenantDataKey(), context, tenant);
             DeletedTenantId = tenant.TenantId;
 
             await transaction.CommitAsync();
@@ -239,8 +246,17 @@ public class ShardingTenantChangeService : ITenantChangeService
         return null;
     }
 
-    private async Task DeleteTenantData(string dataKey, ShardingSingleDbContext context)
+    private async Task DeleteTenantData(string dataKey, ShardingSingleDbContext context, Tenant? tenant = null)
     {
+        if (tenant?.HasOwnDb == true)
+        {
+            //The tenant its own database, then you should drop the database, but that depends on what SQL Server provider you use.
+            //In this case I can the database because it is on a local SqlServer server.
+            await context.Database.EnsureDeletedAsync();
+            return;
+        }
+
+        //else we remove all the data with the DataKey of the tenant
         var deleteSalesSql = $"DELETE FROM invoice.{nameof(ShardingSingleDbContext.LineItems)} WHERE DataKey = '{dataKey}'";
         await context.Database.ExecuteSqlRawAsync(deleteSalesSql);
         var deleteStockSql = $"DELETE FROM invoice.{nameof(ShardingSingleDbContext.Invoices)} WHERE DataKey = '{dataKey}'";
