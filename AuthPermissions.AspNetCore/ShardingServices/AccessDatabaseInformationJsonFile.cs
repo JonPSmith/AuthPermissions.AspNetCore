@@ -21,8 +21,9 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
 {
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly IShardingConnections _connectionsService;
-    private readonly IDefaultLocalizer _localizeDefault;
     private readonly AuthPermissionsOptions _options;
+    private readonly DatabaseInformationOptions _defaultInformationOptions;
+    private readonly IDefaultLocalizer _localizeDefault;
 
     private readonly string _settingsFilePath;
 
@@ -38,16 +39,18 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     /// <param name="connectionsService"></param>
     /// <param name="authDbContext"></param>
     /// <param name="options"></param>
+    /// <param name="defaultInformationOptions"></param>
     /// <param name="localizeProvider"></param>
     public AccessDatabaseInformationJsonFile(IWebHostEnvironment env, IShardingConnections connectionsService, 
-        AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options, 
-        IAuthPDefaultLocalizer localizeProvider)
+        AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options,
+        DatabaseInformationOptions defaultInformationOptions, IAuthPDefaultLocalizer localizeProvider)
     {
         ShardingSettingFilename = AuthPermissionsOptions.FormShardingSettingsFileName(options.SecondPartOfShardingFile);
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
         _connectionsService = connectionsService;
         _authDbContext = authDbContext;
         _options = options;
+        _defaultInformationOptions = defaultInformationOptions;
         _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
@@ -58,8 +61,7 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     public List<DatabaseInformation> ReadAllShardingInformation()
     {
         if (!File.Exists(_settingsFilePath))
-            return new List<DatabaseInformation>
-                { DatabaseInformation.FormDefaultDatabaseInfo(_options, _authDbContext)};
+            return _defaultInformationOptions.ProvideEmptyDefaultDatabaseInformations();
 
         var fileContext = File.ReadAllText(_settingsFilePath);
         var content = JsonSerializer.Deserialize<ShardingSettingsOption>(fileContext,

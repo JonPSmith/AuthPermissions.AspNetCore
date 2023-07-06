@@ -80,7 +80,8 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-           FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+           FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+           "en".SetupAuthPLoggingLocalizer());
         //ATTEMPT
         var databaseInfo = service.ReadAllShardingInformation();
 
@@ -105,7 +106,8 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\", EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var databaseInfo = service.ReadAllShardingInformation();
@@ -132,7 +134,8 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            "en".SetupAuthPLoggingLocalizer()); ;
 
         //ATTEMPT
         var databaseInfo = new DatabaseInformation
@@ -157,7 +160,8 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var databaseInfo = new DatabaseInformation
@@ -183,7 +187,8 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         var status = await service.RemoveDatabaseInfoFromShardingInformationAsync(name);
@@ -207,7 +212,8 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },
@@ -243,7 +249,8 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL), "en".SetupAuthPLoggingLocalizer());
+            FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL), new StubDatabaseInformationOptions(AuthPDatabaseTypes.PostgreSQL),
+            "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },

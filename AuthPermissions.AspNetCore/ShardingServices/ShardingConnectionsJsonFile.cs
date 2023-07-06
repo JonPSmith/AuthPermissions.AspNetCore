@@ -25,6 +25,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     private readonly ConnectionStringsOption _connectionDict;
     private readonly IOptionsMonitor<ShardingSettingsOption> _shardingSettingsAccessor;
     private readonly AuthPermissionsDbContext _context;
+    private readonly DatabaseInformationOptions _defaultDatabaseInformation;
     private readonly IDefaultLocalizer _localizeDefault;
     private readonly AuthPermissionsOptions _options;
 
@@ -45,11 +46,13 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// <param name="shardingSettingsAccessor">Dynamically assesses the ShardingData part of the shardingsetting file</param>
     /// <param name="context">AuthP context - used in <see cref="GetDatabaseInfoNamesWithTenantNamesAsync"/> method</param>
     /// <param name="options"></param>
+    /// <param name="defaultDatabaseInformation">The <see cref="DatabaseInformation"/> to use if the sharding data is empty</param>
     /// <param name="databaseProviderMethods"></param>
     /// <param name="localizeProvider">Provides the used to localize any errors or messages</param>
     public ShardingConnectionsJsonFile(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
         IOptionsMonitor<ShardingSettingsOption> shardingSettingsAccessor,
-        AuthPermissionsDbContext context, AuthPermissionsOptions options, 
+        AuthPermissionsDbContext context, AuthPermissionsOptions options,
+        DatabaseInformationOptions defaultDatabaseInformation,
         IEnumerable<IDatabaseSpecificMethods> databaseProviderMethods,
         IAuthPDefaultLocalizer localizeProvider)
     {
@@ -57,6 +60,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
         _connectionDict = connectionsAccessor.Value;
         _shardingSettingsAccessor = shardingSettingsAccessor;
         _context = context;
+        _defaultDatabaseInformation = defaultDatabaseInformation;
         _options = options;
 
         DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.AuthPDatabaseType);
@@ -186,12 +190,16 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     //private methods
 
     /// <summary>
-    /// This gets the most up to date data in the shardingsettings json file
+    /// This gets the most up to date data in the sharding settings json file
     /// </summary>
     private List<DatabaseInformation> GetDatabaseInformation()
     {
-        return _shardingSettingsAccessor.CurrentValue == null || !_shardingSettingsAccessor.CurrentValue.ShardingDatabases.Any()
-            ? new List<DatabaseInformation> { DatabaseInformation.FormDefaultDatabaseInfo(_options, _context) }
-            : _shardingSettingsAccessor.CurrentValue.ShardingDatabases;
+        if (_shardingSettingsAccessor.CurrentValue == null ||
+            !_shardingSettingsAccessor.CurrentValue.ShardingDatabases.Any())
+            //No entry, so provide the default settings (useful if deploying the first time)
+            return _defaultDatabaseInformation.ProvideEmptyDefaultDatabaseInformations();
+
+        //it has entries already
+        return _shardingSettingsAccessor.CurrentValue.ShardingDatabases;
     }
 }

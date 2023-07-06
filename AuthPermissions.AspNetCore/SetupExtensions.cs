@@ -146,8 +146,10 @@ namespace AuthPermissions.AspNetCore
         /// before calling this extension method
         /// </summary>
         /// <param name="setupData"></param>
+        /// <param name="defaultDatabaseInformation">Optional: you can override the default <see cref="DatabaseInformation"/> data if required.</param>
         /// <returns></returns>
-        public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData)
+        public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData, 
+            DatabaseInformationOptions defaultDatabaseInformation = null)
         {
             if (!setupData.Options.TenantType.IsMultiTenant())
                 throw new AuthPermissionsException(
@@ -158,6 +160,11 @@ namespace AuthPermissions.AspNetCore
             if (setupData.Options.Configuration == null)
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
+
+            //This defines the default sharding entry to use when there are no entries
+            defaultDatabaseInformation ??= new DatabaseInformationOptions();
+            defaultDatabaseInformation.FormDefaultDatabaseInfo(setupData.Options);
+            setupData.Services.AddSingleton(defaultDatabaseInformation);
 
             //This gets access to the ConnectionStrings
             setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));

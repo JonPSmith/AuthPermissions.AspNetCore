@@ -21,7 +21,6 @@ namespace Example6.MvcWebApp.Sharding.Models
 
         public string DataKey { get; set; }
 
-
         [Required(AllowEmptyStrings = false)]
         public string ConnectionName { get; set; }
 
