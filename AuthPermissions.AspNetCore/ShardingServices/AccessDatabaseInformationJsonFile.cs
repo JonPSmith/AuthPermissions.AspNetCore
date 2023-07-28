@@ -22,7 +22,7 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly IShardingConnections _connectionsService;
     private readonly AuthPermissionsOptions _options;
-    private readonly DatabaseInformationOptions _defaultInformationOptions;
+    private readonly ShardingEntryOptions _defaultInformationOptions;
     private readonly IDefaultLocalizer _localizeDefault;
 
     private readonly string _settingsFilePath;
@@ -43,7 +43,7 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     /// <param name="localizeProvider"></param>
     public AccessDatabaseInformationJsonFile(IWebHostEnvironment env, IShardingConnections connectionsService, 
         AuthPermissionsDbContext authDbContext, AuthPermissionsOptions options,
-        DatabaseInformationOptions defaultInformationOptions, IAuthPDefaultLocalizer localizeProvider)
+        ShardingEntryOptions defaultInformationOptions, IAuthPDefaultLocalizer localizeProvider)
     {
         ShardingSettingFilename = AuthPermissionsOptions.FormShardingSettingsFileName(options.SecondPartOfShardingFile);
         _settingsFilePath = Path.Combine(env.ContentRootPath, ShardingSettingFilename);
@@ -55,13 +55,13 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     }
 
     /// <summary>
-    /// This will return a list of <see cref="DatabaseInformation"/> in the sharding settings file in the application
+    /// This will return a list of <see cref="ShardingEntry"/> in the sharding settings file in the application
     /// </summary>
     /// <returns>If no file, then returns the default list</returns>
-    public List<DatabaseInformation> ReadAllShardingInformation()
+    public List<ShardingEntry> ReadAllShardingInformation()
     {
         if (!File.Exists(_settingsFilePath))
-            return _defaultInformationOptions.ProvideEmptyDefaultDatabaseInformations();
+            return _defaultInformationOptions.ProvideEmptyDefaultShardingEntry(_options, _authDbContext);
 
         var fileContext = File.ReadAllText(_settingsFilePath);
         var content = JsonSerializer.Deserialize<ShardingSettingsOption>(fileContext,
@@ -71,22 +71,22 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     }
 
     /// <summary>
-    /// This returns the <see cref="DatabaseInformation"/> where its <see cref="DatabaseInformation.Name"/> matches the databaseInfoName property.
+    /// This returns the <see cref="ShardingEntry"/> where its <see cref="ShardingEntry.Name"/> matches the databaseInfoName property.
     /// </summary>
-    /// <param name="databaseInfoName">The Name of the <see cref="DatabaseInformation"/> you are looking for</param>
+    /// <param name="databaseInfoName">The Name of the <see cref="ShardingEntry"/> you are looking for</param>
     /// <returns>If no matching database information found, then it returns null</returns>
-    public DatabaseInformation GetDatabaseInformationByName(string databaseInfoName)
+    public ShardingEntry GetDatabaseInformationByName(string databaseInfoName)
     {
         return ReadAllShardingInformation().SingleOrDefault(x => x.Name == databaseInfoName);
     }
 
     /// <summary>
-    /// This adds a new <see cref="DatabaseInformation"/> to the list in the current sharding settings file.
+    /// This adds a new <see cref="ShardingEntry"/> to the list in the current sharding settings file.
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
-    /// <param name="databaseInfo">Adds a new <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> to the sharding data.</param>
+    /// <param name="databaseInfo">Adds a new <see cref="ShardingEntry"/> with the <see cref="ShardingEntry.Name"/> to the sharding data.</param>
     /// <returns>status containing a success message, or errors</returns>
-    public IStatusGeneric AddDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo)
+    public IStatusGeneric AddDatabaseInfoToShardingInformation(ShardingEntry databaseInfo)
     {
         var authDbShortDatabaseName = _authDbContext.GetProviderShortName();
         if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
@@ -103,13 +103,13 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     }
 
     /// <summary>
-    /// This updates a <see cref="DatabaseInformation"/> already in the sharding settings file.
-    /// It uses the <see cref="DatabaseInformation.Name"/> in the provided in the <see cref="DatabaseInformation"/> parameter.
+    /// This updates a <see cref="ShardingEntry"/> already in the sharding settings file.
+    /// It uses the <see cref="ShardingEntry.Name"/> in the provided in the <see cref="ShardingEntry"/> parameter.
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
-    /// <param name="databaseInfo">Looks for a <see cref="DatabaseInformation"/> with the <see cref="DatabaseInformation.Name"/> and updates it.</param>
+    /// <param name="databaseInfo">Looks for a <see cref="ShardingEntry"/> with the <see cref="ShardingEntry.Name"/> and updates it.</param>
     /// <returns>status containing a success message, or errors</returns>
-    public IStatusGeneric UpdateDatabaseInfoToShardingInformation(DatabaseInformation databaseInfo)
+    public IStatusGeneric UpdateDatabaseInfoToShardingInformation(ShardingEntry databaseInfo)
     {
         var authDbShortDatabaseName = _authDbContext.GetProviderShortName();
         if (!_connectionsService.ShardingDatabaseProviders.TryGetValue(authDbShortDatabaseName,
@@ -124,7 +124,7 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfo.Name);
             if (foundIndex == -1)
                 return status.AddErrorFormatted("MissingDatabaseInfo".ClassLocalizeKey(this, true),
-                    $"Could not find a database info entry with the {nameof(DatabaseInformation.Name)} of '{databaseInfo.Name ?? "< null >"}'.");
+                    $"Could not find a database info entry with the {nameof(ShardingEntry.Name)} of '{databaseInfo.Name ?? "< null >"}'.");
 
             fileContent[foundIndex] = databaseInfo;
             return CheckDatabasesInfoAndSaveIfValid(fileContent, databaseInfo);
@@ -132,10 +132,10 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     }
 
     /// <summary>
-    /// This removes a <see cref="DatabaseInformation"/> with the same <see cref="DatabaseInformation.Name"/> as the databaseInfoName.
+    /// This removes a <see cref="ShardingEntry"/> with the same <see cref="ShardingEntry.Name"/> as the databaseInfoName.
     /// If there are no errors it will update the sharding settings file in the application
     /// </summary>
-    /// <param name="databaseInfoName">Looks for the <see cref="DatabaseInformation"/> with this <see cref="DatabaseInformation.Name"/> </param>
+    /// <param name="databaseInfoName">Looks for the <see cref="ShardingEntry"/> with this <see cref="ShardingEntry.Name"/> </param>
     /// <returns>status containing a success message, or errors</returns>
     public async Task<IStatusGeneric> RemoveDatabaseInfoFromShardingInformationAsync(string databaseInfoName)
     {
@@ -152,13 +152,13 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
             var foundIndex = fileContent.FindIndex(x => x.Name == databaseInfoName);
             if (foundIndex == -1)
                 return status.AddErrorFormatted("MissingDatabaseInfo".ClassLocalizeKey(this, true),
-                    $"Could not find a database info entry with the {nameof(DatabaseInformation.Name)} of '{databaseInfoName ?? "< null >"}'");
+                    $"Could not find a database info entry with the {nameof(ShardingEntry.Name)} of '{databaseInfoName ?? "< null >"}'");
 
             var tenantsUsingThis = (await _connectionsService.GetDatabaseInfoNamesWithTenantNamesAsync())
                 .SingleOrDefault(x => x.databaseInfoName == databaseInfoName).tenantNames;
             if (tenantsUsingThis.Count > 0)
                 return status.AddErrorFormatted("NoDeleteAsUsed".ClassLocalizeKey(this, true),
-                    $"You can't delete the database information with the {nameof(DatabaseInformation.Name)} of ",
+                    $"You can't delete the database information with the {nameof(ShardingEntry.Name)} of ",
                     $"{databaseInfoName} because {tenantsUsingThis.Count} tenant(s) uses this database.");
 
             fileContent.RemoveAt(foundIndex);
@@ -169,7 +169,7 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
     //-----------------------------------------------
     // private methods
 
-    private IStatusGeneric CheckDatabasesInfoAndSaveIfValid(List<DatabaseInformation> databasesInfo, DatabaseInformation changedInfo)
+    private IStatusGeneric CheckDatabasesInfoAndSaveIfValid(List<ShardingEntry> databasesInfo, ShardingEntry changedInfo)
     {
         var status = new StatusGenericLocalizer(_localizeDefault);
         status.SetMessageFormatted("SuccessUpdate".ClassLocalizeKey(this, true),
@@ -178,14 +178,14 @@ public class AccessDatabaseInformationJsonFile : IAccessDatabaseInformationVer5
         //Check Names: not null and unique 
         if (databasesInfo.Any(x => x.Name == null))
             return status.AddErrorString("DbNameMissing".ClassLocalizeKey(this, true),
-                $"The {nameof(DatabaseInformation.Name)} is null, which isn't allowed.");
+                $"The {nameof(ShardingEntry.Name)} is null, which isn't allowed.");
         var duplicates = databasesInfo.GroupBy(x => x.Name)
             .Where(g => g.Count() > 1)
             .Select(x => x.Key)
             .ToList();
         if (duplicates.Any())
             return status.AddErrorFormatted("DatabaseInfoDuplicate".ClassLocalizeKey(this, true),
-                $"The {nameof(DatabaseInformation.Name)} of {string.Join(",", duplicates)} is already used.");
+                $"The {nameof(ShardingEntry.Name)} of {string.Join(",", duplicates)} is already used.");
 
         //Try creating a valid connection string
         if (changedInfo != null) //if deleted we don't test it

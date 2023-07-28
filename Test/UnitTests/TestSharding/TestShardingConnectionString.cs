@@ -55,11 +55,10 @@ public class TestShardingConnectionString
     public void TestDefaultShardingDatabaseData()
     {
         //SETUP
-        var databaseDefault = new DatabaseInformationOptions();
+        var databaseDefault = new ShardingEntryOptions();
 
         //ATTEMPT
-        databaseDefault.FormDefaultDatabaseInfo(FormAuthOptionsForSharding());
-        var defaults = databaseDefault.ProvideEmptyDefaultDatabaseInformations();
+        var defaults = databaseDefault.ProvideEmptyDefaultShardingEntry(FormAuthOptionsForSharding());
 
         //VERIFY
         databaseDefault.Name.ShouldEqual("Default Database");
@@ -70,15 +69,16 @@ public class TestShardingConnectionString
     }
 
     [Fact]
-    public void TestDefaultShardingDatabaseData_CustomDatabase()
+    public void TestDefaultShardingDatabaseData_CustomDatabase_Ok()
     {
         //SETUP
-        var databaseDefault = new DatabaseInformationOptions();
-        databaseDefault.DatabaseType = "Sqlite";
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        var databaseDefault = new ShardingEntryOptions();
 
         //ATTEMPT
-        databaseDefault.FormDefaultDatabaseInfo(FormAuthOptionsForSharding());
-        var defaults = databaseDefault.ProvideEmptyDefaultDatabaseInformations();
+        var defaults = databaseDefault.ProvideEmptyDefaultShardingEntry(
+            FormAuthOptionsForSharding(AuthPDatabaseTypes.CustomDatabase), context);
 
         //VERIFY
         databaseDefault.Name.ShouldEqual("Default Database");
@@ -88,21 +88,20 @@ public class TestShardingConnectionString
         defaults.Count.ShouldEqual(1);
     }
 
-
     [Fact]
     public void TestDefaultShardingDatabaseData_CustomDatabase_NoContext()
     {
         //SETUP
-        var databaseDefault = new DatabaseInformationOptions();
+        var databaseDefault = new ShardingEntryOptions(false);
 
         //ATTEMPT
         try
         {
             databaseDefault.FormDefaultDatabaseInfo(FormAuthOptionsForSharding(AuthPDatabaseTypes.CustomDatabase));
         }
-        catch (AuthPermissionsException e)
+        catch (Exception e)
         {
-            e.Message.ShouldEqual("You are using custom database, so you set the DatabaseType to the short form of the database provider name, e.g. SqlServer.");
+            e.Message.ShouldStartWith("When using a custom database provide, then you must provide an instance of the AuthPermissionsDbContext context.");
             return;
         }
 
@@ -116,8 +115,8 @@ public class TestShardingConnectionString
         //SETUP
 
         //ATTEMPT
-        var databaseDefault = new DatabaseInformationOptions(false);
-        var defaults = databaseDefault.ProvideEmptyDefaultDatabaseInformations();
+        var databaseDefault = new ShardingEntryOptions(false);
+        var defaults = databaseDefault.ProvideEmptyDefaultShardingEntry(FormAuthOptionsForSharding());
 
         //VERIFY
         databaseDefault.AddIfEmpty.ShouldBeFalse();
@@ -129,7 +128,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
-            null, FormAuthOptionsForSharding(), new DatabaseInformationOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            null, FormAuthOptionsForSharding(), new ShardingEntryOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -154,11 +153,11 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
-            null, FormAuthOptionsForSharding(), new DatabaseInformationOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            null, FormAuthOptionsForSharding(), new ShardingEntryOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var databaseInfo = new DatabaseInformation
+        var databaseInfo = new ShardingEntry
         {
             Name = "Test",
             DatabaseName = "TestDb",
@@ -177,7 +176,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
-            null, FormAuthOptionsForSharding(), new DatabaseInformationOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            null, FormAuthOptionsForSharding(), new ShardingEntryOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -192,7 +191,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
-            null, FormAuthOptionsForSharding(), new DatabaseInformationOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            null, FormAuthOptionsForSharding(), new ShardingEntryOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -207,7 +206,7 @@ public class TestShardingConnectionString
     {
         //SETUP
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
-            null, FormAuthOptionsForSharding(), new DatabaseInformationOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            null, FormAuthOptionsForSharding(), new ShardingEntryOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -223,7 +222,7 @@ public class TestShardingConnectionString
         //SETUP
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             null, FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL),
-            new DatabaseInformationOptions(), 
+            new ShardingEntryOptions(), 
             ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
@@ -259,7 +258,7 @@ public class TestShardingConnectionString
 
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
             context, FormAuthOptionsForSharding(),
-            new DatabaseInformationOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
+            new ShardingEntryOptions(), ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -307,7 +306,7 @@ public class TestShardingConnectionString
         services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
 
         var service = new ShardingConnectionsJsonFile(_connectSnapshot, _shardingMonitor,
-            context, FormAuthOptionsForSharding(), new DatabaseInformationOptions(), 
+            context, FormAuthOptionsForSharding(), new ShardingEntryOptions(), 
             ShardingHelpers.GetDatabaseSpecificMethods(),
             "en".SetupAuthPLoggingLocalizer());
 

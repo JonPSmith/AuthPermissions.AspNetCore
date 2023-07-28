@@ -4,7 +4,7 @@
 using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthPermissions.BaseCode;
+namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// Simple method to get the short name of a EF Core database provider

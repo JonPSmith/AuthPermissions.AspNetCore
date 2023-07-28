@@ -19,6 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Net.DistributedFileStoreCache" Version="2.0.0" />
 		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="1.0.0" />
 	</ItemGroup>
 

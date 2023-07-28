@@ -25,7 +25,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     private readonly ConnectionStringsOption _connectionDict;
     private readonly IOptionsMonitor<ShardingSettingsOption> _shardingSettingsAccessor;
     private readonly AuthPermissionsDbContext _context;
-    private readonly DatabaseInformationOptions _defaultDatabaseInformation;
+    private readonly ShardingEntryOptions _defaultShardingEntry;
     private readonly IDefaultLocalizer _localizeDefault;
     private readonly AuthPermissionsOptions _options;
 
@@ -46,13 +46,13 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// <param name="shardingSettingsAccessor">Dynamically assesses the ShardingData part of the shardingsetting file</param>
     /// <param name="context">AuthP context - used in <see cref="GetDatabaseInfoNamesWithTenantNamesAsync"/> method</param>
     /// <param name="options"></param>
-    /// <param name="defaultDatabaseInformation">The <see cref="DatabaseInformation"/> to use if the sharding data is empty</param>
+    /// <param name="defaultShardingEntry">The <see cref="ShardingEntry"/> to use if the sharding data is empty</param>
     /// <param name="databaseProviderMethods"></param>
     /// <param name="localizeProvider">Provides the used to localize any errors or messages</param>
     public ShardingConnectionsJsonFile(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor,
         IOptionsMonitor<ShardingSettingsOption> shardingSettingsAccessor,
         AuthPermissionsDbContext context, AuthPermissionsOptions options,
-        DatabaseInformationOptions defaultDatabaseInformation,
+        ShardingEntryOptions defaultShardingEntry,
         IEnumerable<IDatabaseSpecificMethods> databaseProviderMethods,
         IAuthPDefaultLocalizer localizeProvider)
     {
@@ -60,7 +60,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
         _connectionDict = connectionsAccessor.Value;
         _shardingSettingsAccessor = shardingSettingsAccessor;
         _context = context;
-        _defaultDatabaseInformation = defaultDatabaseInformation;
+        _defaultShardingEntry = defaultShardingEntry;
         _options = options;
 
         DatabaseProviderMethods = databaseProviderMethods.ToDictionary(x => x.AuthPDatabaseType);
@@ -74,8 +74,8 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// NOTE: If the sharding settings file is missing, or there is no "ShardingData" section,
     /// then it will return one <see cref="ShardingSettingsOption"/> that uses the "DefaultConnection" connection string
     /// </summary>
-    /// <returns>A list of <see cref="DatabaseInformation"/> from the sharding settings file</returns>
-    public List<DatabaseInformation> GetAllPossibleShardingData()
+    /// <returns>A list of <see cref="ShardingEntry"/> from the sharding settings file</returns>
+    public List<ShardingEntry> GetAllPossibleShardingData()
     {
         return GetDatabaseInformation();
     }
@@ -151,13 +151,13 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     }
 
     /// <summary>
-    /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a
+    /// This method allows you to check that the <see cref="ShardingEntry"/> will create a
     /// a valid connection string. Useful when adding or editing the data in the sharding settings file.
     /// </summary>
-    /// <param name="databaseInfo">The full definition of the <see cref="DatabaseInformation"/> for this database info</param>
+    /// <param name="databaseInfo">The full definition of the <see cref="ShardingEntry"/> for this database info</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
+    public IStatusGeneric TestFormingConnectionString(ShardingEntry databaseInfo)
     {
         var status = new StatusGenericLocalizer(_localizeDefault);
 
@@ -166,7 +166,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
 
         if (!_connectionDict.TryGetValue(databaseInfo.ConnectionName, out var connectionString))
             return status.AddErrorFormatted("NoConnectionString".ClassLocalizeKey(this, true),
-                $"The {nameof(DatabaseInformation.ConnectionName)} '{databaseInfo.ConnectionName}' ",
+                $"The {nameof(ShardingEntry.ConnectionName)} '{databaseInfo.ConnectionName}' ",
                 $"wasn't found in the connection strings.");
 
         if (!ShardingDatabaseProviders.TryGetValue(databaseInfo.DatabaseType,
@@ -180,7 +180,7 @@ public class ShardingConnectionsJsonFile : IShardingConnections
         {
             status.AddErrorFormatted("BadConnectionString".ClassLocalizeKey(this, true),
                 $"There was an  error when trying to create a connection string. Typically this is because ",
-                $"the connection string doesn't match the {nameof(DatabaseInformation.DatabaseType)}.");
+                $"the connection string doesn't match the {nameof(ShardingEntry.DatabaseType)}.");
         }
 
         return status;
@@ -192,12 +192,12 @@ public class ShardingConnectionsJsonFile : IShardingConnections
     /// <summary>
     /// This gets the most up to date data in the sharding settings json file
     /// </summary>
-    private List<DatabaseInformation> GetDatabaseInformation()
+    private List<ShardingEntry> GetDatabaseInformation()
     {
         if (_shardingSettingsAccessor.CurrentValue == null ||
             !_shardingSettingsAccessor.CurrentValue.ShardingDatabases.Any())
             //No entry, so provide the default settings (useful if deploying the first time)
-            return _defaultDatabaseInformation.ProvideEmptyDefaultDatabaseInformations();
+            return _defaultShardingEntry.ProvideEmptyDefaultShardingEntry(_options, _context);
 
         //it has entries already
         return _shardingSettingsAccessor.CurrentValue.ShardingDatabases;

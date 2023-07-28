@@ -8,7 +8,7 @@ namespace Example6.MvcWebApp.Sharding.Models;
 
 public class DatabaseInformationEdit 
 {
-    public DatabaseInformation DatabaseInfo { get; set; }
+    public ShardingEntry DatabaseInfo { get; set; }
 
     public IEnumerable<string> AllPossibleConnectionNames { get; set; }
 

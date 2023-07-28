@@ -4,12 +4,11 @@
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
-using LocalizeMessagesAndErrors;
 using Medallion.Threading.FileSystem;
 using Microsoft.Data.Sqlite;
 using StatusGeneric;
 
-namespace AuthPermissions.AspNetCore.ShardingServices;
+namespace AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 
 /// <summary>
 /// This class implements the sharding methods for a Sqlite database.
@@ -50,9 +49,9 @@ public class SqliteInMemorySpecificMethods : IDatabaseSpecificMethods
     /// <param name="databaseInformation"></param>
     /// <param name="connectionString"></param>
     /// <returns></returns>
-    public string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
+    public string SetDatabaseInConnectionString(ShardingEntry databaseInformation, string connectionString)
     {
-        return (new SqliteConnectionStringBuilder { DataSource = ":memory:" }).ConnectionString;
+        return new SqliteConnectionStringBuilder { DataSource = ":memory:" }.ConnectionString;
     }
 
     /// <summary>

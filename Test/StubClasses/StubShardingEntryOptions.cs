@@ -6,9 +6,9 @@ using AuthPermissions.BaseCode.SetupCode;
 
 namespace Test.StubClasses;
 
-public class StubDatabaseInformationOptions : DatabaseInformationOptions
+public class StubShardingEntryOptions : ShardingEntryOptions
 {
-    public StubDatabaseInformationOptions(AuthPDatabaseTypes dbType = AuthPDatabaseTypes.SqlServer)
+    public StubShardingEntryOptions(AuthPDatabaseTypes dbType = AuthPDatabaseTypes.SqlServer)
     {
         Name = "Default Database";
         ConnectionName = "DefaultConnection";

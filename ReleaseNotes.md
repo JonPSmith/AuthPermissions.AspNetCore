@@ -27,7 +27,7 @@
 - Improved feature: The RefreshUsersClaims classes have been moved to SupportCode project and a few classes have been renamed
 - Improved feature: Sharding now has distributed lock on changes to the shardingsettings.json file
 - Improved feature: The AuthUserAdmin method QueryAuthUsers now takes an optional DatabaseInfoName to allow tenant admin users on sharding
-- Bug Fix: The ReadShardingSettingsFile now return the default sharding DatabaseInformation if no sharding file is found
+- Bug Fix: The ReadShardingSettingsFile now return the default sharding ShardingEntry if no sharding file is found
 - Updated NuGets: There was a security alert on one of the NuGets. All the NuGets have been updated to the latest 
 
 ## 3.3.0

@@ -159,7 +159,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
             //We need to undo what was done in the try / catch
             //NOTE: I couldn't use a database transaction because
             // 1. Creating the tenant uses a database transaction, and you can't have a transaction within a transaction
-            // 2. The FindOrCreateDatabaseAsync might create a DatabaseInformation, which can be in the a json file
+            // 2. The FindOrCreateDatabaseAsync might create a ShardingEntry, which can be in the a json file
 
             if (newTenant != null)
             {

@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
 using StatusGeneric;
@@ -41,13 +42,13 @@ public class StubConnectionsService : IShardingConnections
         _caller = caller;
     }
 
-    public List<DatabaseInformation> GetAllPossibleShardingData()
+    public List<ShardingEntry> GetAllPossibleShardingData()
     {
-        return new List<DatabaseInformation>
+        return new List<ShardingEntry>
         {
-            new DatabaseInformation{Name = "Default Database", ConnectionName = "UnitTestConnection"},
-            new DatabaseInformation{Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "UnitTestConnection"},
-            new DatabaseInformation{Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = "Postgres"}
+            new ShardingEntry{Name = "Default Database", ConnectionName = "UnitTestConnection"},
+            new ShardingEntry{Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "UnitTestConnection"},
+            new ShardingEntry{Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = "Postgres"}
         };
     }
 
@@ -56,7 +57,7 @@ public class StubConnectionsService : IShardingConnections
         return new[] { "UnitTestConnection", "PostgreSqlConnection" };
     }
 
-    public IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo)
+    public IStatusGeneric TestFormingConnectionString(ShardingEntry databaseInfo)
     {
         var status = new StatusGenericHandler();
         return status;

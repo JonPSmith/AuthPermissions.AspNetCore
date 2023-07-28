@@ -6,6 +6,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
+using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using StatusGeneric;
@@ -27,9 +28,9 @@ public class TestSqlServerDatabaseSpecificMethods
         _output = output;
     }
 
-    private DatabaseInformation SetupDatabaseInformation(bool nameIsNull)
+    private ShardingEntry SetupDatabaseInformation(bool nameIsNull)
     {
-        return new DatabaseInformation
+        return new ShardingEntry
         {
             Name = "EntryName",
             DatabaseType = nameof(AuthPDatabaseTypes.SqlServer),

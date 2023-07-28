@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
@@ -11,8 +10,7 @@ using Xunit.Extensions.AssertExtensions;
 using Example2.WebApiWithToken.IndividualAccounts.PermissionsCode;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
-using System;
-using Test.TestHelpers;
+using Test.StubClasses;
 
 namespace Test.UnitTests.TestExamples;
 

@@ -3,6 +3,7 @@
 
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 
 namespace AuthPermissions.AspNetCore.ShardingServices;
@@ -10,16 +11,16 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 /// <summary>
 /// This defines the default sharding entry to add the sharding if the sharding data is empty.
 /// You can manually set the four properties and/or call the <see cref="FormDefaultDatabaseInfo"/>
-/// method to fill in the normal default <see cref="DatabaseInformation"/>.
+/// method to fill in the normal default <see cref="ShardingEntry"/>.
 /// NOTE: if your tenants are ALL using sharding, then set <see cref="AddIfEmpty"/> parameter to false
 /// </summary>
-public class DatabaseInformationOptions : DatabaseInformation
+public class ShardingEntryOptions : ShardingEntry
 {
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="addIfEmpty">defaults to true. Set this to false if all of your tenant are shading.</param>
-    public DatabaseInformationOptions(bool addIfEmpty = true)
+    public ShardingEntryOptions(bool addIfEmpty = true)
     {
         AddIfEmpty = addIfEmpty;
     }
@@ -31,36 +32,44 @@ public class DatabaseInformationOptions : DatabaseInformation
     public bool AddIfEmpty { get; private set; }
 
     /// <summary>
-    /// This fills in the <see cref="DatabaseInformation"/> with the default information.
+    /// This fills in the <see cref="ShardingEntry"/> with the default information.
     /// NOTE: If you 
     /// </summary>
-    /// <param name="options">This is used to set the <see cref="DatabaseInformation.DatabaseType"/>
+    /// <param name="options">This is used to set the <see cref="ShardingEntry.DatabaseType"/>
     /// based on which database provider you selected. NOTE: If using custom database, then you MUST
-    /// define the <see cref="DatabaseInformation.DatabaseType"/> with the short form of the custom
+    /// define the <see cref="ShardingEntry.DatabaseType"/> with the short form of the custom
     /// database provider name before you call this method.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public void FormDefaultDatabaseInfo(AuthPermissionsOptions options)
+    public void FormDefaultDatabaseInfo(AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
         //Set up the default settings
         Name ??= options.ShardingDefaultDatabaseInfoName ??
                throw new ArgumentNullException(nameof(options.ShardingDefaultDatabaseInfoName));
         ConnectionName ??= "DefaultConnection";
-        DatabaseType ??= GetShortDatabaseProviderName(options);
+        DatabaseType ??= GetShortDatabaseProviderName(options, authPContext)
+            ?? throw new ArgumentNullException(nameof(options.ShardingDefaultDatabaseInfoName),
+                $"You must the provide a {nameof(DatabaseType)} if you are going call the {nameof(FormDefaultDatabaseInfo)} method.");
     }
 
     /// <summary>
-    /// This return the correct list of default <see cref="DatabaseInformation"/> list.
+    /// This return the correct list of default <see cref="ShardingEntry"/> list.
     /// Can be an empty if <see cref="AddIfEmpty"/> is false (useful in sharding only situations)
     /// </summary>
+    /// <param name="options">Needed to fill in the <see cref="ShardingEntryOptions.DatabaseType"/></param>
+    /// <param name="authPContext">Optional: Only needed if AddIfEmpty and using custom database.
+    /// You must provide the <see cref="AuthPermissionsDbContext"/> to get the short provider name.</param>
     /// <returns></returns>
-    public List<DatabaseInformation> ProvideEmptyDefaultDatabaseInformations()
+    public List<ShardingEntry> ProvideEmptyDefaultShardingEntry(
+        AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
-        return AddIfEmpty
-            ? new List<DatabaseInformation> { this }
-            : new List<DatabaseInformation>(); //Empty - used when all tenants have their own database, i.e. all sharding
+        if (!AddIfEmpty)
+            return new List<ShardingEntry>(); //Empty - used when all tenants have their own database, i.e. all sharding
+        
+        FormDefaultDatabaseInfo(options, authPContext);
+        return new List<ShardingEntry> { this };
     }
 
-    private string GetShortDatabaseProviderName(AuthPermissionsOptions options)
+    private string GetShortDatabaseProviderName(AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
         switch (options.InternalData.AuthPDatabaseType)
         {
@@ -73,10 +82,7 @@ public class DatabaseInformationOptions : DatabaseInformation
             case AuthPDatabaseTypes.PostgreSQL:
                 return "PostgreSQL";
             case AuthPDatabaseTypes.CustomDatabase:
-                if (!AddIfEmpty)
-                    throw new AuthPermissionsException("You are using custom database, so you set the DatabaseType" +
-                                                   " to the short form of the database provider name, e.g. SqlServer.");
-                return null;
+                return authPContext.GetProviderShortName();
             default:
                 throw new ArgumentOutOfRangeException();
         }

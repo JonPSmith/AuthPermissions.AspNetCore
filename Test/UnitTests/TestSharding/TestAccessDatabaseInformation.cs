@@ -44,7 +44,7 @@ public class TestAccessDatabaseInformation
     {
         var testData = new ShardingSettingsOption
         {
-            ShardingDatabases = new List<DatabaseInformation>
+            ShardingDatabases = new List<ShardingEntry>
             {
                 new (){ Name = "Default Database", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer)},
                 new (){ Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer) },
@@ -80,7 +80,7 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-           FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+           FormAuthOptionsForSharding(), new StubShardingEntryOptions(),
            "en".SetupAuthPLoggingLocalizer());
         //ATTEMPT
         var databaseInfo = service.ReadAllShardingInformation();
@@ -106,7 +106,7 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir() + "DummyDir\\", EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            FormAuthOptionsForSharding(), new StubShardingEntryOptions(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -134,11 +134,11 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            FormAuthOptionsForSharding(), new StubShardingEntryOptions(),
             "en".SetupAuthPLoggingLocalizer()); ;
 
         //ATTEMPT
-        var databaseInfo = new DatabaseInformation
+        var databaseInfo = new ShardingEntry
         {
             DatabaseType = nameof(AuthPDatabaseTypes.SqlServer), Name = name, ConnectionName = "UnitTestConnection"
         };
@@ -160,11 +160,11 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            FormAuthOptionsForSharding(), new StubShardingEntryOptions(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
-        var databaseInfo = new DatabaseInformation
+        var databaseInfo = new ShardingEntry
         {
             DatabaseType = nameof(AuthPDatabaseTypes.SqliteInMemory),
             Name = "Default Database", ConnectionName = "PostgreSqlConnection"
@@ -187,7 +187,7 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            FormAuthOptionsForSharding(), new StubShardingEntryOptions(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
@@ -212,14 +212,14 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(), new StubDatabaseInformationOptions(),
+            FormAuthOptionsForSharding(), new StubShardingEntryOptions(),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },
             name =>
             {
-                var databaseInfo = new DatabaseInformation
+                var databaseInfo = new ShardingEntry
                 {
                     DatabaseType = nameof(AuthPDatabaseTypes.SqlServer),
                     Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection"
@@ -249,14 +249,14 @@ public class TestAccessDatabaseInformation
         var stubEnv = new StubWebHostEnvironment { ContentRootPath = TestData.GetTestDataDir(), EnvironmentName = "Test" };
         var stubCon = new StubConnectionsService(this);
         var service = new AccessDatabaseInformationJsonFile(stubEnv, stubCon, context,
-            FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL), new StubDatabaseInformationOptions(AuthPDatabaseTypes.PostgreSQL),
+            FormAuthOptionsForSharding(AuthPDatabaseTypes.PostgreSQL), new StubShardingEntryOptions(AuthPDatabaseTypes.PostgreSQL),
             "en".SetupAuthPLoggingLocalizer());
 
         //ATTEMPT
         Parallel.ForEach(new string[] { "Name1", "Name2", "Name3" },
             name =>
             {
-                var databaseInfo = new DatabaseInformation
+                var databaseInfo = new ShardingEntry
                 {
                     DatabaseType = nameof(AuthPDatabaseTypes.PostgreSQL),
                     Name = name, DatabaseName = $"Database{name}", ConnectionName = "UnitTestConnection"

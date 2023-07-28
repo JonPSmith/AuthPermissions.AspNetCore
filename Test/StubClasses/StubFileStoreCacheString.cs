@@ -1,14 +1,11 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Threading;
 using Microsoft.Extensions.Caching.Distributed;
 using Net.DistributedFileStoreCache;
 
-namespace Test.TestHelpers;
+namespace Test.StubClasses;
 
 public class StubFileStoreCacheString : IDistributedFileStoreCacheString
 {

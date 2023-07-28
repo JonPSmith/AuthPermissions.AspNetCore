@@ -24,13 +24,13 @@ public interface IShardingConnections
     public IReadOnlyDictionary<string, IDatabaseSpecificMethods> ShardingDatabaseProviders { get; }
 
     /// <summary>
-    /// This returns all the database names in the DatabaseInformation data
+    /// This returns all the database names in the ShardingEntry data
     /// See <see cref="ShardingSettingsOption"/> for the format of that file
-    /// NOTE: If there is no DatabaseInformation data, then it will return one
-    /// <see cref="DatabaseInformation"/> that uses the "DefaultConnection" connection string
+    /// NOTE: If there is no ShardingEntry data, then it will return one
+    /// <see cref="ShardingEntry"/> that uses the "DefaultConnection" connection string
     /// </summary>
-    /// <returns>A list of <see cref="DatabaseInformation"/> from the DatabaseInformation data</returns>
-    List<DatabaseInformation> GetAllPossibleShardingData();
+    /// <returns>A list of <see cref="ShardingEntry"/> from the ShardingEntry data</returns>
+    List<ShardingEntry> GetAllPossibleShardingData();
 
     /// <summary>
     /// This provides the names of the connection string
@@ -39,23 +39,23 @@ public interface IShardingConnections
     IEnumerable<string> GetConnectionStringNames();
 
     /// <summary>
-    /// This returns all the database info names in the DatabaseInformation data, with a list of tenant name linked to each connection name
+    /// This returns all the database info names in the ShardingEntry data, with a list of tenant name linked to each connection name
     /// </summary>
     /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
     Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
 
     /// <summary>
-    /// This method allows you to check that the <see cref="DatabaseInformation"/> will create a
-    /// a valid connection string. Useful when adding or editing the data in the DatabaseInformation data.
+    /// This method allows you to check that the <see cref="ShardingEntry"/> will create a
+    /// a valid connection string. Useful when adding or editing the data in the ShardingEntry data.
     /// </summary>
-    /// <param name="databaseInfo">The full definition of the <see cref="DatabaseInformation"/> for this database info</param>
+    /// <param name="databaseInfo">The full definition of the <see cref="ShardingEntry"/> for this database info</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    IStatusGeneric TestFormingConnectionString(DatabaseInformation databaseInfo);
+    IStatusGeneric TestFormingConnectionString(ShardingEntry databaseInfo);
 
     /// <summary>
-    /// This will provide the connection string for the entry with the given DatabaseInformation with the given databaseInfoName
+    /// This will provide the connection string for the entry with the given ShardingEntry with the given databaseInfoName
     /// </summary>
     /// <param name="databaseInfoName">The name of sharding database info we want to access</param>
     /// <returns>The connection string, or null if not found</returns>

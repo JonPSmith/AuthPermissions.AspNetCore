@@ -2,14 +2,14 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using AuthPermissions.BaseCode;
+
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Medallion.Threading.SqlServer;
 using Microsoft.Data.SqlClient;
 using StatusGeneric;
 
-namespace AuthPermissions.AspNetCore.ShardingServices;
+namespace AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 
 /// <summary>
 /// This contains the SqlServer-specific sharding functions
@@ -31,19 +31,19 @@ public class SqlServerDatabaseSpecificMethods : IDatabaseSpecificMethods
     public string DatabaseProviderShortName => "SqlServer";
 
     /// <summary>
-    /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString
-    /// NOTE: If the <see cref="DatabaseInformation.DatabaseName"/> is null / empty, then it returns the connectionString with no change
+    /// This changes the database to the <see cref="ShardingEntry.DatabaseName"/> in the given connectionString
+    /// NOTE: If the <see cref="ShardingEntry.DatabaseName"/> is null / empty, then it returns the connectionString with no change
     /// </summary>
     /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
     /// <param name="connectionString">connection string to the database to place a Distributed Lock on</param>
     /// <returns>A connection string containing the correct database to be used, or errors</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    public string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
+    public string SetDatabaseInConnectionString(ShardingEntry databaseInformation, string connectionString)
     {
         var builder = new SqlConnectionStringBuilder(connectionString);
         if (string.IsNullOrEmpty(builder.InitialCatalog) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
             throw new AuthPermissionsException(
-                $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
+                $"The {nameof(ShardingEntry.DatabaseName)} can't be null or empty " +
                 "when the connection string doesn't have a database defined.");
 
         if (string.IsNullOrEmpty(databaseInformation.DatabaseName))

@@ -11,6 +11,7 @@ using AuthPermissions.AspNetCore.OpenIdCode;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
@@ -146,10 +147,10 @@ namespace AuthPermissions.AspNetCore
         /// before calling this extension method
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="defaultDatabaseInformation">Optional: you can override the default <see cref="DatabaseInformation"/> data if required.</param>
+        /// <param name="defaultShardingEntry">Optional: you can override the default <see cref="ShardingEntry"/> data if required.</param>
         /// <returns></returns>
         public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData, 
-            DatabaseInformationOptions defaultDatabaseInformation = null)
+            ShardingEntryOptions defaultShardingEntry = null)
         {
             if (!setupData.Options.TenantType.IsMultiTenant())
                 throw new AuthPermissionsException(
@@ -162,9 +163,9 @@ namespace AuthPermissions.AspNetCore
                     $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
 
             //This defines the default sharding entry to use when there are no entries
-            defaultDatabaseInformation ??= new DatabaseInformationOptions();
-            defaultDatabaseInformation.FormDefaultDatabaseInfo(setupData.Options);
-            setupData.Services.AddSingleton(defaultDatabaseInformation);
+            defaultShardingEntry ??= new ShardingEntryOptions();
+            defaultShardingEntry.FormDefaultDatabaseInfo(setupData.Options);
+            setupData.Services.AddSingleton(defaultShardingEntry);
 
             //This gets access to the ConnectionStrings
             setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));

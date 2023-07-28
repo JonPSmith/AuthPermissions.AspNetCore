@@ -9,7 +9,7 @@ using Medallion.Threading.Postgres;
 using Npgsql;
 using StatusGeneric;
 
-namespace AuthPermissions.AspNetCore.ShardingServices;
+namespace AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 
 /// <summary>
 /// This contains the Postgres-specific sharding functions
@@ -30,19 +30,19 @@ public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
     public string DatabaseProviderShortName => "PostgreSQL";
 
     /// <summary>
-    /// This changes the database to the <see cref="DatabaseInformation.DatabaseName"/> in the given connectionString
-    /// NOTE: If the <see cref="DatabaseInformation.DatabaseName"/> is null / empty, then it returns the connectionString with no change
+    /// This changes the database to the <see cref="ShardingEntry.DatabaseName"/> in the given connectionString
+    /// NOTE: If the <see cref="ShardingEntry.DatabaseName"/> is null / empty, then it returns the connectionString with no change
     /// </summary>
     /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
     /// <param name="connectionString"></param>
     /// <returns>A connection string containing the correct database to be used, or errors</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    public string SetDatabaseInConnectionString(DatabaseInformation databaseInformation, string connectionString)
+    public string SetDatabaseInConnectionString(ShardingEntry databaseInformation, string connectionString)
     {
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
             throw new AuthPermissionsException(
-                $"The {nameof(DatabaseInformation.DatabaseName)} can't be null or empty " +
+                $"The {nameof(ShardingEntry.DatabaseName)} can't be null or empty " +
                 "when the connection string doesn't have a database defined.");
 
         if (string.IsNullOrEmpty(databaseInformation.DatabaseName))

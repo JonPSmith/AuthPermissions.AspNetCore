@@ -2,22 +2,18 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
-using AuthPermissions.BaseCode;
-using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
-using AuthPermissions.BaseCode.SetupCode;
 
 namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This class holds the information about each database used by the AuthP sharding feature
-/// The <see cref="ShardingSettingsOption"/> class has an array of <see cref="DatabaseInformation"/> 
+/// The <see cref="ShardingSettingsOption"/> class has an array of <see cref="ShardingEntry"/> 
 /// </summary>
-public class DatabaseInformation
+public class ShardingEntry
 {
     /// <summary>
     /// This holds the name for this database information, which will be seen by admin users and in a claim
-    /// This is used as a reference to this <see cref="DatabaseInformation"/>
+    /// This is used as a reference to this <see cref="ShardingEntry"/>
     /// The <see cref="Name"/> should not be null, and should be unique
     /// </summary>
     [Required]
