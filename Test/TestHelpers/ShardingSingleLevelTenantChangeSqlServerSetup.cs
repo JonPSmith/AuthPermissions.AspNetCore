@@ -49,7 +49,7 @@ public class ShardingSingleLevelTenantChangeSqlServerSetup : IDisposable
         public StubGetShardingData(string connectionName, object caller, AuthPermissionsDbContext context)
         {
             _context = context;
-            ConnectionString = new StubConnectionsService(caller).FormConnectionString(connectionName)
+            ConnectionString = new StubGetSetShardingEntries(caller).FormConnectionString(connectionName)
                                ?? throw new NotImplementedException("Don't know that connection name");
             DataKey = connectionName == "Other Database"
                 ? MultiTenantExtensions.DataKeyNoQueryFilter

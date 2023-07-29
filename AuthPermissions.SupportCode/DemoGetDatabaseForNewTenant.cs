@@ -15,7 +15,7 @@ namespace AuthPermissions.SupportCode;
 /// </summary>
 public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
-    private readonly IShardingConnections _shardingService;
+    private readonly IGetSetShardingEntries _shardingService;
     private readonly AuthPermissionsDbContext _context;
     private readonly IDefaultLocalizer _localizeDefault;
 
@@ -25,7 +25,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
     /// <param name="shardingService"></param>
     /// <param name="context"></param>
     /// <param name="localizeProvider"></param>
-    public DemoGetDatabaseForNewTenant(IShardingConnections shardingService,
+    public DemoGetDatabaseForNewTenant(IGetSetShardingEntries shardingService,
         AuthPermissionsDbContext context,
         IAuthPDefaultLocalizer localizeProvider)
     {

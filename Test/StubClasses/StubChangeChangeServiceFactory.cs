@@ -35,6 +35,6 @@ public class StubChangeChangeServiceFactory : IAuthPServiceFactory<ITenantChange
         var logger = new LoggerFactory(
                 new[] { new MyLoggerProviderActionOut(log => Logs.Add(log)) })
             .CreateLogger<ShardingTenantChangeService>();
-        return new ShardingTenantChangeService(builder.Options, new StubConnectionsService(_caller), logger);
+        return new ShardingTenantChangeService(builder.Options, new StubGetSetShardingEntries(_caller), logger);
     }
 }

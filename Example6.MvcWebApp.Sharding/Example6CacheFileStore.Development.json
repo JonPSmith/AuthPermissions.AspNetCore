@@ -1,1 +1,7 @@
-{"Cache":{"ChangeAtThisTime":"638175940301266838","DivertTenantDeleted-DatabaseEast1|NoQueryFilter":"DatabaseEast1|NoQueryFilter"},"TimeOuts":{}}
+{
+  "Cache": {
+    "ShardingEntry-Default Database": "{\r\n  \"Name\": \"Default Database\",\r\n  \"DatabaseName\": null,\r\n  \"ConnectionName\": \"DefaultConnection\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
+    "ShardingEntry-New tenant": "{\r\n  \"Name\": \"New tenant\",\r\n  \"DatabaseName\": \"NewDatabase \",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
+  },
+  "TimeOuts": {}
+}

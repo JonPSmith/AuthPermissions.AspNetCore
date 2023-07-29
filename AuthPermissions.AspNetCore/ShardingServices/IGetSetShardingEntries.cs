@@ -16,7 +16,7 @@ public interface IGetSetShardingEntries
     /// This returns the supported database providers that can be used for multi tenant sharding.
     /// Only useful if you have multiple database providers for your tenant databases (rare).
     /// </summary>
-    public List<string> PossibleDatabaseProviders { get; }
+    public string[] PossibleDatabaseProviders { get; }
 
     /// <summary>
     /// This will return a list of <see cref="ShardingEntry"/> in the sharding settings file in the application

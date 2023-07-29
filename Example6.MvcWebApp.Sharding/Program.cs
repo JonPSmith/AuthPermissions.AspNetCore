@@ -1,6 +1,8 @@
 // Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
@@ -68,10 +70,21 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
         options.RegisterServiceToRunInJob<StartupServiceSeedShardingDbContext>();
     });
 
-//This is used to set a tenant as "Down",
+//This is used for a) hold the sharding entries and b) to set a tenant as "Down",
 builder.Services.AddDistributedFileStoreCache(options =>
 {
     options.WhichVersion = FileStoreCacheVersions.Class;
+    //The JsonSerializerForCacheFile below isn't needed in a real app.
+    //I have added this to make the json easier to read.
+    options.JsonSerializerForCacheFile = new JsonSerializerOptions
+    {
+        //This will make the json in the FileStore json file will be easier to read
+        //BUT it will be a bit slower and take up more characters
+        WriteIndented = true,
+        //This makes unicode chars smaller - especially useful for FileStoreCacheVersions.Class
+        //see https://github.com/JonPSmith/Net.DistributedFileStoreCache/wiki/Tips-on-making-your-cache-fast#class-version---already-has-unsaferelaxedjsonescaping
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
     //I override the the default first part of the FileStore cache file because there are many example apps in this repo
     options.FirstPartOfCacheFileName = "Example6CacheFileStore";
 }, builder.Environment);

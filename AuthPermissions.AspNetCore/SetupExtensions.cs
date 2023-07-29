@@ -29,7 +29,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using RunMethodsSequentially;
 
 namespace AuthPermissions.AspNetCore
@@ -163,8 +162,9 @@ namespace AuthPermissions.AspNetCore
                     $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
 
             //This defines the default sharding entry to use when there are no entries
+            //This defaults to hybrid approach, where the database used by AuthP is available for hybrid
+            //You need to supply a ShardingEntryOptions if you want an sharding-only approach
             defaultShardingEntry ??= new ShardingEntryOptions();
-            defaultShardingEntry.FormDefaultDatabaseInfo(setupData.Options);
             setupData.Services.AddSingleton(defaultShardingEntry);
 
             //This gets access to the ConnectionStrings
@@ -175,8 +175,10 @@ namespace AuthPermissions.AspNetCore
             var shardingFileName = AuthPermissionsOptions.FormShardingSettingsFileName(setupData.Options.SecondPartOfShardingFile);
             setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
 
-            setupData.Services.AddScoped<IAccessDatabaseInformationVer5, AccessDatabaseInformationJsonFile>();
-            setupData.Services.AddTransient<IShardingConnections, ShardingConnectionsJsonFile>();
+            //This changed in version 6 of the AuthP library
+            //The GetSetShardingEntriesFileStoreCache handles reading back an ShardingEntry that was undated during the same HTTP request
+            //NOTE: IOptionsMonitor service won't get a change to the json file until an new HTTP request has happened 
+            setupData.Services.AddTransient<IGetSetShardingEntries, GetSetShardingEntriesFileStoreCache>();
             setupData.Services.AddTransient<ILinkToTenantDataService, LinkToTenantDataService>();
 
             switch (setupData.Options.LinkToTenantType)

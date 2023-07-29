@@ -24,7 +24,7 @@ namespace AuthPermissions.AspNetCore.GetDataKeyCode
         /// <param name="connectionService">Service to get the current connection string for the  </param>
         /// <param name="linkService"></param>
         public GetShardingDataUserAccessTenantData(IHttpContextAccessor accessor, 
-            IShardingConnections connectionService,
+            IGetSetShardingEntries connectionService,
             ILinkToTenantDataService linkService)
         {
             var overrideLink = linkService.GetShardingDataOfLinkedTenant();

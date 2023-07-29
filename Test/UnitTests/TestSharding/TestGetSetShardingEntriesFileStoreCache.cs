@@ -104,13 +104,11 @@ public class TestGetSetShardingEntriesFileStoreCache
         shardings[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void TestGetAllShardingEntries_NoFile(bool addIfEmpty)
+    [Fact]
+    public void TestGetAllShardingEntries_NoFile_AddIfEmptyTrue()
     {
         //SETUP
-        var setup = new SetupServiceToTest(addIfEmpty);
+        var setup = new SetupServiceToTest(true);
         setup.StubFsCache.ClearAll();
 
         //ATTEMPT
@@ -121,9 +119,23 @@ public class TestGetSetShardingEntriesFileStoreCache
         {
             _output.WriteLine(databaseInformation.ToString());
         }
-        shardings.Count.ShouldEqual(addIfEmpty ? 1 :0);
-        if (addIfEmpty)
-            shardings[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        shardings.Single().ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(1);
+    }
+
+    [Fact]
+    public void TestGetAllShardingEntries_NoFile_AddIfEmptyFalse()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(false);
+        setup.StubFsCache.ClearAll();
+
+        //ATTEMPT
+        var shardings = setup.Service.GetAllShardingEntries();
+
+        //VERIFY
+        shardings.Count.ShouldEqual(0);
+        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(0);
     }
 
     [Fact]
@@ -137,10 +149,6 @@ public class TestGetSetShardingEntriesFileStoreCache
         var shardings = setup.Service.GetAllShardingEntries();
 
         //VERIFY
-        foreach (var databaseInformation in shardings)
-        {
-            _output.WriteLine(databaseInformation.ToString());
-        }
         shardings[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
     }
 

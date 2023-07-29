@@ -26,7 +26,7 @@ namespace Example6.SingleLevelSharding.EfCoreCode;
 public class ShardingTenantChangeService : ITenantChangeService
 {
     private readonly DbContextOptions<ShardingSingleDbContext> _options;
-    private readonly IShardingConnections _connections;
+    private readonly IGetSetShardingEntries _shardingService;
     private readonly ILogger _logger;
 
     /// <summary>
@@ -35,11 +35,11 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// </summary>
     public int DeletedTenantId { get; private set; }
 
-    public ShardingTenantChangeService(DbContextOptions<ShardingSingleDbContext> options, 
-        IShardingConnections connections, ILogger<ShardingTenantChangeService> logger)
+    public ShardingTenantChangeService(DbContextOptions<ShardingSingleDbContext> options,
+        IGetSetShardingEntries shardingService, ILogger<ShardingTenantChangeService> logger)
     {
         _options = options;
-        _connections = connections;
+        _shardingService = shardingService;
         _logger = logger;
     }
 
@@ -278,7 +278,7 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// <returns><see cref="ShardingSingleDbContext"/> or null if connectionName wasn't found in the appsetting file</returns>
     private ShardingSingleDbContext? GetShardingSingleDbContext(string databaseDataName, string dataKey)
     {
-        var connectionString = _connections.FormConnectionString(databaseDataName);
+        var connectionString = _shardingService.FormConnectionString(databaseDataName);
         if (connectionString == null)
             return null;
 

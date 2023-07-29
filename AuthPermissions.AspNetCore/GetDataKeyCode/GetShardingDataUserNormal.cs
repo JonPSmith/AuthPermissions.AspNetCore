@@ -20,7 +20,7 @@ namespace AuthPermissions.AspNetCore.GetDataKeyCode
         /// </summary>
         /// <param name="accessor"></param>
         /// <param name="connectionService">Service to get the current connection string for the  </param>
-        public GetShardingDataUserNormal(IHttpContextAccessor accessor, IShardingConnections connectionService)
+        public GetShardingDataUserNormal(IHttpContextAccessor accessor, IGetSetShardingEntries connectionService)
         {
             DataKey = accessor.HttpContext?.User.GetAuthDataKeyFromUser();
             var databaseDataName = accessor.HttpContext?.User.GetDatabaseInfoNameFromUser();

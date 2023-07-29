@@ -35,7 +35,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// This returns the supported database providers that can be used for multi tenant sharding.
     /// Only useful if you have multiple database providers for your tenant databases (rare).
     /// </summary>
-    public List<string> PossibleDatabaseProviders { get; }
+    public string[] PossibleDatabaseProviders { get; }
 
     /// <summary>
     /// Ctor
@@ -54,14 +54,14 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         IAuthPDefaultLocalizer localizeProvider)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
-        _connectionDict = connectionsAccessor.Value;
-        _defaultInformationOptions = defaultInformationOptions;
-        _options = options;
-        _authDbContext = authDbContext;
-        _fsCache = fsCache;
+        _connectionDict = connectionsAccessor?.Value ?? throw new ArgumentNullException(nameof(connectionsAccessor));
+        _defaultInformationOptions = defaultInformationOptions ?? throw new ArgumentNullException(nameof(defaultInformationOptions));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _authDbContext = authDbContext ?? throw new ArgumentNullException(nameof(authDbContext));
+        _fsCache = fsCache ?? throw new ArgumentNullException(nameof(fsCache));
 
         _shardingDatabaseProviders = databaseProviderMethods.ToDictionary(x => x.DatabaseProviderShortName);
-        PossibleDatabaseProviders = _shardingDatabaseProviders.Keys.Distinct().OrderBy(x => x).ToList();
+        PossibleDatabaseProviders = _shardingDatabaseProviders.Keys.Distinct().OrderBy(x => x).ToArray();
         _localizeDefault = localizeProvider.DefaultLocalizer;
     }
 
@@ -71,12 +71,21 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// <returns>If data, then returns the default list. This handles the situation where the <see cref="ShardingEntry"/> isn't set up.</returns>
     public List<ShardingEntry> GetAllShardingEntries()
     {
-        var result = _fsCache.GetAllKeyValues()
+        var results = _fsCache.GetAllKeyValues()
             .Where(kv => kv.Key.StartsWith(ShardingEntryPrefix)).ToList()
             .Select(s => _fsCache.GetClassFromString<ShardingEntry>(s.Value)).ToList();
 
-        //If no entries it might because this is the first deployment and the cache isn't setup
-        return result.Any() ? result : _defaultInformationOptions.ProvideEmptyDefaultShardingEntry(_options, _authDbContext);
+        if (results.Any() || !_defaultInformationOptions.AddIfEmpty) 
+            return results;
+
+        //If no entries and AddIfEntry is true, then its most likely an new deployment and the cache isn't setup
+        //Se we add the default sharding entry to the cache and return the default Entry
+        var defaultEntry = _defaultInformationOptions
+            .ProvideEmptyDefaultShardingEntry(_options, _authDbContext);
+        _fsCache.SetClass(FormShardingEntryKey(defaultEntry.Name), defaultEntry);
+        results.Add(defaultEntry);
+
+        return results;
     }
 
     /// <summary>
@@ -90,8 +99,9 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         var entry = _fsCache.GetClass<ShardingEntry>(FormShardingEntryKey(shardingEntryName));
 
         //If no entries it might because this is the first deployment and the cache isn't setup
-        return entry == null && shardingEntryName == _options.ShardingDefaultDatabaseInfoName
-            ? _defaultInformationOptions.ProvideEmptyDefaultShardingEntry(_options, _authDbContext).SingleOrDefault()
+        return entry == null && _defaultInformationOptions.AddIfEmpty 
+            && shardingEntryName == _options.ShardingDefaultDatabaseInfoName
+            ? _defaultInformationOptions.ProvideEmptyDefaultShardingEntry(_options, _authDbContext)
             : entry;
     }
 

@@ -21,10 +21,10 @@ namespace AuthPermissions.AspNetCore.GetDataKeyCode
         /// If no user, or no claim then both parameters will be null
         /// </summary>
         /// <param name="accessor"></param>
-        /// <param name="connectionService">Service to get the current connection string for the  </param>
+        /// <param name="shardingService">Service to get the current connection string for the  </param>
         /// <param name="linkService"></param>
-        public GetShardingDataAppAndHierarchicalUsersAccessTenantData(IHttpContextAccessor accessor, 
-            IShardingConnections connectionService,
+        public GetShardingDataAppAndHierarchicalUsersAccessTenantData(IHttpContextAccessor accessor,
+            IGetSetShardingEntries shardingService,
             ILinkToTenantDataService linkService)
         {
             var overrideLink = linkService.GetShardingDataOfLinkedTenant();
@@ -35,7 +35,7 @@ namespace AuthPermissions.AspNetCore.GetDataKeyCode
                                    ?? accessor.HttpContext?.User.GetDatabaseInfoNameFromUser();
 
             if (databaseDataName != null)
-                ConnectionString = connectionService.FormConnectionString(databaseDataName);
+                ConnectionString = shardingService.FormConnectionString(databaseDataName);
         }
 
         /// <summary>

@@ -8,11 +8,11 @@ namespace Example6.MvcWebApp.Sharding.Controllers;
 
 public class ShardingController : Controller
 {
-    private readonly IAccessDatabaseInformationVer5 _dbInfoService;
+    private readonly IGetSetShardingEntries _shardingService;
 
-    public ShardingController(IAccessDatabaseInformationVer5 dbInfoService)
+    public ShardingController(IGetSetShardingEntries shardingService)
     {
-        _dbInfoService = dbInfoService;
+        _shardingService = shardingService;
     }
 
     [HasPermission(Example6Permissions.ListDatabaseInfos)]
@@ -20,16 +20,16 @@ public class ShardingController : Controller
     {
         ViewBag.Message = message;
 
-        return View(_dbInfoService.ReadAllShardingInformation());
+        return View(_shardingService.GetAllShardingEntries());
     }
 
     [HasPermission(Example6Permissions.TenantCreate)]
-    public IActionResult Create([FromServices] IShardingConnections service)
+    public IActionResult Create()
     {
         var dto = new DatabaseInformationEdit
         {
-            AllPossibleConnectionNames = service.GetConnectionStringNames(),
-            PossibleDatabaseTypes = service.ShardingDatabaseProviders.Keys.ToArray()
+            AllPossibleConnectionNames = _shardingService.GetConnectionStringNames(),
+            PossibleDatabaseTypes = _shardingService.PossibleDatabaseProviders
         };
 
         return View(dto);
@@ -40,7 +40,7 @@ public class ShardingController : Controller
     [HasPermission(Example6Permissions.TenantCreate)]
     public IActionResult Create(DatabaseInformationEdit data)
     {
-        var status = _dbInfoService.AddDatabaseInfoToShardingInformation(data.DatabaseInfo);
+        var status = _shardingService.AddNewShardingEntry(data.DatabaseInfo);
 
         if (status.HasErrors)
             return RedirectToAction(nameof(ErrorDisplay),
@@ -50,13 +50,13 @@ public class ShardingController : Controller
     }
 
     [HasPermission(Example6Permissions.UpdateDatabaseInfo)]
-    public ActionResult Edit([FromServices] IShardingConnections service, string name)
+    public ActionResult Edit(string name)
     {
         var dto = new DatabaseInformationEdit
         {
-            DatabaseInfo = _dbInfoService.GetDatabaseInformationByName(name),
-            AllPossibleConnectionNames = service.GetConnectionStringNames(),
-            PossibleDatabaseTypes = service.ShardingDatabaseProviders.Keys.ToArray()
+            DatabaseInfo = _shardingService.GetSingleShardingEntry(name),
+            AllPossibleConnectionNames = _shardingService.GetConnectionStringNames(),
+            PossibleDatabaseTypes = _shardingService.PossibleDatabaseProviders
         };
 
         if (dto.DatabaseInfo == null)
@@ -71,7 +71,7 @@ public class ShardingController : Controller
     [HasPermission(Example6Permissions.AddDatabaseInfo)]
     public ActionResult Edit(DatabaseInformationEdit data)
     {
-        var status = _dbInfoService.UpdateDatabaseInfoToShardingInformation(data.DatabaseInfo);
+        var status = _shardingService.UpdateShardingEntry(data.DatabaseInfo);
 
         if (status.HasErrors)
             return RedirectToAction(nameof(ErrorDisplay),
@@ -83,7 +83,7 @@ public class ShardingController : Controller
     [HasPermission(Example6Permissions.RemoveDatabaseInfo)]
     public IActionResult Remove(string name)
     {
-        if (_dbInfoService.GetDatabaseInformationByName(name) == null)
+        if (_shardingService.GetSingleShardingEntry(name) == null)
             return RedirectToAction(nameof(ErrorDisplay),
                 new { errorMessage = "Could not find that database information." });
 
@@ -93,9 +93,9 @@ public class ShardingController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Example6Permissions.RemoveDatabaseInfo)]
-    public async Task<IActionResult> Remove(string nameToRemove, bool dummyValue)
+    public IActionResult Remove(string nameToRemove, bool dummyValue)
     {
-        var status = await _dbInfoService.RemoveDatabaseInfoFromShardingInformationAsync(nameToRemove);
+        var status = _shardingService.RemoveShardingEntry(nameToRemove);
 
         return status.HasErrors
             ? RedirectToAction(nameof(ErrorDisplay),

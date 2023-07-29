@@ -38,19 +38,19 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         }
 
         [HasPermission(Example6Permissions.ListDbsWithTenants)]
-        public async Task<IActionResult> ListDatabases([FromServices] IShardingConnections connect)
+        public async Task<IActionResult> ListDatabases([FromServices] IGetSetShardingEntries shardingService)
         {
-            var connections = await connect.GetDatabaseInfoNamesWithTenantNamesAsync();
+            var connections = await shardingService.GetDatabaseInfoNamesWithTenantNamesAsync();
 
             return View(connections);
         }
 
         [HasPermission(Example6Permissions.TenantCreate)]
         public IActionResult Create([FromServices]AuthPermissionsOptions authOptions, 
-        [FromServices]IShardingConnections connect)
+        [FromServices] IGetSetShardingEntries shardingService)
         {
             return View(ShardingSingleLevelTenantDto.SetupForCreate(authOptions,
-                connect.GetAllPossibleShardingData().Select(x => x.Name).ToList()
+                shardingService.GetAllShardingEntries().Select(x => x.Name).ToList()
                 ));
         }
 
@@ -125,7 +125,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
 
 
         [HasPermission(Example6Permissions.MoveTenantDatabase)]
-        public async Task<IActionResult> MoveDatabase([FromServices] IShardingConnections connect, int id)
+        public async Task<IActionResult> MoveDatabase([FromServices] IGetSetShardingEntries shardingService, int id)
         {
             var status = await _authTenantAdmin.GetTenantViaIdAsync(id);
             if (status.HasErrors)
@@ -137,7 +137,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                 TenantId = id,
                 TenantName = status.Result.TenantFullName,
                 ConnectionName = status.Result.DatabaseInfoName,
-                AllPossibleConnectionNames = connect.GetAllPossibleShardingData().Select(x => x.Name).ToList()
+                AllPossibleConnectionNames = shardingService.GetAllShardingEntries().Select(x => x.Name).ToList()
             });
         }
 
