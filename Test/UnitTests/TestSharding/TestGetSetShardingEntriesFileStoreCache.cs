@@ -33,7 +33,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     {
         var options = new AuthPermissionsOptions
         {
-            ShardingDefaultDatabaseInfoName = "Default Database",
+            DefaultShardingEntryName = "Default Database",
             InternalData =
             {
                 AuthPDatabaseType = databaseType
@@ -176,7 +176,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     [InlineData(false, "Default Database", false)]
     [InlineData(true, "Not Found", false)]
     [InlineData(false, "Not Found", false)]
-    public void TestGetSingleShardingEntry_NoFile(bool addIfEmpty, string shardingName, bool foundOk)
+    public void TestGetSingleShardingEntry_NoFile_AddIfEmpty(bool addIfEmpty, string shardingName, bool foundOk)
     {
         //SETUP
         var setup = new SetupServiceToTest(addIfEmpty);
@@ -238,6 +238,52 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         _output.WriteLine(status.GetAllErrors());
         status.HasErrors.ShouldEqual(fail);
+    }
+
+    [Fact]
+    public void TestAddNewShardingEntry_DefaultDatabaseBad()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest();
+        var entry = new ShardingEntry
+        {
+            Name = "Default Database",
+            ConnectionName = "DefaultConnection",
+            DatabaseName = "My database",
+            DatabaseType = "SqlServer"
+        };
+
+        //ATTEMPT
+        var status = setup.Service.AddNewShardingEntry(entry);
+
+        //VERIFY
+        _output.WriteLine(status.GetAllErrors());
+        status.GetAllErrors().ShouldEqual("You can't add, update or delete the default sharding entry called 'Default Database'.");
+    }
+
+    [Theory]
+    [InlineData(false, 1)]
+    [InlineData(true, 2)]
+    public void TestAddNewShardingEntry_NoFile(bool addIfEmpty, int numEntries)
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(addIfEmpty);
+        setup.StubFsCache.ClearAll();
+
+        var entry = new ShardingEntry
+        {
+            Name = "New Entry",
+            ConnectionName = "AnotherConnectionString",
+            DatabaseName = "My database",
+            DatabaseType = "SqlServer"
+        };
+
+        //ATTEMPT
+        var status = setup.Service.AddNewShardingEntry(entry);
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(numEntries);
     }
 
     [Theory]

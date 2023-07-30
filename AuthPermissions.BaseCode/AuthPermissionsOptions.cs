@@ -25,7 +25,7 @@ namespace AuthPermissions.BaseCode
         /// If sharding is turned on, then this parameter defines the name of the connection string for the main database.
         /// This defaults to "Default Database", which should be set up to link to the database that also contains the AuthP data
         /// </summary>
-        public string ShardingDefaultDatabaseInfoName { get; set; } = "Default Database";
+        public string DefaultShardingEntryName { get; set; } = "Default Database";
 
         /// <summary>
         /// This is needed if you are using sharding. Its used to get the ConnectionString

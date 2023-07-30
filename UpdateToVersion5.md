@@ -2,8 +2,6 @@
 
 Version 5.0.0 of the AuthPermissions.AspNetCore library (shortened to **AuthP** from now on) contains various new features (LINK TO roadmap), but this document covers **BREAKING CHANGES** in version 5.0.0, which are in _sharding_ multi-tenant applications. I purposely cause compile errors so that the breaking changes are obvious to you.
 
-_NOTE: The fill list of changes !!! Links to article and documentation ._
-
 ## TABLE OF CONTENT
 
 1. The `IAccessDatabaseInformation` interface has changed and will cause an compile error.

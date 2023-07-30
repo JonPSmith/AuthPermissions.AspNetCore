@@ -25,7 +25,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// </summary>
     private readonly IReadOnlyDictionary<string, IDatabaseSpecificMethods> _shardingDatabaseProviders;
     private readonly ConnectionStringsOption _connectionDict;
-    private readonly ShardingEntryOptions _defaultInformationOptions;
+    private readonly ShardingEntryOptions _shardingEntryOptions;
     private readonly AuthPermissionsOptions _options;
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly IDistributedFileStoreCacheClass _fsCache;
@@ -55,7 +55,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor?.Value ?? throw new ArgumentNullException(nameof(connectionsAccessor));
-        _defaultInformationOptions = defaultInformationOptions ?? throw new ArgumentNullException(nameof(defaultInformationOptions));
+        _shardingEntryOptions = defaultInformationOptions ?? throw new ArgumentNullException(nameof(defaultInformationOptions));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _authDbContext = authDbContext ?? throw new ArgumentNullException(nameof(authDbContext));
         _fsCache = fsCache ?? throw new ArgumentNullException(nameof(fsCache));
@@ -75,13 +75,13 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             .Where(kv => kv.Key.StartsWith(ShardingEntryPrefix)).ToList()
             .Select(s => _fsCache.GetClassFromString<ShardingEntry>(s.Value)).ToList();
 
-        if (results.Any() || !_defaultInformationOptions.AddIfEmpty) 
+        if (results.Any() || !_shardingEntryOptions.AddIfEmpty) 
             return results;
 
         //If no entries and AddIfEntry is true, then its most likely an new deployment and the cache isn't setup
         //Se we add the default sharding entry to the cache and return the default Entry
-        var defaultEntry = _defaultInformationOptions
-            .ProvideEmptyDefaultShardingEntry(_options, _authDbContext);
+        var defaultEntry = _shardingEntryOptions
+            .ProvideDefaultShardingEntry(_options, _authDbContext);
         _fsCache.SetClass(FormShardingEntryKey(defaultEntry.Name), defaultEntry);
         results.Add(defaultEntry);
 
@@ -99,9 +99,9 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         var entry = _fsCache.GetClass<ShardingEntry>(FormShardingEntryKey(shardingEntryName));
 
         //If no entries it might because this is the first deployment and the cache isn't setup
-        return entry == null && _defaultInformationOptions.AddIfEmpty 
-            && shardingEntryName == _options.ShardingDefaultDatabaseInfoName
-            ? _defaultInformationOptions.ProvideEmptyDefaultShardingEntry(_options, _authDbContext)
+        return entry == null && _shardingEntryOptions.AddIfEmpty 
+            && shardingEntryName == _options.DefaultShardingEntryName
+            ? _shardingEntryOptions.ProvideDefaultShardingEntry(_options, _authDbContext)
             : entry;
     }
 
@@ -113,6 +113,17 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddNewShardingEntry(ShardingEntry shardingEntry)
     {
+        if (_shardingEntryOptions.AddIfEmpty &&
+            !_fsCache
+                .GetAllKeyValues().Any(kv => kv.Key.StartsWith(ShardingEntryPrefix)))
+        {
+            //If no entries and AddIfEntry is true, then its most likely an new deployment and the cache isn't setup
+            //Se we add the default sharding entry to the cache and return the default Entry
+            var defaultEntry = _shardingEntryOptions
+                .ProvideDefaultShardingEntry(_options, _authDbContext);
+            _fsCache.SetClass(FormShardingEntryKey(defaultEntry.Name), defaultEntry);
+        }
+
         var status = CheckShardingEntryChangeIsValid(ShardingChanges.Added, shardingEntry);
         if (status.IsValid)
             _fsCache.SetClass(FormShardingEntryKey(shardingEntry.Name), shardingEntry);
@@ -163,11 +174,11 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     }
 
     /// <summary>
-    /// This returns all the database info names in the sharding settings file, with a list of tenant name linked to each connection name
-    /// NOTE: The DatabaseInfoName which matches the <see cref="AuthPermissionsOptions.ShardingDefaultDatabaseInfoName"/> is always
+    /// This returns all the sharding entries names in the sharding settings file, with a list of tenant name linked to each connection name
+    /// NOTE: The DatabaseInfoName which matches the <see cref="AuthPermissionsOptions.DefaultShardingEntryName"/> is always
     /// returns a HasOwnDb value of false. This is because the default database has the AuthP data in it.
     /// </summary>
-    /// <returns>List of all the database info names with the tenants using that database data name
+    /// <returns>List of all the sharding entries names with the tenants using that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
     public async Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
@@ -185,12 +196,12 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         {
             result.Add(grouped.ContainsKey(databaseInfoName)
                 ? (databaseInfoName,
-                    databaseInfoName == _options.ShardingDefaultDatabaseInfoName
+                    databaseInfoName == _options.DefaultShardingEntryName
                         ? false //The default DatabaseInfoName contains the AuthP information, so its a shared database
                         : grouped[databaseInfoName].FirstOrDefault()?.HasOwnDb,
                     grouped[databaseInfoName].Select(x => x.TenantFullName).ToList())
                 : (databaseInfoName,
-                    databaseInfoName == _options.ShardingDefaultDatabaseInfoName ? false : null,
+                    databaseInfoName == _options.DefaultShardingEntryName ? false : null,
                     new List<string>()));
         }
 
@@ -198,9 +209,9 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     }
 
     /// <summary>
-    /// This will provide the connection string for the entry with the given database info name
+    /// This will provide the connection string for the entry with the given sharding entry name
     /// </summary>
-    /// <param name="shardingEntryName">The name of sharding database info we want to access</param>
+    /// <param name="shardingEntryName">The name of sharding entry we want to access</param>
     /// <returns>The connection string, or throw exception</returns>
     public string FormConnectionString(string shardingEntryName)
     {
@@ -237,7 +248,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// This method allows you to check that the <see cref="ShardingEntry"/> will create a
     /// a valid connection string. Useful when adding or editing the data in the ShardingEntry data.
     /// </summary>
-    /// <param name="databaseInfo">The full definition of the <see cref="ShardingEntry"/> for this database info</param>
+    /// <param name="databaseInfo">The full definition of the <see cref="ShardingEntry"/> for this sharding entry</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     private IStatusGeneric TestFormingConnectionString(ShardingEntry databaseInfo)
@@ -280,8 +291,13 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
         //Check Names: not null or empty
         if (changedInfo.Name.IsNullOrEmpty())
-            return status.AddErrorString("Name".ClassLocalizeKey(this, true),
+            return status.AddErrorString("NameNullOrEmpty".ClassLocalizeKey(this, true),
                 $"The {nameof(ShardingEntry.Name)} is null or empty, which isn't allowed.");
+
+        if (changedInfo.Name == _options.DefaultShardingEntryName 
+            && _shardingEntryOptions.AddIfEmpty)
+            return status.AddErrorString("Name".ClassLocalizeKey(this, true),
+                $"You can't add, update or delete the default sharding entry called '{_options.DefaultShardingEntryName}'.");
 
         //Now we check it isn't a duplicate (add) or is there (update and delete)
         var currentEntry = _fsCache.Get(FormShardingEntryKey(changedInfo.Name));

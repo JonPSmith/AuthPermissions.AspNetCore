@@ -10,7 +10,7 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This defines the default sharding entry to add the sharding if the sharding data is empty.
-/// You can manually set the four properties and/or call the <see cref="FormDefaultDatabaseInfo"/>
+/// You can manually set the four properties and/or call the <see cref="FormDefaultShardingEntry"/>
 /// method to fill in the normal default <see cref="ShardingEntry"/>.
 /// NOTE: if your tenants are ALL using sharding, then set <see cref="AddIfEmpty"/> parameter to false
 /// </summary>
@@ -40,15 +40,15 @@ public class ShardingEntryOptions : ShardingEntry
     /// define the <see cref="ShardingEntry.DatabaseType"/> with the short form of the custom
     /// database provider name before you call this method.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public void FormDefaultDatabaseInfo(AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
+    public void FormDefaultShardingEntry(AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
         //Set up the default settings
-        Name ??= options.ShardingDefaultDatabaseInfoName ??
-               throw new ArgumentNullException(nameof(options.ShardingDefaultDatabaseInfoName));
+        Name ??= options.DefaultShardingEntryName ??
+               throw new ArgumentNullException(nameof(options.DefaultShardingEntryName));
         ConnectionName ??= "DefaultConnection";
         DatabaseType ??= GetShortDatabaseProviderName(options, authPContext)
-            ?? throw new ArgumentNullException(nameof(options.ShardingDefaultDatabaseInfoName),
-                $"You must the provide a {nameof(DatabaseType)} if you are going call the {nameof(FormDefaultDatabaseInfo)} method.");
+            ?? throw new ArgumentNullException(nameof(options.DefaultShardingEntryName),
+                $"You must the provide a {nameof(DatabaseType)} if you are going call the {nameof(FormDefaultShardingEntry)} method.");
     }
 
     /// <summary>
@@ -59,13 +59,13 @@ public class ShardingEntryOptions : ShardingEntry
     /// <param name="authPContext">Optional: Only needed if AddIfEmpty and using custom database.
     /// You must provide the <see cref="AuthPermissionsDbContext"/> to get the short provider name.</param>
     /// <returns></returns>
-    public ShardingEntry ProvideEmptyDefaultShardingEntry(
+    public ShardingEntry ProvideDefaultShardingEntry(
         AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
         if (!AddIfEmpty)
             return null; //Empty - used when all tenants have their own database, i.e. all sharding
         
-        FormDefaultDatabaseInfo(options, authPContext);
+        FormDefaultShardingEntry(options, authPContext);
         return this;
     }
 

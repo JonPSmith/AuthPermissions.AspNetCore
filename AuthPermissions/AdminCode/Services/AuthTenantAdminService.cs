@@ -170,7 +170,7 @@ namespace AuthPermissions.AdminCode.Services
                         return status;
 
                     newTenantStatus.Result.UpdateShardingState(
-                        databaseInfoName ?? _options.ShardingDefaultDatabaseInfoName,
+                        databaseInfoName ?? _options.DefaultShardingEntryName,
                         (bool)hasOwnDb);
                 }
 
@@ -300,7 +300,7 @@ namespace AuthPermissions.AdminCode.Services
                         return status;
 
                     newTenantStatus.Result.UpdateShardingState(
-                        databaseInfoName ?? _options.ShardingDefaultDatabaseInfoName,
+                        databaseInfoName ?? _options.DefaultShardingEntryName,
                         (bool)hasOwnDb);
                 }
 
@@ -760,7 +760,7 @@ namespace AuthPermissions.AdminCode.Services
             if (!hasOwnDb)
                 return status;
 
-            databaseInfoName ??= _options.ShardingDefaultDatabaseInfoName;
+            databaseInfoName ??= _options.DefaultShardingEntryName;
 
             if (await _context.Tenants.AnyAsync(x => x.DatabaseInfoName == databaseInfoName))
                 status.AddErrorFormatted("InvalidDatabase".ClassMethodLocalizeKey(this, true),
