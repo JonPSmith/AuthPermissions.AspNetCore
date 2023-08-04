@@ -1,0 +1,74 @@
+﻿@using AuthPermissions.BaseCode.PermissionsCode
+@using Example7.MvcWebApp.ShardingOnly.PermissionsCode
+@model IEnumerable<Example7.MvcWebApp.ShardingOnly.Models.ShardingSingleLevelTenantDto>
+
+@{
+    ViewData["Title"] = "ListTenants";
+}
+
+<h1>List Tenants</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@if (User.HasPermission(Example7Permissions.TenantCreate))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create new tenant</a>
+    </p>
+}
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Tenant name
+        </th>
+        <th>
+            DataKey
+        </th>
+        <th>
+            DatabaseInfoName
+        </th>
+        <th>
+            HasOwnDb
+        </th>
+        <th>
+            @(User.HasPermission(Example7Permissions.TenantUpdate) ? "Change" : "")
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.TenantName
+            </td>
+            <td>
+                @item.DataKey
+            </td>
+            <td>
+                @item.ConnectionName
+            </td>
+            <td>
+                @item.HasOwnDb
+            </td>
+            <td>
+                @if (User.HasPermission(Example7Permissions.TenantUpdate))
+                {
+                    @Html.ActionLink("Edit", "Edit", new { id = item.TenantId })
+                    @Html.Raw(" | ")
+                    @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
+                }
+                @if (User.HasPermission(Example7Permissions.MoveTenantDatabase))
+                {
+                    @Html.Raw(" | ")
+                    @Html.ActionLink("Move DB", "MoveDatabase", new { id = item.TenantId })
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

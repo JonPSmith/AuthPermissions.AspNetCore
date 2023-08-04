@@ -1,0 +1,95 @@
+﻿@using AuthPermissions.BaseCode.PermissionsCode
+@using Example7.MvcWebApp.ShardingOnly.PermissionsCode
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Example7</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Example6</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="dropdown nav-link text-dark">
+                                <a class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    Auth Admin
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-area="" asp-controller="AuthUsers" asp-action="Index">List all AuthUsers</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="Index">List Roles</a>
+                                    @if (User.HasPermission(Example7Permissions.TenantList))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="Index">List Tenants</a>
+                                    }
+                                    @if (User.HasPermission(Example7Permissions.ListDbsWithTenants))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Tenant" asp-action="ListDatabases">List dbs with tenants</a>
+                                    }
+                                    @if (User.HasPermission(Example7Permissions.ListDatabaseInfos))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Sharding" asp-action="Index">List database info</a>
+                                    }
+                                    @if (User.HasPermission(Example7Permissions.PermissionRead))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
+                                    }
+                                    @if (User.HasPermission(Example7Permissions.AppStatusList))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Status" asp-action="Index">List app statues</a>
+                                    }
+                                </div>
+                            </li>
+                            <li class="dropdown nav-link text-dark">
+                                <a class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    Users info
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="Index">Your claims</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="AuthUserInfo">Your auth data</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="LoggedInUser" asp-action="UserPermissions">Your Permissions</a>
+                                </div>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <partial name="_LoginPartial" />
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - AuthPermission's Example7 with sharding only - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,52 @@
+﻿@using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes
+@model ExamplesCommonCode.CommonAdmin.RoleCreateUpdateDto
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h3>Add a new AuthP Role, with Permissions</h3>
+
+<hr />
+<div class="row">
+    <form asp-action="Create">
+        <div class="col-md-8">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div>
+                <label class="control-label">Role Name</label>
+                <input asp-for="RoleName" class="form-control" />
+                <span asp-validation-for="RoleName" class="text-danger"></span>
+            </div>
+            <div>
+                <label class="control-label">Description</label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <br/>
+            <div>
+                <label class="control-label">RoleType</label>
+                <select asp-for="RoleType" asp-items="Html.GetEnumSelectList<RoleTypes>()"></select> 
+                <span asp-validation-for="RoleType" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <p></p>
+
+            <partial name="PartialCreateEdit" for="@Model"/>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary"/>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

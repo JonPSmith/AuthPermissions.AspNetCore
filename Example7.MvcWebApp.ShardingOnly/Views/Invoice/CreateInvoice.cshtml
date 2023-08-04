@@ -1,0 +1,33 @@
+﻿@model Example7.SingleLevelShardingOnly.EfCoreClasses.Invoice
+
+@{
+    ViewData["Title"] = "CreateInvoice";
+}
+
+<h1>CreateInvoice</h1>
+
+<h4>This shows that added entities have their DataKey to the user's DataKey</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateInvoice">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="InvoiceName" class="control-label"></label>
+                <input asp-for="InvoiceName" class="form-control" />
+                <span asp-validation-for="InvoiceName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

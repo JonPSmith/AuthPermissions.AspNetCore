@@ -1,0 +1,34 @@
+﻿@model Example7.MvcWebApp.ShardingOnly.Models.ShardingSingleLevelTenantDto
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit Tenant</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.HiddenFor(x => x.TenantId)
+
+            <div class="form-group">
+                <label class="control-label">Tenant actual name</label>
+                <input asp-for="TenantName" class="form-control" />
+                <span asp-validation-for="TenantName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

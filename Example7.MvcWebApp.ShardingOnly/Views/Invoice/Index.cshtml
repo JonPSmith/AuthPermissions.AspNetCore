@@ -1,0 +1,76 @@
+﻿
+@using Example7.SingleLevelShardingOnly.Services
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<Example7.SingleLevelShardingOnly.Dtos.InvoiceSummaryDto>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_CompanyLayout";
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+<h1>@AddTenantNameClaim.GetTenantNameFromUser(User) invoices</h1>
+<p>
+    Welcome to the example multi-tenant application managing invoices for lots of companies.
+</p>
+
+<p>
+    <a class="btn btn-primary" asp-action="CreateInvoice">Create Invoice</a>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            InvoiceName
+        </th>
+        <th>
+            DateCreated
+        </th>
+        <th>
+            NumItems
+        </th>
+        <th>
+            TotalCost
+        </th>
+        @*<th></th>*@
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.InvoiceName)
+            </td>
+            <td>
+                @item.DateCreated.ToString("d")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumItems)
+            </td>
+            <td>
+                @item.TotalCost?.ToString("C2")
+            </td>
+            @*<td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>*@
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+@if (Model.Any())
+{
+    <div>The sum of the @Model.Count invoices is <span class="h3">@Model.Sum(x => x.TotalCost)?.ToString("C2")</span></div>
+}
+else
+{
+    <div>No invoices found</div>
+}
+

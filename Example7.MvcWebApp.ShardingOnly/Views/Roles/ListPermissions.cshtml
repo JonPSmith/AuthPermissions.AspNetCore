@@ -1,0 +1,44 @@
+﻿@model IEnumerable<AuthPermissions.BaseCode.PermissionsCode.PermissionDisplay>
+
+@{
+    ViewData["Title"] = "ListPermissions";
+}
+
+<h1>List Permissions</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Group
+            </th>
+            <th>
+                Short Name
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Permission
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.GroupName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ShortName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PermissionName)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

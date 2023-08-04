@@ -1,0 +1,63 @@
+﻿@using AuthPermissions.BaseCode.PermissionsCode
+@using AuthPermissions.SupportCode.DownStatusCode
+@using Example7.MvcWebApp.ShardingOnly.PermissionsCode
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<KeyValuePair<string,string>>
+
+@{
+    ViewData["Title"] = "ListMaintenance";
+}
+
+<h1>List app statuses</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@if (User.HasPermission(Example7Permissions.AppStatusAllDown) 
+   && Model.All(x => x.Key != RedirectUsersViaStatusData.DivertAppDown))
+{
+    <a asp-action="TakeAllDown" class="btn btn-primary">set status to "all down"</a>
+}
+@if (User.HasPermission(Example7Permissions.AppStatusTenantDown) 
+    && Model.All(x => x.Key != RedirectUsersViaStatusData.DivertTenantManuel))
+{
+    <a asp-action="TakeTenantDown" class="btn btn-primary">set tenant status to "down"</a>
+}
+
+<br/>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Key
+            </th>
+            <th>
+                Value
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                   @item.Key
+                </td>
+                <td>
+                    @item.Value
+                </td>
+                <td>
+                    @if (User.HasPermission(Example7Permissions.AppStatusRemove))
+                    {
+                        @Html.ActionLink("Remove", "Remove", new { key = item.Key })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

@@ -1,0 +1,46 @@
+﻿@using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes
+@model ExamplesCommonCode.CommonAdmin.RoleCreateUpdateDto
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="h3">Editing <span class="h1">@Model.RoleName</span> role.</div>
+
+<hr />
+<div class="row">
+    <form asp-action="Edit">
+        <div class="col-md-8">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.HiddenFor(x => x.RoleName)
+            <input id="role-name" type="hidden" value="@Model.RoleName">
+            <div>
+                <label class="control-label">Role description</label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <br/>
+            <div>
+                <label class="control-label">RoleType</label>
+                <select asp-for="RoleType" asp-items="Html.GetEnumSelectList<RoleTypes>()"></select> 
+                <span asp-validation-for="RoleType" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <p></p>
+
+            <partial name="PartialCreateEdit" for="@Model"/>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Update" class="btn btn-primary"/>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

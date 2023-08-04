@@ -1,0 +1,79 @@
+﻿@using AuthPermissions.BaseCode.PermissionsCode
+@using Example7.MvcWebApp.ShardingOnly.PermissionsCode
+@model IEnumerable<AuthPermissions.AdminCode.RoleWithPermissionNamesDto>
+
+@{
+    ViewData["Title"] = "ListRoles";
+}
+
+<h1>List Roles</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+@if (User.HasPermission(Example7Permissions.RoleChange))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create new role</a>
+    </p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RoleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoleType)
+            </th>
+            <th>
+                #Permissions
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoleName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoleType)
+                </td>
+                <td>
+                    <a href="#" data-toggle="tooltip" title='@string.Join(", ",item.PermissionNames)'>
+                        @item.PermissionNames.Count
+                    </a>
+                </td>
+                <td>
+                    @if (User.HasPermission(Example7Permissions.RoleChange))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { roleName = item.RoleName })
+                        @Html.Raw(" | ")
+                        @Html.ActionLink("Delete", "Delete", new { roleName = item.RoleName })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

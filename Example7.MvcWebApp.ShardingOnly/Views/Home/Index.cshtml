@@ -1,0 +1,73 @@
+﻿@using Example7.MvcWebApp.ShardingOnly.Models
+@model Example7.MvcWebApp.ShardingOnly.Models.AppSummary
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1>Example6 - single level multi-tenant with Sharding
+
+    </h1>
+</div>
+<h4>Application summary</h4>
+<ul>
+    <li><strong>@nameof(AppSummary.Application)</strong>:&nbsp;@Model.Application</li>
+    <li><strong>@nameof(AppSummary.AuthorizationProvider)</strong>:&nbsp;@Model.AuthorizationProvider</li>
+    <li><strong>@nameof(AppSummary.CookieOrToken)</strong>:&nbsp;@Model.CookieOrToken</li>
+    <li><strong>@nameof(AppSummary.MultiTenant)</strong>:&nbsp;@Model.MultiTenant</li>
+    <li>
+        <strong>@nameof(AppSummary.Databases)</strong>:&nbsp;
+        <ul>
+            @foreach (var database in Model.Databases)
+            {
+                <li>@database</li>
+            }
+        </ul>
+    </li>
+    @if (@Model.Note != null)
+    {
+        <li><strong>@nameof(AppSummary.Note)</strong>:&nbsp;@Model.Note</li>
+    }
+</ul>
+
+<p>
+    This application provides an example of an sharding multi-tenant where the app admin users are in change of
+    app admin users are in change of creating and deleting Tenants.
+    This is best for the situation where you want be in charge of what tenants you have in you app and you 
+    control which tenant a user can access.
+</p>
+ 
+
+<h2>How to use use this application</h2>
+<p>
+    You can log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
+    <br/>
+    <i>NOTE: The email is also the password.</i>
+</p>
+<p>
+    If you want to try sharding, then follow these steps:
+    <ol>
+        <li>Log in as 'AppAdmin@@g1.com' so that you can create or move a sharding tenant.</li>
+        <li>
+            Go to <a asp-area="" asp-controller="Tenant" asp-action="ListDatabases">Auth Admin > List Databases</a>
+            to see the possible databases and now many tenants are in each datatbase.
+        </li>
+        <li>
+            Go to <a asp-area="" asp-controller="Sharding" asp-action="Index">Auth Admin > List database info</a>
+            to see the sharding entries and the ability to change them.
+        </li>
+        <li>
+            Go to <a asp-area="" asp-controller="Tenant" asp-action="Index">Auth Admin > List Tenants</a>
+            to see where the tenants are. On first startup there will be three tenants in the "DefaultConnection" connection name
+        </li>
+        <li>
+            If you choose the "Move DB" link on one of the tenants you can move this tenant's data to another database.
+            If you tick the HasOwnDb box, then the tenant will be converted to using sharding for the tenant data.
+        </li>
+        <li>
+            After the move with HasOwnDb ticked you will see that the tenant's DataKey has changed to "NoQueryFilter". 
+            This removes the effect of the global query filter as a sharding tenant doesn't need it and the queries will be a bit quicker.
+        </li>
+    </ol>
+</p>
+

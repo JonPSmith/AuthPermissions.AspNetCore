@@ -1,0 +1,101 @@
+﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+// Licensed under MIT license. See License.txt in the project root for license information.
+
+using AuthPermissions.AdminCode;
+using AuthPermissions.AspNetCore;
+using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.SupportCode.DownStatusCode;
+using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Example7.MvcWebApp.ShardingOnly.Controllers;
+
+//Stop non-logged in user getting to StatusController
+[Authorize]
+public class StatusController : Controller
+{
+    private readonly ISetRemoveStatus _status;
+
+    public StatusController(ISetRemoveStatus status)
+    {
+        _status = status;
+    }
+
+    public IActionResult Index(string message)
+    {
+        ViewBag.Message = message;
+
+        var downCacheList = _status.GetAllDownKeyValues();
+
+        return View(downCacheList);
+    }
+
+    [HasPermission(Example7Permissions.AppStatusAllDown)]
+    public IActionResult TakeAllDown()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Example7Permissions.AppStatusAllDown)]
+    public IActionResult TakeAllDown(ManuelAppDownDto data)
+    {
+        data.UserId = User.GetUserIdFromUser();
+        data.StartedUtc = DateTime.UtcNow;
+
+        _status.SetAppDown(data);
+        return RedirectToAction("Index", new { });
+    }
+
+    [HasPermission(Example7Permissions.AppStatusTenantDown)]
+    public async Task<IActionResult> TakeTenantDown([FromServices] IAuthTenantAdminService tenantAdminService)
+    {
+        return View(await ManuelTenantDownDto.SetupListOfTenantsAsync(tenantAdminService));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Example7Permissions.AppStatusTenantDown)]
+    public async Task<IActionResult> TakeTenantDown(ManuelTenantDownDto data)
+    {
+        await _status.SetTenantDownWithDelayAsync(TenantDownVersions.ManualDown, data.TenantId);
+        return RedirectToAction("Index", new { });
+    }
+
+    /// <summary>
+    /// This can remove ANY down status from the list
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    [HasPermission(Example7Permissions.AppStatusRemove)]
+    public IActionResult Remove(string key)
+    {
+        _status.RemoveAnyDown(key);
+        return RedirectToAction("Index", new { });
+    }
+
+    //---------------------------------------------------------------------
+    //divert pages to tell the user why they are diverted
+
+    public IActionResult ShowAppDownStatus()
+    {
+        return View(_status.GetAppDownMessage());
+    }
+
+    public IActionResult ShowTenantDownStatus()
+    {
+        return View();
+    }
+
+    public IActionResult ShowTenantDeleted()
+    {
+        return View();
+    }
+
+    public IActionResult ShowTenantManuallyDown()
+    {
+        return View();
+    }
+}

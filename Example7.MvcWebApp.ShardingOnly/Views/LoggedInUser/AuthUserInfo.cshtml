@@ -1,0 +1,51 @@
+﻿@using Microsoft.AspNetCore.Mvc.Filters
+@model ExamplesCommonCode.CommonAdmin.AuthUserDisplay
+
+@{
+    ViewData["Title"] = "AuthUserInfo";
+}
+
+<h1>The AuthUser's info</h1>
+
+@if (Model == null)
+{
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <h3 class="text-danger">Could not find an AuthUser for the current logged in user.</h3>
+    }
+    else
+    {
+        <h3>No user logged in.</h3>
+    }
+    return;
+}
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.RoleNames)
+        </dt>
+        <dd class="col-sm-10">
+            @string.Join(", ", Model.RoleNames)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TenantName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TenantName)
+        </dd>
+    </dl>
+</div>

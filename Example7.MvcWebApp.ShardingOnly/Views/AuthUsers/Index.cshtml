@@ -1,0 +1,96 @@
+﻿@using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes
+@using AuthPermissions.BaseCode.PermissionsCode
+@using Example7.MvcWebApp.ShardingOnly.PermissionsCode
+@model IEnumerable<ExamplesCommonCode.CommonAdmin.AuthUserDisplay>
+
+@{
+    ViewData["Title"] = "Auth Users";
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+<h1>Auth Users</h1>
+
+@if (User.HasPermission(Example7Permissions.UserSync))
+{
+    <a asp-action="SyncUsers" class="btn btn-primary">Sync with authentication provider's users</a>
+    <p> </p>
+}
+
+<div><i>NOTE: Extra roles may be applied to a user who is linked to a tenant that has Role's of type @nameof(RoleTypes.TenantAutoAdd) added to the user's tenant.</i></div>
+<br/>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                AuthRoles
+            </th>
+            <th>
+                Tenant?
+            </th>
+            <th>
+                @if (User.HasPermission(Example7Permissions.UserChange))
+                {
+                    Html.Raw(" Change |");
+                }
+                @if (User.HasPermission(Example7Permissions.UserChange))
+                {
+                    Html.Raw(" Delete");
+                }
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @(item.RoleNames.Any() ? string.Join(", ", item.RoleNames) : "<none>")
+                </td>
+                <td>
+                    <a href="#" data-toggle="tooltip" title='@item.TenantName'>
+                        @(item.HasTenant ? "YES" : "")
+                    </a>
+                </td>
+                <td>
+                    @if (User.HasPermission(Example7Permissions.UserChange) || User.HasPermission(Example7Permissions.UserRolesChange))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { userId = item.UserId });
+                    }
+
+                    @if (User.HasPermission(Example7Permissions.UserRemove))
+                    {
+                        @Html.Raw(" | ");
+                        @Html.ActionLink("Delete", "Delete", new { UserId = item.UserId })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@section Scripts{
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

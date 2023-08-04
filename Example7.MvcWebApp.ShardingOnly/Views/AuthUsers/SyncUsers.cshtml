@@ -1,0 +1,56 @@
+﻿@using AuthPermissions.AdminCode
+@model List<AuthPermissions.AdminCode.SyncAuthUserWithChange>
+
+@{
+    ViewData["Title"] = "SyncUsers";
+}
+
+@if (!@Model.Any())
+{
+    <h3>There are no changes to apply to the AuthUsers</h3>
+    return;
+}
+
+<h3>Changes needed based on authentication provider's users</h3>
+<form method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Change type</th>
+                <th>Email</th>
+                <th>UserName</th>
+                <th>Roles Count</th>
+                <th>Has tenant</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model[i].FoundChangeType
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.UserId)}", Model[i].UserId)
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.FoundChangeType)}", Model[i].FoundChangeType)
+                    </td>
+
+                    <td @(Model[i].EmailChanged ? "class=bg-warning text-dark" : "")>
+                        @Model[i].Email
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.Email)}", Model[i].Email)
+                    </td>
+                    <td @(Model[i].UserNameChanged ? "class=bg-warning text-dark" : "")>
+                        @Model[i].UserName
+                        @Html.Hidden($"Data[{i}].{nameof(SyncAuthUserWithChange.UserName)}", Model[i].UserName)
+                    </td>
+                    <td>@Model[i].NumRoles</td>
+                    <td>@Model[i].HasTenant</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <input type="submit" value="Apply Sync Changes" class="btn btn-primary" />
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+
+

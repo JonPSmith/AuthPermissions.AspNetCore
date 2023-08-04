@@ -1,0 +1,55 @@
+﻿@model List<(string key, bool? hasOwnDb, List<string> tenantNames)>
+
+@{
+    ViewData["Title"] = "ListTenants";
+}
+
+<h1>List databases with tenants</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Database Info Name
+        </th>
+        <th>
+            Sharding?
+        </th>
+        <th>
+            tenants#
+        </th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.key
+            </td>
+            <td>
+                @(item.hasOwnDb == null ? "empty" : item.hasOwnDb)
+            </td>
+            <td>
+                <a href="#" data-toggle="tooltip" title='@string.Join(", ", item.tenantNames)'>
+                    @item.tenantNames.Count
+                </a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div>
+    <a asp-action="Index">Back to list of tenants</a>
+</div>
+
+@section Scripts{
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}

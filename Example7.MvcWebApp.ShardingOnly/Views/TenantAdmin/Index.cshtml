@@ -1,0 +1,69 @@
+﻿@using AuthPermissions.BaseCode.PermissionsCode
+@using Example7.MvcWebApp.ShardingOnly.PermissionsCode
+@model IEnumerable<ExamplesCommonCode.CommonAdmin.AuthUserDisplay>
+
+@{
+    ViewData["Title"] = "Auth Users";
+    Layout = "_CompanyLayout";
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <h3 class="text-success">@ViewBag.Message</h3>
+}
+
+<h1>Users in your tenant</h1>
+
+<br/>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                AuthRoles
+            </th>
+            <th>
+                Edit
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @(item.RoleNames.Any() ? string.Join(", ", item.RoleNames) : "<none>")
+                </td>
+                <td>
+                    @if (User.HasPermission(Example7Permissions.UserRolesChange))
+                    {
+                        @Html.ActionLink("Edit Roles", "EditRoles", new { userId = item.UserId });
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@section Scripts{
+
+
+    <script type='text/javascript'>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+    </script>
+}
