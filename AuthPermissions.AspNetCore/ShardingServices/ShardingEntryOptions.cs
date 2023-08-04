@@ -19,14 +19,17 @@ public class ShardingEntryOptions : ShardingEntry
     /// <summary>
     /// ctor
     /// </summary>
-    /// <param name="tenantsInAuthPdb">defaults to true. Set this to false if all of your tenant are shading.</param>
+    /// <param name="tenantsInAuthPdb">If true, then a default <see cref="ShardingEntry"/> is added to the sharding entities
+    /// which allowing tenants to be added to the AuthP's context. This is useful for a hybrid multi-tenant
+    /// If false, then no default <see cref="ShardingEntry"/> is added. Use this if you are building a sharding-only multi-tenant
+    /// </param>
     public ShardingEntryOptions(bool tenantsInAuthPdb)
     {
         TenantsInAuthPdb = tenantsInAuthPdb;
     }
 
     /// <summary>
-    /// if your tenants are ALL using sharding, then set this property to false.
+    /// If your tenants are ALL using sharding, then set this property to false.
     /// That's because when only sharding tenants the code will add (and remove) a sharding entry.
     /// </summary>
     public bool TenantsInAuthPdb { get; private set; }

@@ -2,8 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.GetDataKeyCode;
-using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example7.SingleLevelShardingOnly.EfCoreClasses;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +22,9 @@ public class ShardingOnlyDbContext : DbContext
         IGetShardingDataFromUser shardingDataKeyAndConnect)
         : base(options)
     {
-        Database.SetConnectionString(shardingDataKeyAndConnect.ConnectionString);
+        if (shardingDataKeyAndConnect?.ConnectionString != null)
+            //Needed to handle the migration of this context
+            Database.SetConnectionString(shardingDataKeyAndConnect.ConnectionString);
     }
 
     public DbSet<CompanyTenant> Companies { get; set; }
@@ -35,5 +35,17 @@ public class ShardingOnlyDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("invoice");
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var mutableProperty in entityType.GetProperties())
+            {
+                if (mutableProperty.ClrType == typeof(decimal))
+                {
+                    mutableProperty.SetPrecision(9);
+                    mutableProperty.SetScale(2);
+                }
+            }
+        }
     }
 }

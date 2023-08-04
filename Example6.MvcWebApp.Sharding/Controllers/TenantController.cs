@@ -60,7 +60,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         public async Task<IActionResult> Create(ShardingSingleLevelTenantDto input)
         {
             var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, null,
-                input.HasOwnDb, input.ConnectionName);
+                input.HasOwnDb, input.ShardingName);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -136,8 +136,8 @@ namespace Example6.MvcWebApp.Sharding.Controllers
             {
                 TenantId = id,
                 TenantName = status.Result.TenantFullName,
-                ConnectionName = status.Result.DatabaseInfoName,
-                AllPossibleConnectionNames = shardingService.GetAllShardingEntries().Select(x => x.Name).ToList()
+                ShardingName = status.Result.DatabaseInfoName,
+                AllShardingEntries = shardingService.GetAllShardingEntries().Select(x => x.Name).ToList()
             });
         }
 
@@ -148,7 +148,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         {
             var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin.MoveToDifferentDatabaseAsync(
-                input.TenantId, input.HasOwnDb, input.ConnectionName);
+                input.TenantId, input.HasOwnDb, input.ShardingName);
             await removeDownAsync();
 
             return status.HasErrors

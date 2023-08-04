@@ -10,7 +10,7 @@ using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 
 namespace Example7.MvcWebApp.ShardingOnly.Models
 {
-    public class ShardingSingleLevelTenantDto
+    public class ShardingOnlyTenantDto
     {
         public int TenantId { get; set; }
 
@@ -19,47 +19,41 @@ namespace Example7.MvcWebApp.ShardingOnly.Models
 
         public string TenantName { get; set; }
 
-        public string DataKey { get; set; }
-
         [Required(AllowEmptyStrings = false)]
-        public string ConnectionName { get; set; }
+        public string ShardingName { get; set; }
 
-        public bool HasOwnDb { get; set; }
-        public List<string> AllPossibleConnectionNames { get; set; }
+        public List<string> AllShardingEntries { get; set; }
 
-        public static IQueryable<ShardingSingleLevelTenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
+        public static IQueryable<ShardingOnlyTenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
         {
-            return inQuery.Select(x => new ShardingSingleLevelTenantDto
+            return inQuery.Select(x => new ShardingOnlyTenantDto
             {
                 TenantId = x.TenantId,
                 TenantName = x.TenantFullName,
-                DataKey = x.GetTenantDataKey(),
-                ConnectionName = x.DatabaseInfoName,
-                HasOwnDb = x.HasOwnDb
+                ShardingName = x.DatabaseInfoName,
             });
         }
 
-        public static ShardingSingleLevelTenantDto SetupForCreate(AuthPermissionsOptions options,
+        public static ShardingOnlyTenantDto SetupForCreate(AuthPermissionsOptions options,
             List<string> allPossibleConnectionNames)
         {
-            return new ShardingSingleLevelTenantDto
+            return new ShardingOnlyTenantDto
             {
-                ConnectionName = options.DefaultShardingEntryName,
-                AllPossibleConnectionNames = allPossibleConnectionNames,
+                ShardingName = options.DefaultShardingEntryName,
+                AllShardingEntries = allPossibleConnectionNames,
             };
         }
 
-        public static async Task<ShardingSingleLevelTenantDto> SetupForUpdateAsync(IAuthTenantAdminService authTenantAdmin, int tenantId)
+        public static async Task<ShardingOnlyTenantDto> SetupForUpdateAsync(IAuthTenantAdminService authTenantAdmin, int tenantId)
         {
             var tenant = (await authTenantAdmin.GetTenantViaIdAsync(tenantId)).Result;
             if (tenant == null)
                 throw new AuthPermissionsException($"Could not find the tenant with a TenantId of {tenantId}");
 
-            return new ShardingSingleLevelTenantDto
+            return new ShardingOnlyTenantDto
             {
                 TenantId = tenantId,
-                TenantName = tenant.TenantFullName,
-                DataKey = tenant.GetTenantDataKey()
+                TenantName = tenant.TenantFullName
             };
         }
     }

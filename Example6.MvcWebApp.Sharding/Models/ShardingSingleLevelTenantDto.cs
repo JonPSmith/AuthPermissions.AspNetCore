@@ -22,10 +22,10 @@ namespace Example6.MvcWebApp.Sharding.Models
         public string DataKey { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        public string ConnectionName { get; set; }
+        public string ShardingName { get; set; }
 
         public bool HasOwnDb { get; set; }
-        public List<string> AllPossibleConnectionNames { get; set; }
+        public List<string> AllShardingEntries { get; set; }
 
         public static IQueryable<ShardingSingleLevelTenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
         {
@@ -34,7 +34,7 @@ namespace Example6.MvcWebApp.Sharding.Models
                 TenantId = x.TenantId,
                 TenantName = x.TenantFullName,
                 DataKey = x.GetTenantDataKey(),
-                ConnectionName = x.DatabaseInfoName,
+                ShardingName = x.DatabaseInfoName,
                 HasOwnDb = x.HasOwnDb
             });
         }
@@ -44,8 +44,8 @@ namespace Example6.MvcWebApp.Sharding.Models
         {
             return new ShardingSingleLevelTenantDto
             {
-                ConnectionName = options.DefaultShardingEntryName,
-                AllPossibleConnectionNames = allPossibleConnectionNames,
+                ShardingName = options.DefaultShardingEntryName,
+                AllShardingEntries = allPossibleConnectionNames,
             };
         }
 

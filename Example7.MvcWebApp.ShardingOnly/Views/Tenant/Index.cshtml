@@ -1,6 +1,6 @@
 ﻿@using AuthPermissions.BaseCode.PermissionsCode
 @using Example7.MvcWebApp.ShardingOnly.PermissionsCode
-@model IEnumerable<Example7.MvcWebApp.ShardingOnly.Models.ShardingSingleLevelTenantDto>
+@model IEnumerable<Example7.MvcWebApp.ShardingOnly.Models.ShardingOnlyTenantDto>
 
 @{
     ViewData["Title"] = "ListTenants";
@@ -46,14 +46,9 @@
             <td>
                 @item.TenantName
             </td>
+ 
             <td>
-                @item.DataKey
-            </td>
-            <td>
-                @item.ConnectionName
-            </td>
-            <td>
-                @item.HasOwnDb
+                @item.ShardingName
             </td>
             <td>
                 @if (User.HasPermission(Example7Permissions.TenantUpdate))
@@ -61,11 +56,6 @@
                     @Html.ActionLink("Edit", "Edit", new { id = item.TenantId })
                     @Html.Raw(" | ")
                     @Html.ActionLink("Delete", "Delete", new { id = item.TenantId })
-                }
-                @if (User.HasPermission(Example7Permissions.MoveTenantDatabase))
-                {
-                    @Html.Raw(" | ")
-                    @Html.ActionLink("Move DB", "MoveDatabase", new { id = item.TenantId })
                 }
             </td>
         </tr>

@@ -13,7 +13,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Example6</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Example7</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -42,15 +42,11 @@
                                     }
                                     @if (User.HasPermission(Example7Permissions.ListDatabaseInfos))
                                     {
-                                        <a class="dropdown-item" asp-area="" asp-controller="Sharding" asp-action="Index">List database info</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Sharding" asp-action="Index">List sharding entries</a>
                                     }
                                     @if (User.HasPermission(Example7Permissions.PermissionRead))
                                     {
                                         <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>
-                                    }
-                                    @if (User.HasPermission(Example7Permissions.AppStatusList))
-                                    {
-                                        <a class="dropdown-item" asp-area="" asp-controller="Status" asp-action="Index">List app statues</a>
                                     }
                                 </div>
                             </li>

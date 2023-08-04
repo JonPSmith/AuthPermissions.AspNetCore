@@ -24,6 +24,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//You need to create a migration for the individual user accounts DbContext
+//add-migration CreateIdentitySchema -Context ApplicationDbContext -OutputDir Data\Migrations
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -45,7 +47,7 @@ builder.Services.RegisterAuthPermissions<Example7Permissions>(options =>
     //NOTE: This uses the same database as the individual accounts DB
     .UsingEfCoreSqlServer(connectionString)
     //AuthP version 5 and above: Use this method to configure sharding
-    .SetupMultiTenantSharding(new ShardingEntryOptions(true))
+    .SetupMultiTenantSharding(new ShardingEntryOptions(false))
     .IndividualAccountsAuthentication()
     .RegisterAddClaimToUser<AddTenantNameClaim>()
     .RegisterTenantChangeService<ShardingTenantChangeService>()
@@ -84,7 +86,7 @@ builder.Services.AddDistributedFileStoreCache(options =>
     options.FirstPartOfCacheFileName = "Example7CacheFileStore";
 }, builder.Environment);
 
-builder.Services.RegisterExample6Invoices(builder.Configuration);
+builder.Services.RegisterExample7Invoices(builder.Configuration);
 
 var app = builder.Build();
 

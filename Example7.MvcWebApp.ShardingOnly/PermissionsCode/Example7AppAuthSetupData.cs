@@ -28,7 +28,7 @@ namespace Example7.MvcWebApp.ShardingOnly.PermissionsCode
             new ("Super@g1.com", null, "SuperAdmin"),
             new ("AppAdmin@g1.com", null, "App Admin"),
             new("AppSupport@g1.com", null, "App Support, Tenant User"),
-            new ("extraUser@g1.com", null, "Tenant User"),
+            new ("extraUser@g1.com", null, ""),
         };
     }
 }

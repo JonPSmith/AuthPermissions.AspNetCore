@@ -1,0 +1,6 @@
+{
+  "Cache": {
+    "ShardingEntry-TryOut": "{\r\n  \"Name\": \"TryOut\",\r\n  \"DatabaseName\": \"NewDatabase \",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
+  },
+  "TimeOuts": {}
+}
