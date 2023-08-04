@@ -34,23 +34,23 @@ public class SqlServerDatabaseSpecificMethods : IDatabaseSpecificMethods
     /// This changes the database to the <see cref="ShardingEntry.DatabaseName"/> in the given connectionString
     /// NOTE: If the <see cref="ShardingEntry.DatabaseName"/> is null / empty, then it returns the connectionString with no change
     /// </summary>
-    /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
+    /// <param name="shardingEntry">Information about the database type/name to be used in the connection string</param>
     /// <param name="connectionString">connection string to the database to place a Distributed Lock on</param>
     /// <returns>A connection string containing the correct database to be used, or errors</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    public string SetDatabaseInConnectionString(ShardingEntry databaseInformation, string connectionString)
+    public string FormShardingConnectionString(ShardingEntry shardingEntry, string connectionString)
     {
         var builder = new SqlConnectionStringBuilder(connectionString);
-        if (string.IsNullOrEmpty(builder.InitialCatalog) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
+        if (string.IsNullOrEmpty(builder.InitialCatalog) && string.IsNullOrEmpty(shardingEntry.DatabaseName))
             throw new AuthPermissionsException(
                 $"The {nameof(ShardingEntry.DatabaseName)} can't be null or empty " +
                 "when the connection string doesn't have a database defined.");
 
-        if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
+        if (string.IsNullOrEmpty(shardingEntry.DatabaseName))
             //This uses the database that is already in the connection string
             return connectionString;
 
-        builder.InitialCatalog = databaseInformation.DatabaseName;
+        builder.InitialCatalog = shardingEntry.DatabaseName;
         return builder.ConnectionString;
     }
 

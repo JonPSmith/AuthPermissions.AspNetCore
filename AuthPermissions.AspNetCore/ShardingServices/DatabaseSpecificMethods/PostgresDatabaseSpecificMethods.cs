@@ -33,23 +33,23 @@ public class PostgresDatabaseSpecificMethods : IDatabaseSpecificMethods
     /// This changes the database to the <see cref="ShardingEntry.DatabaseName"/> in the given connectionString
     /// NOTE: If the <see cref="ShardingEntry.DatabaseName"/> is null / empty, then it returns the connectionString with no change
     /// </summary>
-    /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
+    /// <param name="shardingEntry">Information about the database type/name to be used in the connection string</param>
     /// <param name="connectionString"></param>
     /// <returns>A connection string containing the correct database to be used, or errors</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    public string SetDatabaseInConnectionString(ShardingEntry databaseInformation, string connectionString)
+    public string FormShardingConnectionString(ShardingEntry shardingEntry, string connectionString)
     {
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
-        if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(databaseInformation.DatabaseName))
+        if (string.IsNullOrEmpty(builder.Database) && string.IsNullOrEmpty(shardingEntry.DatabaseName))
             throw new AuthPermissionsException(
                 $"The {nameof(ShardingEntry.DatabaseName)} can't be null or empty " +
                 "when the connection string doesn't have a database defined.");
 
-        if (string.IsNullOrEmpty(databaseInformation.DatabaseName))
+        if (string.IsNullOrEmpty(shardingEntry.DatabaseName))
             //This uses the database that is already in the connection string
             return connectionString;
 
-        builder.Database = databaseInformation.DatabaseName;
+        builder.Database = shardingEntry.DatabaseName;
         return builder.ConnectionString;
     }
 

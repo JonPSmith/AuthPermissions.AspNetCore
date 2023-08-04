@@ -48,7 +48,7 @@ public class TestSqlServerDatabaseSpecificMethods
         var service = new SqlServerDatabaseSpecificMethods();
 
         //ATTEMPT
-        var connectionString = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
+        var connectionString = service.FormShardingConnectionString(SetupDatabaseInformation(nullName),
             "Server=(localdb)\\mssqllocaldb;Database=OriginalName");
 
         //VERIFY
@@ -64,7 +64,7 @@ public class TestSqlServerDatabaseSpecificMethods
 
         //ATTEMPT
         var ex = Assert.Throws<AuthPermissionsException>(() =>
-            service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
+            service.FormShardingConnectionString(SetupDatabaseInformation(true),
                 "Server=(localdb)\\mssqllocaldb"));
 
         //VERIFY

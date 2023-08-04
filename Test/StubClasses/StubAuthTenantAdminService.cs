@@ -1,13 +1,11 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
+using LocalizeMessagesAndErrors.UnitTestingCode;
 using StatusGeneric;
+using Test.TestHelpers;
 
 namespace Test.StubClasses;
 
@@ -16,7 +14,9 @@ namespace Test.StubClasses;
 /// </summary>
 public class StubAuthTenantAdminService : IAuthTenantAdminService
 {
-    private Tenant[] _tenants;
+    public string CalledMethodName { get; private set; }
+
+    private readonly Tenant[] _tenants;
 
     public StubAuthTenantAdminService(params Tenant[] tenants)
     {
@@ -29,7 +29,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns>query on the AuthP database</returns>
     public IQueryable<Tenant> QueryTenants()
     {
-        throw new System.NotImplementedException();
+        return _tenants.AsQueryable();
     }
 
     /// <summary>
@@ -83,10 +83,15 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
     /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
     /// <returns>A status containing the <see cref="Tenant"/> class</returns>
-    public Task<IStatusGeneric<Tenant>> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null, bool? hasOwnDb = null,
+    public async Task<IStatusGeneric<Tenant>> AddSingleTenantAsync(string tenantName, List<string> tenantRoleNames = null, bool? hasOwnDb = null,
         string databaseInfoName = null)
     {
-        throw new System.NotImplementedException();
+        CalledMethodName = nameof(AddSingleTenantAsync);
+        var status = Tenant.CreateSingleTenant(tenantName, "en".SetupAuthPLoggingLocalizer().DefaultLocalizer);
+        if (status.HasErrors) return status;
+        if (hasOwnDb != null)
+            status.Result.UpdateShardingState(databaseInfoName, (bool)hasOwnDb);
+        return status;
     }
 
     /// <summary>
@@ -98,10 +103,15 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <param name="hasOwnDb">Needed if sharding: Is true if this tenant has its own database, else false</param>
     /// <param name="databaseInfoName">This is the name of the database information in the shardingsettings file.</param>
     /// <returns>A status containing the <see cref="Tenant"/> class</returns>
-    public Task<IStatusGeneric<Tenant>> AddHierarchicalTenantAsync(string tenantName, int parentTenantId, List<string> tenantRoleNames = null,
+    public async Task<IStatusGeneric<Tenant>> AddHierarchicalTenantAsync(string tenantName, int parentTenantId, List<string> tenantRoleNames = null,
         bool? hasOwnDb = null, string databaseInfoName = null)
     {
-        throw new System.NotImplementedException();
+        CalledMethodName = nameof(AddHierarchicalTenantAsync);
+        var status = Tenant.CreateHierarchicalTenant(tenantName, null, "en".SetupAuthPLoggingLocalizer().DefaultLocalizer);
+        if (status.HasErrors) return status;
+        if (hasOwnDb != null)
+            status.Result.UpdateShardingState(databaseInfoName, (bool)hasOwnDb);
+        return status;
     }
 
     /// <summary>
@@ -154,7 +164,9 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns>Status returning the <see cref="ITenantChangeService"/> service, in case you want copy the delete data instead of deleting</returns>
     public Task<IStatusGeneric<ITenantChangeService>> DeleteTenantAsync(int tenantId)
     {
-        throw new System.NotImplementedException();
+        CalledMethodName = nameof(DeleteTenantAsync);
+        var status = new StatusGenericHandler<ITenantChangeService>();
+        return Task.FromResult<IStatusGeneric<ITenantChangeService>>(status);
     }
 
     /// <summary>

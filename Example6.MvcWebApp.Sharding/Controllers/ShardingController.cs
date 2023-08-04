@@ -61,7 +61,7 @@ public class ShardingController : Controller
 
         if (dto.DatabaseInfo == null)
             return RedirectToAction(nameof(ErrorDisplay),
-                new { errorMessage = $"Could not find a database information with the name {name}." });
+                new { errorMessage = $"Could not find a sharding entry with the name {name}." });
 
         return View(dto);
     }
@@ -85,7 +85,7 @@ public class ShardingController : Controller
     {
         if (_shardingService.GetSingleShardingEntry(name) == null)
             return RedirectToAction(nameof(ErrorDisplay),
-                new { errorMessage = "Could not find that database information." });
+                new { errorMessage = $"Could not find the sharding entry with the name of '{name}'." });
 
         return View((object)name);
     }

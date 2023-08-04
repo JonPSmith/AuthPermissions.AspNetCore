@@ -7,7 +7,6 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This class holds the information about each database used by the AuthP sharding feature
-/// The <see cref="ShardingSettingsOption"/> class has an array of <see cref="ShardingEntry"/> 
 /// </summary>
 public class ShardingEntry
 {

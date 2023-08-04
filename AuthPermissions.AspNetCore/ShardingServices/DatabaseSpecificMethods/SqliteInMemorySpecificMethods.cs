@@ -46,10 +46,10 @@ public class SqliteInMemorySpecificMethods : IDatabaseSpecificMethods
     /// <summary>
     /// This simply returns a in-memory connection string
     /// </summary>
-    /// <param name="databaseInformation"></param>
+    /// <param name="shardingEntry"></param>
     /// <param name="connectionString"></param>
     /// <returns></returns>
-    public string SetDatabaseInConnectionString(ShardingEntry databaseInformation, string connectionString)
+    public string FormShardingConnectionString(ShardingEntry shardingEntry, string connectionString)
     {
         return new SqliteConnectionStringBuilder { DataSource = ":memory:" }.ConnectionString;
     }

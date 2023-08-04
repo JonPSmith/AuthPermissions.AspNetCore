@@ -51,8 +51,7 @@ public interface IGetSetShardingEntries
 
     /// <summary>
     /// This removes a <see cref="ShardingEntry"/> with the same <see cref="ShardingEntry.Name"/> as the databaseInfoName.
-    /// If there are no errors it will update the sharding settings file in the application.
-    /// WARNING: This can remove a <see cref="ShardingEntry"/> wh
+    /// If there are no errors it will update the sharding settings data in the application.
     /// </summary>
     /// <param name="shardingEntryName">Looks for a <see cref="ShardingEntry"/> with the <see cref="ShardingEntry.Name"/> and removes it.</param>
     /// <returns>status containing a success message, or errors</returns>

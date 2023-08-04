@@ -142,11 +142,12 @@ namespace AuthPermissions.AspNetCore
 
         /// <summary>
         /// This sets up the AuthP Sharding feature that 
-        /// You must have set the <see cref="AuthPermissionsOptions.TenantType"/>
-        /// before calling this extension method
+        /// You must have set the <see cref="AuthPermissionsOptions.TenantType"/>  before calling this extension method
         /// </summary>
         /// <param name="setupData"></param>
-        /// <param name="defaultShardingEntry">Optional: you can override the default <see cref="ShardingEntry"/> data if required.</param>
+        /// <param name="defaultShardingEntry">Optional: The default doesn't allows tenants being stored the AuthP database.
+        /// If you want store tenants in the AuthP database, or change any other data, then provide a instance of the
+        /// <see cref="ShardingEntryOptions"/>.</param>
         /// <returns></returns>
         public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData, 
             ShardingEntryOptions defaultShardingEntry = null)
@@ -162,18 +163,14 @@ namespace AuthPermissions.AspNetCore
                     $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
 
             //This defines the default sharding entry to use when there are no entries
-            //This defaults to hybrid approach, where the database used by AuthP is available for hybrid
-            //You need to supply a ShardingEntryOptions if you want an sharding-only approach
-            defaultShardingEntry ??= new ShardingEntryOptions();
+            //This defaults to not using the AuthP database to hold tenants
+            //You need to supply a ShardingEntryOptions with the TenantsInAuthPdb as true
+            //if you want store tenants in the AuthP database
+            defaultShardingEntry ??= new ShardingEntryOptions(false);
             setupData.Services.AddSingleton(defaultShardingEntry);
 
             //This gets access to the ConnectionStrings
             setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
-            //This gets access to the ShardingData in the separate sharding settings file
-            setupData.Services.Configure<ShardingSettingsOption>(setupData.Options.Configuration);
-            //This adds the sharding settings file to the configuration
-            var shardingFileName = AuthPermissionsOptions.FormShardingSettingsFileName(setupData.Options.SecondPartOfShardingFile);
-            setupData.Options.Configuration.AddJsonFile(shardingFileName, optional: true, reloadOnChange: true);
 
             //This changed in version 6 of the AuthP library
             //The GetSetShardingEntriesFileStoreCache handles reading back an ShardingEntry that was undated during the same HTTP request

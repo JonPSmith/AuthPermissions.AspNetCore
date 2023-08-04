@@ -30,6 +30,14 @@
     }
 </ul>
 
+<p>
+    This application provides an example of an sharding multi-tenant where the app admin users are in change of
+    app admin users are in change of creating and deleting Tenants.
+    This is best for the situation where you want be in charge of what tenants you have in you app and you 
+    control which tenant a user can access.
+</p>
+ 
+
 <h2>How to use use this application</h2>
 <p>
     You can log in using one of the demo users <a asp-area="" asp-controller="AuthUsers" asp-action="Index">found here</a>.
@@ -46,7 +54,7 @@
         </li>
         <li>
             Go to <a asp-area="" asp-controller="Sharding" asp-action="Index">Auth Admin > List database info</a>
-            to see the database information and the ability to change them.
+            to see the sharding entries and the ability to change them.
         </li>
         <li>
             Go to <a asp-area="" asp-controller="Tenant" asp-action="Index">Auth Admin > List Tenants</a>

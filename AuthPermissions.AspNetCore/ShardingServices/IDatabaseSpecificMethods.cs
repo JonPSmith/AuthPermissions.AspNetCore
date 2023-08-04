@@ -34,11 +34,11 @@ public interface IDatabaseSpecificMethods
     /// This changes the database to the <see cref="ShardingEntry.DatabaseName"/> in the given connectionString
     /// NOTE: If the <see cref="ShardingEntry.DatabaseName"/> is null / empty, then it returns the connectionString with no change
     /// </summary>
-    /// <param name="databaseInformation">Information about the database type/name to be used in the connection string</param>
+    /// <param name="shardingEntry">Information about the database type/name to be used in the connection string</param>
     /// <param name="connectionString"></param>
     /// <returns>A connection string containing the correct database to be used, or errors</returns>
     /// <exception cref="InvalidEnumArgumentException"></exception>
-    public string SetDatabaseInConnectionString(ShardingEntry databaseInformation,
+    public string FormShardingConnectionString(ShardingEntry shardingEntry,
         string connectionString);
 
     /// <summary>

@@ -12,24 +12,31 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 /// This defines the default sharding entry to add the sharding if the sharding data is empty.
 /// You can manually set the four properties and/or call the <see cref="FormDefaultShardingEntry"/>
 /// method to fill in the normal default <see cref="ShardingEntry"/>.
-/// NOTE: if your tenants are ALL using sharding, then set <see cref="AddIfEmpty"/> parameter to false
+/// NOTE: if your tenants are ALL using sharding, then set <see cref="TenantsInAuthPdb"/> parameter to false
 /// </summary>
 public class ShardingEntryOptions : ShardingEntry
 {
     /// <summary>
     /// ctor
     /// </summary>
-    /// <param name="addIfEmpty">defaults to true. Set this to false if all of your tenant are shading.</param>
-    public ShardingEntryOptions(bool addIfEmpty = true)
+    /// <param name="tenantsInAuthPdb">defaults to true. Set this to false if all of your tenant are shading.</param>
+    public ShardingEntryOptions(bool tenantsInAuthPdb)
     {
-        AddIfEmpty = addIfEmpty;
+        TenantsInAuthPdb = tenantsInAuthPdb;
     }
 
     /// <summary>
     /// if your tenants are ALL using sharding, then set this property to false.
     /// That's because when only sharding tenants the code will add (and remove) a sharding entry.
     /// </summary>
-    public bool AddIfEmpty { get; private set; }
+    public bool TenantsInAuthPdb { get; private set; }
+
+    /// <summary>
+    /// This holds the name of the DefaultConnection in the ConnectionStrings in the appsettings.json file.
+    /// If the <see cref="TenantsInAuthPdb"/> is false, then the <see cref="IGetSetShardingEntries"/> will
+    /// remove this named connection string 
+    /// </summary>
+    public string DefaultConnectionName { get; set; } = "DefaultConnection";
 
     /// <summary>
     /// This fills in the <see cref="ShardingEntry"/> with the default information.
@@ -53,7 +60,7 @@ public class ShardingEntryOptions : ShardingEntry
 
     /// <summary>
     /// This return the correct list of default <see cref="ShardingEntry"/> list.
-    /// Can be an empty if <see cref="AddIfEmpty"/> is false (useful in sharding only situations)
+    /// Can be an empty if <see cref="TenantsInAuthPdb"/> is false (useful in sharding only situations)
     /// </summary>
     /// <param name="options">Needed to fill in the <see cref="ShardingEntryOptions.DatabaseType"/></param>
     /// <param name="authPContext">Optional: Only needed if AddIfEmpty and using custom database.
@@ -62,7 +69,7 @@ public class ShardingEntryOptions : ShardingEntry
     public ShardingEntry ProvideDefaultShardingEntry(
         AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
-        if (!AddIfEmpty)
+        if (!TenantsInAuthPdb)
             return null; //Empty - used when all tenants have their own database, i.e. all sharding
         
         FormDefaultShardingEntry(options, authPContext);

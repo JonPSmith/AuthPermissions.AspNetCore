@@ -35,6 +35,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// <param name="options"></param>
     /// <param name="tenantAdmin"></param>
     /// <param name="addNewUserManager"></param>
+    /// <param name="context"></param>
     /// <param name="localizeProvider"></param>
     /// <param name="getShardingDb"></param>
     public SignInAndCreateTenant(AuthPermissionsOptions options, IAuthTenantAdminService tenantAdmin,

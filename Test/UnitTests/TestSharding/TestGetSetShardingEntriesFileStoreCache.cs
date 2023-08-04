@@ -120,7 +120,6 @@ public class TestGetSetShardingEntriesFileStoreCache
             _output.WriteLine(databaseInformation.ToString());
         }
         shardings.Single().ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
-        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(1);
     }
 
     [Fact]

@@ -10,7 +10,12 @@ namespace Test.StubClasses;
 public class StubGetSetShardingEntries : IGetSetShardingEntries
 {
     private readonly object _caller;
+    public string CalledMethodName { get; private set; }
 
+    /// <summary>
+    /// This contains the <see cref="ShardingEntry"/> data when add, update or delete are called 
+    /// </summary>
+    public ShardingEntry SharingEntryAddUpDel { get; private set; }
 
     /// <summary>
     /// This returns the supported database providers that can be used for multi tenant sharding.
@@ -54,6 +59,7 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
     /// <returns>Returns the found <see cref="ShardingEntry"/>, or null if not found.</returns>
     public ShardingEntry GetSingleShardingEntry(string shardingEntryName)
     {
+        CalledMethodName = nameof(GetSingleShardingEntry);
         return GetAllShardingEntries().SingleOrDefault(x => x.Name == shardingEntryName);
     }
 
@@ -65,7 +71,9 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddNewShardingEntry(ShardingEntry shardingEntry)
     {
-        throw new NotImplementedException();
+        CalledMethodName = nameof(AddNewShardingEntry);
+        SharingEntryAddUpDel = shardingEntry;
+        return new StatusGenericHandler();
     }
 
     /// <summary>
@@ -77,7 +85,9 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric UpdateShardingEntry(ShardingEntry shardingEntry)
     {
-        throw new NotImplementedException();
+        CalledMethodName = nameof(UpdateShardingEntry);
+        SharingEntryAddUpDel = shardingEntry;
+        return new StatusGenericHandler();
     }
 
     /// <summary>
@@ -89,7 +99,9 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric RemoveShardingEntry(string shardingEntryName)
     {
-        throw new NotImplementedException();
+        CalledMethodName = nameof(RemoveShardingEntry);
+        SharingEntryAddUpDel = new ShardingEntry { Name = shardingEntryName };
+        return new StatusGenericHandler();
     }
 
     public IEnumerable<string> GetConnectionStringNames()

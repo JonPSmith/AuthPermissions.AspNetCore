@@ -48,7 +48,7 @@ public class TestPostgresDatabaseSpecificMethods
         var service = new PostgresDatabaseSpecificMethods();
 
         //ATTEMPT
-        var connectionString = service.SetDatabaseInConnectionString(SetupDatabaseInformation(nullName),
+        var connectionString = service.FormShardingConnectionString(SetupDatabaseInformation(nullName),
             "host=127.0.0.1;Database=OriginalName;Username=xxx;Password=yyy");
 
         //VERIFY
@@ -64,7 +64,7 @@ public class TestPostgresDatabaseSpecificMethods
 
         //ATTEMPT
         var ex = Assert.Throws<AuthPermissionsException>(() => 
-            service.SetDatabaseInConnectionString(SetupDatabaseInformation(true),
+            service.FormShardingConnectionString(SetupDatabaseInformation(true),
             "host=127.0.0.1;Username=xxx;Password=yyy"));
 
         //VERIFY

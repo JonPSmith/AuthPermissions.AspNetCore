@@ -6,6 +6,7 @@ using System.Text.Json;
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer;
@@ -46,7 +47,7 @@ builder.Services.RegisterAuthPermissions<Example6Permissions>(options =>
     //NOTE: This uses the same database as the individual accounts DB
     .UsingEfCoreSqlServer(connectionString)
     //AuthP version 5 and above: Use this method to configure sharding
-    .SetupMultiTenantSharding()
+    .SetupMultiTenantSharding(new ShardingEntryOptions(true))
     .IndividualAccountsAuthentication()
     .RegisterAddClaimToUser<AddTenantNameClaim>()
     .RegisterAddClaimToUser<AddGlobalChangeTimeClaim>()

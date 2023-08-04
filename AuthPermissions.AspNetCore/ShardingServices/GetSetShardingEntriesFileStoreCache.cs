@@ -55,6 +55,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor?.Value ?? throw new ArgumentNullException(nameof(connectionsAccessor));
+
         _shardingEntryOptions = defaultInformationOptions ?? throw new ArgumentNullException(nameof(defaultInformationOptions));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _authDbContext = authDbContext ?? throw new ArgumentNullException(nameof(authDbContext));
@@ -75,14 +76,13 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             .Where(kv => kv.Key.StartsWith(ShardingEntryPrefix)).ToList()
             .Select(s => _fsCache.GetClassFromString<ShardingEntry>(s.Value)).ToList();
 
-        if (results.Any() || !_shardingEntryOptions.AddIfEmpty) 
+        if (results.Any() || !_shardingEntryOptions.TenantsInAuthPdb) 
             return results;
 
         //If no entries and AddIfEntry is true, then its most likely an new deployment and the cache isn't setup
         //Se we add the default sharding entry to the cache and return the default Entry
         var defaultEntry = _shardingEntryOptions
             .ProvideDefaultShardingEntry(_options, _authDbContext);
-        _fsCache.SetClass(FormShardingEntryKey(defaultEntry.Name), defaultEntry);
         results.Add(defaultEntry);
 
         return results;
@@ -99,7 +99,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         var entry = _fsCache.GetClass<ShardingEntry>(FormShardingEntryKey(shardingEntryName));
 
         //If no entries it might because this is the first deployment and the cache isn't setup
-        return entry == null && _shardingEntryOptions.AddIfEmpty 
+        return entry == null && _shardingEntryOptions.TenantsInAuthPdb 
             && shardingEntryName == _options.DefaultShardingEntryName
             ? _shardingEntryOptions.ProvideDefaultShardingEntry(_options, _authDbContext)
             : entry;
@@ -113,7 +113,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddNewShardingEntry(ShardingEntry shardingEntry)
     {
-        if (_shardingEntryOptions.AddIfEmpty &&
+        if (_shardingEntryOptions.TenantsInAuthPdb &&
             !_fsCache
                 .GetAllKeyValues().Any(kv => kv.Key.StartsWith(ShardingEntryPrefix)))
         {
@@ -149,7 +149,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
     /// <summary>
     /// This removes a <see cref="ShardingEntry"/> with the same <see cref="ShardingEntry.Name"/> as the databaseInfoName.
-    /// If there are no errors it will update the sharding settings file in the application.
+    /// If there are no errors it will update the sharding settings in the FileStore.
     /// </summary>
     /// <param name="shardingEntryName">Looks for a <see cref="ShardingEntry"/> with the <see cref="ShardingEntry.Name"/> and removes it.</param>
     /// <returns>status containing a success message, or errors</returns>
@@ -231,7 +231,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
                 out IDatabaseSpecificMethods databaseSpecificMethods))
             throw new AuthPermissionsException($"The {databaseData.DatabaseType} database provider isn't supported");
 
-        return databaseSpecificMethods.SetDatabaseInConnectionString(databaseData, connectionString);
+        return databaseSpecificMethods.FormShardingConnectionString(databaseData, connectionString);
     }
 
     //------------------------------------------------------
@@ -269,7 +269,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
                 $"You need to register a IDatabaseSpecificMethods method for that database type, e.g. SqlServerDatabaseSpecificMethods.");
         try
         {
-            databaseSpecificMethods.SetDatabaseInConnectionString(databaseInfo, connectionString);
+            databaseSpecificMethods.FormShardingConnectionString(databaseInfo, connectionString);
         }
         catch
         {
@@ -295,7 +295,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
                 $"The {nameof(ShardingEntry.Name)} is null or empty, which isn't allowed.");
 
         if (changedInfo.Name == _options.DefaultShardingEntryName 
-            && _shardingEntryOptions.AddIfEmpty)
+            && _shardingEntryOptions.TenantsInAuthPdb)
             return status.AddErrorString("Name".ClassLocalizeKey(this, true),
                 $"You can't add, update or delete the default sharding entry called '{_options.DefaultShardingEntryName}'.");
 

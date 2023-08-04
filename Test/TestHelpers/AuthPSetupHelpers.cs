@@ -65,6 +65,39 @@ namespace Test.TestHelpers
             return status.Result;
         }
 
+        /// <summary>
+        /// Use this to create a single sharding Tenant in your tests
+        /// </summary>
+        /// <param name="fullTenantName"></param>
+        /// <param name="databaseInfoName"></param>
+        /// <param name="hasOwnDb"></param>
+        /// <returns></returns>
+        public static Tenant CreateSingleShardingTenant(this string fullTenantName, string databaseInfoName, bool hasOwnDb)
+        {
+            var status = Tenant.CreateSingleTenant(fullTenantName,
+                "en".SetupAuthPLoggingLocalizer().DefaultLocalizer);
+            status.IfErrorsTurnToException();
+            status.Result.UpdateShardingState(databaseInfoName, hasOwnDb);
+            return status.Result;
+        }
+
+        /// <summary>
+        /// Use this to create a hierarchical sharding Tenant in your tests
+        /// </summary>
+        /// <param name="fullTenantName"></param>
+        /// <param name="databaseInfoName"></param>
+        /// <param name="hasOwnDb"></param>
+        /// <param name="parentTenant"></param>
+        /// <returns></returns>
+        public static Tenant CreateHierarchicalShardingTenant(this string fullTenantName, string databaseInfoName,
+            bool hasOwnDb, Tenant? parentTenant = null)
+        {
+            var status = Tenant.CreateHierarchicalTenant(fullTenantName, parentTenant,
+                "en".SetupAuthPLoggingLocalizer().DefaultLocalizer);
+            status.IfErrorsTurnToException();
+            status.Result.UpdateShardingState(databaseInfoName, hasOwnDb);
+            return status.Result;
+        }
 
         public static AuthPJwtConfiguration CreateTestJwtSetupData(TimeSpan expiresIn = default)
         {
