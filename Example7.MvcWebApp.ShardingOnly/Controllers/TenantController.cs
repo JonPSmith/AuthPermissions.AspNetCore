@@ -5,8 +5,6 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode;
-using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.SupportCode.DownStatusCode;
 using Example7.MvcWebApp.ShardingOnly.Models;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +57,7 @@ namespace Example7.MvcWebApp.ShardingOnly.Controllers
         public async Task<IActionResult> Create(ShardingOnlyTenantDto input)
         {
             var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, null,
-                true, input.ShardingName);
+                input.HasOwnDb, input.ShardingName);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

@@ -28,7 +28,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantList)]
         public async Task<IActionResult> Index(string message)
         {
-            var tenantNames = await ShardingSingleLevelTenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
+            var tenantNames = await HybridShardingTenantDto.TurnIntoDisplayFormat( _authTenantAdmin.QueryTenants())
                 .OrderBy(x => x.TenantName)
                 .ToListAsync();
 
@@ -49,7 +49,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         public IActionResult Create([FromServices]AuthPermissionsOptions authOptions, 
         [FromServices] IGetSetShardingEntries shardingService)
         {
-            return View(ShardingSingleLevelTenantDto.SetupForCreate(authOptions,
+            return View(HybridShardingTenantDto.SetupForCreate(authOptions,
                 shardingService.GetAllShardingEntries().Select(x => x.Name).ToList()
                 ));
         }
@@ -57,7 +57,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example6Permissions.TenantCreate)]
-        public async Task<IActionResult> Create(ShardingSingleLevelTenantDto input)
+        public async Task<IActionResult> Create(HybridShardingTenantDto input)
         {
             var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, null,
                 input.HasOwnDb, input.ShardingName);
@@ -71,13 +71,13 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.TenantUpdate)]
         public async Task<IActionResult> Edit(int id)
         {
-            return View(await ShardingSingleLevelTenantDto.SetupForUpdateAsync(_authTenantAdmin, id));
+            return View(await HybridShardingTenantDto.SetupForUpdateAsync(_authTenantAdmin, id));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example6Permissions.TenantUpdate)]
-        public async Task<IActionResult> Edit(ShardingSingleLevelTenantDto input)
+        public async Task<IActionResult> Edit(HybridShardingTenantDto input)
         {
             var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin
@@ -99,7 +99,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(new ShardingSingleLevelTenantDto
+            return View(new HybridShardingTenantDto
             {
                 TenantId = id,
                 TenantName = status.Result.TenantFullName,
@@ -110,7 +110,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example6Permissions.TenantDelete)]
-        public async Task<IActionResult> Delete(ShardingSingleLevelTenantDto input)
+        public async Task<IActionResult> Delete(HybridShardingTenantDto input)
         {
             var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Deleted, input.TenantId);
             var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
@@ -132,7 +132,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
                 return RedirectToAction(nameof(ErrorDisplay),
                     new { errorMessage = status.GetAllErrors() });
 
-            return View(new ShardingSingleLevelTenantDto
+            return View(new HybridShardingTenantDto
             {
                 TenantId = id,
                 TenantName = status.Result.TenantFullName,
@@ -144,7 +144,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example6Permissions.MoveTenantDatabase)]
-        public async Task<IActionResult> MoveDatabase(ShardingSingleLevelTenantDto input)
+        public async Task<IActionResult> MoveDatabase(HybridShardingTenantDto input)
         {
             var removeDownAsync = await _upDownService.SetTenantDownWithDelayAsync(TenantDownVersions.Update, input.TenantId);
             var status = await _authTenantAdmin.MoveToDifferentDatabaseAsync(

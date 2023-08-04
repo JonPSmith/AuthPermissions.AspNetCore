@@ -10,6 +10,9 @@ using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 
 namespace Example7.MvcWebApp.ShardingOnly.Models
 {
+    /// <summary>
+    /// This class is designed for a sharding-only type of tenant.
+    /// </summary>
     public class ShardingOnlyTenantDto
     {
         public int TenantId { get; set; }
@@ -23,6 +26,8 @@ namespace Example7.MvcWebApp.ShardingOnly.Models
         public string ShardingName { get; set; }
 
         public List<string> AllShardingEntries { get; set; }
+
+        public bool HasOwnDb => true;
 
         public static IQueryable<ShardingOnlyTenantDto> TurnIntoDisplayFormat(IQueryable<Tenant> inQuery)
         {
