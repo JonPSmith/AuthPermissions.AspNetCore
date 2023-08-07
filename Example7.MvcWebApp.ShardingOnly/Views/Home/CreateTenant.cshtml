@@ -1,0 +1,107 @@
+﻿@model AuthPermissions.SupportCode.AddUsersServices.AddNewTenantDto
+@{
+    ViewData["Title"] = "CreateTenant";
+}
+
+<h1 class="text-center">Welcome to the Invoice Manager</h1>
+<p class="text-center">Sign up to the version that works for you</p>
+
+<div class="container text-center">
+    <div class="row">
+        <h3 class="col">
+            Free
+        </h3>
+        <h3 class="col">
+            Pro
+        </h3>
+        <h3 class="col">
+            Enterprise
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col">
+            You will be the only user
+        </div>
+        <div class="col">
+            You can invite other users to join your tenant
+        </div>
+        <div class="col">
+            Invite other users and extra invoice analytic features
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col">
+            Free
+        </div>
+        <div class="col">
+            $$
+        </div>
+        <div class="col">
+            $$$$
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <button type="button" class="btn btn-primary" onclick = "showCreateModal('Free')">
+                Join - Free
+            </button>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-primary" onclick = "showCreateModal('Pro')">
+                Join - Pro
+            </button>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-primary" onclick = "showCreateModal('Enterprise')">
+                Join - Enterprise
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="createTenant" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Sign up for a new tenant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="createTenantBody" class="modal-body">
+                <form id="myForm" method="post">
+                    <label for="tenantName">your tenant name</label><br>
+                    <input type="text" id="tenantName" name="tenantName"><br>
+                    <label for="region">Your location</label><br>
+                    <div type="text" id="region" name="region">
+                        @Html.DropDownListFor(m => m.Region,
+                            new SelectList(Model.PossibleRegions))
+                    </div><br>
+                    <label for="email">Your email</label><br>
+                    <input type="text" id="email" name="email"><br>
+                    <label for="password">Your password</label><br>
+                    <input type="password" id="password" name="password" ><br>
+                    
+                    @Html.HiddenFor(m => m.HasOwnDb, Model.HasOwnDb)
+                    <input id="version" type="hidden" name="version">
+                    <button id="myFormSubmit" class="btn btn-primary" type="submit">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type='text/javascript'>
+function showCreateModal(version) {
+    $('#exampleModalLabel').text('Sign up for a ' + version + ' tenant');
+    $('#version').val(version);
+    $('#createTenant').modal('show');
+}
+</script>

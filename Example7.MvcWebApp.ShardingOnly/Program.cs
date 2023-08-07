@@ -10,6 +10,9 @@ using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
+using AuthPermissions.SupportCode;
+using AuthPermissions.SupportCode.AddUsersServices;
+using AuthPermissions.SupportCode.AddUsersServices.Authentication;
 using Example7.MvcWebApp.ShardingOnly.Data;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using Example7.SingleLevelShardingOnly.AppStart;
@@ -67,7 +70,15 @@ builder.Services.RegisterAuthPermissions<Example7Permissions>(options =>
         options.RegisterServiceToRunInJob<StartupServiceMigrateAnyDbContext<ShardingOnlyDbContext>>(); ;
     });
 
-//This is used for a) hold the sharding entries and b) to set a tenant as "Down",
+//manually add services from the AuthPermissions.SupportCode project
+//1. Services to allow a new user to create a new tenant 
+builder.Services.AddTransient<IAddNewUserManager, IndividualUserAddUserManager<IdentityUser>>();
+builder.Services.AddTransient<ISignInAndCreateTenant, SignInAndCreateTenant>();
+builder.Services.AddTransient<IGetDatabaseForNewTenant, DemoShardOnlyGetDatabaseForNewTenant>(); //handles sharding tenants
+//2. Services to create an invite to send to someone, and the code for the user to login via the invite
+builder.Services.AddTransient<IInviteNewUserService, InviteNewUserService>();
+
+//This is used for hold the sharding entries
 builder.Services.AddDistributedFileStoreCache(options =>
 {
     options.WhichVersion = FileStoreCacheVersions.Class;

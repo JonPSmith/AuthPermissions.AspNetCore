@@ -43,7 +43,7 @@ public class TestSignInAndCreateTenant
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
             authOptions, "en".SetupAuthPLoggingLocalizer());
         var tenantAdmin = new AuthTenantAdminService(context, authOptions,
-            "en".SetupAuthPLoggingLocalizer(), new StubITenantChangeServiceFactory(), null); 
+            "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null); 
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
             new StubAddNewUserManager(userAdmin, tenantAdmin, loginReturnsError), context,
             "en".SetupAuthPLoggingLocalizer(),

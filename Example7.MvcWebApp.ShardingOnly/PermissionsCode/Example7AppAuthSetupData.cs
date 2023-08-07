@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.SetupCode;
 
 namespace Example7.MvcWebApp.ShardingOnly.PermissionsCode
@@ -14,13 +15,16 @@ namespace Example7.MvcWebApp.ShardingOnly.PermissionsCode
                 "UserRead, UserSync, UserChange, UserRemove, " +
                 "UserRolesChange, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
                 "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData, " +
-                "ListDbsWithTenants, MoveTenantDatabase, ListDatabaseInfos, AddDatabaseInfo, UpdateDatabaseInfo, RemoveDatabaseInfo, " +
-                "AppStatusList, AppStatusAllDown, AppStatusTenantDown, AppStatusRemove"),
+                "ListDbsWithTenants, MoveTenantDatabase, ListDatabaseInfos, AddDatabaseInfo, UpdateDatabaseInfo, RemoveDatabaseInfo"),
             new("App Support", "overall support - limited admin items",
                 "UserRead, UserRolesChange, RoleRead, TenantList, TenantAccessData"),
+            new("Invoice Reader", "Can read invoices", "InvoiceRead"),
+            new("Invoice Creator", "Can access invoices", "InvoiceCreate"),
             new("Tenant User", "Can access invoices", "InvoiceRead, InvoiceCreate"),
+            //roles linked to tenant
             new("Tenant Admin", "Tenant-level admin",
-                "UserRead, UserRolesChange, RoleRead"),
+                "UserRead, UserRolesChange, RoleRead, InviteUsers", RoleTypes.TenantAdminAdd),
+            new("Enterprise", "Enterprise features", "InvoiceSum", RoleTypes.TenantAutoAdd)
         };
 
         public static readonly List<BulkLoadUserWithRolesTenant> UsersRolesDefinition = new()

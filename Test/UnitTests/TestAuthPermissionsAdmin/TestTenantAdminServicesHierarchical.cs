@@ -119,7 +119,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -163,7 +163,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -205,7 +205,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -237,7 +237,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -266,7 +266,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var tenantIds = await contexts.AuthPContext.BulkLoadHierarchicalTenantInDbAsync();
             contexts.RetailDbContext.SetupHierarchicalRetailAndStock(contexts.AuthPContext);
 
-            var subTenantChangeService = new StubITenantChangeServiceFactory();
+            var subTenantChangeService = new StubTenantChangeServiceFactory();
             var service = new AuthTenantAdminService(contexts.AuthPContext, _authOptionsHierarchical,
                 "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -296,7 +296,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 var tenantIds = await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -336,7 +336,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -382,7 +382,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -431,7 +431,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 await context.BulkLoadHierarchicalTenantInDbAsync();
                 context.ChangeTracker.Clear();
 
-                var subTenantChangeService = new StubITenantChangeServiceFactory();
+                var subTenantChangeService = new StubTenantChangeServiceFactory();
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                     "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -484,7 +484,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.BulkLoadHierarchicalTenantInDbAsync();
             context.ChangeTracker.Clear();
 
-            var subTenantChangeService = new StubITenantChangeServiceFactory();
+            var subTenantChangeService = new StubTenantChangeServiceFactory();
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                 "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -515,7 +515,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             await context.BulkLoadHierarchicalTenantInDbAsync();
             context.ChangeTracker.Clear();
 
-            var subTenantChangeService = new StubITenantChangeServiceFactory();
+            var subTenantChangeService = new StubTenantChangeServiceFactory();
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
                 "en".SetupAuthPLoggingLocalizer(), subTenantChangeService, null);
 
@@ -547,14 +547,14 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    "en".SetupAuthPLoggingLocalizer(), new StubITenantChangeServiceFactory(), null);
+                    "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null);
 
                 //ATTEMPT
                 var status = await service.DeleteTenantAsync(6);
 
                 //VERIFY
                 status.IsValid.ShouldBeTrue(status.GetAllErrors());
-                var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
+                var deleteLogs = ((StubTenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
                     ("Company | West Coast | SanFran | Shop1", "1.2.4.6.")
@@ -592,7 +592,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
                 context.ChangeTracker.Clear();
 
                 var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                    "en".SetupAuthPLoggingLocalizer(), new StubITenantChangeServiceFactory(), null);
+                    "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null);
                 options.StopNextDispose();
 
                 //ATTEMPT
@@ -600,7 +600,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 
                 //VERIFY
                 status.IsValid.ShouldBeTrue(status.GetAllErrors());
-                var deleteLogs = ((StubITenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
+                var deleteLogs = ((StubTenantChangeServiceFactory.StubITenantChangeService)status.Result).DeleteReturnedTuples;
                 deleteLogs.ShouldEqual(new List<(string fullTenantName, string dataKey)>
                 {
                     ("Company | West Coast | SanFran | Shop1", "1.2.4.6."), 
@@ -643,7 +643,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                "en".SetupAuthPLoggingLocalizer(), new StubITenantChangeServiceFactory(), null);
+                "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null);
             options.StopNextDispose();
 
             //ATTEMPT
@@ -676,7 +676,7 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             context.ChangeTracker.Clear();
 
             var service = new AuthTenantAdminService(context, _authOptionsHierarchical,
-                "en".SetupAuthPLoggingLocalizer(), new StubITenantChangeServiceFactory(), null);
+                "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null);
 
             //ATTEMPT
             var status = await service.DeleteTenantAsync(2);

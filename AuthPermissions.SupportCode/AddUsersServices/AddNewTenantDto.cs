@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.SetupCode;
 
 namespace AuthPermissions.SupportCode.AddUsersServices;
@@ -33,10 +34,15 @@ public class AddNewTenantDto
     public bool? HasOwnDb { get; set; }
 
     /// <summary>
-    /// If <see cref="TenantTypes.AddSharding"/> and you have database servers geographically spread,
+    /// Optional: If <see cref="TenantTypes.AddSharding"/> and you have database servers geographically spread,
     /// then you can provide some information to help the <see cref="IGetDatabaseForNewTenant"/> service
     /// to pick the right server/database.
     /// Can be null.
     /// </summary>
     public string Region { get; set; }
+
+    /// <summary>
+    /// Optional: A list of regions for the user to pick from.
+    /// </summary>
+    public List<string> PossibleRegions { get; set; }
 }
