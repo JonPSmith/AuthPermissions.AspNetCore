@@ -24,6 +24,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Invoice" asp-action="Index">Home</a>
                         </li>
+                        @if (User.HasPermission(Example7Permissions.InviteUsers))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="TenantAdmin" asp-action="InviteUser">Invite User</a>
+                            </li>
+                        }
                         @if (User.HasPermission(Example7Permissions.UserRead))
                         {
                             <li class="nav-item">

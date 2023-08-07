@@ -4,6 +4,8 @@
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.SupportCode.AddUsersServices;
+using Example7.MvcWebApp.ShardingOnly.Models;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using ExamplesCommonCode.CommonAdmin;
 using Microsoft.AspNetCore.Mvc;
@@ -55,9 +57,56 @@ namespace Example7.MvcWebApp.ShardingOnly.Controllers
             return RedirectToAction(nameof(Index), new { message = status.Message });
         }
 
+
+
+        [HasPermission(Example7Permissions.InviteUsers)]
+        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteService)
+        {
+            var setupInvite = new InviteUserSetup
+            {
+                AllRoleNames = await _authUsersAdmin.GetRoleNamesForUsersAsync(User.GetUserIdFromUser()),
+                ExpirationTimesDropdown = inviteService.ListOfExpirationTimes()
+            };
+
+            return View(setupInvite);
+        }
+
+        [HasPermission(Example7Permissions.InviteUsers)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> InviteUser([FromServices] IInviteNewUserService inviteUserServiceService, InviteUserSetup data)
+        {
+            var addUserData = new AddNewUserDto
+            {
+                Email = data.Email,
+                Roles = data.RoleNames,
+                TimeInviteExpires = data.InviteExpiration
+            };
+            var status = await inviteUserServiceService.CreateInviteUserToJoinAsync(addUserData, User.GetUserIdFromUser());
+            if (status.HasErrors)
+                return RedirectToAction(nameof(ErrorDisplay),
+                    new { errorMessage = status.GetAllErrors() });
+
+            var inviteUrl = AbsoluteAction(Url, nameof(HomeController.AcceptInvite), "Home", new { verify = status.Result });
+
+            return View("InviteUserUrl", new InviteUserResult(status.Message, inviteUrl));
+        }
+
         public ActionResult ErrorDisplay(string errorMessage)
         {
             return View((object)errorMessage);
+        }
+
+        //-------------------------------------------------------
+
+        //Thanks to https://stackoverflow.com/questions/30755827/getting-absolute-urls-using-asp-net-core
+        public string AbsoluteAction(IUrlHelper url,
+            string actionName,
+            string controllerName,
+            object routeValues = null)
+        {
+            string scheme = HttpContext.Request.Scheme;
+            return url.Action(actionName, controllerName, routeValues, scheme);
         }
     }
 }

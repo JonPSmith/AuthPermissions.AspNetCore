@@ -1,0 +1,19 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Example7.MvcWebApp.ShardingOnly.Models.InviteUserResult
+
+@{
+    ViewData["Title"] = "Invite User URL";
+    Layout = "_CompanyLayout";
+}
+
+<h1>Invite User URL</h1>
+
+<h4 class="text-primary">@Model.Message</h4>
+<hr />
+<div class="h4">@Html.Encode(Model.Url)</div>
+
+<hr />
+
+<div>
+    <a asp-action="Index">Back to home</a>
+</div>
