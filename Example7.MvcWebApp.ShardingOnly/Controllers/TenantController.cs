@@ -5,6 +5,7 @@ using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.SetupCode;
 using Example7.MvcWebApp.ShardingOnly.Models;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;
@@ -43,21 +44,21 @@ namespace Example7.MvcWebApp.ShardingOnly.Controllers
         }
 
         [HasPermission(Example7Permissions.TenantCreate)]
-        public IActionResult Create([FromServices]AuthPermissionsOptions authOptions, 
-        [FromServices] IGetSetShardingEntries shardingService)
+        public IActionResult Create([FromServices] IGetSetShardingEntries shardingService)
         {
-            return View(ShardingOnlyTenantDto.SetupForCreate(authOptions,
-                shardingService.GetAllShardingEntries().Select(x => x.Name).ToList()
-                ));
+            var dto = new ShardingOnlyTenantAddDto();
+            dto.SetConnectionStringNames(shardingService.GetConnectionStringNames());
+            dto.DbProviderShortName = AuthPDatabaseTypes.SqlServer.ToString();
+            return View(dto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example7Permissions.TenantCreate)]
-        public async Task<IActionResult> Create(ShardingOnlyTenantDto input)
+        public async Task<IActionResult> Create(ShardingOnlyTenantAddDto dto,
+            [FromServices] IShardingOnlyTenantAddRemove service)
         {
-            var status = await _authTenantAdmin.AddSingleTenantAsync(input.TenantName, null,
-                input.HasOwnDb, input.ShardingName);
+            var status = await service.CreateTenantAsync(dto);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),
@@ -104,9 +105,9 @@ namespace Example7.MvcWebApp.ShardingOnly.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(Example7Permissions.TenantDelete)]
-        public async Task<IActionResult> Delete(ShardingOnlyTenantDto input)
+        public async Task<IActionResult> Delete(ShardingOnlyTenantDto input, [FromServices]IShardingOnlyTenantAddRemove service)
         {
-            var status = await _authTenantAdmin.DeleteTenantAsync(input.TenantId);
+            var status = await service.DeleteTenantAsync(input.TenantId);
 
             return status.HasErrors
                 ? RedirectToAction(nameof(ErrorDisplay),

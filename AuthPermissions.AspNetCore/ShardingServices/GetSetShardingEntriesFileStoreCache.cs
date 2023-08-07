@@ -168,9 +168,9 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// linked to different servers, e.g. WestServer, CenterServer and EastServer (see Example6)
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<string> GetConnectionStringNames()
+    public List<string> GetConnectionStringNames()
     {
-        return _connectionDict.Keys;
+        return _connectionDict.Keys.ToList();
     }
 
     /// <summary>

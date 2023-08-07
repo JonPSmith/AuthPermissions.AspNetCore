@@ -50,7 +50,7 @@ builder.Services.RegisterAuthPermissions<Example7Permissions>(options =>
     .SetupMultiTenantSharding(new ShardingEntryOptions(false))
     .IndividualAccountsAuthentication()
     .RegisterAddClaimToUser<AddTenantNameClaim>()
-    .RegisterTenantChangeService<ShardingTenantChangeService>()
+    .RegisterTenantChangeService<ShardingOnlyTenantChangeService>()
     .AddRolesPermissionsIfEmpty(Example7AppAuthSetupData.RolesDefinition)
     .AddAuthUsersIfEmpty(Example7AppAuthSetupData.UsersRolesDefinition)
     .RegisterFindUserInfoService<IndividualAccountUserLookup>()

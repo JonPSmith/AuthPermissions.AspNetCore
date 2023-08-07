@@ -13,7 +13,7 @@ using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestSharding;
 
-public class TestShardingTenantAddRemove
+public class TestShardingOnlyTenantAddRemove
 {
     private readonly ITestOutputHelper _output;
 
@@ -21,21 +21,20 @@ public class TestShardingTenantAddRemove
     private StubGetSetShardingEntries _getSetShardings;
     private StubAuthTenantAdminService _stubTenantAdmin;
 
-    public TestShardingTenantAddRemove(ITestOutputHelper output)
+    public TestShardingOnlyTenantAddRemove(ITestOutputHelper output)
     {
         _output = output;
     }
 
     /// <summary>
-    /// This returns an instance of the <see cref="ShardingTenantAddRemove"/> with the TenantType set.
+    /// This returns an instance of the <see cref="ShardingOnlyTenantAddRemove"/> with the TenantType set.
     /// It also creates a extra <see cref="Tenant"/> to check duplication errors and also for the Delete
     /// </summary>
-    /// <param name="hasOwnDb"></param>
     /// <param name="tenantType"></param>
     /// <param name="childTenant"></param>
     /// <returns></returns>
-    private ShardingTenantAddRemove SetupService(bool hasOwnDb, TenantTypes tenantType = TenantTypes.SingleLevel,
-         bool childTenant = false)
+    private ShardingOnlyTenantAddRemove SetupService(TenantTypes tenantType = TenantTypes.SingleLevel,
+        bool childTenant = false)
     {
         _authPOptions = new AuthPermissionsOptions
         {
@@ -43,17 +42,17 @@ public class TestShardingTenantAddRemove
         };
 
         var demoTenant = tenantType == TenantTypes.SingleLevel
-            ? "TenantSingle".CreateSingleShardingTenant("Other Database", hasOwnDb)
-            : "TenantHierarchical".CreateHierarchicalShardingTenant("Other Database", hasOwnDb);
+            ? "TenantSingle".CreateSingleShardingTenant("Other Database", true)
+            : "TenantHierarchical".CreateHierarchicalShardingTenant("Other Database", true);
         if (tenantType == TenantTypes.HierarchicalTenant && childTenant)
         {
             demoTenant =
-                "TenantHierarchicalChild".CreateHierarchicalShardingTenant("Other Database", hasOwnDb, demoTenant);
+                "TenantHierarchicalChild".CreateHierarchicalShardingTenant("Other Database", true, demoTenant);
         }
 
         _getSetShardings = new StubGetSetShardingEntries(this);
         _stubTenantAdmin = new StubAuthTenantAdminService(demoTenant);
-        return new ShardingTenantAddRemove(_stubTenantAdmin, _getSetShardings,
+        return new ShardingOnlyTenantAddRemove(_stubTenantAdmin, _getSetShardings,
             _authPOptions, "en".SetupAuthPLoggingLocalizer());
     }
 
@@ -61,17 +60,17 @@ public class TestShardingTenantAddRemove
     // Create Single
 
     [Fact]
-    public async Task Create_Single_HasOwnDbTrue_Good()
+    public async Task Create_Single_Good()
     {
         //SETUP
-        var dto = new ShardingTenantAddDto
+        var dto = new ShardingOnlyTenantAddDto
         {
             TenantName = "Test",
-            HasOwnDb = true,
+
             ConnectionStringName = "DefaultConnection",
             DbProviderShortName = "SqlServer",
         };
-        var service = SetupService(true);
+        var service = SetupService();
 
         //ATTEMPT
         var status = await service.CreateTenantAsync(dto);
@@ -79,44 +78,23 @@ public class TestShardingTenantAddRemove
         //VERIFY
         status.HasErrors.ShouldBeFalse(status.GetAllErrors());
         _output.WriteLine(_getSetShardings.SharingEntryAddUpDel.ToString());
-        _getSetShardings.SharingEntryAddUpDel.Name.ShouldEndWith("-Test");
+        _getSetShardings.SharingEntryAddUpDel.Name.ShouldStartWith("Test-");
         _getSetShardings.SharingEntryAddUpDel.ConnectionName.ShouldEqual("DefaultConnection");
         _getSetShardings.SharingEntryAddUpDel.DatabaseType.ShouldEqual("SqlServer");
         _stubTenantAdmin.CalledMethodName.ShouldEqual("AddSingleTenantAsync");
     }
 
     [Fact]
-    public async Task Create_Single_HasOwnDbTrue_Good_OverriddenByDatabaseInfoName()
+    public async Task Create_Single_DuplicateTenant()
     {
         //SETUP
-        var dto = new ShardingTenantAddDto
-        {
-            TenantName = "Test",
-            HasOwnDb = true,
-            ShardingEntityName = "Default Database"
-        };
-        var service = SetupService(true);
-
-        //ATTEMPT
-        var status = await service.CreateTenantAsync(dto);
-
-        //VERIFY
-        status.HasErrors.ShouldBeFalse(status.GetAllErrors());
-        _stubTenantAdmin.CalledMethodName.ShouldEqual("AddSingleTenantAsync");
-    }
-
-    [Fact]
-    public async Task Create_Single_HasOwnDbTrue_DuplicateTenant()
-    {
-        //SETUP
-        var dto = new ShardingTenantAddDto
+        var dto = new ShardingOnlyTenantAddDto
         {
             TenantName = "TenantSingle",
-            HasOwnDb = true,
             ConnectionStringName = "DefaultConnection",
             DbProviderShortName = "SqlServer",
         };
-        var service = SetupService(true);
+        var service = SetupService();
 
         //ATTEMPT
         var status = await service.CreateTenantAsync(dto);
@@ -126,42 +104,21 @@ public class TestShardingTenantAddRemove
         status.GetAllErrors().ShouldEqual("The tenant name 'TenantSingle' is already used");
     }
 
-    [Fact]
-    public async Task Create_Single_HasOwnDbFalse_Good()
-    {
-        //SETUP
-        var dto = new ShardingTenantAddDto
-        {
-            TenantName = "Test",
-            HasOwnDb = false,
-            ShardingEntityName = "Other Database"
-        };
-        var service = SetupService(false);
-
-        //ATTEMPT
-        var status = await service.CreateTenantAsync(dto);
-
-        //VERIFY
-        status.HasErrors.ShouldBeFalse(status.GetAllErrors());
-        _output.WriteLine(status.Message);
-        _stubTenantAdmin.CalledMethodName.ShouldEqual("AddSingleTenantAsync");
-    }
-
     //---------------------------------------------------
     // Create Hierarchical
 
     [Fact]
-    public async Task Create_Hierarchical_TopLevel_HasOwnDbTrue_Good()
+    public async Task Create_Hierarchical_TopLevel_Good()
     {
         //SETUP
-        var dto = new ShardingTenantAddDto
+        var dto = new ShardingOnlyTenantAddDto
         {
             TenantName = "Test",
-            HasOwnDb = true,
+ 
             ConnectionStringName = "DefaultConnection",
             DbProviderShortName = "SqlServer",
         };
-        var service = SetupService(false, TenantTypes.HierarchicalTenant);
+        var service = SetupService(TenantTypes.HierarchicalTenant);
 
         //ATTEMPT
         var status = await service.CreateTenantAsync(dto);
@@ -169,39 +126,19 @@ public class TestShardingTenantAddRemove
         //VERIFY
         status.HasErrors.ShouldBeFalse(status.GetAllErrors());
         _output.WriteLine(_getSetShardings.SharingEntryAddUpDel.ToString());
-        _getSetShardings.SharingEntryAddUpDel.Name.ShouldEndWith("-Test");
+        _getSetShardings.SharingEntryAddUpDel.Name.ShouldStartWith("Test-");
         _getSetShardings.SharingEntryAddUpDel.ConnectionName.ShouldEqual("DefaultConnection");
         _getSetShardings.SharingEntryAddUpDel.DatabaseType.ShouldEqual("SqlServer");
         _stubTenantAdmin.CalledMethodName.ShouldEqual("AddHierarchicalTenantAsync");
     }
 
-    [Fact]
-    public async Task Create_Hierarchical_TopLevel_HasOwnDbFalse_Good()
-    {
-        //SETUP
-        var dto = new ShardingTenantAddDto
-        {
-            TenantName = "Test",
-            HasOwnDb = false,
-            ShardingEntityName = "Other Database"
-        };
-        var service = SetupService(false, TenantTypes.HierarchicalTenant);
-
-        //ATTEMPT
-        var status = await service.CreateTenantAsync(dto);
-
-        //VERIFY
-        status.HasErrors.ShouldBeFalse(status.GetAllErrors());
-        _output.WriteLine(status.Message);
-        _stubTenantAdmin.CalledMethodName.ShouldEqual("AddHierarchicalTenantAsync");
-    }
 
     //Its very hard to test this 
     //[Fact]
     //public async Task Create_Hierarchical_Child_Good()
     //{
     //    //SETUP
-    //    var dto = new ShardingTenantAddDto
+    //    var dto = new ShardingOnlyTenantAddDto
     //    {
     //        TenantName = "Test",
     //        HasOwnDb = true,
@@ -219,13 +156,13 @@ public class TestShardingTenantAddRemove
     //}
 
     //---------------------------------------------------
-    // Create Single
+    // Delete Single
 
     [Fact]
-    public async Task Delete_Single_HasOwnDbTrue_Good()
+    public async Task Delete_Single_Good()
     {
         //SETUP
-        var service = SetupService(true);
+        var service = SetupService();
 
         ////ATTEMPT
         var status = await service.DeleteTenantAsync(0);
@@ -235,31 +172,16 @@ public class TestShardingTenantAddRemove
         _stubTenantAdmin.CalledMethodName.ShouldEqual("DeleteTenantAsync");
         _getSetShardings.CalledMethodName.ShouldEqual("RemoveShardingEntry");
         _getSetShardings.SharingEntryAddUpDel.Name.ShouldEqual("Other Database");
-    }
-
-    [Fact]
-    public async Task Delete_Single_HasOwnDbFalse_Good()
-    {
-        //SETUP
-        var service = SetupService(false);
-
-        ////ATTEMPT
-        var status = await service.DeleteTenantAsync(0);
-
-        ////VERIFY
-        status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        _stubTenantAdmin.CalledMethodName.ShouldEqual("DeleteTenantAsync");
-        _getSetShardings.CalledMethodName.ShouldBeNull();
     }
 
     //---------------------------------------------------
     // Delete Hierarchical
 
     [Fact]
-    public async Task Delete_Hierarchical_HasOwnDbTrue_Good()
+    public async Task Delete_Hierarchical_Good()
     {
         //SETUP
-        var service = SetupService(true, TenantTypes.HierarchicalTenant);
+        var service = SetupService(TenantTypes.HierarchicalTenant);
 
         ////ATTEMPT
         var status = await service.DeleteTenantAsync(0);
@@ -269,20 +191,5 @@ public class TestShardingTenantAddRemove
         _stubTenantAdmin.CalledMethodName.ShouldEqual("DeleteTenantAsync");
         _getSetShardings.CalledMethodName.ShouldEqual("RemoveShardingEntry");
         _getSetShardings.SharingEntryAddUpDel.Name.ShouldEqual("Other Database");
-    }
-
-    [Fact]
-    public async Task Delete_Hierarchical_HasOwnDbFalse_Good()
-    {
-        //SETUP
-        var service = SetupService(false, TenantTypes.HierarchicalTenant);
-
-        ////ATTEMPT
-        var status = await service.DeleteTenantAsync(0);
-
-        ////VERIFY
-        status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        _stubTenantAdmin.CalledMethodName.ShouldEqual("DeleteTenantAsync");
-        _getSetShardings.CalledMethodName.ShouldBeNull();
     }
 }

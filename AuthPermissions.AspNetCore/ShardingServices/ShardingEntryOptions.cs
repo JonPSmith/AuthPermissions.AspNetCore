@@ -65,7 +65,7 @@ public class ShardingEntryOptions : ShardingEntry
     /// This return the correct list of default <see cref="ShardingEntry"/> list.
     /// Can be an empty if <see cref="TenantsInAuthPdb"/> is false (useful in sharding only situations)
     /// </summary>
-    /// <param name="options">Needed to fill in the <see cref="ShardingEntryOptions.DatabaseType"/></param>
+    /// <param name="options">Needed to fill in the <see cref="ShardingEntryOptions."/></param>
     /// <param name="authPContext">Optional: Only needed if AddIfEmpty and using custom database.
     /// You must provide the <see cref="AuthPermissionsDbContext"/> to get the short provider name.</param>
     /// <returns></returns>

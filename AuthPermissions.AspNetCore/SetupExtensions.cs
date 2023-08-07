@@ -27,7 +27,6 @@ using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
 
@@ -171,12 +170,16 @@ namespace AuthPermissions.AspNetCore
 
             //This gets access to the ConnectionStrings
             setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));
+            setupData.Services.AddTransient<ILinkToTenantDataService, LinkToTenantDataService>();
 
+#region AuthP version 6 changes
             //This changed in version 6 of the AuthP library
             //The GetSetShardingEntriesFileStoreCache handles reading back an ShardingEntry that was undated during the same HTTP request
-            //NOTE: IOptionsMonitor service won't get a change to the json file until an new HTTP request has happened 
+            //This change is because IOptionsMonitor service won't get a change to the json file until an new HTTP request has happened 
             setupData.Services.AddTransient<IGetSetShardingEntries, GetSetShardingEntriesFileStoreCache>();
-            setupData.Services.AddTransient<ILinkToTenantDataService, LinkToTenantDataService>();
+            //New version service that makes it easier to create / delete tenants when using sharding
+            setupData.Services.AddTransient<IShardingOnlyTenantAddRemove, ShardingOnlyTenantAddRemove>();
+#endregion
 
             switch (setupData.Options.LinkToTenantType)
             {

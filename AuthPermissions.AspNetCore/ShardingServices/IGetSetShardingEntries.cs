@@ -62,7 +62,7 @@ public interface IGetSetShardingEntries
     /// linked to different servers, e.g. WestServer, CenterServer and EastServer (see Example6)
     /// </summary>
     /// <returns></returns>
-    IEnumerable<string> GetConnectionStringNames();
+    List<string> GetConnectionStringNames();
 
     /// <summary>
     /// This returns all the database info names in the ShardingEntry data, with a list of tenant name linked to each connection name

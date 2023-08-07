@@ -26,13 +26,7 @@
             Tenant name
         </th>
         <th>
-            DataKey
-        </th>
-        <th>
             DatabaseInfoName
-        </th>
-        <th>
-            HasOwnDb
         </th>
         <th>
             @(User.HasPermission(Example7Permissions.TenantUpdate) ? "Change" : "")
@@ -46,7 +40,6 @@
             <td>
                 @item.TenantName
             </td>
- 
             <td>
                 @item.ShardingName
             </td>

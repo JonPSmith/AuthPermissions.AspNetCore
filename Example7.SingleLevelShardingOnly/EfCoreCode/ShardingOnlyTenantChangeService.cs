@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using TestSupport.SeedDatabase;
 
 namespace Example7.SingleLevelShardingOnly.EfCoreCode;
 
@@ -23,7 +22,7 @@ namespace Example7.SingleLevelShardingOnly.EfCoreCode;
 /// see <see cref="GetShardingSingleDbContext"/> at the end of this class. This also allows the DataKey to be added
 /// which removes the need for using the IgnoreQueryFilters method on any queries
 /// </summary>
-public class ShardingTenantChangeService : ITenantChangeService
+public class ShardingOnlyTenantChangeService : ITenantChangeService
 {
     private readonly Microsoft.EntityFrameworkCore.DbContextOptions<ShardingOnlyDbContext> _options;
     private readonly IGetSetShardingEntries _shardingService;
@@ -35,8 +34,8 @@ public class ShardingTenantChangeService : ITenantChangeService
     /// </summary>
     public int DeletedTenantId { get; private set; }
 
-    public ShardingTenantChangeService(Microsoft.EntityFrameworkCore.DbContextOptions<ShardingOnlyDbContext> options,
-        IGetSetShardingEntries shardingService, ILogger<ShardingTenantChangeService> logger)
+    public ShardingOnlyTenantChangeService(Microsoft.EntityFrameworkCore.DbContextOptions<ShardingOnlyDbContext> options,
+        IGetSetShardingEntries shardingService, ILogger<ShardingOnlyTenantChangeService> logger)
     {
         _options = options;
         _shardingService = shardingService;
@@ -104,21 +103,9 @@ public class ShardingTenantChangeService : ITenantChangeService
             return null;
         }
 
-        await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-        try
-        {
-            await DeleteTenantData(tenant.GetTenantDataKey(), context, tenant);
-            DeletedTenantId = tenant.TenantId;
-
-            await transaction.CommitAsync();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
-            return "There was a system-level problem - see logs for more detail";
-        }
-
-        return null;
+        //Now we delete it
+        DeletedTenantId = tenant.TenantId;
+        return await DeleteTenantData(tenant.GetTenantDataKey(), context, tenant);
     }
 
     public Task<string> HierarchicalTenantUpdateNameAsync(List<Tenant> tenantsToUpdate)
@@ -174,28 +161,51 @@ public class ShardingTenantChangeService : ITenantChangeService
         return null;
     }
 
-    private async Task DeleteTenantData(string dataKey, ShardingOnlyDbContext context, Tenant? tenant = null)
+    private async Task<string> DeleteTenantData(string dataKey, ShardingOnlyDbContext context, Tenant? tenant = null)
     {
         if (tenant?.HasOwnDb == true)
         {
             //The tenant its own database, then you should drop the database, but that depends on what SQL Server provider you use.
             //In this case I can the database because it is on a local SqlServer server.
-            await context.Database.EnsureDeletedAsync();
-            return;
+            try
+            {
+                await context.Database.EnsureDeletedAsync();
+                return null;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
+                return "There was a system-level problem - see logs for more detail";
+            }
+            return null;
+
         }
 
         //else we remove all the data with the DataKey of the tenant
-        var deleteSalesSql = $"DELETE FROM invoice.{nameof(ShardingOnlyDbContext.LineItems)} WHERE DataKey = '{dataKey}'";
-        await context.Database.ExecuteSqlRawAsync(deleteSalesSql);
-        var deleteStockSql = $"DELETE FROM invoice.{nameof(ShardingOnlyDbContext.Invoices)} WHERE DataKey = '{dataKey}'";
-        await context.Database.ExecuteSqlRawAsync(deleteStockSql);
-
-        var companyTenant = await context.Companies.SingleOrDefaultAsync();
-        if (companyTenant != null)
+        await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        try
         {
-            context.Remove(companyTenant);
-            await context.SaveChangesAsync();
+            var deleteSalesSql = $"DELETE FROM invoice.{nameof(ShardingOnlyDbContext.LineItems)} WHERE DataKey = '{dataKey}'";
+            await context.Database.ExecuteSqlRawAsync(deleteSalesSql);
+            var deleteStockSql = $"DELETE FROM invoice.{nameof(ShardingOnlyDbContext.Invoices)} WHERE DataKey = '{dataKey}'";
+            await context.Database.ExecuteSqlRawAsync(deleteStockSql);
+
+            var companyTenant = await context.Companies.SingleOrDefaultAsync();
+            if (companyTenant != null)
+            {
+                context.Remove(companyTenant);
+                await context.SaveChangesAsync();
+            }
+
+            await transaction.CommitAsync();
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
+            return "There was a system-level problem - see logs for more detail";
+        }
+
+        return null;
     }
 
     /// <summary>

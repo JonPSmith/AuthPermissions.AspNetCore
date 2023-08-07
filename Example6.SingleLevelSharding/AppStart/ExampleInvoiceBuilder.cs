@@ -25,7 +25,7 @@ namespace Example6.SingleLevelSharding.AppStart
             _dataKey = dataKey;
         }
 
-        public Invoice CreateRandomInvoice(string companyName, string invoiceName = null)
+        public Invoice CreateRandomInvoice(string companyName, string? invoiceName = null)
         {
             //thanks to https://stackoverflow.com/questions/29482/how-can-i-cast-int-to-enum
             var invoiceType = (ExampleInvoiceTypes)Enum.ToObject(typeof(ExampleInvoiceTypes), 

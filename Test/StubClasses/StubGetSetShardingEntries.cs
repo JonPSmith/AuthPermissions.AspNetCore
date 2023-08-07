@@ -104,9 +104,9 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
         return new StatusGenericHandler();
     }
 
-    public IEnumerable<string> GetConnectionStringNames()
+    public List<string> GetConnectionStringNames()
     {
-        return new[] { "UnitTestConnection", "PostgreSqlConnection" };
+        return new List<string> { "UnitTestConnection", "PostgreSqlConnection" };
     }
 
     public IStatusGeneric TestFormingConnectionString(ShardingEntry databaseInfo)
