@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode.CommonCode;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthPermissions.AspNetCore.ShardingServices;
@@ -49,7 +50,9 @@ public class ShardingOnlyTenantAddDto
     public string DbProviderShortName { get; set; }
 
     /// <summary>
-    /// THis 
+    /// This sets up the <see cref="ConnectionStringNames"/> allowing a user select which server they need.
+    /// NOTE: If there is only one connection string in the appsettings this method will set the
+    /// <see cref="ConnectionStringName"/> to that single connection string (thus needing the user to select anything).
     /// </summary>
     /// <param name="connectionStringNames"></param>
     /// <exception cref="ArgumentException"></exception>
@@ -58,10 +61,20 @@ public class ShardingOnlyTenantAddDto
         if (connectionStringNames == null || connectionStringNames.Count == 0)
             throw new ArgumentException($"The list of connection string names cannot be null or empty collection.", nameof(connectionStringNames));
 
-
         ConnectionStringNames = connectionStringNames;
-        ConnectionStringName = connectionStringNames.First();
+        if (ConnectionStringNames.Count == 1)
+            ConnectionStringName = connectionStringNames.First();
     }
+
+    /// <summary>
+    /// This with set the <see cref="DbProviderShortName"/> via an instance of the tenant's DbContext.
+    /// </summary>
+    /// <param name="tenantContext"></param>
+    public void SetDatabaseProvider(DbContext tenantContext)
+    {
+        DbProviderShortName = tenantContext.GetProviderShortName();
+    }
+
 
     /// <summary>
     /// This ensures the data provided is valid

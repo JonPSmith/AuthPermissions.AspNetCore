@@ -64,7 +64,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         public IDistributedFileStoreCacheClass StubFsCache { get; }
         public IGetSetShardingEntries Service { get; }
 
-        public SetupServiceToTest(bool addIfEmpty = true, AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
+        public SetupServiceToTest(bool tenantsInAuthPdb = true, AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
         {
             var config = AppSettings.GetConfiguration("..\\Test\\TestData", "combinedshardingsettings.json");
             var services = new ServiceCollection();
@@ -77,7 +77,7 @@ public class TestGetSetShardingEntriesFileStoreCache
             AuthDbContext.Database.EnsureClean();
             StubFsCache = CreateFileStoreCacheWithData();
             Service = new GetSetShardingEntriesFileStoreCache(connectSnapshot,
-                new ShardingEntryOptions(addIfEmpty),
+                new ShardingEntryOptions(tenantsInAuthPdb),
                 FormAuthOptionsForSharding(databaseType), AuthDbContext,
                 StubFsCache, new List<IDatabaseSpecificMethods>{new SqlServerDatabaseSpecificMethods()},
                 "en".SetupAuthPLoggingLocalizer());
@@ -385,7 +385,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     }
 
     [Fact]
-    public void TestGetAllConnectionStrings()
+    public void TestGetAllConnectionStrings_Hybrid()
     {
         //SETUP
         var setup = new SetupServiceToTest();
@@ -403,6 +403,26 @@ public class TestGetSetShardingEntriesFileStoreCache
         connectionNames[1].ShouldEqual("DefaultConnection");
         connectionNames[2].ShouldEqual("PostgresConnection");
         connectionNames[3].ShouldEqual("ServerOnlyConnectionString");
+    }
+
+    [Fact]
+    public void TestGetAllConnectionStrings_ShardOnly()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(false);
+
+        //ATTEMPT
+        var connectionNames = setup.Service.GetConnectionStringNames().ToList();
+
+        //VERIFY
+        foreach (var name in connectionNames)
+        {
+            _output.WriteLine(name);
+        }
+        connectionNames.Count.ShouldEqual(3);
+        connectionNames[0].ShouldEqual("AnotherConnectionString");
+        connectionNames[1].ShouldEqual("PostgresConnection");
+        connectionNames[2].ShouldEqual("ServerOnlyConnectionString");
     }
 
     [Fact]

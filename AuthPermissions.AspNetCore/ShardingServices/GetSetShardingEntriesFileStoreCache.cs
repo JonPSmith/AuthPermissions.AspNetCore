@@ -64,6 +64,11 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         _shardingDatabaseProviders = databaseProviderMethods.ToDictionary(x => x.DatabaseProviderShortName);
         PossibleDatabaseProviders = _shardingDatabaseProviders.Keys.Distinct().OrderBy(x => x).ToArray();
         _localizeDefault = localizeProvider.DefaultLocalizer;
+
+        if (_shardingEntryOptions.RemoveDefaultConnectionIfOthers && _connectionDict.Count > 1)
+            //This will remove the default connection string, if there are other connection strings
+            //This is useful when you only have shard tenant (i.e. the tenant's HasOwnDb is true) 
+            _connectionDict.Remove(_shardingEntryOptions.DefaultConnectionName);
     }
 
     /// <summary>

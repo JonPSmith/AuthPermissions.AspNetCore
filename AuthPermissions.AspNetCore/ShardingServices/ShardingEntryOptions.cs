@@ -3,6 +3,7 @@
 
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 
@@ -23,9 +24,14 @@ public class ShardingEntryOptions : ShardingEntry
     /// which allowing tenants to be added to the AuthP's context. This is useful for a hybrid multi-tenant
     /// If false, then no default <see cref="ShardingEntry"/> is added. Use this if you are building a sharding-only multi-tenant
     /// </param>
-    public ShardingEntryOptions(bool tenantsInAuthPdb)
+    /// <param name="includeDefaultConnection">Optional: if null it is set to the <see cref="tenantsInAuthPdb"/> parameter.
+    /// If it is not null, then its value is used:
+    /// True means keep the DefaultConnection entry. False means DefaultConnection entry is removed (if other entries are there)
+    /// </param>
+    public ShardingEntryOptions(bool tenantsInAuthPdb, bool? includeDefaultConnection = null)
     {
         TenantsInAuthPdb = tenantsInAuthPdb;
+        RemoveDefaultConnectionIfOthers = !(includeDefaultConnection ?? TenantsInAuthPdb);
     }
 
     /// <summary>
@@ -33,6 +39,14 @@ public class ShardingEntryOptions : ShardingEntry
     /// That's because when only sharding tenants the code will add (and remove) a sharding entry.
     /// </summary>
     public bool TenantsInAuthPdb { get; private set; }
+
+    /// <summary>
+    /// If true, then the DefaultConnection entry will be removed IF there other connection strings.
+    /// If false, then keep the DefaultConnection in the list of connection strings.
+    /// The true set  useful if all your tenants shard tenant (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true)
+    /// If false 
+    /// </summary>
+    public bool RemoveDefaultConnectionIfOthers { get; private set; }
 
     /// <summary>
     /// This holds the name of the DefaultConnection in the ConnectionStrings in the appsettings.json file.

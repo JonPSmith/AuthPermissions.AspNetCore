@@ -17,12 +17,10 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 public interface IShardingOnlyTenantAddRemove
 {
     /// <summary>
-    /// This creates a tenant (shared or shard), and if that tenant is a shard (i.e. has its own database)
-    /// it will create a sharding entry to contain the new database name
-    /// (unless the <see cref="ShardingOnlyTenantAddDto.ShardingEntityName"/> isn't empty, when it will lookup the
-    /// <see cref="ShardingEntry"/> defined by the <see cref="ShardingOnlyTenantAddDto.ShardingEntityName"/>).
-    /// If a tenant that shares a database (tenant's HasOwnDb properly is false), then it use the <see cref="ShardingEntry"/> defined by the
-    /// <see cref="ShardingOnlyTenantAddDto.ShardingEntityName"/> in the <see cref="ShardingOnlyTenantAddDto"/>.
+    /// This creates a shard tenant (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true) and 
+    /// it will create a sharding entry to contain the new database name.
+    /// Note this method can handle single and hierarchical tenants, including adding a child
+    /// hierarchical entry which uses the parent's sharding entry. 
     /// </summary>
     /// <param name="dto">A class called <see cref="ShardingOnlyTenantAddDto"/> holds all the data needed,
     /// including a method to validate that the information is correct.</param>
@@ -30,8 +28,9 @@ public interface IShardingOnlyTenantAddRemove
     Task<IStatusGeneric> CreateTenantAsync(ShardingOnlyTenantAddDto dto);
 
     /// <summary>
-    /// This will delete a tenant (shared or shard), and if that tenant <see cref="Tenant.HasOwnDb"/> is true
-    /// it will also delete the <see cref="ShardingEntry"/> entry for this shard tenant.
+    /// This will delete a shard tenant (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true)
+    /// and will also delete the <see cref="ShardingEntry"/> entry for this shard tenant
+    /// (unless the tenant is a child hierarchical, in which case it doesn't delete the <see cref="ShardingEntry"/> entry).
     /// </summary>
     /// <param name="tenantId">The id of the tenant.</param>
     /// <returns>status</returns>

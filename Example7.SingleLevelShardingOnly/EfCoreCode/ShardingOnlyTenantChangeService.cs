@@ -57,10 +57,6 @@ public class ShardingOnlyTenantChangeService : ITenantChangeService
         if (databaseError != null) 
             return databaseError;
 
-        if (tenant.HasOwnDb && context.Companies.Any())
-            return
-                $"The tenant's {nameof(Tenant.HasOwnDb)} property is true, but the database contains existing companies";
-
         var newCompanyTenant = new CompanyTenant
         {
             AuthPTenantId = tenant.TenantId,
@@ -105,7 +101,18 @@ public class ShardingOnlyTenantChangeService : ITenantChangeService
 
         //Now we delete it
         DeletedTenantId = tenant.TenantId;
-        return await DeleteTenantData(tenant.GetTenantDataKey(), context, tenant);
+        //The tenant its own database, then you should drop the database, but that depends on what SQL Server provider you use.
+        //In this case I can the database because it is on a local SqlServer server.
+        try
+        {
+            await context.Database.EnsureDeletedAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
+            return "There was a system-level problem - see logs for more detail";
+        }
+        return null;
     }
 
     public Task<string> HierarchicalTenantUpdateNameAsync(List<Tenant> tenantsToUpdate)
@@ -157,53 +164,6 @@ public class ShardingOnlyTenantChangeService : ITenantChangeService
         else if (!await context.Database.GetService<IRelationalDatabaseCreator>().HasTablesAsync())
             //The database exists but needs migrating
             await context.Database.MigrateAsync();
-
-        return null;
-    }
-
-    private async Task<string> DeleteTenantData(string dataKey, ShardingOnlyDbContext context, Tenant? tenant = null)
-    {
-        if (tenant?.HasOwnDb == true)
-        {
-            //The tenant its own database, then you should drop the database, but that depends on what SQL Server provider you use.
-            //In this case I can the database because it is on a local SqlServer server.
-            try
-            {
-                await context.Database.EnsureDeletedAsync();
-                return null;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
-                return "There was a system-level problem - see logs for more detail";
-            }
-            return null;
-
-        }
-
-        //else we remove all the data with the DataKey of the tenant
-        await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-        try
-        {
-            var deleteSalesSql = $"DELETE FROM invoice.{nameof(ShardingOnlyDbContext.LineItems)} WHERE DataKey = '{dataKey}'";
-            await context.Database.ExecuteSqlRawAsync(deleteSalesSql);
-            var deleteStockSql = $"DELETE FROM invoice.{nameof(ShardingOnlyDbContext.Invoices)} WHERE DataKey = '{dataKey}'";
-            await context.Database.ExecuteSqlRawAsync(deleteStockSql);
-
-            var companyTenant = await context.Companies.SingleOrDefaultAsync();
-            if (companyTenant != null)
-            {
-                context.Remove(companyTenant);
-                await context.SaveChangesAsync();
-            }
-
-            await transaction.CommitAsync();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, $"Failure when trying to delete the '{tenant.TenantFullName}' tenant.");
-            return "There was a system-level problem - see logs for more detail";
-        }
 
         return null;
     }

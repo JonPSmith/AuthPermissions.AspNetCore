@@ -39,7 +39,7 @@ public class ShardingOnlyTenantAddRemove : IShardingOnlyTenantAddRemove
     }
 
     /// <summary>
-    /// This creates a shard tenant i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true) and 
+    /// This creates a shard tenant (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true) and 
     /// it will create a sharding entry to contain the new database name.
     /// Note this method can handle single and hierarchical tenants, including adding a child
     /// hierarchical entry which uses the parent's sharding entry. 
@@ -103,7 +103,7 @@ public class ShardingOnlyTenantAddRemove : IShardingOnlyTenantAddRemove
     }
 
     /// <summary>
-    /// This will delete a shard tenant i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true)
+    /// This will delete a shard tenant (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true)
     /// and will also delete the <see cref="ShardingEntry"/> entry for this shard tenant
     /// (unless the tenant is a child hierarchical, in which case it doesn't delete the <see cref="ShardingEntry"/> entry).
     /// </summary>
