@@ -65,7 +65,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         PossibleDatabaseProviders = _shardingDatabaseProviders.Keys.Distinct().OrderBy(x => x).ToArray();
         _localizeDefault = localizeProvider.DefaultLocalizer;
 
-        if (_shardingEntryOptions.RemoveDefaultConnectionIfOthers && _connectionDict.Count > 1)
+        if (!_shardingEntryOptions.HybridMode && _connectionDict.Count > 1)
             //This will remove the default connection string, if there are other connection strings
             //This is useful when you only have shard tenant (i.e. the tenant's HasOwnDb is true) 
             _connectionDict.Remove(_shardingEntryOptions.DefaultConnectionName);
@@ -81,7 +81,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             .Where(kv => kv.Key.StartsWith(ShardingEntryPrefix)).ToList()
             .Select(s => _fsCache.GetClassFromString<ShardingEntry>(s.Value)).ToList();
 
-        if (results.Any() || !_shardingEntryOptions.TenantsInAuthPdb) 
+        if (results.Any() || !_shardingEntryOptions.HybridMode) 
             return results;
 
         //If no entries and AddIfEntry is true, then its most likely an new deployment and the cache isn't setup
@@ -104,7 +104,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         var entry = _fsCache.GetClass<ShardingEntry>(FormShardingEntryKey(shardingEntryName));
 
         //If no entries it might because this is the first deployment and the cache isn't setup
-        return entry == null && _shardingEntryOptions.TenantsInAuthPdb 
+        return entry == null && _shardingEntryOptions.HybridMode 
             && shardingEntryName == _options.DefaultShardingEntryName
             ? _shardingEntryOptions.ProvideDefaultShardingEntry(_options, _authDbContext)
             : entry;
@@ -118,7 +118,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// <returns>status containing a success message, or errors</returns>
     public IStatusGeneric AddNewShardingEntry(ShardingEntry shardingEntry)
     {
-        if (_shardingEntryOptions.TenantsInAuthPdb &&
+        if (_shardingEntryOptions.HybridMode &&
             !_fsCache
                 .GetAllKeyValues().Any(kv => kv.Key.StartsWith(ShardingEntryPrefix)))
         {
@@ -300,7 +300,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
                 $"The {nameof(ShardingEntry.Name)} is null or empty, which isn't allowed.");
 
         if (changedInfo.Name == _options.DefaultShardingEntryName 
-            && _shardingEntryOptions.TenantsInAuthPdb)
+            && _shardingEntryOptions.HybridMode)
             return status.AddErrorString("Name".ClassLocalizeKey(this, true),
                 $"You can't add, update or delete the default sharding entry called '{_options.DefaultShardingEntryName}'.");
 

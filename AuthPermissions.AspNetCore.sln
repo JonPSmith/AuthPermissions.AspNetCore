@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		UpdateToVersion2.md = UpdateToVersion2.md
 		UpdateToVersion3.md = UpdateToVersion3.md
 		UpdateToVersion5.md = UpdateToVersion5.md
+		UpdateToVersion6.md = UpdateToVersion6.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example2.WebApiWithToken.IndividualAccounts", "Example2.WebApiWithToken.IndividualAccounts\Example2.WebApiWithToken.IndividualAccounts.csproj", "{E2667176-A75B-4182-94AF-43D8F0CF989A}"
@@ -49,9 +50,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.BaseCode", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.SupportCode", "AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj", "{50FCF8D4-EA0D-4261-B772-3376C50AB856}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example7.MvcWebApp.ShardingOnly", "Example7.MvcWebApp.ShardingOnly\Example7.MvcWebApp.ShardingOnly.csproj", "{A64CAC49-56CF-4F64-A0A5-BEF46AEFC122}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example7.MvcWebApp.ShardingOnly", "Example7.MvcWebApp.ShardingOnly\Example7.MvcWebApp.ShardingOnly.csproj", "{A64CAC49-56CF-4F64-A0A5-BEF46AEFC122}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example7.SingleLevelShardingOnly", "Example7.SingleLevelShardingOnly\Example7.SingleLevelShardingOnly.csproj", "{9ABE93FC-DE35-47E1-B5B3-27867E350933}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example7.SingleLevelShardingOnly", "Example7.SingleLevelShardingOnly\Example7.SingleLevelShardingOnly.csproj", "{9ABE93FC-DE35-47E1-B5B3-27867E350933}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

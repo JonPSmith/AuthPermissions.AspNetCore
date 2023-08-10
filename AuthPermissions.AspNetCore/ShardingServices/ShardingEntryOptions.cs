@@ -6,6 +6,8 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
+using StackExchange.Redis;
+using System.Runtime.Intrinsics.X86;
 
 namespace AuthPermissions.AspNetCore.ShardingServices;
 
@@ -13,44 +15,36 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 /// This defines the default sharding entry to add the sharding if the sharding data is empty.
 /// You can manually set the four properties and/or call the <see cref="FormDefaultShardingEntry"/>
 /// method to fill in the normal default <see cref="ShardingEntry"/>.
-/// NOTE: if your tenants are ALL using sharding, then set <see cref="TenantsInAuthPdb"/> parameter to false
+/// NOTE: if your tenants are ALL using sharding, then set <see cref="HybridMode"/> parameter to false
 /// </summary>
 public class ShardingEntryOptions : ShardingEntry
 {
     /// <summary>
     /// ctor
     /// </summary>
-    /// <param name="tenantsInAuthPdb">If true, then a default <see cref="ShardingEntry"/> is added to the sharding entities
-    /// which allowing tenants to be added to the AuthP's context. This is useful for a hybrid multi-tenant
-    /// If false, then no default <see cref="ShardingEntry"/> is added. Use this if you are building a sharding-only multi-tenant
+    /// <param name="hybridMode">If true, then you can add shared tenants into the database used by AuthP.
+    /// If false, then you are in sharding-only mode, where you can't add tenants into the database used by AuthP.
     /// </param>
-    /// <param name="includeDefaultConnection">Optional: if null it is set to the <see cref="tenantsInAuthPdb"/> parameter.
-    /// If it is not null, then its value is used:
-    /// True means keep the DefaultConnection entry. False means DefaultConnection entry is removed (if other entries are there)
-    /// </param>
-    public ShardingEntryOptions(bool tenantsInAuthPdb, bool? includeDefaultConnection = null)
+    public ShardingEntryOptions(bool hybridMode)
     {
-        TenantsInAuthPdb = tenantsInAuthPdb;
-        RemoveDefaultConnectionIfOthers = !(includeDefaultConnection ?? TenantsInAuthPdb);
+        HybridMode = hybridMode;
     }
 
     /// <summary>
-    /// If your tenants are ALL using sharding, then set this property to false.
-    /// That's because when only sharding tenants the code will add (and remove) a sharding entry.
+    /// If true, then
+    /// - A default <see cref = "ShardingEntry" /> is added to the sharding entities
+    ///   which allowing tenants to be added to the AuthP's context.
+    /// - The DefaultConnection connection string is shown in the <see cref="IGetSetShardingEntries.GetConnectionStringNames"/> method
+    /// If false, then
+    /// - The sharding entities start as empty
+    /// - The DefaultConnection connection string is not shown in the <see cref="IGetSetShardingEntries.GetConnectionStringNames"/> method
     /// </summary>
-    public bool TenantsInAuthPdb { get; private set; }
+    public bool HybridMode { get; private set; }
 
-    /// <summary>
-    /// If true, then the DefaultConnection entry will be removed IF there other connection strings.
-    /// If false, then keep the DefaultConnection in the list of connection strings.
-    /// The true set  useful if all your tenants shard tenant (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true)
-    /// If false 
-    /// </summary>
-    public bool RemoveDefaultConnectionIfOthers { get; private set; }
 
     /// <summary>
     /// This holds the name of the DefaultConnection in the ConnectionStrings in the appsettings.json file.
-    /// If the <see cref="TenantsInAuthPdb"/> is false, then the <see cref="IGetSetShardingEntries"/> will
+    /// If the <see cref="HybridMode"/> is false, then the <see cref="IGetSetShardingEntries"/> will
     /// remove this named connection string 
     /// </summary>
     public string DefaultConnectionName { get; set; } = "DefaultConnection";
@@ -77,7 +71,7 @@ public class ShardingEntryOptions : ShardingEntry
 
     /// <summary>
     /// This return the correct list of default <see cref="ShardingEntry"/> list.
-    /// Can be an empty if <see cref="TenantsInAuthPdb"/> is false (useful in sharding only situations)
+    /// Can be an empty if <see cref="HybridMode"/> is false (useful in sharding only situations)
     /// </summary>
     /// <param name="options">Needed to fill in the <see cref="ShardingEntryOptions."/></param>
     /// <param name="authPContext">Optional: Only needed if AddIfEmpty and using custom database.
@@ -86,7 +80,7 @@ public class ShardingEntryOptions : ShardingEntry
     public ShardingEntry ProvideDefaultShardingEntry(
         AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
-        if (!TenantsInAuthPdb)
+        if (!HybridMode)
             return null; //Empty - used when all tenants have their own database, i.e. all sharding
         
         FormDefaultShardingEntry(options, authPContext);

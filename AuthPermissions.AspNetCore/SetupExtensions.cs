@@ -146,7 +146,7 @@ namespace AuthPermissions.AspNetCore
         /// <param name="setupData"></param>
         /// <param name="defaultShardingEntry">Optional: The default doesn't allows tenants being stored the AuthP database.
         /// If you want store tenants in the AuthP database, or change any other data, then provide a instance of the
-        /// <see cref="ShardingEntryOptions"/>.</param>
+        /// <see cref="ShardingEntryOptions"/> with the ctor hybridMode parameter set to true.</param>
         /// <returns></returns>
         public static AuthSetupData SetupMultiTenantSharding(this AuthSetupData setupData, 
             ShardingEntryOptions defaultShardingEntry = null)
@@ -161,12 +161,14 @@ namespace AuthPermissions.AspNetCore
                 throw new AuthPermissionsException(
                     $"You must set the {nameof(AuthPermissionsOptions.Configuration)} to the ASP.NET Core Configuration when using Sharding");
 
+#region AuthP version 6 changes
             //This defines the default sharding entry to use when there are no entries
             //This defaults to not using the AuthP database to hold tenants
-            //You need to supply a ShardingEntryOptions with the TenantsInAuthPdb as true
+            //You need to supply a ShardingEntryOptions with the HybridMode as true
             //if you want store tenants in the AuthP database
             defaultShardingEntry ??= new ShardingEntryOptions(false);
             setupData.Services.AddSingleton(defaultShardingEntry);
+#endregion
 
             //This gets access to the ConnectionStrings
             setupData.Services.Configure<ConnectionStringsOption>(setupData.Options.Configuration.GetSection("ConnectionStrings"));

@@ -94,7 +94,7 @@ public class ShardingOnlyTenantAddRemove : IShardingOnlyTenantAddRemove
 
         if (status.HasErrors && shardingEntry != null)
         {
-            //we created a ShardingEntry, so we want to delete it
+            //If there is an error and the ShardingEntry was created, then we delete the ShardingEntry
             status.CombineStatuses(
                 _getSetShardings.RemoveShardingEntry(shardingEntry.Name));
         }

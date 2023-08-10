@@ -46,9 +46,11 @@ namespace Example7.MvcWebApp.ShardingOnly.Controllers
         [HasPermission(Example7Permissions.TenantCreate)]
         public IActionResult Create([FromServices] IGetSetShardingEntries shardingService)
         {
-            var dto = new ShardingOnlyTenantAddDto();
+            var dto = new ShardingOnlyTenantAddDto
+            {
+                DbProviderShortName = AuthPDatabaseTypes.SqlServer.ToString()
+            };
             dto.SetConnectionStringNames(shardingService.GetConnectionStringNames());
-            dto.DbProviderShortName = AuthPDatabaseTypes.SqlServer.ToString();
             return View(dto);
         }
 
