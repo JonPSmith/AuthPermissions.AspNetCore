@@ -3,11 +3,8 @@
 
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
-using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using StackExchange.Redis;
-using System.Runtime.Intrinsics.X86;
 
 namespace AuthPermissions.AspNetCore.ShardingServices;
 
