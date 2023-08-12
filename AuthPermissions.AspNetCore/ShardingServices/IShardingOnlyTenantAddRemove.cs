@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
 using StatusGeneric;
@@ -9,10 +8,9 @@ using StatusGeneric;
 namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
-/// This service is designed for applications using the <see cref="TenantTypes.AddSharding"/>
-/// Each tenant (shared or shard) needs a <see cref="ShardingEntry"/> entry to define the database
-/// before you can create the tenant. And for delete of a shard tenant it will remove the
-/// <see cref="ShardingEntry"/> entry if its <see cref="Tenant.HasOwnDb"/> is true.
+/// This service is designed for applications using the <see cref="TenantTypes.AddSharding"/> feature
+/// and this code creates / deletes a shard tenant (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true) and
+/// at the same time adds / removes a <see cref="ShardingEntry"/> entry linked to the tenant's database.
 /// </summary>
 public interface IShardingOnlyTenantAddRemove
 {
