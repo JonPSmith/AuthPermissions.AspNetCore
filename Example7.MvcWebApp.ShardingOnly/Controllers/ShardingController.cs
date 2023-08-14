@@ -26,7 +26,7 @@ public class ShardingController : Controller
     [HasPermission(Example7Permissions.TenantCreate)]
     public IActionResult Create()
     {
-        var dto = new DatabaseInformationEdit
+        var dto = new ShardingEntryEdit
         {
             AllPossibleConnectionNames = _shardingService.GetConnectionStringNames(),
             PossibleDatabaseTypes = _shardingService.PossibleDatabaseProviders
@@ -38,7 +38,7 @@ public class ShardingController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Example7Permissions.TenantCreate)]
-    public IActionResult Create(DatabaseInformationEdit data)
+    public IActionResult Create(ShardingEntryEdit data)
     {
         var status = _shardingService.AddNewShardingEntry(data.DatabaseInfo);
 
@@ -52,7 +52,7 @@ public class ShardingController : Controller
     [HasPermission(Example7Permissions.UpdateDatabaseInfo)]
     public ActionResult Edit(string name)
     {
-        var dto = new DatabaseInformationEdit
+        var dto = new ShardingEntryEdit
         {
             DatabaseInfo = _shardingService.GetSingleShardingEntry(name),
             AllPossibleConnectionNames = _shardingService.GetConnectionStringNames(),
@@ -69,7 +69,7 @@ public class ShardingController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Example7Permissions.AddDatabaseInfo)]
-    public ActionResult Edit(DatabaseInformationEdit data)
+    public ActionResult Edit(ShardingEntryEdit data)
     {
         var status = _shardingService.UpdateShardingEntry(data.DatabaseInfo);
 

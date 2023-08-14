@@ -2,11 +2,10 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
-using AuthPermissions.BaseCode;
 
 namespace Example6.MvcWebApp.Sharding.Models;
 
-public class DatabaseInformationEdit 
+public class ShardingEntryEdit 
 {
     public ShardingEntry DatabaseInfo { get; set; }
 

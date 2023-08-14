@@ -5,7 +5,7 @@ using AuthPermissions.AspNetCore.ShardingServices;
 
 namespace Example7.MvcWebApp.ShardingOnly.Models;
 
-public class DatabaseInformationEdit 
+public class ShardingEntryEdit 
 {
     public ShardingEntry DatabaseInfo { get; set; }
 
