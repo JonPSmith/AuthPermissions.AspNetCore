@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,11 +23,6 @@ public class ShardingOnlyTenantAddDto
     /// Defines if the tenant should have its own database - always true
     /// </summary>
     public bool HasOwnDb => true;
-
-    /// <summary>
-    /// Optional: If adding a child hierarchical, then this must be set to a id of the parent hierarchical tenant
-    /// </summary>
-    public int ParentTenantId { get; set; } = 0;
 
     /// <summary>
     /// Optional: List of tenant role names 
@@ -75,6 +71,40 @@ public class ShardingOnlyTenantAddDto
         DbProviderShortName = tenantContext.GetProviderShortName();
     }
 
+    //----------------------------------------------
+    //Hierarchical tenant code
+
+    /// <summary>
+    /// If creating a new hierarchical tenant, then
+    /// - if its zero (shown as ' none '), then you will be create a new, top-level 
+    /// - if non-zero, then you are add a new child hierarchical to the parent hierarchical tenant defined by the
+    /// <see cref="ParentTenantId"/>
+    /// </summary>
+    public int ParentTenantId { get; set; } = 0;
+
+    /// <summary>
+    /// For a new hierarchical tenant, then you must call the <see cref="FillListOfHierarchicalTenants"/>
+    /// method to fill this list.
+    /// </summary>
+    public List<KeyValuePair<int, string>> ListOfHierarchicalTenants { get; set; }
+
+    /// <summary>
+    /// This method will fill the <see cref="ListOfHierarchicalTenants"/> list that
+    /// you need when creating a hierarchical tenant
+    /// </summary>
+    /// <param name="tenantAdminService">provide the </param>
+    /// <returns></returns>
+    public void FillListOfHierarchicalTenants(IAuthTenantAdminService tenantAdminService)
+    {
+        ListOfHierarchicalTenants = tenantAdminService.QueryTenants()
+            .Select(x => new KeyValuePair<int, string>(x.TenantId, x.TenantFullName))
+            .ToList();
+
+
+        ListOfHierarchicalTenants.Insert(0, new KeyValuePair<int, string>(0, "< none >"));
+    }
+
+    //----------------------------------------------------------------
 
     /// <summary>
     /// This ensures the data provided is valid
