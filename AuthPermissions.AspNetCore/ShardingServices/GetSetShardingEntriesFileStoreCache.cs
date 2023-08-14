@@ -180,12 +180,12 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
     /// <summary>
     /// This returns all the sharding entries names in the sharding settings file, with a list of tenant name linked to each connection name
-    /// NOTE: The DatabaseInfoName which matches the <see cref="AuthPermissionsOptions.DefaultShardingEntryName"/> is always
+    /// NOTE: The shardingName which matches the <see cref="AuthPermissionsOptions.DefaultShardingEntryName"/> is always
     /// returns a HasOwnDb value of false. This is because the default database has the AuthP data in it.
     /// </summary>
     /// <returns>List of all the sharding entries names with the tenants using that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
-    public async Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
+    public async Task<List<(string shardingName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
     {
         var nameAndConnectionName = await _authDbContext.Tenants
             .Select(x => new { ConnectionName = x.DatabaseInfoName, x })

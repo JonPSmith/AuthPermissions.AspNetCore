@@ -56,7 +56,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
         var foundDatabaseInfoName = hasOwnDb
             ? // this will find the first empty database
               dbsWithUsers
-                .FirstOrDefault(x => x.hasOwnDb == null).databaseInfoName
+                .FirstOrDefault(x => x.hasOwnDb == null).shardingName
             : // this will find the first database that can be used for non-sharding tenants
             dbsWithUsers
                 .Where(x => (x.hasOwnDb == null || x.hasOwnDb == false)
@@ -66,7 +66,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
                 .OrderByDescending(x => x.hasOwnDb)
                 //This then orders the database with least tenants first
                 .ThenBy(x => x.tenantNames.Count)
-                .FirstOrDefault().databaseInfoName;
+                .FirstOrDefault().shardingName;
 
         if (foundDatabaseInfoName == null)
             //This returns an error, but you could create a new database if none are available.

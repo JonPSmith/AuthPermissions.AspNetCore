@@ -69,7 +69,7 @@ public interface IGetSetShardingEntries
     /// </summary>
     /// <returns>List of all the database info names with the tenants (and whether its sharding) within that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
-    Task<List<(string databaseInfoName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
+    Task<List<(string shardingName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync();
 
     /// <summary>
     /// This will provide the connection string for the entry with the given database info name
