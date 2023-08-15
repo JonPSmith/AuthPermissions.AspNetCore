@@ -2,16 +2,18 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>5.0.1</version>
+    <version>6.0.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-		- Minor improvements AccessDatabaseInformationJsonFile
-		- Minor improvements to SignInAndCreateTenant (better handling of errors)
-		- Minor improvements to IndividualUserAddUserManager (check password)
-	</releaseNotes>
+		- Significant changes to code to support sharding multi-tenant applications
+		- BREAKING CHANGES: Replaced the old services for handling sharding entries due to a limitation
+		- Improvement: The ability to define a sharding-only mode - see Configuring sharding &gt; sharding-only mode
+		- Fix: The Sign up for a new tenant, with versioning now works with sharding-only tenants.
+		- Improvement: New service to simplify the create / delete of sharding-only tenants.
+    </releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
     <icon>images\AuthPermissionsAspNetCoreNuGetIcon.png</icon>
@@ -33,6 +35,7 @@
         <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="6.0.11" />
         <dependency id="Microsoft.AspNetCore.Authorization" version="6.0.11" />
         <dependency id="Microsoft.AspNetCore.Http" version="2.2.2" />
+        <dependency id="Net.DistributedFileStoreCache" version="2.0.0" />
         <dependency id="EntityFrameworkCore.Exceptions.PostgreSQL" version="6.0.3" />
         <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="6.0.3" />
         <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.3.1" />
@@ -41,7 +44,6 @@
         <dependency id="EfCore.TestSupport" version="5.3.0" />
         <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
         <dependency id="Microsoft.Graph" version="4.37.0" />
-        <dependency id="Net.DistributedFileStoreCache" version="2.0.0" />
       </group>
       <group targetFramework="net7.0">
         <dependency id="GenericServices.StatusGeneric" version="1.2.0" />
@@ -59,6 +61,7 @@
         <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="7.0.0" />
         <dependency id="Microsoft.AspNetCore.Authorization" version="7.0.0" />
         <dependency id="Microsoft.AspNetCore.Http" version="2.2.2" />
+        <dependency id="Net.DistributedFileStoreCache" version="2.0.0" />
         <dependency id="EntityFrameworkCore.Exceptions.PostgreSQL" version="6.0.3" />
         <dependency id="EntityFrameworkCore.Exceptions.Sqlite" version="6.0.3" />
         <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.3.1" />
@@ -67,7 +70,6 @@
         <dependency id="EfCore.TestSupport" version="5.3.0" />
         <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
         <dependency id="Microsoft.Graph" version="4.37.0" />
-        <dependency id="Net.DistributedFileStoreCache" version="2.0.0" />
       </group>
     </dependencies>
   </metadata>

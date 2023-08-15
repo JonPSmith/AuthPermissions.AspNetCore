@@ -1,0 +1,8 @@
+{
+  "Cache": {
+    "ShardingEntry-Default Database": "{\r\n  \"Name\": \"Default Database\",\r\n  \"DatabaseName\": null,\r\n  \"ConnectionName\": \"DefaultConnection\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
+    "ShardingEntry-DatabaseWest1": "{\r\n  \"Name\": \"DatabaseWest1\",\r\n  \"DatabaseName\": \"asp.net-Example6.Sharding_West1\",\r\n  \"ConnectionName\": \"WestCoastServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
+    "ShardingEntry-DatabaseEast1": "{\r\n  \"Name\": \"DatabaseEast1\",\r\n  \"DatabaseName\": \"asp.net-Example6.Sharding_East1\",\r\n  \"ConnectionName\": \"EastCoastServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
+  },
+  "TimeOuts": {}
+}

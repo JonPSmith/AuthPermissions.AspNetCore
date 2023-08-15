@@ -4,13 +4,17 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>5.1.0-preview002</version>
+    <version>6.0.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to a ASP.NET Core application.</description>
     <releaseNotes>
-		- Minor improvement to set the default sharding data.
+		- Significant changes to code to support sharding multi-tenant applications
+		- BREAKING CHANGES: Replaced the old services for handling sharding entries due to a limitation
+		- Improvement: The ability to define a sharding-only mode - see Configuring sharding > sharding-only mode
+		- Fix: The Sign up for a new tenant, with versioning now works with sharding-only tenants.
+		- Improvement: New service to simplify the create / delete of sharding-only tenants.
     </releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>

@@ -41,7 +41,7 @@ class Program
         }
 
         var jsonString = File.ReadAllText(filePathToJsonFilePath);
-        Console.WriteLine(jsonString);
+        //Console.WriteLine(jsonString);
         var shardingData = JsonSerializer.Deserialize<JsonFileFormat>(jsonString)?.ShardingDatabases;
 
         if (shardingData == null || !shardingData.Any())
@@ -89,7 +89,7 @@ class Program
         {
             var key = GetSetShardingEntriesFileStoreCache.ShardingEntryPrefix + shardingEntry.Name;
             readWriteService.SetClass(key, shardingEntry);
-            Console.WriteLine($"Added the sharding entry with the name of {shardingEntry.Name} added to the FileStore");
+            Console.WriteLine($"Added the sharding entry with the name of '{shardingEntry.Name}' added to the FileStore");
         }
 
         Console.WriteLine($"Successfully copied {shardingData.Count} sharding entry to the FileStore Cache called '{fileStoreName}'.");
