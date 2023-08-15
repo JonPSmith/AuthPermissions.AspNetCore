@@ -40,7 +40,7 @@ namespace Example6.MvcWebApp.Sharding.Controllers
         [HasPermission(Example6Permissions.ListDbsWithTenants)]
         public async Task<IActionResult> ListDatabases([FromServices] IGetSetShardingEntries shardingService)
         {
-            var connections = await shardingService.GetDatabaseInfoNamesWithTenantNamesAsync();
+            var connections = await shardingService.GetShardingsWithTenantNamesAsync();
 
             return View(connections);
         }

@@ -51,7 +51,7 @@ public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
         var status = new StatusGenericLocalizer<Tenant>(_localizeDefault);
 
         //This gets the databases with the info on whether the database is available
-        var dbsWithUsers = await _shardingService.GetDatabaseInfoNamesWithTenantNamesAsync();
+        var dbsWithUsers = await _shardingService.GetShardingsWithTenantNamesAsync();
 
         var foundDatabaseInfoName = hasOwnDb
             ? // this will find the first empty database

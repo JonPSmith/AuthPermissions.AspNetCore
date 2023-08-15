@@ -477,7 +477,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         setup.AuthDbContext.ChangeTracker.Clear();
 
         //ATTEMPT
-        var list = await setup.Service.GetDatabaseInfoNamesWithTenantNamesAsync();
+        var list = await setup.Service.GetShardingsWithTenantNamesAsync();
 
         //VERIFY
         list.ShouldEqual(new List<(string databaseName, bool? hasOwnDb, List<string> tenantNames)>

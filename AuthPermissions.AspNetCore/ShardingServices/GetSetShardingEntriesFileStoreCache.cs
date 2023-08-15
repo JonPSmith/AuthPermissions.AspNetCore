@@ -185,7 +185,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// </summary>
     /// <returns>List of all the sharding entries names with the tenants using that database data name
     /// NOTE: The hasOwnDb is true for a database containing a single database, false for multiple tenant database and null if empty</returns>
-    public async Task<List<(string shardingName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
+    public async Task<List<(string shardingName, bool? hasOwnDb, List<string> tenantNames)>> GetShardingsWithTenantNamesAsync()
     {
         var nameAndConnectionName = await _authDbContext.Tenants
             .Select(x => new { ConnectionName = x.DatabaseInfoName, x })

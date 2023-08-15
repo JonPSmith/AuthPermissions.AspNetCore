@@ -126,7 +126,7 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
         };
     }
 
-    public Task<List<(string shardingName, bool? hasOwnDb, List<string> tenantNames)>> GetDatabaseInfoNamesWithTenantNamesAsync()
+    public Task<List<(string shardingName, bool? hasOwnDb, List<string> tenantNames)>> GetShardingsWithTenantNamesAsync()
     {
         return Task.FromResult(new List<(string key, bool? hasOwnDb, List<string> tenantNames)>
         {
