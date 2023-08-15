@@ -21,6 +21,11 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 {
     /// <summary>
+    /// This is the prefix for creating the key to a sharding entry  
+    /// </summary>
+    public static string ShardingEntryPrefix = "ShardingEntry-";
+
+    /// <summary>
     /// This contains the methods with are specific to a database provider
     /// </summary>
     private readonly IReadOnlyDictionary<string, IDatabaseSpecificMethods> _shardingDatabaseProviders;
@@ -241,8 +246,6 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
     //------------------------------------------------------
     //private methods
-
-    private const string ShardingEntryPrefix = "ShardingEntry-";
 
     private string FormShardingEntryKey(string shardingEntryName)
     {

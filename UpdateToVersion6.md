@@ -14,8 +14,7 @@ Of course this creates more breaking changes, but the code will be easier to und
 1. Changing to the new IGetSetShardingEntries service.
 2. Updating the IGetSetShardingEntries method names
 3. Make sure that distributed FileStore Cache is registered
-4. Once it complies and **before you run your application**
-    - Move your sharding entries from the json file to the distributed FileStore Cache
+4. Move your AuthP 5 sharding entries to the AuthP 5 FileStore Cache
 
 The subsections below the items listed in the table of content.
 
@@ -47,16 +46,20 @@ The table below gives the old and new.
 | `GetAllPossibleShardingData` | `GetAllShardingEntries` |  |
 | `GetDatabaseInfoNamesWithTenantNamesAsync` | `GetShardingsWithTenantNamesAsync` |  |
 
-A properly that has been simplified
+A properly that has been simplified.
 | Old name          | new name      | Notes |
 | ----------------- | ------------- | ----- |
 | `ShardingDatabaseProviders.Keys.ToArray()`    | `PossibleDatabaseProviders()` |  |
 
-Other methods that haven't changed are listed below
+Other `IShardingConnections` methods that haven't changed are listed below.
 | Old name          | new name      | Notes |
 | ----------------- | ------------- | ----- |
-| `GetConnectionStringNames` | `GetConnectionStringNames` | see note1  |
+| `GetConnectionStringNames` | `GetConnectionStringNames` | No change  |
 
-Note1
+## Move your AuthP 5 sharding entries to the AuthP 5 FileStore Cache
+
+Once your code complies with AuthP version 6 and **before you run your application** you need to move your sharding entries from the json file to the distributed FileStore Cache.
+
+
 
 END
