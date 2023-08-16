@@ -1,5 +1,7 @@
 # Release Notes
 
+This document isn't updated anymore because the [Roadmap discussions](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2) page lists all the changes.
+
 ## 4.1.0
 
 - Adds a service which can handle multiple languages (known in .NET a localization)

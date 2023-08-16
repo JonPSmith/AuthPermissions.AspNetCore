@@ -15,6 +15,7 @@ Of course this creates more breaking changes, but the code will be easier to und
 2. Updating the IGetSetShardingEntries method names
 3. Make sure that distributed FileStore Cache is registered
 4. Move your AuthP 5 sharding entries to the AuthP 6 FileStore Cache
+5. Register the FileStore Cache (if not already there)
 
 The subsections below the items listed in the table of content.
 
@@ -77,7 +78,7 @@ This console app needs three parameters:
 
 Here is an example of running this on a Window's command prompt. 
 
-```
+```text
 C:>  dotnet run ...Example6.MvcWebApp.Sharding shardingsettings.Development.json FileStoreCacheFile.Production.json
 Added the sharding entry with the name of 'Default Database' added to the FileStore
 Added the sharding entry with the name of 'DatabaseWest1' added to the FileStore
@@ -87,5 +88,11 @@ C:>
 ```
 
 This console app will store the sharding entries in the FileStore Cache using a format which makes it easier to to read (but is slightly slower). But when your application adds / changes an sharding entry it will use your applications's setup of the DistributedFileStoreCache will take over and the default settings means it stored more compactly, which is faster. 
+
+## 5. Register the FileStore Cache (if not already there)
+
+The default implementation of the `IGetSetShardingEntries service uses the [Net.DistributedFileStoreCache](https://github.com/JonPSmith/Net.DistributedFileStoreCache). Therefore you need to make sure that you have registered the DistributedFileStoreCache during startup - see the [Register the DistributedFileStoreCache](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Configuring-sharding#2-register-the-distributedfilestorecache) document.
+
+_NOTE: You might already registered for another use, like ["down for maintenance"](https://www.thereformedprogrammer.net/how-to-take-an-asp-net-core-web-site-down-for-maintenance/) feature._
 
 END
