@@ -1,18 +1,12 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using EntityFramework.Exceptions.SqlServer;
-using Microsoft.EntityFrameworkCore;
-using Test.Helpers;
-using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.Attributes;
 using TestSupport.EfHelpers;
-using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
 
