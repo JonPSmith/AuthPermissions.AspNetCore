@@ -36,7 +36,7 @@
         <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.3.1" />
         <dependency id="Microsoft.Extensions.Localization.Abstractions" version="6.0.11" />
         <dependency id="DistributedLock" version="2.3.2" />
-        <dependency id="EfCore.TestSupport" version="5.3.0" />
+        <dependency id="EfCore.TestSupport" version="6.0.0" />
         <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
         <dependency id="Microsoft.Graph" version="4.37.0" />
         <dependency id="Net.DistributedFileStoreCache" version="2.0.0" />
@@ -62,7 +62,7 @@
         <dependency id="EntityFrameworkCore.Exceptions.SqlServer" version="6.0.3.1" />
         <dependency id="Microsoft.Extensions.Localization.Abstractions" version="7.0.0" />
         <dependency id="DistributedLock" version="2.3.2" />
-        <dependency id="EfCore.TestSupport" version="5.3.0" />
+        <dependency id="EfCore.TestSupport" version="6.0.0" />
         <dependency id="Microsoft.AspNetCore.Hosting" version="2.2.7" />
         <dependency id="Microsoft.Graph" version="4.37.0" />
         <dependency id="Net.DistributedFileStoreCache" version="2.0.0" />
