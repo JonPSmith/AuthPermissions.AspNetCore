@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.SetupCode;
+using AuthPermissions.Factories;
 
 namespace Test.StubClasses
 {

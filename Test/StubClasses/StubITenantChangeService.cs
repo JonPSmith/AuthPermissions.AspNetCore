@@ -4,6 +4,7 @@
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
+using AuthPermissions.Factories;
 
 namespace Test.StubClasses
 {

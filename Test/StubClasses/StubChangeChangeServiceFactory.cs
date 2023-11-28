@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.Services;
+using AuthPermissions.Factories;
 using Example3.InvoiceCode.EfCoreCode;
 using Example6.SingleLevelSharding.EfCoreCode;
 using Microsoft.EntityFrameworkCore;
