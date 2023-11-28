@@ -1,19 +1,15 @@
 ﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
-using AuthPermissions.AdminCode.Services.Internal;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
-using AuthPermissions.SetupCode.Factories;
+using AuthPermissions.Factories;
 using StatusGeneric;
 
-namespace AuthPermissions.SetupCode
+namespace AuthPermissions.BulkLoadServices
 {
     /// <summary>
     /// This adds roles/permissions, tenants and Users only if the database is empty

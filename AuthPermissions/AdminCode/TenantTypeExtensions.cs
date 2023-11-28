@@ -4,7 +4,6 @@
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 
 namespace AuthPermissions.AdminCode;
 

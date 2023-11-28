@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.PermissionsCode;
-using AuthPermissions.SetupCode;
 
 namespace ExamplesCommonCode.CommonAdmin
 {

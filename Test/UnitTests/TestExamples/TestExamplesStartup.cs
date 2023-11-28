@@ -5,7 +5,6 @@ using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
-using AuthPermissions.SetupCode;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreCode;

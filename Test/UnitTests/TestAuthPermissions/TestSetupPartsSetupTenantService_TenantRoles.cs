@@ -11,7 +11,6 @@ using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
-using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using TestSupport.EfHelpers;
 using Xunit;

@@ -21,8 +21,6 @@ using AuthPermissions.BaseCode.PermissionsCode.Services;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices;
 using AuthPermissions.BulkLoadServices.Concrete;
-using AuthPermissions.SetupCode;
-using AuthPermissions.SetupCode.Factories;
 using LocalizeMessagesAndErrors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

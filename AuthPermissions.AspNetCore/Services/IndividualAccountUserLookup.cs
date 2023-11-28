@@ -4,7 +4,6 @@
 using System.Threading.Tasks;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
-using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 
 namespace AuthPermissions.AspNetCore.Services

@@ -1,5 +1,4 @@
-﻿using AuthPermissions.SetupCode;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RunMethodsSequentially;

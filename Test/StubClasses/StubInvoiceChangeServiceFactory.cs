@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using AuthPermissions.AdminCode;
-using AuthPermissions.SetupCode.Factories;
 using Example3.InvoiceCode.EfCoreCode;
 using Microsoft.Extensions.Logging;
 using TestSupport.EfHelpers;

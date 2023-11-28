@@ -13,7 +13,6 @@ using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;

@@ -9,7 +9,6 @@ using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Example4.ShopCode.AppStart;
 using Example4.ShopCode.EfCoreCode;
 using Test.StubClasses;

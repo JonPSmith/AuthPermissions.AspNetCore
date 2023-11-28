@@ -3,7 +3,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace AuthPermissions.SetupCode.Factories
+namespace AuthPermissions.Factories
 {
     /// <summary>
     /// Generic factory method to handle services that are (optionally) registered by the developer

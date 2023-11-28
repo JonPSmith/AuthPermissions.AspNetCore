@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using AuthPermissions.BaseCode;
-using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthPermissions

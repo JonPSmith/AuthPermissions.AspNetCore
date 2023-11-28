@@ -8,7 +8,6 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
-using AuthPermissions.SetupCode;
 using Example4.MvcWebApp.IndividualAccounts.PermissionsCode;
 using TestSupport.Attributes;
 using TestSupport.EfHelpers;

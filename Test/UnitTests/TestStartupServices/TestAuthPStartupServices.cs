@@ -8,7 +8,6 @@ using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.StartupServices;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;

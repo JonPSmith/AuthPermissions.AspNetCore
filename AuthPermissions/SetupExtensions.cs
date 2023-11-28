@@ -9,7 +9,6 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.Sqlite;

@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
 
-namespace AuthPermissions.SetupCode
+namespace AuthPermissions
 {
     /// <summary>
     /// Various checks using the the setup stage of AuthP

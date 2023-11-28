@@ -8,7 +8,6 @@ using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using AuthPermissions.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Test.StubClasses;
 using Test.TestHelpers;
