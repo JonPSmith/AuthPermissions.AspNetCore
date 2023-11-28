@@ -1,22 +1,18 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
+using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
+using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
+using Microsoft.EntityFrameworkCore;
 using Test.StubClasses;
+using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
-using Xunit.Extensions.AssertExtensions;
-using Test.TestHelpers;
 using Xunit.Abstractions;
-using AuthPermissions.AdminCode.Services;
-using AuthPermissions.BaseCode.DataLayer;
-using Microsoft.EntityFrameworkCore;
+using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestExamples;
 

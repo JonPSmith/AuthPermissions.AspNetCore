@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode.CommonCode;
@@ -13,7 +13,6 @@ namespace AuthPermissions.BaseCode
     /// </summary>
     public class AuthPermissionsOptions
     {
-
         /// <summary>
         /// This defines whether tenant code is activated, and whether the
         /// multi-tenant is is a single layer, or many layers (hierarchical)
@@ -74,6 +73,15 @@ namespace AuthPermissions.BaseCode
         /// </summary>
         public AuthPJwtConfiguration ConfigureAuthPJwtToken { get; set; }
 
+        //-------------------------------------------------
+        //internal set properties/handles
+
+
+        /// <summary>
+        /// This holds data that is set up during the 
+        /// </summary>
+        public SetupInternalData InternalData { get; } = new SetupInternalData();
+
         /// <summary>
         /// This will form the name of the sharding settings file
         /// </summary>
@@ -86,16 +94,5 @@ namespace AuthPermissions.BaseCode
                 : "";
             return $"shardingsettings{secondPart}.json";
         }
-
-        //-------------------------------------------------
-        //internal set properties/handles
-
-
-
-        /// <summary>
-        /// This holds data that is set up during the 
-        /// </summary>
-        public SetupInternalData InternalData { get; } = new SetupInternalData();
-
     }
 }

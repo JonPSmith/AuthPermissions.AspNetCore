@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
@@ -20,11 +20,11 @@ namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
 public class LinkToTenantDataService : ILinkToTenantDataService
 {
     private readonly AuthPermissionsDbContext _context;
-    private readonly AuthPermissionsOptions _options;
     private readonly IAccessTenantDataCookie _cookieAccessor;
 
     private readonly IEncryptDecryptService _encryptorService;
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly AuthPermissionsOptions _options;
 
     /// <summary>
     /// Ctor

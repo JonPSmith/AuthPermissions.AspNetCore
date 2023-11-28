@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 namespace AuthPermissions.AspNetCore.GetDataKeyCode;
@@ -18,5 +18,4 @@ public interface IGetShardingDataFromUser
     /// If null, then use the default connection string as defined at the time when your application's DbContext was registered
     /// </summary>
     string ConnectionString { get; }
-    
 }

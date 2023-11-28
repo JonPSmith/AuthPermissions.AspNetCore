@@ -1,7 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using AuthPermissions.BaseCode;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,8 +11,6 @@ namespace AuthPermissions
     /// </summary>
     public class AuthSetupData
     {
-
-
         internal AuthSetupData(IServiceCollection services, AuthPermissionsOptions options)
         {
             Services = services;

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
@@ -31,8 +31,8 @@ public enum TenantDownVersions
 /// </summary>
 public class SetRemoveStatus : ISetRemoveStatus
 {
-    private readonly IDistributedFileStoreCacheClass _fsCache;
     private readonly IAuthTenantAdminService _authTenantAdmin;
+    private readonly IDistributedFileStoreCacheClass _fsCache;
 
     /// <summary>
     /// ctor

@@ -1,11 +1,7 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthPermissions.AspNetCore.JwtTokenCode;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.BaseCode;
@@ -21,28 +17,6 @@ namespace Test.UnitTests.TestAuthPermissions
 {
     public class TestTokenBuilderAndRefresh
     {
-        private class SetupTokenBuilder
-        {
-            private readonly AuthPermissionsDbContext _context;
-
-            public SetupTokenBuilder(AuthPermissionsDbContext context, TimeSpan expiresIn = default)
-            {
-                _context = context;
-
-                var options = new AuthPermissionsOptions
-                    {ConfigureAuthPJwtToken = AuthPSetupHelpers.CreateTestJwtSetupData(expiresIn)};
-                AuthPJwtConfiguration = options.ConfigureAuthPJwtToken;
-                var claimsCalc = new StubClaimsCalculator("This:That");
-                var logger = new LoggerFactory(new[] { new MyLoggerProviderActionOut(Logs.Add) }).CreateLogger<TokenBuilder>();
-                TokenBuilder = new TokenBuilder(options, claimsCalc, context, logger);
-            }
-
-            public ITokenBuilder TokenBuilder { get; }
-            public AuthPJwtConfiguration AuthPJwtConfiguration { get; }
-            public List<LogOutput> Logs { get; } = new List<LogOutput>();
-
-        }
-
         [Fact]
         public async Task TestGenerateJwtTokenAsyncOk()
         {
@@ -278,6 +252,27 @@ namespace Test.UnitTests.TestAuthPermissions
 
             var lastTokenAfter = refreshTokensSet.Last();
             lastTokenAfter.IsInvalid.ShouldBeTrue();
+        }
+
+        private class SetupTokenBuilder
+        {
+            private readonly AuthPermissionsDbContext _context;
+
+            public SetupTokenBuilder(AuthPermissionsDbContext context, TimeSpan expiresIn = default)
+            {
+                _context = context;
+
+                var options = new AuthPermissionsOptions
+                    {ConfigureAuthPJwtToken = AuthPSetupHelpers.CreateTestJwtSetupData(expiresIn)};
+                AuthPJwtConfiguration = options.ConfigureAuthPJwtToken;
+                var claimsCalc = new StubClaimsCalculator("This:That");
+                var logger = new LoggerFactory(new[] { new MyLoggerProviderActionOut(Logs.Add) }).CreateLogger<TokenBuilder>();
+                TokenBuilder = new TokenBuilder(options, claimsCalc, context, logger);
+            }
+
+            public ITokenBuilder TokenBuilder { get; }
+            public AuthPJwtConfiguration AuthPJwtConfiguration { get; }
+            public List<LogOutput> Logs { get; } = new List<LogOutput>();
         }
     }
 }

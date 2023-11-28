@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
@@ -69,8 +69,6 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             return new StatusGenericHandler();
         }
 
-        private enum ExceptionTypes {Duplicate, ConcurrencyError}
-
         private static IStatusGeneric ConvertExceptionToStatus(this IReadOnlyList<EntityEntry> entities,
             ExceptionTypes exceptionType, IDefaultLocalizer localizeDefault)
         {
@@ -101,5 +99,7 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
 
             return status;
         }
+
+        private enum ExceptionTypes {Duplicate, ConcurrencyError}
     }
 }

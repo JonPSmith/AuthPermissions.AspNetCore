@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode;
@@ -19,6 +19,13 @@ namespace Test.TestHelpers
 {
     public static class AuthPSetupHelpers
     {
+        public static readonly List<BulkLoadRolesDto> TestRolesDefinition123 = new List<BulkLoadRolesDto>()
+        {
+            new("Role1", null, "One"),
+            new("Role2", "my description", "Two"),
+            new("Role3", null, "Three"),
+        };
+
         /// <summary>
         /// Use this to create a AuthUser in your tests
         /// </summary>
@@ -113,13 +120,6 @@ namespace Test.TestHelpers
 
             return data;
         }
-
-        public static readonly List<BulkLoadRolesDto> TestRolesDefinition123 = new List<BulkLoadRolesDto>()
-        {
-            new("Role1", null, "One"),
-            new("Role2", "my description", "Two"),
-            new("Role3", null, "Three"),
-        };
 
         public static async Task SetupRolesInDbAsync(this AuthPermissionsDbContext context)
         {
@@ -254,7 +254,7 @@ namespace Test.TestHelpers
                 })
             };
         }
-            
+
         public static async Task<List<int>> BulkLoadHierarchicalTenantInDbAsync(this AuthPermissionsDbContext context,
             RetailDbContext retailContext = null)
         {
@@ -307,8 +307,8 @@ namespace Test.TestHelpers
                 new ("User2", null, "Role1,Role2", userId: user2Id),
                 new ("User3", null, "Role1,Role3", userId: "3"),
             };
-        }        
-        
+        }
+
         public static List<BulkLoadUserWithRolesTenant> TestUserDefineWithSuperUser(string user2Id = "User2")
         {
             return new List<BulkLoadUserWithRolesTenant>

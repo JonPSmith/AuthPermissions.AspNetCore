@@ -11,7 +11,6 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 /// </summary>
 public interface IGetSetShardingEntries
 {
-
     /// <summary>
     /// This returns the supported database providers that can be used for multi tenant sharding.
     /// Only useful if you have multiple database providers for your tenant databases (rare).

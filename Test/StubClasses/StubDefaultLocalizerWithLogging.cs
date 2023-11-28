@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using LocalizeMessagesAndErrors;
@@ -20,17 +20,6 @@ namespace Test.StubClasses;
 public class StubDefaultLocalizerWithLogging : IDefaultLocalizer
 {
     /// <summary>
-    /// This contains a list each localization request, with extra data.
-    /// Can be useful in unit tests
-    /// </summary>
-    public List<LocalizedLog> Logs { get; set; } = new List<LocalizedLog>();
-
-    /// <summary>
-    /// This can contain a possible error. Null if no possible error found.
-    /// </summary>
-    public string? PossibleError { get; set; }
-
-    /// <summary>
     /// Start of a possible error
     /// </summary>
     private const string SameKeyButDiffFormatPrefix = "Possible SameKeyButDiffFormat: ";
@@ -43,6 +32,17 @@ public class StubDefaultLocalizerWithLogging : IDefaultLocalizer
         _cultureOfMessage = cultureOfMessage;
         _resourceType = resourceType;
     }
+
+    /// <summary>
+    /// This contains a list each localization request, with extra data.
+    /// Can be useful in unit tests
+    /// </summary>
+    public List<LocalizedLog> Logs { get; set; } = new List<LocalizedLog>();
+
+    /// <summary>
+    /// This can contain a possible error. Null if no possible error found.
+    /// </summary>
+    public string? PossibleError { get; set; }
 
     public string LocalizeStringMessage(LocalizeKeyData localizeKeyData, string message)
     {
@@ -206,7 +206,6 @@ public class StubDefaultLocalizerWithLogging : IDefaultLocalizer
         return context.LocalizedData!.OrderBy(l => l.ResourceClassFullName).ThenBy(l => l.LocalizeKey)
             .ToList();
     }
-
 
 
     public class LocalizationCaptureDb : DbContext

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
@@ -15,9 +15,9 @@ namespace AuthPermissions.SupportCode;
 /// </summary>
 public class DemoGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
-    private readonly IGetSetShardingEntries _shardingService;
     private readonly AuthPermissionsDbContext _context;
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly IGetSetShardingEntries _shardingService;
 
     /// <summary>
     /// ctor

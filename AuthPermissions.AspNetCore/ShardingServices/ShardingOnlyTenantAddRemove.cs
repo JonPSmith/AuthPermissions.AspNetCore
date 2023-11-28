@@ -18,10 +18,10 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 /// </summary>
 public class ShardingOnlyTenantAddRemove : IShardingOnlyTenantAddRemove
 {
-    private readonly IAuthTenantAdminService _tenantAdmin;
     private readonly IGetSetShardingEntries _getSetShardings;
-    private readonly AuthPermissionsOptions _options;
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly AuthPermissionsOptions _options;
+    private readonly IAuthTenantAdminService _tenantAdmin;
 
     /// <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
     public ShardingOnlyTenantAddRemove(IAuthTenantAdminService tenantAdmin,

@@ -1,9 +1,7 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.CommonCode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;

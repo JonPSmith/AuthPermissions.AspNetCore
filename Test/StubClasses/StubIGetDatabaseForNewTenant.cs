@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
@@ -13,13 +13,13 @@ public class StubIGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
     private readonly AuthPermissionsDbContext _context;
     private readonly bool _returnError;
+    private Tenant _tenant;
 
     public StubIGetDatabaseForNewTenant(AuthPermissionsDbContext context, bool returnError)
     {
         _context = context;
         _returnError = returnError;
     }
-    private Tenant _tenant;
 
     public bool RemoveLastDatabaseCalled { get; private set; }
 

@@ -1,7 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example4.ShopCode.AppStart;
@@ -14,11 +13,6 @@ namespace Test.TestHelpers
 {
     public class HierarchicalTenantChangeSqlServerSetup : IDisposable
     {
-        public AuthPermissionsDbContext AuthPContext { get; }
-
-        public RetailDbContext RetailDbContext { get; }
-
-
         public HierarchicalTenantChangeSqlServerSetup(object caller)
         {
             var authOptions = new DbContextOptionsBuilder<AuthPermissionsDbContext>()
@@ -35,6 +29,10 @@ namespace Test.TestHelpers
             AuthPContext.Database.EnsureClean();
             RetailDbContext.Database.EnsureClean();
         }
+
+        public AuthPermissionsDbContext AuthPContext { get; }
+
+        public RetailDbContext RetailDbContext { get; }
 
         public void Dispose()
         {

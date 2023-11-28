@@ -1,7 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using AuthPermissions.AdminCode;
 using AuthPermissions.Factories;
 using Example4.ShopCode.EfCoreCode;
@@ -16,8 +15,6 @@ namespace Test.StubClasses
         private readonly RetailDbContext _context;
         private readonly ILogger<RetailTenantChangeService> _logger;
 
-        public List<LogOutput> Logs { get; } = new List<LogOutput>();
-
         public StubRetailTenantChangeServiceFactory(RetailDbContext context)
         {
             _context = context;
@@ -25,6 +22,8 @@ namespace Test.StubClasses
                 new[] { new MyLoggerProviderActionOut(l => Logs.Add(l)) })
                 .CreateLogger<RetailTenantChangeService>();
         }
+
+        public List<LogOutput> Logs { get; } = new List<LogOutput>();
 
 
         public ITenantChangeService GetService(bool throwExceptionIfNull = true, string callingMethod = "")

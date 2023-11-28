@@ -22,12 +22,12 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// </summary>
 public class SignInAndCreateTenant : ISignInAndCreateTenant
 {
-    private readonly AuthPermissionsOptions _options;
-    private readonly IAuthTenantAdminService _tenantAdmin;
     private readonly IAddNewUserManager _addNewUserManager;
     private readonly AuthPermissionsDbContext _context;
-    private readonly IDefaultLocalizer _localizeDefault;
     private readonly IGetDatabaseForNewTenant _getShardingDb;
+    private readonly IDefaultLocalizer _localizeDefault;
+    private readonly AuthPermissionsOptions _options;
+    private readonly IAuthTenantAdminService _tenantAdmin;
 
     /// <summary>
     /// ctor

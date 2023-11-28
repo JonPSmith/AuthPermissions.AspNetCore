@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Security.Claims;
@@ -21,39 +21,39 @@ public class RedirectUsersViaStatusData
     /// This is the prefix on all diverts of users
     /// </summary>
     public const string DownForStatusPrefix = "Divert";
+
+    //Various controller, actions, areas used to allow users to access these while in a down state
+    private const string AccountArea = "Identity";
+
     /// <summary>
     /// This is the key for the "app down" entry
     /// </summary>
     public static readonly string DivertAppDown = $"{DownForStatusPrefix}AppDown";
+
     /// <summary>
     /// This is the prefix on all the tenant "down" keys
     /// </summary>
     public static readonly string DivertTenantPrefix = $"{DownForStatusPrefix}Tenant";
+
     /// <summary>
     /// This is the prefix on tenant "down for update" keys (temporary, while change)
     /// </summary>
     public static readonly string DivertTenantUpdate = $"{DivertTenantPrefix}{nameof(TenantDownVersions.Update)}-";
+
     /// <summary>
     /// This is the prefix on tenant "manual down" keys (controlled by admin user)
     /// </summary>
     public static readonly string DivertTenantManuel = $"{DivertTenantPrefix}{nameof(TenantDownVersions.ManualDown)}-";
+
     /// <summary>
     /// This is the prefix on tenants that have been deleted (permanent)
     /// </summary>
     public static readonly string DivertTenantDeleted = $"{DivertTenantPrefix}{nameof(TenantDownVersions.Deleted)}-";
 
-    private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAppDownStatus";
-    private string StatusTenantDownRedirect => $"/{_statusControllerName}/ShowTenantDownStatus";
-    private string StatusTenantDeletedRedirect => $"/{_statusControllerName}/ShowTenantDeleted";
-    private string StatusTenantManualDownRedirect => $"/{_statusControllerName}/ShowTenantManuallyDown";
-
-    //Various controller, actions, areas used to allow users to access these while in a down state
-    private const string AccountArea = "Identity";
-
     private readonly RouteData _routeData;
     private readonly IServiceProvider _serviceProvider;
-    private readonly TenantTypes _tenantTypes;
     private readonly string _statusControllerName;
+    private readonly TenantTypes _tenantTypes;
 
     /// <summary>
     /// ctor
@@ -70,6 +70,11 @@ public class RedirectUsersViaStatusData
         _tenantTypes = tenantTypes;
         _statusControllerName = statusControllerName;
     }
+
+    private string StatusAllAppDownRedirect => $"/{_statusControllerName}/ShowAppDownStatus";
+    private string StatusTenantDownRedirect => $"/{_statusControllerName}/ShowTenantDownStatus";
+    private string StatusTenantDeletedRedirect => $"/{_statusControllerName}/ShowTenantDeleted";
+    private string StatusTenantManualDownRedirect => $"/{_statusControllerName}/ShowTenantManuallyDown";
 
     /// <summary>
     /// This checks if there are any "down" status entries in the FileStore cache, and if the user meets a "down" status.

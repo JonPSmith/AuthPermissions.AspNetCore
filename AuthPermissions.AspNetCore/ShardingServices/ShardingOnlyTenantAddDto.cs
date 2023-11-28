@@ -45,6 +45,23 @@ public class ShardingOnlyTenantAddDto
     /// </summary>
     public string DbProviderShortName { get; set; }
 
+    //----------------------------------------------
+    //Hierarchical tenant code
+
+    /// <summary>
+    /// If creating a new hierarchical tenant, then
+    /// - if its zero (shown as ' none '), then you will be create a new, top-level 
+    /// - if non-zero, then you are add a new child hierarchical to the parent hierarchical tenant defined by the
+    /// <see cref="ParentTenantId"/>
+    /// </summary>
+    public int ParentTenantId { get; set; } = 0;
+
+    /// <summary>
+    /// For a new hierarchical tenant, then you must call the <see cref="FillListOfHierarchicalTenants"/>
+    /// method to fill this list.
+    /// </summary>
+    public List<KeyValuePair<int, string>> ListOfHierarchicalTenants { get; set; }
+
     /// <summary>
     /// This sets up the <see cref="ConnectionStringNames"/> allowing a user select which server they need.
     /// NOTE: If there is only one connection string in the appsettings this method will set the
@@ -70,23 +87,6 @@ public class ShardingOnlyTenantAddDto
     {
         DbProviderShortName = tenantContext.GetProviderShortName();
     }
-
-    //----------------------------------------------
-    //Hierarchical tenant code
-
-    /// <summary>
-    /// If creating a new hierarchical tenant, then
-    /// - if its zero (shown as ' none '), then you will be create a new, top-level 
-    /// - if non-zero, then you are add a new child hierarchical to the parent hierarchical tenant defined by the
-    /// <see cref="ParentTenantId"/>
-    /// </summary>
-    public int ParentTenantId { get; set; } = 0;
-
-    /// <summary>
-    /// For a new hierarchical tenant, then you must call the <see cref="FillListOfHierarchicalTenants"/>
-    /// method to fill this list.
-    /// </summary>
-    public List<KeyValuePair<int, string>> ListOfHierarchicalTenants { get; set; }
 
     /// <summary>
     /// This method will fill the <see cref="ListOfHierarchicalTenants"/> list that

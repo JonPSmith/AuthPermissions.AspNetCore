@@ -1,10 +1,9 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Security.Claims;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.PermissionsCode;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Test.TestHelpers;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
@@ -13,7 +12,6 @@ namespace Test.UnitTests.TestAuthPermissions
 {
     public class TestPermissionChecker
     {
-
         [Theory]
         [InlineData(TestEnum.One, true)]
         [InlineData(TestEnum.Two, false)]
@@ -47,9 +45,6 @@ namespace Test.UnitTests.TestAuthPermissions
             result.ShouldEqual(isAllowed);
         }
 
-
-        enum BadEnum {One, Two};
-        
         [Fact]
         public void TestThrowExceptionIfEnumIsNotCorrect()
         {
@@ -61,8 +56,6 @@ namespace Test.UnitTests.TestAuthPermissions
 
             //VERIFY
         }
-
-        enum  DuplicateEnum : ushort { One = 1, Two = 1, Three = 3, Four = 4, Five = 4, Six = 4 };
 
         [Fact]
         public void TestThrowExceptionIfEnumHasMembersHaveDuplicateValues()
@@ -81,5 +74,10 @@ namespace Test.UnitTests.TestAuthPermissions
                 "Four, Five, Six all have the value 4"
             });
         }
+
+
+        enum BadEnum {One, Two};
+
+        enum  DuplicateEnum : ushort { One = 1, Two = 1, Three = 3, Four = 4, Five = 4, Six = 4 };
     }
 }

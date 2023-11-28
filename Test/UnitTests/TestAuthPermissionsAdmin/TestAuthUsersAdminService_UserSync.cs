@@ -1,9 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
@@ -129,6 +126,5 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             authUsers.Select(x => x.Email).ShouldEqual(new []{ "user1@gmail.com", "user2@newgmail.com", "user99@gmail.com" });
             authUsers.Select(x => x.UserName).ShouldEqual(new[] { "first last 0", "new name", "user 99" });
         }
-
     }
 }

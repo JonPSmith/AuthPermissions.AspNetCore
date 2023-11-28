@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
@@ -12,8 +12,8 @@ namespace Test.StubClasses;
 
 public class StubAddNewUserManager : IAddNewUserManager
 {
-    private readonly IAuthUsersAdminService _authUsersAdmin;
     private readonly AuthTenantAdminService _authTenantAdmin;
+    private readonly IAuthUsersAdminService _authUsersAdmin;
     private readonly bool _loginReturnsError;
 
     public StubAddNewUserManager(IAuthUsersAdminService usersAdmin, 

@@ -1,10 +1,11 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.Services;
 using AuthPermissions.AspNetCore.StartupServices;
+using AuthPermissions.BaseCode.SetupCode;
 using Example1.RazorPages.IndividualAccounts.PermissionsCode;
 using Example3.InvoiceCode.AppStart;
 using Example3.InvoiceCode.EfCoreCode;
@@ -15,12 +16,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
-using System.Threading.Tasks;
-using AuthPermissions.BaseCode.SetupCode;
+using Test.StubClasses;
 using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
-using Test.StubClasses;
 
 namespace Test.UnitTests.TestExamples
 {

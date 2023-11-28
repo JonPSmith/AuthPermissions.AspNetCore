@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode.Services;
@@ -18,11 +18,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
 {
     public class TestRolesAdminServices
     {
-
-        private readonly ITestOutputHelper _output;
-
         private readonly AuthPermissionsOptions _authOptionsWithTestEnum =
             new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } };
+
+        private readonly ITestOutputHelper _output;
 
         public TestRolesAdminServices(ITestOutputHelper output)
         {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
@@ -44,6 +44,7 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// It gets set to true if it has been used, or can manually set to true to force a new login
         /// </summary>
         public bool IsInvalid { get; private set; }
+
         /// <summary>
         /// This is set to the database utc date when added to the database
         /// </summary>

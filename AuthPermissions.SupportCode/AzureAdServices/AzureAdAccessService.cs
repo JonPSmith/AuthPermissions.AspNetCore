@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Text.Json;
@@ -20,10 +20,16 @@ namespace AuthPermissions.SupportCode.AzureAdServices;
 /// </summary>
 public class AzureAdAccessService : IAzureAdAccessService
 {
+    //-------------------------------------------------------
+    //private methods / classes 
+
+    private static readonly char[] NickNameInvalidChars = 
+        new char [] { '@', '(', ')', '\\', '[', ']', '"', ';', ':', '.', '<', '>', ',', ' ' };
+
     private readonly ClientSecretCredential _clientSecretCredential;
-    private readonly string[] _scopes = new[] { "https://graph.microsoft.com/.default" };
 
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly string[] _scopes = new[] { "https://graph.microsoft.com/.default" };
 
     /// <summary>
     /// ctor
@@ -147,12 +153,6 @@ public class AzureAdAccessService : IAzureAdAccessService
         }
     }
 
-    //-------------------------------------------------------
-    //private methods / classes 
-
-    private static readonly char[] NickNameInvalidChars = 
-        new char [] { '@', '(', ')', '\\', '[', ']', '"', ';', ':', '.', '<', '>', ',', ' ' };
-
     private string GenerateValidMailNickname(string email)
     {
         //see the link below on what are allowed charaters in the Azure AD MailNickname
@@ -172,7 +172,5 @@ public class AzureAdAccessService : IAzureAdAccessService
     {
         public string code { get; set; }
         public string message { get; set; }
-
     }
-
 }

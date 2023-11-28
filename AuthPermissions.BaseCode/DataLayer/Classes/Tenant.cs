@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
@@ -19,12 +19,6 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
     /// </summary>
     public class Tenant : INameToShowOnException
     {
-#pragma warning disable 649
-        // ReSharper disable once CollectionNeverUpdated.Local
-        private HashSet<Tenant> _children; //filled in by EF Core
-        private HashSet<RoleToPermissions> _tenantRoles;
-#pragma warning restore 649
-
         private Tenant() { } //Needed by EF Core
 
         private Tenant(string tenantFullName, bool isHierarchical, Tenant parent = null)
@@ -38,38 +32,6 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
                 ParentDataKey = parent?.GetTenantDataKey();
                 Parent = parent;
             }
-        }
-
-        /// <summary>
-        /// This defines a tenant in a single tenant multi-tenant system.
-        /// </summary>
-        /// <param name="fullTenantName">Name of the tenant</param>
-        /// <param name="localizeDefault">localization service</param>
-        /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
-        ///     <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
-        public static IStatusGeneric<Tenant> CreateSingleTenant(string fullTenantName, 
-            IDefaultLocalizer localizeDefault, List<RoleToPermissions> tenantRoles = null)
-        {
-            var newInstance = new Tenant(fullTenantName, false);
-            var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance, localizeDefault);
-            return status;
-        }
-
-        /// <summary>
-        /// This creates a tenant in a hierarchical multi-tenant system with a parent/child relationships
-        /// You MUST have parent loaded and has been written to the database
-        /// </summary>
-        /// <param name="fullTenantName">This must be the full tenant name, including the parent name</param>
-        /// <param name="parent">Parent tenant - can be null if top level</param>
-        /// <param name="localizeDefault">localization service</param>
-        /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
-        /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
-        public static IStatusGeneric<Tenant> CreateHierarchicalTenant(string fullTenantName, Tenant parent,
-            IDefaultLocalizer localizeDefault, List<RoleToPermissions> tenantRoles = null)
-        {
-            var newInstance = new Tenant(fullTenantName, true, parent);
-            var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance, localizeDefault);
-            return status;
         }
 
         /// <summary>
@@ -108,7 +70,7 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// If sharding is turned on then this will contain the name of database data
         /// in the shardingsettings.json file. This must not be null.
         /// </summary>
-        public string DatabaseInfoName { get; private set; } 
+        public string DatabaseInfoName { get; private set; }
 
         //---------------------------------------------------------
         //relationships - only used for hierarchical multi-tenant system
@@ -133,14 +95,6 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// This holds any Roles that have been specifically 
         /// </summary>
         public IReadOnlyCollection<RoleToPermissions> TenantRoles => _tenantRoles?.ToList();
-        /// <summary>
-        /// Easy way to see the tenant and its key
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"{TenantFullName}: Key = {this.GetTenantDataKey()}";
-        }
 
         //--------------------------------------------------
         // Exception Error name
@@ -149,6 +103,47 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// Used when there is an exception
         /// </summary>
         public string NameToUseForError => TenantFullName;
+
+        /// <summary>
+        /// This defines a tenant in a single tenant multi-tenant system.
+        /// </summary>
+        /// <param name="fullTenantName">Name of the tenant</param>
+        /// <param name="localizeDefault">localization service</param>
+        /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
+        ///     <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
+        public static IStatusGeneric<Tenant> CreateSingleTenant(string fullTenantName, 
+            IDefaultLocalizer localizeDefault, List<RoleToPermissions> tenantRoles = null)
+        {
+            var newInstance = new Tenant(fullTenantName, false);
+            var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance, localizeDefault);
+            return status;
+        }
+
+        /// <summary>
+        /// This creates a tenant in a hierarchical multi-tenant system with a parent/child relationships
+        /// You MUST have parent loaded and has been written to the database
+        /// </summary>
+        /// <param name="fullTenantName">This must be the full tenant name, including the parent name</param>
+        /// <param name="parent">Parent tenant - can be null if top level</param>
+        /// <param name="localizeDefault">localization service</param>
+        /// <param name="tenantRoles">Optional: add Roles that have a <see cref="RoleTypes"/> of
+        /// <see cref="RoleTypes.TenantAutoAdd"/> or <see cref="RoleTypes.TenantAdminAdd"/></param>
+        public static IStatusGeneric<Tenant> CreateHierarchicalTenant(string fullTenantName, Tenant parent,
+            IDefaultLocalizer localizeDefault, List<RoleToPermissions> tenantRoles = null)
+        {
+            var newInstance = new Tenant(fullTenantName, true, parent);
+            var status = CheckRolesAreAllTenantRolesAndSetTenantRoles(tenantRoles, newInstance, localizeDefault);
+            return status;
+        }
+
+        /// <summary>
+        /// Easy way to see the tenant and its key
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{TenantFullName}: Key = {this.GetTenantDataKey()}";
+        }
 
         //----------------------------------------------------
         //access methods
@@ -245,7 +240,7 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
                 throw new AuthPermissionsException("The children must be loaded to move a hierarchical tenant");
 
             var oldDataKey = this.GetTenantDataKey();
-            TenantFullName = CombineParentNameWithTenantName(ExtractEndLeftTenantName(this.TenantFullName), newParentTenant?.TenantFullName);
+            TenantFullName = CombineParentNameWithTenantName(ExtractEndLeftTenantName(TenantFullName), newParentTenant?.TenantFullName);
             Parent = newParentTenant;
             ParentDataKey = newParentTenant?.GetTenantDataKey();
             getChangeData((oldDataKey, this));
@@ -323,7 +318,10 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
                     RecursivelyChangeChildNames(child, child.Children, updateTenant);
             }
         }
-
-
+#pragma warning disable 649
+        // ReSharper disable once CollectionNeverUpdated.Local
+        private HashSet<Tenant> _children; //filled in by EF Core
+        private HashSet<RoleToPermissions> _tenantRoles;
+#pragma warning restore 649
     }
 }

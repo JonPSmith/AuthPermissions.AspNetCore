@@ -1,9 +1,8 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
-using LocalizeMessagesAndErrors.UnitTestingCode;
 using StatusGeneric;
 using Test.TestHelpers;
 
@@ -14,14 +13,14 @@ namespace Test.StubClasses;
 /// </summary>
 public class StubAuthTenantAdminService : IAuthTenantAdminService
 {
-    public string CalledMethodName { get; private set; }
-
     private readonly Tenant[] _tenants;
 
     public StubAuthTenantAdminService(params Tenant[] tenants)
     {
         _tenants = tenants;
     }
+
+    public string CalledMethodName { get; private set; }
 
     /// <summary>
     /// This simply returns a IQueryable of Tenants
@@ -38,7 +37,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns>query on the AuthP database</returns>
     public IQueryable<Tenant> QueryEndLeafTenants()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -47,7 +46,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns></returns>
     public Task<List<string>> GetRoleNamesForTenantsAsync()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -72,7 +71,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns>A list of child tenants for this tenant (can be empty)</returns>
     public Task<List<Tenant>> GetHierarchicalTenantChildrenViaIdAsync(int tenantId)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -122,7 +121,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns></returns>
     public Task<IStatusGeneric> UpdateTenantRolesAsync(int tenantId, List<string> newTenantRoleNames)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -136,7 +135,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns></returns>
     public Task<IStatusGeneric> UpdateTenantNameAsync(int tenantId, string newTenantName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -150,7 +149,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns>status</returns>
     public Task<IStatusGeneric> MoveHierarchicalTenantToAnotherParentAsync(int tenantToMoveId, int newParentTenantId)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -181,7 +180,7 @@ public class StubAuthTenantAdminService : IAuthTenantAdminService
     /// <returns>status</returns>
     public Task<IStatusGeneric> MoveToDifferentDatabaseAsync(int tenantToMoveId, bool hasOwnDb, string databaseInfoName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /// <summary>

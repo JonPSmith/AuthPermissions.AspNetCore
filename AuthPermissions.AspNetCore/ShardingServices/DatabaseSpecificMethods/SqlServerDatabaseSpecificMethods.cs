@@ -2,7 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Medallion.Threading.SqlServer;
@@ -16,7 +15,6 @@ namespace AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 /// </summary>
 public class SqlServerDatabaseSpecificMethods : IDatabaseSpecificMethods
 {
-
     /// <summary>
     /// This is used select the <see cref="IDatabaseSpecificMethods"/> from the AuthP's <see cref="SetupInternalData.AuthPDatabaseType"/>
     /// </summary>

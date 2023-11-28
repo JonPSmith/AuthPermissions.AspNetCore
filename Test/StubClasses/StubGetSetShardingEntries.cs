@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
@@ -10,18 +10,6 @@ namespace Test.StubClasses;
 public class StubGetSetShardingEntries : IGetSetShardingEntries
 {
     private readonly object _caller;
-    public string CalledMethodName { get; private set; }
-
-    /// <summary>
-    /// This contains the <see cref="ShardingEntry"/> data when add, update or delete are called 
-    /// </summary>
-    public ShardingEntry SharingEntryAddUpDel { get; private set; }
-
-    /// <summary>
-    /// This returns the supported database providers that can be used for multi tenant sharding.
-    /// Only useful if you have multiple database providers for your tenant databases (rare).
-    /// </summary>
-    public string[] PossibleDatabaseProviders { get; }
 
     public StubGetSetShardingEntries(object caller)
     {
@@ -35,6 +23,18 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
         _caller = caller;
     }
 
+    public string CalledMethodName { get; private set; }
+
+    /// <summary>
+    /// This contains the <see cref="ShardingEntry"/> data when add, update or delete are called 
+    /// </summary>
+    public ShardingEntry SharingEntryAddUpDel { get; private set; }
+
+    /// <summary>
+    /// This returns the supported database providers that can be used for multi tenant sharding.
+    /// Only useful if you have multiple database providers for your tenant databases (rare).
+    /// </summary>
+    public string[] PossibleDatabaseProviders { get; }
 
 
     /// <summary>
@@ -109,12 +109,6 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
         return new List<string> { "UnitTestConnection", "PostgreSqlConnection" };
     }
 
-    public IStatusGeneric TestFormingConnectionString(ShardingEntry databaseInfo)
-    {
-        var status = new StatusGenericHandler();
-        return status;
-    }
-
     public string FormConnectionString(string databaseInfoName)
     {
         return databaseInfoName switch
@@ -134,5 +128,11 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
             ("Other Database", true, new List<string>{ "Tenant2"}),
             ("PostgreSql1", null, new List<string>())
         });
+    }
+
+    public IStatusGeneric TestFormingConnectionString(ShardingEntry databaseInfo)
+    {
+        var status = new StatusGenericHandler();
+        return status;
     }
 }

@@ -25,22 +25,18 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// </summary>
     public static string ShardingEntryPrefix = "ShardingEntry-";
 
+    private readonly AuthPermissionsDbContext _authDbContext;
+    private readonly ConnectionStringsOption _connectionDict;
+    private readonly IDistributedFileStoreCacheClass _fsCache;
+    private readonly IDefaultLocalizer _localizeDefault;
+    private readonly AuthPermissionsOptions _options;
+
     /// <summary>
     /// This contains the methods with are specific to a database provider
     /// </summary>
     private readonly IReadOnlyDictionary<string, IDatabaseSpecificMethods> _shardingDatabaseProviders;
-    private readonly ConnectionStringsOption _connectionDict;
-    private readonly ShardingEntryOptions _shardingEntryOptions;
-    private readonly AuthPermissionsOptions _options;
-    private readonly AuthPermissionsDbContext _authDbContext;
-    private readonly IDistributedFileStoreCacheClass _fsCache;
-    private readonly IDefaultLocalizer _localizeDefault;
 
-    /// <summary>
-    /// This returns the supported database providers that can be used for multi tenant sharding.
-    /// Only useful if you have multiple database providers for your tenant databases (rare).
-    /// </summary>
-    public string[] PossibleDatabaseProviders { get; }
+    private readonly ShardingEntryOptions _shardingEntryOptions;
 
     /// <summary>
     /// Ctor
@@ -75,6 +71,12 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             //This is useful when you only have shard tenant (i.e. the tenant's HasOwnDb is true) 
             _connectionDict.Remove(_shardingEntryOptions.DefaultConnectionName);
     }
+
+    /// <summary>
+    /// This returns the supported database providers that can be used for multi tenant sharding.
+    /// Only useful if you have multiple database providers for your tenant databases (rare).
+    /// </summary>
+    public string[] PossibleDatabaseProviders { get; }
 
     /// <summary>
     /// This will return a list of <see cref="ShardingEntry"/> in the sharding settings file in the application
@@ -289,8 +291,6 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         return status;
     }
 
-    private enum ShardingChanges {Added, Updated, Deleted}
-
     private IStatusGeneric CheckShardingEntryChangeIsValid(ShardingChanges typeOfChange, ShardingEntry changedInfo)
     {
         var status = new StatusGenericLocalizer(_localizeDefault);
@@ -341,4 +341,6 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
         return status;
     }
+
+    private enum ShardingChanges {Added, Updated, Deleted}
 }

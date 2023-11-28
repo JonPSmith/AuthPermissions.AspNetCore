@@ -1,12 +1,10 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
-using Net.DistributedFileStoreCache;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.SupportCode.DownStatusCode;
+using Net.DistributedFileStoreCache;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -18,8 +16,8 @@ namespace Test.UnitTests.TestExamplesCommonCode;
 
 public class TestSetRemoveStatusService
 {
-    private readonly ITestOutputHelper _output;
     private readonly IDistributedFileStoreCacheClass _fsCache;
+    private readonly ITestOutputHelper _output;
 
     public TestSetRemoveStatusService(ITestOutputHelper output)
     {

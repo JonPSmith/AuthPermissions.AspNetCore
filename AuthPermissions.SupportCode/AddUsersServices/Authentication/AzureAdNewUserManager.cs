@@ -1,10 +1,9 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Security.Cryptography;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
@@ -21,10 +20,10 @@ namespace AuthPermissions.SupportCode.AddUsersServices.Authentication;
 public class AzureAdNewUserManager : IAddNewUserManager
 {
     private readonly IAuthUsersAdminService _authUsersAdmin;
-    private readonly IAuthTenantAdminService _tenantAdminService;
     private readonly IAzureAdAccessService _azureAccessService;
     private readonly AzureAdOptions _azureOptions;
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly IAuthTenantAdminService _tenantAdminService;
 
     /// <summary>
     /// ctor
@@ -97,7 +96,6 @@ public class AzureAdNewUserManager : IAddNewUserManager
         return await _authUsersAdmin.AddNewUserAsync(azureUserStatus.Result,
             UserLoginData.Email, UserLoginData.UserName, UserLoginData.Roles, tenantName);
     }
-
 
 
     /// <summary>

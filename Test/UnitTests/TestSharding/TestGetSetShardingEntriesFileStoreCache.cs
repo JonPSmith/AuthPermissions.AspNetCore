@@ -2,12 +2,12 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
-using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
-using AuthPermissions.BaseCode.DataLayer.Classes;
 using Microsoft.Extensions.Options;
 using Net.DistributedFileStoreCache;
 using Test.StubClasses;
@@ -23,6 +23,7 @@ namespace Test.UnitTests.TestSharding;
 public class TestGetSetShardingEntriesFileStoreCache
 {
     private readonly ITestOutputHelper _output;
+
     public TestGetSetShardingEntriesFileStoreCache(ITestOutputHelper output)
     {
         _output = output;
@@ -56,32 +57,6 @@ public class TestGetSetShardingEntriesFileStoreCache
         testEntries.ForEach(x => stubFsCache.SetClass(FormShardingEntryKey(x.Name), x));
 
         return stubFsCache;
-    }
-
-    private class SetupServiceToTest
-    {
-        public AuthPermissionsDbContext AuthDbContext { get; }
-        public IDistributedFileStoreCacheClass StubFsCache { get; }
-        public IGetSetShardingEntries Service { get; }
-
-        public SetupServiceToTest(bool tenantsInAuthPdb = true, AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
-        {
-            var config = AppSettings.GetConfiguration("..\\Test\\TestData", "combinedshardingsettings.json");
-            var services = new ServiceCollection();
-            services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
-            var serviceProvider = services.BuildServiceProvider();
-            var connectSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
-
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
-            AuthDbContext = new AuthPermissionsDbContext(options);
-            AuthDbContext.Database.EnsureClean();
-            StubFsCache = CreateFileStoreCacheWithData();
-            Service = new GetSetShardingEntriesFileStoreCache(connectSnapshot,
-                new ShardingEntryOptions(tenantsInAuthPdb),
-                FormAuthOptionsForSharding(databaseType), AuthDbContext,
-                StubFsCache, new List<IDatabaseSpecificMethods>{new SqlServerDatabaseSpecificMethods()},
-                "en".SetupAuthPLoggingLocalizer());
-        }
     }
 
     [Fact]
@@ -488,4 +463,29 @@ public class TestGetSetShardingEntriesFileStoreCache
         });
     }
 
+    private class SetupServiceToTest
+    {
+        public SetupServiceToTest(bool tenantsInAuthPdb = true, AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
+        {
+            var config = AppSettings.GetConfiguration("..\\Test\\TestData", "combinedshardingsettings.json");
+            var services = new ServiceCollection();
+            services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
+            var serviceProvider = services.BuildServiceProvider();
+            var connectSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
+
+            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
+            AuthDbContext = new AuthPermissionsDbContext(options);
+            AuthDbContext.Database.EnsureClean();
+            StubFsCache = CreateFileStoreCacheWithData();
+            Service = new GetSetShardingEntriesFileStoreCache(connectSnapshot,
+                new ShardingEntryOptions(tenantsInAuthPdb),
+                FormAuthOptionsForSharding(databaseType), AuthDbContext,
+                StubFsCache, new List<IDatabaseSpecificMethods>{new SqlServerDatabaseSpecificMethods()},
+                "en".SetupAuthPLoggingLocalizer());
+        }
+
+        public AuthPermissionsDbContext AuthDbContext { get; }
+        public IDistributedFileStoreCacheClass StubFsCache { get; }
+        public IGetSetShardingEntries Service { get; }
+    }
 }

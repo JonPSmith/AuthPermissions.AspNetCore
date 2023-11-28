@@ -1,10 +1,7 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.PermissionsCode;
@@ -14,7 +11,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
 using Test.StubClasses;
-using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,8 +20,9 @@ namespace Test.UnitTests.TestExamplesCommonCode;
 
 public class TestRedirectUsersViaStatusData
 {
-    private readonly ITestOutputHelper _output;
     private readonly IDistributedFileStoreCacheClass _fsCache;
+
+    private readonly ITestOutputHelper _output;
     //private readonly ISetRemoveStatus _removeService;
 
     public TestRedirectUsersViaStatusData(ITestOutputHelper output)
@@ -275,5 +272,4 @@ public class TestRedirectUsersViaStatusData
             nextCalled.ShouldBeTrue();
         }
     }
-
 }

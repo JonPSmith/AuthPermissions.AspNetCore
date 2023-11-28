@@ -1,12 +1,12 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Globalization;
 using System.Resources.NetStandard;
+using CsvHelper;
 using Test.StubClasses;
 using TestSupport.Attributes;
 using Xunit.Abstractions;
-using System.Globalization;
-using CsvHelper;
 
 namespace Test.UnitCommands;
 
@@ -47,12 +47,6 @@ public class LocalizationCaptureCommands
         _output.WriteLine("END ------------------------------------------------------");
     }
 
-    private class CsvInputOfResx
-    {
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
     [RunnableInDebugOnly]
     public void CreateResxFileFromCSV()
     {
@@ -75,5 +69,11 @@ public class LocalizationCaptureCommands
                 }
             }
         }
+    }
+
+    private class CsvInputOfResx
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
     }
 }

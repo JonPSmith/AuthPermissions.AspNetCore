@@ -1,8 +1,6 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AuthPermissions.AdminCode;
 using AuthPermissions.SupportCode.AzureAdServices;
 using StatusGeneric;
@@ -45,5 +43,4 @@ public class StubAzureAdAccessService : IAzureAdAccessService
     {
         return Task.FromResult<IStatusGeneric<string>>(new StatusGenericHandler<string>().SetResult("Azure-AD-userId"));
     }
-
 }

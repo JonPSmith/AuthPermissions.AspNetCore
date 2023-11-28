@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode.Services.Internal;
@@ -20,9 +20,9 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthRolesAdminService : IAuthRolesAdminService
     {
         private readonly AuthPermissionsDbContext _context;
+        private readonly bool _isMultiTenant;
         private readonly IDefaultLocalizer _localizeDefault;
         private readonly Type _permissionType;
-        private readonly bool _isMultiTenant;
 
         /// <summary>
         /// ctor

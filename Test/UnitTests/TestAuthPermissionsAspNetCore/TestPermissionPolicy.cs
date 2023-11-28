@@ -1,13 +1,8 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using AuthPermissions;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.PolicyCode;
 using AuthPermissions.BaseCode;
@@ -24,11 +19,6 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
 {
     public class TestPermissionPolicy
     {
-
-        [HasPermission(TestEnum.Two)]
-        private class WithAutoPermissions
-        {}
-
         [Fact]
         public void TestHasPermissionAttribute()
         {
@@ -90,5 +80,9 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             //VERIFY
             aspnetContext.HasSucceeded.ShouldEqual(isAllowed);
         }
+
+        [HasPermission(TestEnum.Two)]
+        private class WithAutoPermissions
+        {}
     }
 }

@@ -1,24 +1,16 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Security.Claims;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
-using Example2.WebApiWithToken.IndividualAccounts.PermissionsCode;
 using Microsoft.Extensions.DependencyInjection;
 using Net.DistributedFileStoreCache;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System;
-using Xunit;
-using Xunit.Extensions.AssertExtensions;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
-using TestSupport.EfHelpers;
-using System.Collections.Generic;
-using System.Linq;
-using AuthPermissions.BaseCode;
-using AuthPermissions.BaseCode.DataLayer.Classes;
-using LocalizeMessagesAndErrors;
 using Test.StubClasses;
 using Test.TestHelpers;
+using TestSupport.EfHelpers;
+using Xunit;
+using Xunit.Extensions.AssertExtensions;
 
 namespace Test.UnitTests.TestExamples;
 
@@ -105,5 +97,4 @@ public class TestExample2AddEmailClaimMiddleware
         //VERIFY
         stubFsCache.Get("userId".FormAddedEmailClaimKey()).ShouldBeNull();
     }
-
 }

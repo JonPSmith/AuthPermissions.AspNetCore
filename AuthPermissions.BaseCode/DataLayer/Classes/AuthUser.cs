@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
@@ -29,28 +29,6 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
             if (roles == null) throw new ArgumentNullException(nameof(roles));
             _userRoles = new HashSet<UserToRole>(roles.Select(x => new UserToRole(userId, x)));
             UserTenant = userTenant;
-        }
-
-        /// <summary>
-        /// Define a user with there default roles and optional tenant
-        /// </summary>
-        /// <param name="userId">Id of the user - can't be null</param>
-        /// <param name="email">user's email - especially useful in Web applications</param>
-        /// <param name="userName">username - used when using Windows authentication. Generally useful for admin too.</param>
-        /// <param name="roles">List of AuthP Roles for this user</param>
-        /// <param name="localizeDefault">This provides the localize service</param>
-        /// <param name="userTenant">optional: defines multi-tenant tenant for this user</param>
-        public static IStatusGeneric<AuthUser> CreateAuthUser(string userId, string email,
-            string userName, List<RoleToPermissions> roles, IDefaultLocalizer localizeDefault,
-            Tenant userTenant = null)
-        {
-            var status = new StatusGenericLocalizer<AuthUser>(localizeDefault);
-
-            status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant != null, localizeDefault));
-            if (status.HasErrors)
-                return status;
-
-            return status.SetResult(new AuthUser(userId, email, userName, roles, userTenant));
         }
 
         /// <summary>
@@ -116,6 +94,28 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
 
                 return UserName ?? Email;
             }
+        }
+
+        /// <summary>
+        /// Define a user with there default roles and optional tenant
+        /// </summary>
+        /// <param name="userId">Id of the user - can't be null</param>
+        /// <param name="email">user's email - especially useful in Web applications</param>
+        /// <param name="userName">username - used when using Windows authentication. Generally useful for admin too.</param>
+        /// <param name="roles">List of AuthP Roles for this user</param>
+        /// <param name="localizeDefault">This provides the localize service</param>
+        /// <param name="userTenant">optional: defines multi-tenant tenant for this user</param>
+        public static IStatusGeneric<AuthUser> CreateAuthUser(string userId, string email,
+            string userName, List<RoleToPermissions> roles, IDefaultLocalizer localizeDefault,
+            Tenant userTenant = null)
+        {
+            var status = new StatusGenericLocalizer<AuthUser>(localizeDefault);
+
+            status.CombineStatuses(CheckRolesAreValidForUser(roles, userTenant != null, localizeDefault));
+            if (status.HasErrors)
+                return status;
+
+            return status.SetResult(new AuthUser(userId, email, userName, roles, userTenant));
         }
 
 

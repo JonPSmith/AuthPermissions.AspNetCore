@@ -1,9 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
@@ -34,8 +31,6 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
         {
             _output = output;
         }
-
-        private enum EnumNotShort {One, Two}
 
         [Fact]
         public async Task TestRegisterAuthPermissionsEnumNotShort()
@@ -261,5 +256,7 @@ namespace Test.UnitTests.TestAuthPermissionsAspNetCore
             startupServices[0].ShouldBeType<StartupServiceIndividualAccountsAddSuperUser<IdentityUser>>();
             startupServices[1].ShouldBeType<StartupServiceBulkLoadAuthPInfo>();
         }
+
+        private enum EnumNotShort {One, Two}
     }
 }

@@ -1,20 +1,20 @@
 ﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using System.Collections.Concurrent;
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
+using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Concurrent;
-using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
-using AuthPermissions.BaseCode.CommonCode;
+using Npgsql;
 using StatusGeneric;
 using Test.TestHelpers;
+using TestSupport.EfHelpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Extensions.AssertExtensions;
-using Npgsql;
-using TestSupport.EfHelpers;
 
 namespace Test.UnitTests.TestSharding;
 
@@ -135,5 +135,4 @@ public class TestPostgresDatabaseSpecificMethods
         }
         logs.OrderBy(x => x).ToArray().ShouldEqual(new string[] { "1", "2", "3" });
     }
-
 }

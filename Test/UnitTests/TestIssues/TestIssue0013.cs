@@ -1,19 +1,12 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
-using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
 using Xunit;
@@ -29,6 +22,7 @@ public class TestIssue0013
 {
     private readonly AuthPermissionsOptions _authOptionsWithTestEnum =
         new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(TestEnum) } };
+
     private readonly ITestOutputHelper _output;
 
     public TestIssue0013(ITestOutputHelper output)
@@ -119,6 +113,22 @@ public class TestIssue0013
 
     private class AllPossibleRoleTypeChanges : IEnumerable<object[]>
     {
+        /// <summary>
+        /// This is taken from https://github.com/JonPSmith/AuthPermissions.AspNetCore/issues/13#issuecomment-1042713484
+        /// </summary>
+        private const string AllOptions = @"Normal 	TenantAutoAdd 	ERROR 	impossible
+Normal 	TenantAdminAdd 	ERROR 	impossible
+Normal 	HiddenFromTenant 	ERROR (if user has tenant) 	impossible
+TenantAutoAdd 	Normal 	impossible 	ERROR
+TenantAutoAdd 	TenantAdminAdd 	impossible 	OK
+TenantAutoAdd 	HiddenFromTenant 	impossible 	ERROR
+TenantAdminAdd 	Normal 	impossible 	OK
+TenantAdminAdd 	TenantAutoAdd 	ERROR 	OK
+TenantAdminAdd 	HiddenFromTenant 	ERROR (if user has tenant) 	ERROR
+HiddenFromTenant 	Normal 	OK 	impossible
+HiddenFromTenant 	TenantAutoAdd 	ERROR 	impossible
+HiddenFromTenant 	TenantAdminAdd 	ERROR 	impossible";
+
         public IEnumerator<object[]> GetEnumerator()
         {
             var lines = AllOptions.Split(Environment.NewLine);
@@ -135,22 +145,5 @@ public class TestIssue0013
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        /// <summary>
-        /// This is taken from https://github.com/JonPSmith/AuthPermissions.AspNetCore/issues/13#issuecomment-1042713484
-        /// </summary>
-        private const string AllOptions = @"Normal 	TenantAutoAdd 	ERROR 	impossible
-Normal 	TenantAdminAdd 	ERROR 	impossible
-Normal 	HiddenFromTenant 	ERROR (if user has tenant) 	impossible
-TenantAutoAdd 	Normal 	impossible 	ERROR
-TenantAutoAdd 	TenantAdminAdd 	impossible 	OK
-TenantAutoAdd 	HiddenFromTenant 	impossible 	ERROR
-TenantAdminAdd 	Normal 	impossible 	OK
-TenantAdminAdd 	TenantAutoAdd 	ERROR 	OK
-TenantAdminAdd 	HiddenFromTenant 	ERROR (if user has tenant) 	ERROR
-HiddenFromTenant 	Normal 	OK 	impossible
-HiddenFromTenant 	TenantAutoAdd 	ERROR 	impossible
-HiddenFromTenant 	TenantAdminAdd 	ERROR 	impossible";
     }
-
 }

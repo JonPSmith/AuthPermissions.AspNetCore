@@ -20,8 +20,11 @@ public class DemoShardOnlyGetDatabaseForNewTenant : IGetDatabaseForNewTenant
 {
     private readonly IGetSetShardingEntries _accessShardingInfo;
     private readonly AuthPermissionsDbContext _context;
-    private readonly ITenantChangeService _tenantChangeService;
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly ITenantChangeService _tenantChangeService;
+
+    private Tenant _tenant;
+    private string _tenantRef;
 
     /// <summary>
     /// Ctor
@@ -40,9 +43,6 @@ public class DemoShardOnlyGetDatabaseForNewTenant : IGetDatabaseForNewTenant
         _tenantChangeService = tenantChangeService ?? throw new ArgumentNullException(nameof(tenantChangeService));
         _localizeDefault = localizeProvider.DefaultLocalizer;
     }
-
-    private Tenant _tenant;
-    private string _tenantRef;
 
     /// <summary>
     /// This implementation creates a new SqlServer database for each tenant. The steps are:

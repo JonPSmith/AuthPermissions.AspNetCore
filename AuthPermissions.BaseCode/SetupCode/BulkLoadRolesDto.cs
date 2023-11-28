@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
@@ -29,10 +29,12 @@ public class BulkLoadRolesDto
     /// Name of the Role: must be unique and not null
     /// </summary>
     public string RoleName { get; }
+
     /// <summary>
     /// Human-friendly description of what the Role provides. Can be null
     /// </summary>
     public string Description { get; }
+
     /// <summary>
     /// The Type of the Role. This is only used in multi-tenant applications 
     /// </summary>

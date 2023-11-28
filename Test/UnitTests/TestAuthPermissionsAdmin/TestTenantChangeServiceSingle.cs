@@ -1,9 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
@@ -119,6 +116,5 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var deletedId = ((InvoiceTenantChangeService)status.Result).DeletedTenantId;
             deletedId.ShouldEqual(tenantIds[1]);
         }
-
     }
 }

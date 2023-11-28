@@ -1,7 +1,6 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.AspNetCore.Http;
 
 namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
@@ -11,10 +10,9 @@ namespace AuthPermissions.AspNetCore.AccessTenantData.Services;
 /// </summary>
 public class AccessTenantDataCookie : IAccessTenantDataCookie
 {
+    private const string CookieName = nameof(AccessTenantDataCookie);
     private readonly IRequestCookieCollection _cookiesIn;
     private readonly IResponseCookies _cookiesOut;
-
-    private const string CookieName = nameof(AccessTenantDataCookie);
 
     /// <summary>
     /// Takes in the <see cref="IHttpContextAccessor"/> to get the cookie in / out parts

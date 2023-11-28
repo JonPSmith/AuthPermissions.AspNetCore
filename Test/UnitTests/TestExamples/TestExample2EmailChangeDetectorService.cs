@@ -1,14 +1,11 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode.Services;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
-using AuthPermissions.BaseCode.DataLayer;
 using AuthPermissions.BaseCode;
+using AuthPermissions.BaseCode.DataLayer;
+using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example2.WebApiWithToken.IndividualAccounts.ClaimsChangeCode;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;

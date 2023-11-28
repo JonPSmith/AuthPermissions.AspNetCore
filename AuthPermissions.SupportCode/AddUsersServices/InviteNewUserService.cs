@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Text.Json;
@@ -23,12 +23,12 @@ namespace AuthPermissions.SupportCode.AddUsersServices;
 /// </summary>
 public class InviteNewUserService : IInviteNewUserService
 {
-    private readonly IEncryptDecryptService _encryptService;
-    private readonly AuthPermissionsDbContext _context;
-    private readonly IAuthUsersAdminService _usersAdmin;
-    private readonly AuthPermissionsOptions _options;
     private readonly IAddNewUserManager _addNewUserManager;
+    private readonly AuthPermissionsDbContext _context;
+    private readonly IEncryptDecryptService _encryptService;
     private readonly IDefaultLocalizer _localizeDefault;
+    private readonly AuthPermissionsOptions _options;
+    private readonly IAuthUsersAdminService _usersAdmin;
 
     /// <summary>
     /// ctor

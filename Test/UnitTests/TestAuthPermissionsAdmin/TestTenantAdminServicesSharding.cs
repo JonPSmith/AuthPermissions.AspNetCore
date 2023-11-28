@@ -1,9 +1,6 @@
-﻿// Copyright (c) 2022 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
-using System.Threading.Tasks;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AdminCode.Services;
 using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
@@ -18,10 +15,11 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin;
 
 public class TestTenantAdminServicesSharding
 {
-    private readonly AuthPermissionsOptions _authOptionsSingleSharding =
-        new() { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding };
     private readonly AuthPermissionsOptions _authOptionsHierarchicalSharding =
         new() { TenantType = TenantTypes.HierarchicalTenant | TenantTypes.AddSharding };
+
+    private readonly AuthPermissionsOptions _authOptionsSingleSharding =
+        new() { TenantType = TenantTypes.SingleLevel | TenantTypes.AddSharding };
 
     [Fact]
     public async Task TestSetupSingleShardingTenantsInDbOk()

@@ -1,7 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System.Linq;
 using AuthPermissions.BaseCode.PermissionsCode;
 using Test.TestHelpers;
 using Xunit;
@@ -11,7 +10,6 @@ namespace Test.UnitTests.TestAuthPermissions
 {
     public class TestPermissionPacker
     {
-
         [Fact]
         public void TestPackPermissionsIntoString()
         {

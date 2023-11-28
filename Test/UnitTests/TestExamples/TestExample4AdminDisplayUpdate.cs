@@ -1,10 +1,9 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions;
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
@@ -24,7 +23,7 @@ namespace Test.UnitTests.TestExamples
     public class TestExample4AdminDisplayUpdate
     {
         private readonly ITestOutputHelper _output;
-        
+
         public TestExample4AdminDisplayUpdate(ITestOutputHelper output)
         {
             _output = output;
@@ -309,7 +308,5 @@ namespace Test.UnitTests.TestExamples
             status.IsValid.ShouldBeFalse();
             status.GetAllErrors().ShouldEqual("A tenant with the name 'Bad tenant name' wasn't found.");
         }
-
-
     }
 }

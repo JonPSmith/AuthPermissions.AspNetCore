@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.Data;
@@ -22,10 +22,10 @@ namespace AuthPermissions.AdminCode.Services
     public class AuthTenantAdminService : IAuthTenantAdminService
     {
         private readonly AuthPermissionsDbContext _context;
-        private readonly AuthPermissionsOptions _options;
         private readonly IDefaultLocalizer _localizeDefault;
-        private readonly IAuthPServiceFactory<ITenantChangeService> _tenantChangeServiceFactory;
         private readonly ILogger _logger;
+        private readonly AuthPermissionsOptions _options;
+        private readonly IAuthPServiceFactory<ITenantChangeService> _tenantChangeServiceFactory;
 
         private readonly TenantTypes _tenantType;
 

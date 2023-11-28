@@ -1,8 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.GetDataKeyCode;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
@@ -18,11 +16,6 @@ namespace Test.TestHelpers;
 
 public class ShardingSingleLevelTenantChangeSqlServerSetup : IDisposable
 {
-    public AuthPermissionsDbContext AuthPContext { get; }
-
-    public ShardingSingleDbContext MainContext { get; }
-    public ShardingSingleDbContext OtherContext { get; }
-
     public ShardingSingleLevelTenantChangeSqlServerSetup(object caller)
     {
         var authOptions = new DbContextOptionsBuilder<AuthPermissionsDbContext>()
@@ -42,6 +35,19 @@ public class ShardingSingleLevelTenantChangeSqlServerSetup : IDisposable
         OtherContext.Database.EnsureClean();
     }
 
+    public AuthPermissionsDbContext AuthPContext { get; }
+
+    public ShardingSingleDbContext MainContext { get; }
+    public ShardingSingleDbContext OtherContext { get; }
+
+
+    public void Dispose()
+    {
+        AuthPContext?.Dispose();
+        MainContext?.Dispose();
+        OtherContext?.Dispose();
+    }
+
     private class StubGetShardingData : IGetShardingDataFromUser
     {
         private readonly AuthPermissionsDbContext _context;
@@ -58,15 +64,5 @@ public class ShardingSingleLevelTenantChangeSqlServerSetup : IDisposable
 
         public string DataKey { get; }
         public string ConnectionString { get; }
-    }
-
-
-
-
-    public void Dispose()
-    {
-        AuthPContext?.Dispose();
-        MainContext?.Dispose();
-        OtherContext?.Dispose();
     }
 }

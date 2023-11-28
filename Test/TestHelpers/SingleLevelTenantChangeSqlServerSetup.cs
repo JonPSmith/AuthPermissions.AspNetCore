@@ -1,7 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example3.InvoiceCode.AppStart;
@@ -14,11 +13,6 @@ namespace Test.TestHelpers
 {
     public class SingleLevelTenantChangeSqlServerSetup : IDisposable
     {
-        public AuthPermissionsDbContext AuthPContext { get; }
-
-        public InvoicesDbContext InvoiceDbContext { get; }
-
-
         public SingleLevelTenantChangeSqlServerSetup(object caller)
         {
             var authOptions = new DbContextOptionsBuilder<AuthPermissionsDbContext>()
@@ -35,6 +29,10 @@ namespace Test.TestHelpers
             AuthPContext.Database.EnsureClean();
             InvoiceDbContext.Database.EnsureClean();
         }
+
+        public AuthPermissionsDbContext AuthPContext { get; }
+
+        public InvoicesDbContext InvoiceDbContext { get; }
 
         public void Dispose()
         {

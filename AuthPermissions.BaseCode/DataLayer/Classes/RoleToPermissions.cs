@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
@@ -65,6 +65,14 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
         /// </summary>
         public IReadOnlyCollection<Tenant> Tenants => _tenants?.ToList();
 
+        //--------------------------------------------------
+        // Exception Error name
+
+        /// <summary>
+        /// Used when there is an exception
+        /// </summary>
+        public string NameToUseForError => RoleName;
+
         //-----------------------------------------------------
 
         /// <summary>
@@ -76,14 +84,6 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
             var desc = Description == null ? "" : $" (description = {Description})";
             return $"{RoleName}{desc} has {PackedPermissionsInRole.Length} permissions.";
         }
-
-        //--------------------------------------------------
-        // Exception Error name
-
-        /// <summary>
-        /// Used when there is an exception
-        /// </summary>
-        public string NameToUseForError => RoleName;
 
         //-------------------------------------------------------------
         //access methods
@@ -103,6 +103,5 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes
             Description = description?.Trim() ?? Description;
             RoleType = roleType;
         }
-
     }
 }

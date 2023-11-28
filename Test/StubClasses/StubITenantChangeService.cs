@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AdminCode;
@@ -13,15 +13,20 @@ namespace Test.StubClasses
     {
         private readonly string _errorMessage;
 
-        public string NewTenantName { get; set; }
-        public string CalledMethodName { get; set; }
-
         public List<(string oldDataKey, string newDataKey, int tenantId, string newFullTenantName)> MoveReturnedTuples = new();
 
 
         public StubTenantChangeServiceFactory(string errorMessage = null)
         {
             _errorMessage = errorMessage;
+        }
+
+        public string NewTenantName { get; set; }
+        public string CalledMethodName { get; set; }
+
+        public ITenantChangeService GetService(bool throwExceptionIfNull = true, string callingMethod = "")
+        {
+            return new StubITenantChangeService(this, _errorMessage);
         }
 
 
@@ -32,16 +37,16 @@ namespace Test.StubClasses
 
         public class StubITenantChangeService : ITenantChangeService
         {
-            private readonly StubTenantChangeServiceFactory _factory;
             private readonly string _errorMessage;
-
-            public List<(string dataKey, string fullTenantName)> DeleteReturnedTuples { get; } = new();
+            private readonly StubTenantChangeServiceFactory _factory;
 
             public StubITenantChangeService(StubTenantChangeServiceFactory factory, string errorMessage)
             {
                 _factory = factory;
                 _errorMessage = errorMessage;
             }
+
+            public List<(string dataKey, string fullTenantName)> DeleteReturnedTuples { get; } = new();
 
             public Task<string> CreateNewTenantAsync(Tenant tenant)
             {
@@ -53,14 +58,6 @@ namespace Test.StubClasses
             public Task<string> SingleTenantUpdateNameAsync(Tenant tenant)
             {
                 _factory.CalledMethodName = nameof(SingleTenantUpdateNameAsync);
-                return Task.FromResult(_errorMessage);
-            }
-
-            public Task<string> HandleTenantDeleteAsync(string dataKey, int tenantId,
-                string fullTenantName)
-            {
-                DeleteReturnedTuples.Add((fullTenantName, dataKey));
-                _factory.CalledMethodName = nameof(HandleTenantDeleteAsync);
                 return Task.FromResult(_errorMessage);
             }
 
@@ -97,11 +94,14 @@ namespace Test.StubClasses
             {
                 return Task.FromResult(_errorMessage);
             }
-        }
 
-        public ITenantChangeService GetService(bool throwExceptionIfNull = true, string callingMethod = "")
-        {
-            return new StubITenantChangeService(this, _errorMessage);
+            public Task<string> HandleTenantDeleteAsync(string dataKey, int tenantId,
+                string fullTenantName)
+            {
+                DeleteReturnedTuples.Add((fullTenantName, dataKey));
+                _factory.CalledMethodName = nameof(HandleTenantDeleteAsync);
+                return Task.FromResult(_errorMessage);
+            }
         }
     }
 }

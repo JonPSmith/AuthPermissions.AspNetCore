@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 namespace AuthPermissions.BaseCode.SetupCode
@@ -23,6 +23,7 @@ namespace AuthPermissions.BaseCode.SetupCode
         /// Found userId (can be null if user not found)
         /// </summary>
         public string UserId { get; }
+
         /// <summary>
         /// Found user name (optional)
         /// </summary>

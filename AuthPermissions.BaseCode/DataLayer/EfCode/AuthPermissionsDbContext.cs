@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.BaseCode.DataLayer.Classes;
@@ -17,12 +17,6 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         private readonly ICustomConfiguration _customConfiguration;
 
         /// <summary>
-        /// This overcomes the exception if the class used in the tests which uses the <see cref="IModelCacheKeyFactory"/>
-        /// to allow testing of an DbContext that works with SqlServer and PostgreSQL 
-        /// </summary>
-        public string ProviderName { get; }
-
-        /// <summary>
         /// ctor
         /// </summary>
         /// <param name="options"></param>
@@ -38,26 +32,36 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
                 eventSetup.RegisterEventHandlers(this);
             }
 
-            ProviderName = this.Database.ProviderName;
+            ProviderName = Database.ProviderName;
             _customConfiguration = customConfiguration;
         }
+
+        /// <summary>
+        /// This overcomes the exception if the class used in the tests which uses the <see cref="IModelCacheKeyFactory"/>
+        /// to allow testing of an DbContext that works with SqlServer and PostgreSQL 
+        /// </summary>
+        public string ProviderName { get; }
 
         /// <summary>
         /// The list of AuthUsers defining what roles and tenant that user has
         /// </summary>
         public DbSet<AuthUser> AuthUsers { get; set; }
+
         /// <summary>
         /// A list of all the AuthP's Roles, each with the permissions in each Role
         /// </summary>
         public DbSet<RoleToPermissions> RoleToPermissions { get; set; }
+
         /// <summary>
         /// When using AuthP's multi-tenant feature these define each tenant and the DataKey to access data in that tenant
         /// </summary>
         public DbSet<Tenant> Tenants { get; set; }
+
         /// <summary>
         /// This links AuthP's Roles to a AuthUser
         /// </summary>
         public DbSet<UserToRole> UserToRoles { get; set; }
+
         /// <summary>
         /// If you use AuthP's JWT refresh token, then the tokens are held in this entity
         /// </summary>

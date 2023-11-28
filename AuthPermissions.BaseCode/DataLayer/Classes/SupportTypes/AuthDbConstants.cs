@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 namespace AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes
@@ -12,22 +12,27 @@ namespace AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes
         /// Max size of the UserId string
         /// </summary>
         public const int UserIdSize = 256; //must be below 900 bytes because it has a unique index
+
         /// <summary>
         /// Max size of the UserName string
         /// </summary>
         public const int EmailSize = 256;//must be below 900 bytes because it has a unique index
+
         /// <summary>
         /// Max size of the UserName string
         /// </summary>
         public const int UserNameSize = 128;
+
         /// <summary>
         /// Max size of the RoleName string
         /// </summary>
         public const int RoleNameSize = 100;
+
         /// <summary>
         /// Max size of the TenantFullName string
         /// </summary>
         public const int TenantFullNameSize = 400;
+
         /// <summary>
         /// Max size of the TenantDataKey string
         /// </summary>

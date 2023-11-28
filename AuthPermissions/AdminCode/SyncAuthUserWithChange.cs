@@ -1,9 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 
@@ -110,14 +107,17 @@ namespace AuthPermissions.AdminCode
         /// True if Emails are different
         /// </summary>
         public bool EmailChanged => Email != OldEmail;
+
         /// <summary>
         /// The user's name
         /// </summary>
         public string UserName { get; set; }
+
         /// <summary>
         /// Holds the AuthP version
         /// </summary>
         public string OldUserName { get; set; }
+
         /// <summary>
         /// True if usernames different
         /// </summary>

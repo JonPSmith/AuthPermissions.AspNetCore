@@ -1,10 +1,6 @@
-﻿// Copyright (c) 2021 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
+﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +17,7 @@ namespace AuthPermissions.AspNetCore.StartupServices
         /// This must be run after the migration of the IndividualAccounts database,
         /// But before the SuperUser is added
         /// </summary>
-        public int OrderNum { get; } = -5; 
+        public int OrderNum { get; } = -5;
 
         /// <summary>
         /// This takes a comma delimited string of demo users from the "DemoUsers" in the appsettings.json file
