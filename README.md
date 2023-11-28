@@ -6,9 +6,9 @@ The AuthPermissions.AspNetCore library (shortened to AuthP) provides extra autho
 - Provides features to create a multi-tenant database system, either using one-level tenant or multi-level tenant (hierarchical).
 - Implements a JWT refresh token feature to improve the security of using JWT Token in your application.
 
-The AuthP is an open-source library under the MIT licence (and remain as a open-source library for ever) and the NuGet package can be [found here](https://www.nuget.org/packages/AuthPermissions.AspNetCore/). **The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki)** and see [ReleaseNotes](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/ReleaseNotes.md) for details of changes. There is also a [roadmap discussion](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2) containing the plans for this library.
+The AuthP is an open-source library under the MIT licence (and remain as a open-source library for ever) and the NuGet package can be [found here](https://www.nuget.org/packages/AuthPermissions.AspNetCore/). **The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki)** and the AuthP [roadmap](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2) defines the different versions of this library. 
 
-The AuthP library is being built in versions (see [roadmap](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2)). If you have already built your application using an older version, then you need to look at the following "how up update" documents
+If you have already built your application using an older version, then you need to look at the following "how up update" documents
 
 - From Migrating from AuthPermissions.AspNetCore 3, 4, 5 to 6.0 see [UpdateToVersion6.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion5.md)
 - From Migrating from AuthPermissions.AspNetCore 2, 3 or 4.* to 5.0 see [UpdateToVersion5.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion5.md)
