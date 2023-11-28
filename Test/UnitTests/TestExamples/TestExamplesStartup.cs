@@ -103,7 +103,7 @@ namespace Test.UnitTests.TestExamples
             //Have to manually add configuration, using a copy of the Example3 appsettings.json file (ASP.NET Core adds this by default)
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(TestData.GetTestDataDir())
-                .AddJsonFile("example3-appsettings.json", optional: true);
+                .AddJsonFile("example3-appsettings.json", optional: false);
             builder.Services.AddSingleton<IConfiguration>(configBuilder.Build());
 
             //Regsiter the Example3 invoice DbContext

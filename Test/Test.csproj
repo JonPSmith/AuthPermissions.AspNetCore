@@ -6,10 +6,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="TestData\example3-appsettings.json" />
-  </ItemGroup>
-
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0'">
 		<PackageReference Include="EfCore.TestSupport" Version="6.0.0" />
 		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="6.0.3.1" />
@@ -59,6 +55,8 @@
 
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
 		<PackageReference Include="xunit" Version="2.5.0" />
+		<PackageReference Include="xunit.assert" Version="2.5.0" />
+		<PackageReference Include="xunit.core" Version="2.5.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
