@@ -74,7 +74,7 @@ builder.Services.RegisterAuthPermissions<Example7Permissions>(options =>
 //1. Services to allow a new user to create a new tenant 
 builder.Services.AddTransient<IAddNewUserManager, IndividualUserAddUserManager<IdentityUser>>();
 builder.Services.AddTransient<ISignInAndCreateTenant, SignInAndCreateTenant>();
-builder.Services.AddTransient<IGetDatabaseForNewTenant, DemoShardOnlyGetDatabaseForNewTenant>(); //handles sharding tenants
+builder.Services.AddTransient<ISignUpGetShardingEntry, DemoShardOnlyGetDatabaseForNewTenant>(); //handles sharding tenants
 //2. Services to create an invite to send to someone, and the code for the user to login via the invite
 builder.Services.AddTransient<IInviteNewUserService, InviteNewUserService>();
 

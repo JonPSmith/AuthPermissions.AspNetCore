@@ -48,7 +48,6 @@ public class ShardingEntryOptions : ShardingEntry
 
     /// <summary>
     /// This fills in the <see cref="ShardingEntry"/> with the default information.
-    /// NOTE: If you 
     /// </summary>
     /// <param name="options">This is used to set the <see cref="ShardingEntry.DatabaseType"/>
     /// based on which database provider you selected. NOTE: If using custom database, then you MUST

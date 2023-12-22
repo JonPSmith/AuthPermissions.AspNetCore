@@ -33,7 +33,7 @@ public class TestSignInAndCreateTenant
     private static (SignInAndCreateTenant service, AuthUsersAdminService userAdmin)
         CreateISignInAndCreateTenant(AuthPermissionsDbContext context,
             TenantTypes tenantType = TenantTypes.NotUsingTenants,
-            IGetDatabaseForNewTenant overrideNormal = null,
+            ISignUpGetShardingEntry overrideNormal = null,
             bool loginReturnsError = false)
     {
         var authOptions = new AuthPermissionsOptions
@@ -45,9 +45,9 @@ public class TestSignInAndCreateTenant
         var tenantAdmin = new AuthTenantAdminService(context, authOptions,
             "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null); 
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
-            new StubAddNewUserManager(userAdmin, tenantAdmin, loginReturnsError), context,
-            "en".SetupAuthPLoggingLocalizer(),
-            overrideNormal ?? new StubIGetDatabaseForNewTenant(context, false));
+            new StubAddNewUserManager(userAdmin, tenantAdmin, loginReturnsError), 
+            "en".SetupAuthPLoggingLocalizer(), null,
+            overrideNormal ?? new StubISignUpGetShardingEntry("en".SetupAuthPLoggingLocalizer(), false));
 
         return (service, userAdmin);
     }
@@ -200,7 +200,7 @@ public class TestSignInAndCreateTenant
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var getDbCauseError = new StubIGetDatabaseForNewTenant(context,true);
+        var getDbCauseError = new StubISignUpGetShardingEntry("en".SetupAuthPLoggingLocalizer(), true);
         var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding, getDbCauseError);
         var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
         var rolesSetup = new BulkLoadRolesService(context, authSettings);
@@ -237,7 +237,7 @@ public class TestSignInAndCreateTenant
         using var context = new AuthPermissionsDbContext(options);
         context.Database.EnsureCreated();
 
-        var getDbCauseError = new StubIGetDatabaseForNewTenant(context,false);
+        var getDbCauseError = new StubISignUpGetShardingEntry("en".SetupAuthPLoggingLocalizer(), true);
         var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding, 
             getDbCauseError, true);
         var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
@@ -265,6 +265,5 @@ public class TestSignInAndCreateTenant
         context.ChangeTracker.Clear();
         status.IsValid.ShouldBeFalse();
         context.Tenants.Count().ShouldEqual(0);
-        getDbCauseError.RemoveLastDatabaseCalled.ShouldBeTrue();
     }
 }
