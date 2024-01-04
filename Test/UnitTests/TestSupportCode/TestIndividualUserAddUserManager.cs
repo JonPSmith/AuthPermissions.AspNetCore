@@ -81,8 +81,6 @@ public class TestIndividualUserAddUserManager
         accountContext.Database.EnsureClean();
         var authContext = _serviceProvider.GetRequiredService<AuthPermissionsDbContext>();
         authContext.Database.EnsureClean();
-        var invoiceContext = _serviceProvider.GetRequiredService<InvoicesDbContext>();
-        invoiceContext.Database.EnsureClean();
     }
 
     [Theory]

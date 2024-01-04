@@ -453,14 +453,19 @@ public class TestGetSetShardingEntriesFileStoreCache
 
         //ATTEMPT
         var list = await setup.Service.GetShardingsWithTenantNamesAsync();
+        _output.WriteLine(list[0].ToString());
 
         //VERIFY
-        list.ShouldEqual(new List<(string databaseName, bool? hasOwnDb, List<string> tenantNames)>
-        {
-            ("Default Database", false, new List<string>{"Tenant1", "Tenant3"}),
-            ("Other Database", true, new List<string>{ "Tenant2"}),
-            ("PostgreSql1", null, new List<string>())
-        });
+        list.Count.ShouldEqual(3);
+        list[0].shardingName.ShouldEqual("Default Database");
+        list[0].hasOwnDb.ShouldEqual(false);
+        list[0].tenantNames.ShouldEqual(new List<string> { "Tenant1", "Tenant3" });
+        list[1].shardingName.ShouldEqual("Other Database");
+        list[1].hasOwnDb.ShouldEqual(true);
+        list[1].tenantNames.ShouldEqual(new List<string> { "Tenant2" });
+        list[2].shardingName.ShouldEqual("PostgreSql1");
+        list[2].hasOwnDb.ShouldEqual(null);
+        list[2].tenantNames.ShouldEqual(new List<string>( ));
     }
 
     private class SetupServiceToTest

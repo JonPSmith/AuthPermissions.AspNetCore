@@ -8,10 +8,14 @@ using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.BulkLoadServices.Concrete;
+using AuthPermissions.SupportCode;
 using AuthPermissions.SupportCode.AddUsersServices;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
+using Example6.MvcWebApp.Sharding.PermissionsCode;
+using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -24,6 +28,7 @@ namespace Test.UnitTests.TestSupportCode;
 public class TestSignInAndCreateTenant
 {
     private readonly ITestOutputHelper _output;
+    private static List<LogOutput> _logs;
 
     public TestSignInAndCreateTenant(ITestOutputHelper output)
     {
@@ -43,10 +48,14 @@ public class TestSignInAndCreateTenant
         var userAdmin = new AuthUsersAdminService(context, new StubSyncAuthenticationUsersFactory(), 
             authOptions, "en".SetupAuthPLoggingLocalizer());
         var tenantAdmin = new AuthTenantAdminService(context, authOptions,
-            "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null); 
+            "en".SetupAuthPLoggingLocalizer(), new StubTenantChangeServiceFactory(), null);
+        _logs = new List<LogOutput>();
+        ILogger<SignInAndCreateTenant> logger = new LoggerFactory(
+                new[] { new MyLoggerProviderActionOut(log => _logs.Add(log)) })
+            .CreateLogger<SignInAndCreateTenant>();
         var service = new SignInAndCreateTenant(authOptions, tenantAdmin,
             new StubAddNewUserManager(userAdmin, tenantAdmin, loginReturnsError), 
-            "en".SetupAuthPLoggingLocalizer(), null,
+            "en".SetupAuthPLoggingLocalizer(), logger,
             overrideNormal ?? new StubISignUpGetShardingEntry("en".SetupAuthPLoggingLocalizer(), false));
 
         return (service, userAdmin);
@@ -121,13 +130,47 @@ public class TestSignInAndCreateTenant
         user.UserRoles.Select(x => x.RoleName).ToArray().ShouldEqual(new []{ "Role1", "Role3" });
     }
 
+
+    [Fact]
+    public async Task TestAddUserAndNewTenantAsync_Shared()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel, null);
+        var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
+        var rolesSetup = new BulkLoadRolesService(context, authSettings);
+        await rolesSetup.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
+
+        var userData = new AddNewUserDto { Email = "me!@g1.com" };
+        var tenantData = new AddNewTenantDto
+        {
+            TenantName = "New Tenant",
+            Region = "South",
+            Version = "Free"
+        };
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
+
+        //VERIFY
+        context.ChangeTracker.Clear();
+        var log = _logs.LastOrDefault();
+        if (log != null)
+            _output.WriteLine(log.DecodeMessage());
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        var tenant = context.Tenants.Single();
+        tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
+        tenant.DatabaseInfoName.ShouldBeNull();
+    }
+
     [Theory]
-    [InlineData(true,  null, "OwnDb")]
-    [InlineData(false, null, "SharedDb")]
-    [InlineData(true, false, "OwnDb")] //The AddNewTenantDto.HasOwnDb is overridden by the version setup data
-    [InlineData(false, true, "SharedDb")] //The AddNewTenantDto.HasOwnDb is overridden by the version setup data
-    public async Task TestAddUserAndNewTenantAsync_Sharding(bool? setupHasOwnDb, bool? dtoHasOwnDb,
-        string databaseInfoName)
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TestAddUserAndNewTenantAsync_ShardingHybrid(bool hasOwnDb)
     {
         //SETUP
         var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
@@ -143,25 +186,68 @@ public class TestSignInAndCreateTenant
         var tenantData = new AddNewTenantDto
         {
             TenantName = "New Tenant",
-            Version = "Free",
-            HasOwnDb = dtoHasOwnDb,
+            Region = "South",
+            HasOwnDb = hasOwnDb,
         };
-        Example3CreateTenantVersions.TenantSetupData.HasOwnDbForEachVersion = new Dictionary<string, bool?>()
-        {
-            { "Free", setupHasOwnDb },
-        };
-
         context.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example3CreateTenantVersions.TenantSetupData);
+        var status = await tuple.service.SignUpNewTenantAsync(userData, tenantData);
 
         //VERIFY
         context.ChangeTracker.Clear();
+        var log = _logs.LastOrDefault();
+        if (log != null)
+            _output.WriteLine(log.DecodeMessage());
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
         var tenant = context.Tenants.Single();
+        _output.WriteLine(tenant.DatabaseInfoName);
         tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
-        tenant.DatabaseInfoName.ShouldEqual(databaseInfoName);
+        if (hasOwnDb)
+            tenant.DatabaseInfoName.ShouldStartWith("SignOn-");
+        else
+            tenant.DatabaseInfoName.ShouldEqual("Default Database");
+    }
+
+    [Fact]
+    public async Task TestAddUserAndNewTenantAsync_ShardingOnly()
+    {
+        //SETUP
+        var options = SqliteInMemory.CreateOptions<AuthPermissionsDbContext>();
+        using var context = new AuthPermissionsDbContext(options);
+        context.Database.EnsureCreated();
+
+        var getSetShardings = new StubGetSetShardingEntries(this);
+
+        var tuple = CreateISignInAndCreateTenant(context, TenantTypes.SingleLevel | TenantTypes.AddSharding
+            , new DemoShardOnlyGetDatabaseForNewTenant(getSetShardings, "en".SetupAuthPLoggingLocalizer()));
+        var authSettings = new AuthPermissionsOptions { InternalData = { EnumPermissionsType = typeof(Example3Permissions) } };
+        var rolesSetup = new BulkLoadRolesService(context, authSettings);
+        await rolesSetup.AddRolesToDatabaseAsync(Example3AppAuthSetupData.RolesDefinition);
+
+        var userData = new AddNewUserDto { Email = "me!@g1.com" };
+        var tenantData = new AddNewTenantDto
+        {
+            TenantName = "New Tenant",
+            Region = "South",
+            Version = "Free",
+            HasOwnDb = true,
+        };
+        context.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = await tuple.service.SignUpNewTenantWithVersionAsync(userData, tenantData, Example7CreateTenantVersions.TenantSetupData);
+
+        //VERIFY
+        context.ChangeTracker.Clear();
+        var log = _logs.LastOrDefault();
+        if (log != null)
+            _output.WriteLine(log.DecodeMessage());
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        var tenant = context.Tenants.Single();
+        _output.WriteLine(tenant.DatabaseInfoName);
+        tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
+        tenant.DatabaseInfoName.ShouldStartWith("SignOn-");
     }
 
     [Fact]
@@ -225,7 +311,7 @@ public class TestSignInAndCreateTenant
 
         //VERIFY
         context.ChangeTracker.Clear();
-        status.IsValid.ShouldBeFalse(status.GetAllErrors());
+        status.IsValid.ShouldBeFalse();
         context.Tenants.Count().ShouldEqual(0);
     }
 
@@ -265,5 +351,42 @@ public class TestSignInAndCreateTenant
         context.ChangeTracker.Clear();
         status.IsValid.ShouldBeFalse();
         context.Tenants.Count().ShouldEqual(0);
+    }
+
+    //----------------------------------------------------------
+    //Test the two demo version of the ISignUpGetShardingEntry 
+
+    [Fact]
+    public async Task DemoGetDatabaseForNewTenant()
+    {
+        //SETUP
+        var getSetSharding = new StubGetSetShardingEntries(this);
+        var service = new DemoGetDatabaseForNewTenant(getSetSharding, "en".SetupAuthPLoggingLocalizer());
+
+        //ATTEMPT
+        var status = await service.FindOrCreateShardingEntryAsync(true, "timestamp", "SouthDb");
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        status.Result.ShouldEqual("PostgreSql1");
+    }
+
+    [Fact]
+    public async Task DemoShardOnlyGetDatabaseForNewTenant()
+    {
+        //SETUP
+        var getSetSharding = new StubGetSetShardingEntries(this);
+        var service = new DemoShardOnlyGetDatabaseForNewTenant(getSetSharding, "en".SetupAuthPLoggingLocalizer());
+
+        //ATTEMPT
+        var status = await service.FindOrCreateShardingEntryAsync(true, "timestamp", "SouthDb");
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        getSetSharding.CalledMethodName.ShouldEqual("AddNewShardingEntry");
+        getSetSharding.SharingEntryAddUpDel.Name.ShouldEqual("SignOn-timestamp");
+        getSetSharding.SharingEntryAddUpDel.ConnectionName.ShouldEqual("SouthDb");
+        getSetSharding.SharingEntryAddUpDel.DatabaseName.ShouldEqual("Db-timestamp");
+        getSetSharding.SharingEntryAddUpDel.DatabaseType.ShouldEqual("SqlServer");
     }
 }

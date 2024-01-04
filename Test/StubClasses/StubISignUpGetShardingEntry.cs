@@ -2,8 +2,6 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
-using AuthPermissions.BaseCode.DataLayer.Classes;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using StatusGeneric;
@@ -38,6 +36,10 @@ public class StubISignUpGetShardingEntry : ISignUpGetShardingEntry
         bool hasOwnDb, string createTimestamp, string region, string version = null)
     {
         var status = new StatusGenericLocalizer<string>(_localizeDefault);
+        if (_returnError)
+            status.AddErrorString("TestError".ClassLocalizeKey(this, true), "Forced Error in ISignUpGetShardingEntry");
+
+        status.SetResult(hasOwnDb ? $"SignOn-{createTimestamp}" : null);
 
         return Task.FromResult<IStatusGeneric<string>>(status);
     }

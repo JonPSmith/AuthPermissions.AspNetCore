@@ -167,7 +167,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
         {
             _logger?.LogError(ex, "Critical error in SignOn. The timestamp of this Exception is {createTimestamp}.", _createTimestamp);
             status.AddErrorFormatted("ExceptionCreating".ClassMethodLocalizeKey(this, true),
-                $"Failed to create a new tenant due to an internal error.",
+                $"Failed to create a new tenant due to an internal error. ",
                 $"Contact the support team and provide the string '{_createTimestamp}' to help them fix your problem.");
         }
 

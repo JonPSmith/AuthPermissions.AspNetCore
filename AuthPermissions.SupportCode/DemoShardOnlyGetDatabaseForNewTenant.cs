@@ -1,11 +1,9 @@
 ﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
-using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
-using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using LocalizeMessagesAndErrors;
 using StatusGeneric;
@@ -13,7 +11,7 @@ using StatusGeneric;
 namespace AuthPermissions.SupportCode;
 
 /// <summary>
-/// This contains a version of the <see cref="IGetDatabaseForNewTenant"/> to handle tenants that have
+/// This contains a version of the <see cref="ISignUpGetShardingEntry"/> to handle tenants that have
 /// sharding-Only tenants (i.e. the tenant's <see cref="Tenant.HasOwnDb"/> is true).
 /// This means you need to create a new <see cref="ShardingEntry"/> for each new tenant
 /// </summary>
