@@ -90,7 +90,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
     /// This implements "sign up" feature, where a new user signs up for a new tenant, with versioning.
     /// This method creates the tenant using the <see cref="MultiTenantVersionData"/> for this application
     /// with backup version information provides by the user.
-    /// At the same time is creates a new user which is linked to the new tenant.
+    /// At the same time its creates a new user which is linked to the new tenant.
     /// </summary>
     /// <param name="newUser">The information for the new user that is signing in</param>
     /// <param name="tenantData">The information for how the new tenant should be created</param>

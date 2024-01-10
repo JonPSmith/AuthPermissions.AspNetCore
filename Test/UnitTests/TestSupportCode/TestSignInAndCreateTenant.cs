@@ -11,7 +11,6 @@ using AuthPermissions.BulkLoadServices.Concrete;
 using AuthPermissions.SupportCode;
 using AuthPermissions.SupportCode.AddUsersServices;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
-using Example6.MvcWebApp.Sharding.PermissionsCode;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using LocalizeMessagesAndErrors.UnitTestingCode;
 using Microsoft.EntityFrameworkCore;
