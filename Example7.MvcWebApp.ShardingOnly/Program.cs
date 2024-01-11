@@ -52,7 +52,6 @@ builder.Services.RegisterAuthPermissions<Example7Permissions>(options =>
     //AuthP version 5 and above: Use this method to configure sharding
     .SetupMultiTenantSharding(new ShardingEntryOptions(false))
     .IndividualAccountsAuthentication()
-    .RegisterAddClaimToUser<AddTenantNameClaim>()
     .RegisterTenantChangeService<ShardingOnlyTenantChangeService>()
     .AddRolesPermissionsIfEmpty(Example7AppAuthSetupData.RolesDefinition)
     .AddAuthUsersIfEmpty(Example7AppAuthSetupData.UsersRolesDefinition)
