@@ -1,7 +1,8 @@
 {
   "Cache": {
     "ShardingEntry-Tenant_1": "{\r\n  \"Name\": \"Tenant_1\",\r\n  \"DatabaseName\": \"Tenant_1\",\r\n  \"ConnectionName\": \"EastCoastServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
-    "ShardingEntry-Extra tenant-20230808101149": "{\r\n  \"Name\": \"Extra tenant-20230808101149\",\r\n  \"DatabaseName\": \"20230808101149-892\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
+    "ShardingEntry-Extra tenant-20230808101149": "{\r\n  \"Name\": \"Extra tenant-20230808101149\",\r\n  \"DatabaseName\": \"20230808101149-892\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
+    "ShardingEntry-SignOn-20240111091446-697": "{\r\n  \"Name\": \"SignOn-20240111091446-697\",\r\n  \"DatabaseName\": \"Db-20240111091446-697\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
   },
   "TimeOuts": {}
 }

@@ -8,8 +8,8 @@ using Example7.MvcWebApp.ShardingOnly.Models;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Drawing;
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.BaseCode.PermissionsCode;
 
 namespace Example7.MvcWebApp.ShardingOnly.Controllers
 {
@@ -26,7 +26,7 @@ namespace Example7.MvcWebApp.ShardingOnly.Controllers
         {
             ViewBag.Message = message;
 
-            if (AddTenantNameClaim.GetTenantNameFromUser(User) == null)
+            if (User.Claims.All(x => x.Type != PermissionConstants.DataKeyClaimType))
                 return View(new AppSummary());
 
             return RedirectToAction("Index", "Invoice");

@@ -10,6 +10,7 @@ The AuthP is an open-source library under the MIT licence (and remain as a open-
 
 If you have already built your application using an older version, then you need to look at the following "how up update" documents
 
+- From Migrating from AuthPermissions.AspNetCore 3, 4, 5 to 6.1 see [UpdateToVersion620.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion620.md). NOTE: you only need to do this if you are using the "Sign up for a new tenant, with versioning" (shortened to "Sign up Tenant") feature **AND** your multi-tenant uses [sharding](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Sharding-explained).
 - From Migrating from AuthPermissions.AspNetCore 3, 4, 5 to 6.0 see [UpdateToVersion6.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion5.md)
 - From Migrating from AuthPermissions.AspNetCore 2, 3 or 4.* to 5.0 see [UpdateToVersion5.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion5.md)
 - From Migrating from AuthPermissions.AspNetCore 2.* to 3.0 see [UpdateToVersion3.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion3.md)
