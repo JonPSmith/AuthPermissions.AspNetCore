@@ -4,9 +4,10 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using AuthPermissions.SupportCode.AddUsersServices;
-using Example3.InvoiceCode.Services;
 using Example3.MvcWebApp.IndividualAccounts.PermissionsCode;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using AuthPermissions.BaseCode.PermissionsCode;
 
 namespace Example3.MvcWebApp.IndividualAccounts.Controllers
 {
@@ -23,7 +24,7 @@ namespace Example3.MvcWebApp.IndividualAccounts.Controllers
         {
             ViewBag.Message = message;
 
-            if (AddTenantNameClaim.GetTenantNameFromUser(User) == null)
+            if (User.Claims.All(x => x.Type != PermissionConstants.DataKeyClaimType))
                 return View(new AppSummary());
 
             return RedirectToAction("Index", "Invoice");

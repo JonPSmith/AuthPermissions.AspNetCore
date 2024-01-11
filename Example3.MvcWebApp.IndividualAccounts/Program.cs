@@ -52,7 +52,6 @@ builder.Services.RegisterAuthPermissions<Example3Permissions>(options =>
     //NOTE: This uses the same database as the individual accounts DB
     .UsingEfCoreSqlServer(connectionString)
     .IndividualAccountsAuthentication()
-    .RegisterAddClaimToUser<AddTenantNameClaim>()
     .RegisterAddClaimToUser<AddRefreshEveryMinuteClaim>()
     .RegisterTenantChangeService<InvoiceTenantChangeService>()
     .AddRolesPermissionsIfEmpty(Example3AppAuthSetupData.RolesDefinition)
