@@ -48,6 +48,7 @@ public class StubAddNewUserManager : IAddNewUserManager
         var status = new StatusGenericHandler<AddNewUserDto>();
         if (_loginReturnsError)
             status.AddError("Error in Login");
+        status.SetResult(new AddNewUserDto());
 
         return Task.FromResult<IStatusGeneric<AddNewUserDto>>(status);
     }

@@ -154,6 +154,7 @@ public class SignInAndCreateTenant : ISignInAndCreateTenant
                 tenantData, versionData);
             if (status.CombineStatuses(userStatus).HasErrors)
                 return status;
+            status.SetResult(userStatus.Result);
 
             //---------------------------------------------------------------
             // 4.Update the tenant's name to the correct name. This is only done after the 

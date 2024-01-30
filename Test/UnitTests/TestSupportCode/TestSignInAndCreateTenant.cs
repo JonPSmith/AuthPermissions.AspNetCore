@@ -86,6 +86,7 @@ public class TestSignInAndCreateTenant
         //VERIFY
         context.ChangeTracker.Clear();
         status.IsValid.ShouldBeTrue(status.GetAllErrors());
+        status.Result.ShouldNotBeNull();
         var tenant = context.Tenants.Include(x => x.TenantRoles).Single();
         tenant.TenantFullName.ShouldEqual(tenantData.TenantName);
         tenant.TenantRoles.Select(x => x.RoleName).ToArray()
