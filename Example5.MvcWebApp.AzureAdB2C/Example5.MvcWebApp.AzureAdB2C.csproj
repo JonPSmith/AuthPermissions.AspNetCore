@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.11" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.11" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.Graph" Version="4.37.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.46.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.47.2" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.25.1" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.25.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.10" />

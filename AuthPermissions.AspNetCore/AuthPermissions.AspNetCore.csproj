@@ -9,8 +9,6 @@
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0'">
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.0" />
-		<!-- .NET 8 needs a newer DistributedLock.Postgres version. See https://github.com/madelson/DistributedLock/issues/174  -->
-		<PackageReference Include="DistributedLock.Postgres" Version="1.0.5" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
