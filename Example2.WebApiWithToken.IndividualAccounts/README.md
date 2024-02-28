@@ -2,7 +2,9 @@
 
 This project contains a example of using the AuthPermissions.AspNetCore library in ASP.NET Core web api where the authentication/authorization is held in a JWT token. This example shows how the AuthPermissions.AspNetCore library can work with JWT tokens and provide a way improve security.
 
-This article (!!! LINK !!!) details how this example was built, and how it works.
+VIDEO: [JWT Token refresh](https://www.youtube.com/watch?v=DtfNUHgwKyU)
+
+This the [JWT Token refresh explained](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/JWT-Token-refresh-explained) document details how WebAPI and the refresh token. 
 
 - **Application**: ASP.NET Core web API
 - **AuthorizationProvider**: ASP.NET Core's individual accounts
@@ -13,6 +15,16 @@ This article (!!! LINK !!!) details how this example was built, and how it works
   - AuthPermissions.
 - **Focused on**: The basics of the AuthPermissions authorization system.
 - **Special features**: JWT Token with refresh feature.
+
+Users that you can log in from (NOTE: the Password is the same as the the email
+
+| Email        | Permissions |
+| ------------ | ------------- |
+| NoP@g1.com   | - none -                               |  
+| P1@g1.com    | Permission1							|
+| P2@g1.com    | Permission1, Permission2				|
+| P3@g1.com    | Permission1, Permission2, Permission3	|
+| Super@g1.com | AccessAll								|
 
 The ASP.NET Core project was created via Create new project > ASP.NET Core Web API with no Authentication. Then I added:
 
