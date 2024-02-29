@@ -16,7 +16,7 @@ This the [JWT Token refresh explained](https://github.com/JonPSmith/AuthPermissi
 - **Focused on**: The basics of the AuthPermissions authorization system.
 - **Special features**: JWT Token with refresh feature.
 
-Users that you can log in from (NOTE: the Password is the same as the the email
+Users that you can log in from (NOTE: the Password is the same as the the email)
 
 | Email        | Permissions |
 | ------------ | ------------- |
