@@ -23,7 +23,7 @@ namespace Test.UnitTests.TestExamples
             _output = output;
         }
 
-        [RunnableInDebugOnly]
+        [Fact]
         public void CreateDemoUsersString()
         {
             //SETUP

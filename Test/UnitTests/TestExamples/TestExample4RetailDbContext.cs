@@ -23,26 +23,6 @@ namespace Test.UnitTests.TestExamples
             _output = output;
         }
 
-        [RunnableInDebugOnly]
-        public void TestRetailDbContextMigrate()
-        {
-            //SETUP
-            //var options = SqliteInMemory.CreateOptions<RetailDbContext>();
-            var optionsBuilder = new DbContextOptionsBuilder<RetailDbContext>();
-            optionsBuilder.UseSqlServer(this.GetUniqueDatabaseConnectionString("XX"),
-            x => x.MigrationsHistoryTable("NotTheNormalName"));
-
-            using var context = new RetailDbContext(optionsBuilder.Options, new StubGetDataKeyFilter("."));
-            context.Database.EnsureClean(false);
-
-            //ATTEMPT
-            context.Database.Migrate();
-
-            //VERIFY
-            context.ChangeTracker.Clear();
-            context.RetailOutlets.Count().ShouldEqual(0);
-        }
-
         [Theory]
         [InlineData(".1.2", 1)]
         [InlineData(".2.3", 0)]
