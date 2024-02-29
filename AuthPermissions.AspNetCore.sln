@@ -45,8 +45,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.PostgreSql"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.SqlServer", "AuthPermissions.SqlServer\AuthPermissions.SqlServer.csproj", "{359967AD-09C2-4B36-BE3A-52844A2476D3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SetupMigrations", "SetupMigrations\SetupMigrations.csproj", "{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.BaseCode", "AuthPermissions.BaseCode\AuthPermissions.BaseCode.csproj", "{D4E6705B-2D35-4A43-9E02-EC77EC212441}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthPermissions.SupportCode", "AuthPermissions.SupportCode\AuthPermissions.SupportCode.csproj", "{50FCF8D4-EA0D-4261-B772-3376C50AB856}"
@@ -247,18 +245,6 @@ Global
 		{359967AD-09C2-4B36-BE3A-52844A2476D3}.Release|x64.Build.0 = Release|Any CPU
 		{359967AD-09C2-4B36-BE3A-52844A2476D3}.Release|x86.ActiveCfg = Release|Any CPU
 		{359967AD-09C2-4B36-BE3A-52844A2476D3}.Release|x86.Build.0 = Release|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Debug|x64.Build.0 = Debug|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Debug|x86.Build.0 = Debug|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Release|x64.ActiveCfg = Release|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Release|x64.Build.0 = Release|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Release|x86.ActiveCfg = Release|Any CPU
-		{E2A88CD3-9AF2-442B-AB7D-0EA9927FD2D5}.Release|x86.Build.0 = Release|Any CPU
 		{D4E6705B-2D35-4A43-9E02-EC77EC212441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D4E6705B-2D35-4A43-9E02-EC77EC212441}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4E6705B-2D35-4A43-9E02-EC77EC212441}.Debug|x64.ActiveCfg = Debug|Any CPU
