@@ -3,8 +3,10 @@
 
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore.OpenIdCode;
+using AuthPermissions.BaseCode.SetupCode;
 using AuthPermissions.SupportCode.AzureAdServices;
 using Microsoft.Extensions.DependencyInjection;
+using Test.TestHelpers;
 using TestSupport.Attributes;
 using TestSupport.Helpers;
 using Xunit.Abstractions;
@@ -33,6 +35,7 @@ namespace Test.UnitTests.TestAzureAd
             var services = new ServiceCollection();
             services.Configure<AzureAdOptions>(config.GetSection("AzureAd"));
             services.AddTransient<ISyncAuthenticationUsers, AzureAdAccessService>();
+            services.AddSingleton("en".SetupAuthPLoggingLocalizer());
             var serviceProvider = services.BuildServiceProvider();
             
             var service = serviceProvider.GetService<ISyncAuthenticationUsers>();
@@ -61,6 +64,7 @@ namespace Test.UnitTests.TestAzureAd
             var services = new ServiceCollection();
             services.Configure<AzureAdOptions>(config.GetSection("AzureAd"));
             services.AddTransient<IAzureAdAccessService, AzureAdAccessService>();
+            services.AddSingleton("en".SetupAuthPLoggingLocalizer());
             var serviceProvider = services.BuildServiceProvider();
 
             var service = serviceProvider.GetService<IAzureAdAccessService>();
