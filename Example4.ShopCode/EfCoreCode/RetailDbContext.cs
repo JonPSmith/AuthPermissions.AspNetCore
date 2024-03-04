@@ -30,6 +30,7 @@ namespace Example4.ShopCode.EfCoreCode
         {
             modelBuilder.HasDefaultSchema("retail");
 
+            // You could manually set up the Query Filter, but there is an easier approach
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(IDataKeyFilterReadOnly).IsAssignableFrom(entityType.ClrType))

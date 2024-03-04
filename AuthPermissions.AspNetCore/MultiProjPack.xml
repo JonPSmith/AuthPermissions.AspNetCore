@@ -10,7 +10,7 @@
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to an ASP.NET Core application.</description>
     <releaseNotes>
-		- This NuGet only supports NET8
+		- This NuGet only supports NET8 and all the examples are now using NET8
 		- All vulnerable NuGets updated
 		- Any depreciated NuGets removed
 	</releaseNotes>

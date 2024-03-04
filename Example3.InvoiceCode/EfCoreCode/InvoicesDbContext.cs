@@ -46,33 +46,32 @@ namespace Example3.InvoiceCode.EfCoreCode
             modelBuilder.HasDefaultSchema("invoice");
 
             // You could manually set up the Query Filter, but there is an easier approach
-            //NOTE: used manually because NET8 changes the GetEntityTypes() type, which causes issues in unit tests
-            modelBuilder.Entity<Invoice>().HasQueryFilter(x => x.DataKey == DataKey);
-            modelBuilder.Entity<LineItem>().HasQueryFilter(x => x.DataKey == DataKey);
-            modelBuilder.Entity<CompanyTenant>().HasQueryFilter(x => x.DataKey == DataKey);
-            modelBuilder.Entity<LineItem>().Property(x => x.TotalPrice).HasPrecision(9, 2);
+            //modelBuilder.Entity<Invoice>().HasQueryFilter(x => x.DataKey == DataKey);
+            //modelBuilder.Entity<LineItem>().HasQueryFilter(x => x.DataKey == DataKey);
+            //modelBuilder.Entity<CompanyTenant>().HasQueryFilter(x => x.DataKey == DataKey);
+            //modelBuilder.Entity<LineItem>().Property(x => x.TotalPrice).HasPrecision(9, 2);
 
-            //foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-            //{
-            //    if (typeof(IDataKeyFilterReadWrite).IsAssignableFrom(entityType.ClrType))
-            //    {
-            //        entityType.AddSingleTenantReadWriteQueryFilter(this);
-            //    }
-            //    else
-            //    {
-            //        throw new Exception(
-            //            $"You haven't added the {nameof(IDataKeyFilterReadWrite)} to the entity {entityType.ClrType.Name}");
-            //    }
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(IDataKeyFilterReadWrite).IsAssignableFrom(entityType.ClrType))
+                {
+                    entityType.AddSingleTenantReadWriteQueryFilter(this);
+                }
+                else
+                {
+                    throw new Exception(
+                        $"You haven't added the {nameof(IDataKeyFilterReadWrite)} to the entity {entityType.ClrType.Name}");
+                }
 
-            //    foreach (var mutableProperty in entityType.GetProperties())
-            //    {
-            //        if (mutableProperty.ClrType == typeof(decimal))
-            //        {
-            //            mutableProperty.SetPrecision(9);
-            //            mutableProperty.SetScale(2);
-            //        }
-            //    }
-            //}
+                foreach (var mutableProperty in entityType.GetProperties())
+                {
+                    if (mutableProperty.ClrType == typeof(decimal))
+                    {
+                        mutableProperty.SetPrecision(9);
+                        mutableProperty.SetScale(2);
+                    }
+                }
+            }
         }
 
 
