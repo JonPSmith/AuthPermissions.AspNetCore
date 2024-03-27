@@ -7,7 +7,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EfCore.TestSupport" Version="6.0.2" />
+		<PackageReference Include="EfCore.TestSupport" Version="8.0.0-rc1-0001" />
 		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.0.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
@@ -21,10 +21,11 @@
 		<PackageReference Include="GenericServices.StatusGeneric" Version="1.2.0" />
 
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-		<PackageReference Include="xunit" Version="2.5.0" />
-		<PackageReference Include="xunit.assert" Version="2.5.0" />
-		<PackageReference Include="xunit.core" Version="2.5.0" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+
+		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+		<PackageReference Include="xunit" Version="2.5.3" />
+		<PackageReference Include="xunit.assert" Version="2.5.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
