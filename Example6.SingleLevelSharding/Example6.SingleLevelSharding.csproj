@@ -8,7 +8,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="EfCore.GenericServices" Version="6.0.0" />
-		<PackageReference Include="EfCore.TestSupport" Version="6.0.2" />
+		<PackageReference Include="EfCore.TestSupport" Version="8.0.0-rc1-0001" />
 		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.0.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
