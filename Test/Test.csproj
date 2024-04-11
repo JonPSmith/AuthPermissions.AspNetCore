@@ -7,15 +7,15 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EfCore.TestSupport" Version="8.0.0" />
+		<PackageReference Include="EfCore.TestSupport" Version="8.0.1" />
 		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.0.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
 		<PackageReference Include="Moq" Version="4.17.2" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
-		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="2.0.0" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
+		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="8.0.0" />
 		<PackageReference Include="ResXResourceReader.NetStandard" Version="1.1.0" />
 		<PackageReference Include="CsvHelper" Version="30.0.1" />
 		<PackageReference Include="GenericServices.StatusGeneric" Version="1.2.0" />

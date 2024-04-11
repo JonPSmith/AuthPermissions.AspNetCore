@@ -7,12 +7,12 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EfCore.GenericServices" Version="6.0.0" />
-		<PackageReference Include="EfCore.TestSupport" Version="8.0.0" />
+		<PackageReference Include="EfCore.GenericServices" Version="8.0.0" />
+		<PackageReference Include="EfCore.TestSupport" Version="8.0.1" />
 		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.0.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
