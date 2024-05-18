@@ -24,63 +24,30 @@ The AuthP library also:
 - Has a comprehensive set of admin services to manage AuthP's Roles, Tenants and Users.
 
 
-## Example code in this repo
+## How to create an AuthPermissions.AspNetCore NuGet package
 
-The AuthPermissions.AspNetCore repo contains the following example of using AuthP with ASP.NET Core applications listed below. All of them can be run and show a HOME page describes what the application does (apart from the WebAPI example, which shows the Swagger display).
+The AuthPermissions.AspNetCore library contains more than one project. For this reason you can't (currently) create a NuGet package using NuGet values in a .csproj file. For this reason I created a `JonPSmith.MultiProjPack` dotnet tool to create the NuGet package using the following command in a command line on the AuthPermissions.AspNetCore directory. 
 
-### Example1 - Roles and permissions
+_See [`JonPSmith.MultiProjPack` GitHub](https://github.com/JonPSmith/MultiProgPackTool) for why I created the `JonPSmith.MultiProjPack` and more about its features._
 
-This is a ASP.NET Core Razor Pages application using the Individual Accounts authentication provider with Cookie authentication. Look at this example for:
+### 1. Install the MultiProjPack dotnet tool
 
-- A very simple example of using AuthP's authorization Roles and AuthUsers
-- A comparision between ASP.NET Core authorization with AuthP's authorization
-- A basic admin of Auth Users.
+`dotnet tool install JonPSmith.MultiProjPack --global`
 
-### Example2 - JWT Token in ASP.NET Core Web API
+NOTE: To update the MultiProjPack .NET tool you need to run the command `dotnet tool update JonPSmith.MultiProjPack --global`. Or to uninstall this tool you should use `dotnet tool uninstall JonPSmith.MultiProjPack –-global` command.
 
-This is a ASP.NET Core WebAPI application using the Individual Accounts authentication provider with JWT Token authentication. Look at this example for:
+### 2. Compile the AuthPermissions.AspNetCore in release Mode
 
-- An example of using AuthP to create a JWT Token for you.
-- An example of using AuthP's JWT refresh feature.
+You must select "Release" compile mode and then use the "Build > Rebuild Solution" to ensure a new release version of the AuthPermissions.AspNetCore is available.
 
-See the video [Improving JWT Token Security](https://www.youtube.com/watch?v=DtfNUHgwKyU) for more about this feature works.
+### 3. Run the `MultiProjPack` tool to create the 
 
-_NOTE: When running this example and you want to login you must run one of the authentication login WebAPIs and then copy the just the JWT Token string in into Swagger's Authorize box. Also, the default lifetime of the JWT Token is 5 minutes, so you wll get logged out quickly (this is done to check the AuthP's JWT refresh feature)._
+You run the `MultiProjPack` tool from a command line in the `AuthPermissions.AspNetCore` directory. I use the "Open in Terminal" with the command below.
 
-### Example3 - Single level multi-tenant application
-
-This is a ASP.NET Core MVC application using the Individual Accounts authentication provider with Cookie authentication. Look at this example for:
-
-- How to use AuthP to create a single-level multi-tenant system.
-- Demo of changing the look and feel of an app when a tenant logs in.
-
-### Example4 - Hierarchical multi-tenant application
-
-This is a ASP.NET Core MVC application using the Individual Accounts authentication provider with Cookie authentication. Look at this example for:
-
-- how to use AuthP to create a hierarchical multi-tenant system.
-- A more substantial application with lots of Permissions, Roles, Tenants and Users.
-- How the AuthP' admin code can be used to control Roles, Users and Tenants.
-
-### Example5 - Login via Azure AD
-
-This is a ASP.NET Core MVC application using the Azure AD authentication provider with Cookie authentication. Look at this example for:
-
-- How to use Azure AD authentication with the AuthP library.
-
-
-## Notes on creating a NuGet package
-
-The AuthPermissions.AspNetCore library contains more than one project. For this reason you can't (currently) create a NuGet package using NuGet values in a .csproj file.
-
-For this reason I use the `JonPSmith.MultiProjPack` dotnet tool to create the NuGet package using the following command in a command line on the AuthPermissions.AspNetCore directory.
-
-```
-> MultiProjPack R
+```console
+MultiProjPack R
 ```
 
-_NOTE: If you don't want to use the `JonPSmith.MultiProjPack` dotnet tool you should find a `CreateNuGetRelease.nuspec` file which you can call with the following command
+*NOTE: If you want to create a new version of the NuGet package you must update the NuGet `version` and most likely the `releaseNotes` in the `MultiProjPack.xml` before you call the `MultiProjPack` tool.*
 
-```
-> dotnet pack -p:NuspecFile=CreateNuGetRelease.nuspec -v q -o ./nupkg
-```
+The created .nupkg file will be found in the `AuthPermissions.AspNetCore.nupkg` directory AND in the user's `{USERPROFILE}\LocalNuGet` directory.
