@@ -9,7 +9,6 @@
 	<ItemGroup>
 		<PackageReference Include="EfCore.TestSupport" Version="8.0.1" />
 		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.0.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
