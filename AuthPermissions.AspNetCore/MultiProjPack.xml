@@ -13,6 +13,7 @@
 		- This NuGet only supports NET8 and all the examples are now using NET8
 		- All vulnerable NuGets updated
 		- Any depreciated NuGets removed
+		- NOTE: uses old Microsoft.Graph version 4.?, which is still supported by Microsoft
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>

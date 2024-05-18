@@ -32,9 +32,11 @@ _See [`JonPSmith.MultiProjPack` GitHub](https://github.com/JonPSmith/MultiProgPa
 
 ### 1. Install the MultiProjPack dotnet tool
 
+On your computer you need to install the global tool using the command below (see [this documentation](https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools) to learn about global tools).
+
 `dotnet tool install JonPSmith.MultiProjPack --global`
 
-NOTE: To update the MultiProjPack .NET tool you need to run the command `dotnet tool update JonPSmith.MultiProjPack --global`. Or to uninstall this tool you should use `dotnet tool uninstall JonPSmith.MultiProjPack –-global` command.
+_NOTE: To update the MultiProjPack .NET tool you need to run the command `dotnet tool update JonPSmith.MultiProjPack --global`. Or to uninstall this tool you should use `dotnet tool uninstall JonPSmith.MultiProjPack --global` command._
 
 ### 2. Compile the AuthPermissions.AspNetCore in release Mode
 
@@ -42,7 +44,7 @@ You must select "Release" compile mode and then use the "Build > Rebuild Solutio
 
 ### 3. Run the `MultiProjPack` tool to create the 
 
-You run the `MultiProjPack` tool from a command line in the `AuthPermissions.AspNetCore` directory. I use the "Open in Terminal" with the command below.
+You run the `MultiProjPack` tool from a command line in the `AuthPermissions.AspNetCore` directory. I use Visual Studio's "Open in Terminal" using the command below ("R" is short for "Release")
 
 ```console
 MultiProjPack R
