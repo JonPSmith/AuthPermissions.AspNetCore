@@ -8,9 +8,10 @@
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to an ASP.NET Core application.</description>
     <releaseNotes>
-		- This NuGet only supports NET8 and all the examples are now using NET8
+		- Simplified to one NET type. This makes it easier to update for future NET releases
 		- All vulnerable NuGets updated
 		- Any depreciated NuGets removed
+		- All examples in this solution are now using NET8
 		- NOTE: uses old Microsoft.Graph version 4.?, which is still supported by Microsoft
 	</releaseNotes>
     <license type="expression">MIT</license>

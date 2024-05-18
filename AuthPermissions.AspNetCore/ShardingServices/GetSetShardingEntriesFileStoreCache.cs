@@ -102,7 +102,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
     /// <summary>
     /// This returns a <see cref="ShardingEntry"/> where the <see cref="ShardingEntry.Name"/> matches
-    /// the <see cref="shardingEntryName"/> parameter. 
+    /// the <see parameter="shardingEntryName"/> parameter. 
     /// </summary>
     /// <param name="shardingEntryName"></param>
     /// <returns>Returns the found <see cref="ShardingEntry"/>, or null if not found.</returns>

@@ -53,6 +53,7 @@ public class ShardingEntryOptions : ShardingEntry
     /// based on which database provider you selected. NOTE: If using custom database, then you MUST
     /// define the <see cref="ShardingEntry.DatabaseType"/> with the short form of the custom
     /// database provider name before you call this method.</param>
+    /// <param name="authPContext">AuthP's database DbContext</param>
     /// <exception cref="ArgumentNullException"></exception>
     public void FormDefaultShardingEntry(AuthPermissionsOptions options, AuthPermissionsDbContext authPContext = null)
     {
