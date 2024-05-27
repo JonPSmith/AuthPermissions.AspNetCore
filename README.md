@@ -8,6 +8,12 @@ The AuthPermissions.AspNetCore library (shortened to AuthP) provides extra autho
 
 The AuthP is an open-source library under the MIT licence (and remain as a open-source library for ever) and the NuGet package can be [found here](https://www.nuget.org/packages/AuthPermissions.AspNetCore/). **The documentation can be found in the [GitHub wiki](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki)** and the AuthP [roadmap](https://github.com/JonPSmith/AuthPermissions.AspNetCore/discussions/2) defines the different versions of this library. 
 
+## List of versions and which .NET framework they support
+
+- Version 8.?.? supports NET 8 only (simpler to update to next NET release)
+- Version 6.?.? supports NET 6, 7 and 8
+- Version 5.?.? supports NET 6 and 7
+
 If you have already built your application using an older version, then you need to look at the following "how up update" documents
 
 - From Migrating from AuthPermissions.AspNetCore 3, 4, 5 to 6.1 see [UpdateToVersion620.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion620.md). NOTE: you only need to do this if you are using the "Sign up for a new tenant, with versioning" (shortened to "Sign up Tenant") feature **AND** your multi-tenant uses [sharding](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Sharding-explained).
