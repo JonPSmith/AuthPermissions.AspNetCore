@@ -67,6 +67,11 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// </summary>
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+        /// <summary>
+        /// This holds the backup set of <see cref="ShardingEntry"/>'s held in the FileStore cache
+        /// </summary>
+        public DbSet<ShardingEntry> ShardingEntryBackup { get; set; }
+
 
         /// <summary>
         /// Set up AuthP's setup
@@ -149,6 +154,13 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
 
             modelBuilder.Entity<RefreshToken>()
                 .HasIndex(x => x.AddedDateUtc)
+                .IsUnique();
+
+            modelBuilder.Entity<ShardingEntry>()
+                .HasKey(x => x.Name);
+
+            modelBuilder.Entity<ShardingEntry>()
+                .HasIndex(x => x.Name)
                 .IsUnique();
         }
     }

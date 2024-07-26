@@ -1,9 +1,10 @@
 ﻿// Copyright (c) 2023 Jon P Smith, GitHub: JonPSmith, web: http://www.thereformedprogrammer.net/
 // Licensed under MIT license. See License.txt in the project root for license information.
 
+using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using System.ComponentModel.DataAnnotations;
 
-namespace AuthPermissions.AspNetCore.ShardingServices;
+namespace AuthPermissions.BaseCode.DataLayer.Classes;
 
 /// <summary>
 /// This class holds the information about each database used by the AuthP sharding feature
@@ -15,7 +16,8 @@ public class ShardingEntry
     /// This is used as a reference to this <see cref="ShardingEntry"/>
     /// The <see cref="Name"/> should not be null, and should be unique
     /// </summary>
-    [Required]
+    [Required(AllowEmptyStrings = false)]
+    [MaxLength(AuthDbConstants.TenantFullNameSize)]
     public string Name { get; set; }
 
     /// <summary>
