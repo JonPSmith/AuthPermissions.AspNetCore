@@ -4,17 +4,14 @@
   <!-- See documentation for all the possible values -->
   <metadata>
     <id>AuthPermissions.AspNetCore</id>
-    <version>8.0.0</version>
+    <version>8.1.0</version>
     <authors>Jon P Smith</authors>
     <product>AuthPermissions.AspNetCore</product>
     <copyright>Copyright (c) 2021 Jon P Smith</copyright>
     <description>Provides extra authorization and multi-tenant features to an ASP.NET Core application.</description>
     <releaseNotes>
-		- Simplified to one NET type. This makes it easier to update for future NET releases
-		- All vulnerable NuGets updated
-		- Any depreciated NuGets removed
-		- All examples in this solution are now using NET8
-		- NOTE: uses old Microsoft.Graph version 4.?, which is still supported by Microsoft
+		- Code to recreate the ShardingEntries if the FileStore Cache is deleted - see issue #115
+		- Updates vulnerable NuGets Microsoft.Identity.Client and System.Text.Json
 	</releaseNotes>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/JonPSmith/AuthPermissions.AspNetCore</projectUrl>
