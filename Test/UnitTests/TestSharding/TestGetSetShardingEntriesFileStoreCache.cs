@@ -29,44 +29,17 @@ public class TestGetSetShardingEntriesFileStoreCache
         _output = output;
     }
 
-    private static AuthPermissionsOptions FormAuthOptionsForSharding(
-        AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
-    {
-        var options = new AuthPermissionsOptions
-        {
-            DefaultShardingEntryName = "Default Database",
-            InternalData =
-            {
-                AuthPDatabaseType = databaseType
-            }
-        };
-        return options;
-    }
-
     private static string FormShardingEntryKey(string shardingEntryName) => "ShardingEntry-" + shardingEntryName;
 
-    private static IDistributedFileStoreCacheClass CreateFileStoreCacheWithData()
-    {
-        var testEntries = new List<ShardingEntry>
-        {
-            new (){ Name = "Default Database", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer)},
-            new (){ Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "AnotherConnectionString", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer) },
-            new (){ Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = nameof(AuthPDatabaseTypes.PostgreSQL) }
-        };
-        var stubFsCache = new StubFileStoreCacheClass();
-        testEntries.ForEach(x => stubFsCache.SetClass(FormShardingEntryKey(x.Name), x));
-
-        return stubFsCache;
-    }
-
     [Fact]
-    public void TestGetAllShardingEntries()
+    public void TestCheckSetupIsCorrect()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
 
         //ATTEMPT
         var shardings = setup.Service.GetAllShardingEntries();
+        var shardingBackup = setup.AuthDbContext.ShardingEntryBackup.ToArray();
 
         //VERIFY
         foreach (var databaseInformation in shardings)
@@ -77,14 +50,27 @@ public class TestGetSetShardingEntriesFileStoreCache
         shardings[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
         shardings[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
         shardings[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
+        shardingBackup.Length.ShouldEqual(3);
+        shardingBackup[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
+        shardingBackup[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
+        shardingBackup[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
+
     }
 
-    [Fact]
-    public void TestGetAllShardingEntries_NoFile_AddIfEmptyTrue()
+    //------------------------------------------------------------------
+    //Section to check what happens if the FileStore cache is empty,
+    //which covering when a new FileStore cache is created
+    //and following the hybrid / Sharding-Only modes
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void TestFileStoreCacheEmpty_ReadShardings(bool hybridMode)
     {
         //SETUP
-        var setup = new SetupServiceToTest(true);
+        var setup = new SetupServiceToTest(hybridMode);
         setup.StubFsCache.ClearAll();
+        setup.AuthDbContext.Database.EnsureClean();
 
         //ATTEMPT
         var shardings = setup.Service.GetAllShardingEntries();
@@ -94,26 +80,21 @@ public class TestGetSetShardingEntriesFileStoreCache
         {
             _output.WriteLine(databaseInformation.ToString());
         }
-        shardings.Single().ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+
+        if (hybridMode)
+        {
+            shardings.Single().ToString().ShouldEqual(
+                "Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        }
+        else
+        {
+            shardings.Count().ShouldEqual(0);
+        }
+        setup.AuthDbContext.ShardingEntryBackup.Count().ShouldEqual(0);
     }
 
     [Fact]
-    public void TestGetAllShardingEntries_NoFile_AddIfEmptyFalse()
-    {
-        //SETUP
-        var setup = new SetupServiceToTest(false);
-        setup.StubFsCache.ClearAll();
-
-        //ATTEMPT
-        var shardings = setup.Service.GetAllShardingEntries();
-
-        //VERIFY
-        shardings.Count.ShouldEqual(0);
-        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(0);
-    }
-
-    [Fact]
-    public void TestGetAllShardingEntries_NoFile_CustomDatabase()
+    public void TestFileStoreCacheEmpty_CustomDatabase()
     {
         //SETUP
         var setup = new SetupServiceToTest(true, AuthPDatabaseTypes.CustomDatabase);
@@ -126,13 +107,17 @@ public class TestGetSetShardingEntriesFileStoreCache
         shardings[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
     }
 
+    //--------------------------------------------------------------
+    //Section to look at read, add, update and delete a sharding
+    //including checking that the sharding is valid
+
     [Theory]
     [InlineData("Other Database", true)]
     [InlineData("Not Found", false)]
-    public void TestGetSingleShardingEntry(string shardingName, bool foundOk)
+    public void TestReadSingleShardingEntry(string shardingName, bool foundOk)
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
 
         //ATTEMPT
         var sharding = setup.Service.GetSingleShardingEntry(shardingName);
@@ -140,31 +125,37 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         _output.WriteLine(sharding?.ToString() ?? "- no entry -");
         if (foundOk)
-            sharding.ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
+        {
+            sharding.ToString().ShouldEqual(
+                "Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
+        }
         else
             sharding.ShouldBeNull();
     }
 
-    [Theory]
-    [InlineData(true,"Default Database", true)]
-    [InlineData(false, "Default Database", false)]
-    [InlineData(true, "Not Found", false)]
-    [InlineData(false, "Not Found", false)]
-    public void TestGetSingleShardingEntry_NoFile_AddIfEmpty(bool addIfEmpty, string shardingName, bool foundOk)
+    [Fact]
+    public void TestAddNewShardingEntry_Good()
     {
         //SETUP
-        var setup = new SetupServiceToTest(addIfEmpty);
-        setup.StubFsCache.ClearAll();
+        var setup = new SetupServiceToTest(true);
+        var entry = new ShardingEntry
+        {
+            Name = "New Entry",
+            ConnectionName = "DefaultConnection",
+            DatabaseName = "My database",
+            DatabaseType = "SqlServer"
+        };
 
         //ATTEMPT
-        var sharding = setup.Service.GetSingleShardingEntry(shardingName);
+        setup.Service.AddNewShardingEntry(entry);
 
         //VERIFY
-        _output.WriteLine(sharding?.ToString() ?? "- no entry -");
-        if (foundOk)
-            sharding.ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
-        else
-            sharding.ShouldBeNull();
+        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(4);
+        setup.Service.GetSingleShardingEntry(entry.Name).ToString().ShouldEqual(
+            "Name: New Entry, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        setup.AuthDbContext.ShardingEntryBackup.Count().ShouldEqual(4);
+        setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == entry.Name).ToString().ShouldEqual(
+            "Name: New Entry, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
     }
 
     [Theory]
@@ -173,7 +164,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     public void TestAddNewShardingEntry_Duplicate(string shardingName, bool duplicate)
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
         var entry = new ShardingEntry
         {
             Name = shardingName,
@@ -188,7 +179,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         _output.WriteLine(status.GetAllErrors());
         status.HasErrors.ShouldEqual(duplicate);
-        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual( duplicate ? 3 : 4);
+
     }
 
     [Theory]
@@ -197,7 +188,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     public void TestAddNewShardingEntry_CorrectDatabaseProvider(string databaseType, string connectionName,  bool fail)
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
         var entry = new ShardingEntry
         {
             Name = "New Entry",
@@ -215,10 +206,10 @@ public class TestGetSetShardingEntriesFileStoreCache
     }
 
     [Fact]
-    public void TestAddNewShardingEntry_DefaultDatabaseBad()
+    public void TestAddNewShardingEntry_Hybrid_DefaultDatabaseBad()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
         var entry = new ShardingEntry
         {
             Name = "Default Database",
@@ -236,37 +227,12 @@ public class TestGetSetShardingEntriesFileStoreCache
     }
 
     [Theory]
-    [InlineData(false, 1)]
-    [InlineData(true, 2)]
-    public void TestAddNewShardingEntry_NoFile(bool addIfEmpty, int numEntries)
-    {
-        //SETUP
-        var setup = new SetupServiceToTest(addIfEmpty);
-        setup.StubFsCache.ClearAll();
-
-        var entry = new ShardingEntry
-        {
-            Name = "New Entry",
-            ConnectionName = "AnotherConnectionString",
-            DatabaseName = "My database",
-            DatabaseType = "SqlServer"
-        };
-
-        //ATTEMPT
-        var status = setup.Service.AddNewShardingEntry(entry);
-
-        //VERIFY
-        status.IsValid.ShouldBeTrue(status.GetAllErrors());
-        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(numEntries);
-    }
-
-    [Theory]
     [InlineData("Other Database", false)]
     [InlineData("New Entry", true)]
     public void UpdateShardingEntry(string shardingName, bool fail)
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
         var entry = new ShardingEntry
         {
             Name = shardingName,
@@ -274,6 +240,7 @@ public class TestGetSetShardingEntriesFileStoreCache
             DatabaseName = "My database",
             DatabaseType = "SqlServer"
         };
+        setup.AuthDbContext.ChangeTracker.Clear();
 
         //ATTEMPT
         var status = setup.Service.UpdateShardingEntry(entry);
@@ -283,8 +250,10 @@ public class TestGetSetShardingEntriesFileStoreCache
         status.HasErrors.ShouldEqual(fail);
         if (!fail)
         {
-            var updated = setup.StubFsCache.GetClass<ShardingEntry>(FormShardingEntryKey(shardingName));
-            updated.ToString().ShouldEqual("Name: Other Database, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+            setup.StubFsCache.GetClass<ShardingEntry>(FormShardingEntryKey(shardingName)).ToString()
+                .ShouldEqual("Name: Other Database, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+            setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == shardingName).ToString()
+                .ShouldEqual("Name: Other Database, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
         }
     }
 
@@ -294,7 +263,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     public void RemoveShardingEntry(string shardingName, bool fail)
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
 
         //ATTEMPT
         var status = setup.Service.RemoveShardingEntry(shardingName);
@@ -303,13 +272,14 @@ public class TestGetSetShardingEntriesFileStoreCache
         _output.WriteLine(status.GetAllErrors());
         status.HasErrors.ShouldEqual(fail);
         setup.StubFsCache.GetAllKeyValues().Count.ShouldEqual(fail ? 3 : 2);
+        setup.AuthDbContext.ShardingEntryBackup.Count().ShouldEqual(fail ? 3 : 2);
     }
 
     [Fact]
     public void RemoveShardingEntry_FailDueToUsers()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
         {
             //This creates a tenant and a user that uses the "Other Database"
             var tenantStatus = Tenant.CreateSingleTenant("Tenant1",
@@ -334,7 +304,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     public void TestFormingConnectionString_MissingDatabaseSpecificMethods()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
         var entry = new ShardingEntry
         {
             Name = "New Entry",
@@ -363,7 +333,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     public void TestGetAllConnectionStrings_Hybrid()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
 
         //ATTEMPT
         var connectionNames = setup.Service.GetConnectionStringNames().ToList();
@@ -404,7 +374,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     public void TestFormConnectionString()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
 
         //ATTEMPT
         var connectionString = setup.Service.FormConnectionString("Other Database");
@@ -417,12 +387,12 @@ public class TestGetSetShardingEntriesFileStoreCache
     public void TestFormConnectionString_Bad()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
 
         //ATTEMPT
         try
         {
-            var connectionString = setup.Service.FormConnectionString("PostgreSql1");
+            setup.Service.FormConnectionString("PostgreSql1");
         }
         catch (Exception e)
         {
@@ -438,7 +408,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     public async Task TestQueryTenantsSingle()
     {
         //SETUP
-        var setup = new SetupServiceToTest();
+        var setup = new SetupServiceToTest(true);
 
         var tenant1 = AuthPSetupHelpers.CreateTestSingleTenantOk("Tenant1");
         tenant1.UpdateShardingState("Default Database", false);
@@ -468,11 +438,15 @@ public class TestGetSetShardingEntriesFileStoreCache
         list[2].tenantNames.ShouldEqual(new List<string>( ));
     }
 
+    //------------------------------------------------------------------------
+    //Support code to test the 
+
     private class SetupServiceToTest
     {
-        public SetupServiceToTest(bool tenantsInAuthPdb = true, AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
+        public SetupServiceToTest(bool hybridMode,
+            AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
         {
-            var config = AppSettings.GetConfiguration("..\\Test\\TestData", "combinedshardingsettings.json");
+            var config = AppSettings.GetConfiguration("..\\Test\\TestData", "shardingConnectionStrings.json");
             var services = new ServiceCollection();
             services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
             var serviceProvider = services.BuildServiceProvider();
@@ -481,9 +455,22 @@ public class TestGetSetShardingEntriesFileStoreCache
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
             AuthDbContext = new AuthPermissionsDbContext(options);
             AuthDbContext.Database.EnsureClean();
-            StubFsCache = CreateFileStoreCacheWithData();
+
+            //Now we add the test ShardingEntries and the ShardingEntryBackup database
+            var testEntries = new List<ShardingEntry>
+            {
+                new (){ Name = "Default Database", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer)},
+                new (){ Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "AnotherConnectionString", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer) },
+                new (){ Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = nameof(AuthPDatabaseTypes.PostgreSQL) }
+            };
+            StubFsCache = new StubFileStoreCacheClass();
+            StubFsCache.ClearAll();
+            testEntries.ForEach(x => StubFsCache.SetClass(FormShardingEntryKey(x.Name), x));
+            AuthDbContext.ShardingEntryBackup.AddRange(testEntries);
+            AuthDbContext.SaveChanges();
+
             Service = new GetSetShardingEntriesFileStoreCache(connectSnapshot,
-                new ShardingEntryOptions(tenantsInAuthPdb),
+                new ShardingEntryOptions(hybridMode),
                 FormAuthOptionsForSharding(databaseType), AuthDbContext,
                 StubFsCache, new List<IDatabaseSpecificMethods>{new SqlServerDatabaseSpecificMethods()},
                 "en".SetupAuthPLoggingLocalizer());
@@ -492,5 +479,19 @@ public class TestGetSetShardingEntriesFileStoreCache
         public AuthPermissionsDbContext AuthDbContext { get; }
         public IDistributedFileStoreCacheClass StubFsCache { get; }
         public IGetSetShardingEntries Service { get; }
+    }
+
+    private static AuthPermissionsOptions FormAuthOptionsForSharding(
+        AuthPDatabaseTypes databaseType = AuthPDatabaseTypes.SqlServer)
+    {
+        var options = new AuthPermissionsOptions
+        {
+            DefaultShardingEntryName = "Default Database",
+            InternalData =
+            {
+                AuthPDatabaseType = databaseType
+            }
+        };
+        return options;
     }
 }

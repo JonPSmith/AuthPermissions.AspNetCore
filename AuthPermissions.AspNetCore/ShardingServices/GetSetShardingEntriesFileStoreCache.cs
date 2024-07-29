@@ -17,7 +17,7 @@ namespace AuthPermissions.AspNetCore.ShardingServices;
 
 /// <summary>
 /// This is an implementation of the <see cref="IGetSetShardingEntries"/> using the Net.DistributedFileStoreCache
-/// library. This provides the reading and writing of of the ShardingEntries stored in the FileStoreCache.
+/// library. This provides the reading and writing of the ShardingEntries stored in the FileStoreCache.
 /// </summary>
 public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 {
@@ -49,15 +49,15 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// <param name="fsCache"></param>
     /// <param name="databaseProviderMethods"></param>
     /// <param name="localizeProvider"></param>
-    public GetSetShardingEntriesFileStoreCache(
-        IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor, ShardingEntryOptions defaultInformationOptions,
+    public GetSetShardingEntriesFileStoreCache(IOptionsSnapshot<ConnectionStringsOption> connectionsAccessor, 
+        ShardingEntryOptions defaultInformationOptions,
         AuthPermissionsOptions options, AuthPermissionsDbContext authDbContext, 
         IDistributedFileStoreCacheClass fsCache, IEnumerable<IDatabaseSpecificMethods> databaseProviderMethods,
         IAuthPDefaultLocalizer localizeProvider)
     {
         //thanks to https://stackoverflow.com/questions/37287427/get-multiple-connection-strings-in-appsettings-json-without-ef
         _connectionDict = connectionsAccessor?.Value ?? throw new ArgumentNullException(nameof(connectionsAccessor));
-
+ 
         _shardingEntryOptions = defaultInformationOptions ?? throw new ArgumentNullException(nameof(defaultInformationOptions));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _authDbContext = authDbContext ?? throw new ArgumentNullException(nameof(authDbContext));
@@ -130,7 +130,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             !_fsCache
                 .GetAllKeyValues().Any(kv => kv.Key.StartsWith(ShardingEntryPrefix)))
         {
-            //If no entries and AddIfEntry is true, then its most likely an new deployment and the cache isn't setup
+            //If no entries and AddIfEntry is true, then its most likely a new deployment and the cache isn't setup
             //Se we add the default sharding entry to the cache and return the default Entry
             var defaultEntry = _shardingEntryOptions
                 .ProvideDefaultShardingEntry(_options, _authDbContext);
@@ -139,7 +139,20 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
         var status = CheckShardingEntryChangeIsValid(ShardingChanges.Added, shardingEntry);
         if (status.IsValid)
+        {
             _fsCache.SetClass(FormShardingEntryKey(shardingEntry.Name), shardingEntry);
+            _authDbContext.ShardingEntryBackup.Add(shardingEntry);
+            try
+            {
+                _authDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                e.Data.Add("ShardingEntryBackupAddFail", 
+                    $"ShardingEntry with the name of '{shardingEntry.Name}' wasn't added to the ShardingEntryBackup db.");
+                throw;
+            }
+        }
 
         return status;
     }
@@ -155,7 +168,31 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     {
         var status = CheckShardingEntryChangeIsValid(ShardingChanges.Updated, shardingEntry);
         if (status.IsValid)
+        {
             _fsCache.SetClass(FormShardingEntryKey(shardingEntry.Name), shardingEntry);
+            var shardingBackUp = _authDbContext.ShardingEntryBackup.SingleOrDefault(x => x.Name == shardingEntry.Name);
+            if (shardingBackUp != null)
+            {
+                //This will update the ShardingEntryBackup with given sharding  
+                shardingBackUp.ConnectionName = shardingEntry.ConnectionName;
+                shardingBackUp.DatabaseName = shardingEntry.DatabaseName;
+                shardingBackUp.DatabaseType = shardingEntry.DatabaseType;
+            }
+            else
+                //the shardingBackUp should be there, but this is a simple way to ensure that the ShardingEntryBackup is correct  
+                _authDbContext.ShardingEntryBackup.Add(shardingEntry);
+
+            try
+            {
+                _authDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                e.Data.Add("ShardingEntryBackupUpdateFail", 
+                    $"The sharding with the name of '{shardingEntry.Name}' hasn't been updated in the ShardingEntryBackup db.");
+                throw;
+            }
+        }
 
         return status;
     }
@@ -171,7 +208,13 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         var fullShardingInfo = new ShardingEntry { Name = shardingEntryName };
         var status = CheckShardingEntryChangeIsValid(ShardingChanges.Deleted, fullShardingInfo);
         if (status.IsValid)
+        {
             _fsCache.Remove(FormShardingEntryKey(fullShardingInfo.Name));
+            //The database delete doesn't throw an Exception if the entry isn't there
+            var sql = "DELETE FROM authp.ShardingEntryBackup WHERE Name = {0}";
+            _authDbContext.Database.ExecuteSqlRaw(sql, shardingEntryName);
+
+        }
 
         return status;
     }
