@@ -9,6 +9,7 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Graph;
 using Net.DistributedFileStoreCache;
 using Test.StubClasses;
 using Test.TestHelpers;
@@ -179,7 +180,6 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         _output.WriteLine(status.GetAllErrors());
         status.HasErrors.ShouldEqual(duplicate);
-
     }
 
     [Theory]
@@ -299,6 +299,111 @@ public class TestGetSetShardingEntriesFileStoreCache
         status.HasErrors.ShouldBeTrue();
         status.GetAllErrors().ShouldEqual("You need to disconnect the 1 users from the 'Other Database' sharding entry before you can delete it.");
     }
+
+    //--------------------------------------------------------------
+    //Section to check that the shardingEntryBackup will provide the right 
+    //shardingBackup even if the data in the shardingEntryBackup isn't correct
+
+
+    /// <summary>
+    /// This checks that if there is a ShardingEntryBackup with the same Name as the
+    /// new entry, then it will update the existing entry to the correct ShardingEntry data 
+    /// </summary>
+    [Fact]
+    public void TestAddNewShardingEntry_ShardingEntryBackup_Duplicate()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        //put the wrong data into the ShardingEntryBackup db
+        setup.AuthDbContext.ShardingEntryBackup.Add(new ShardingEntry
+        {
+            Name = "New Entry",
+            ConnectionName = "Bad data",
+            DatabaseName = "Bad data",
+            DatabaseType = "Bad data"
+        });
+        setup.AuthDbContext.SaveChanges();
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        //Now back to the normal code
+        var entry = new ShardingEntry
+        {
+            Name = "New Entry",
+            ConnectionName = "DefaultConnection",
+            DatabaseName = "My database",
+            DatabaseType = "SqlServer"
+        };
+
+        //ATTEMPT
+        var status = setup.Service.AddNewShardingEntry(entry);
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue();
+        setup.StubFsCache.GetAllKeyValues().Count().ShouldEqual(4);
+        setup.Service.GetSingleShardingEntry(entry.Name).ToString().ShouldEqual(
+            "Name: New Entry, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        setup.AuthDbContext.ShardingEntryBackup.Count().ShouldEqual(4);
+        setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == entry.Name).ToString().ShouldEqual(
+            "Name: New Entry, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+    }
+
+    [Fact]
+    public void UpdateShardingEntry_ShardingEntryBackup_Missing()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+
+        //Delete the ShardingEntryBackup entry that will be updated.
+        var toDelete = setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == "Other Database");
+        setup.AuthDbContext.Remove(toDelete);
+        setup.AuthDbContext.SaveChanges();
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        var entry = new ShardingEntry
+        {
+            Name = "Other Database",
+            ConnectionName = "DefaultConnection",
+            DatabaseName = "My different database",
+            DatabaseType = "SqlServer"
+        };
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = setup.Service.UpdateShardingEntry(entry);
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue();
+        setup.Service.GetSingleShardingEntry(entry.Name).ToString()
+                .ShouldEqual("Name: Other Database, DatabaseName: My different database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == entry.Name).ToString()
+                .ShouldEqual("Name: Other Database, DatabaseName: My different database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+    }
+
+    [Fact]
+    public void RemoveShardingEntry_ShardingEntryBackup_AlreadyDeleted()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+
+        //Delete the ShardingEntryBackup entry
+        var toDelete = setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == "Other Database");
+        setup.AuthDbContext.Remove(toDelete);
+        setup.AuthDbContext.SaveChanges();
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = setup.Service.RemoveShardingEntry("Other Database");
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue();
+        setup.StubFsCache.GetAllKeyValues().Count.ShouldEqual(2);
+        setup.Service.GetSingleShardingEntry("Other Database").ShouldBeNull();
+        setup.AuthDbContext.ShardingEntryBackup.Count().ShouldEqual(2);
+        setup.AuthDbContext.ShardingEntryBackup.SingleOrDefault(x => x.Name == "Other Database").ShouldBeNull();
+    }
+
+    //--------------------------------------------------------------
+    //Section to form connection strings and GetShardingsWithTenantNamesAsync
 
     [Fact]
     public void TestFormingConnectionString_MissingDatabaseSpecificMethods()

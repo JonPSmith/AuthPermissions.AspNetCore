@@ -141,17 +141,24 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         if (status.IsValid)
         {
             _fsCache.SetClass(FormShardingEntryKey(shardingEntry.Name), shardingEntry);
-            _authDbContext.ShardingEntryBackup.Add(shardingEntry);
-            try
+            var shardingBackUp = _authDbContext.ShardingEntryBackup.SingleOrDefault(x => x.Name == shardingEntry.Name);
+            if (shardingBackUp == null)
             {
-                _authDbContext.SaveChanges();
+                //The normal situation is that the shardingBackUp isn't there, so we add the new sharding to the shardingBackUp db 
+                _authDbContext.ShardingEntryBackup.Add(shardingEntry);
             }
-            catch (Exception e)
+            else
             {
-                e.Data.Add("ShardingEntryBackupAddFail", 
-                    $"ShardingEntry with the name of '{shardingEntry.Name}' wasn't added to the ShardingEntryBackup db.");
-                throw;
+                //The ShardingEntryBackup has an entry for this, which is wrong.
+                //Therefore, we update the entry to fix things
+                shardingBackUp.ConnectionName = shardingEntry.ConnectionName;
+                shardingBackUp.DatabaseName = shardingEntry.DatabaseName;
+                shardingBackUp.DatabaseType = shardingEntry.DatabaseType;
+                _authDbContext.ShardingEntryBackup.Update(shardingBackUp);
             }
+
+            _authDbContext.SaveChanges();
+
         }
 
         return status;
@@ -177,21 +184,14 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
                 shardingBackUp.ConnectionName = shardingEntry.ConnectionName;
                 shardingBackUp.DatabaseName = shardingEntry.DatabaseName;
                 shardingBackUp.DatabaseType = shardingEntry.DatabaseType;
+                _authDbContext.ShardingEntryBackup.Update(shardingBackUp);
             }
             else
                 //the shardingBackUp should be there, but this is a simple way to ensure that the ShardingEntryBackup is correct  
                 _authDbContext.ShardingEntryBackup.Add(shardingEntry);
 
-            try
-            {
-                _authDbContext.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                e.Data.Add("ShardingEntryBackupUpdateFail", 
-                    $"The sharding with the name of '{shardingEntry.Name}' hasn't been updated in the ShardingEntryBackup db.");
-                throw;
-            }
+            _authDbContext.SaveChanges();
+
         }
 
         return status;
