@@ -15,7 +15,7 @@ namespace AuthPermissions.BaseCode
     {
         /// <summary>
         /// This defines whether tenant code is activated, and whether the
-        /// multi-tenant is is a single layer, or many layers (hierarchical)
+        /// multi-tenant is a single layer, or many layers (hierarchical)
         /// Defaults no using tenants
         /// </summary>
         public TenantTypes TenantType { get; set; }

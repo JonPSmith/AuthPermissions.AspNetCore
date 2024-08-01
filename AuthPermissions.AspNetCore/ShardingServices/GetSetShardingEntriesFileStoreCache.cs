@@ -25,6 +25,15 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// This is the prefix for creating the key to a sharding entry  
     /// </summary>
     public static string ShardingEntryPrefix = "ShardingEntry-";
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="shardingEntryName"></param>
+    /// <returns></returns>
+    public static string FormShardingEntryKey(string shardingEntryName)
+    {
+        return ShardingEntryPrefix + shardingEntryName;
+    }
 
     private readonly AuthPermissionsDbContext _authDbContext;
     private readonly ConnectionStringsOption _connectionDict;
@@ -92,7 +101,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         if (results.Any() || !_shardingEntryOptions.HybridMode) 
             return results;
 
-        //If no entries and AddIfEntry is true, then its most likely an new deployment and the cache isn't setup
+        //If no entries and AddIfEntry is true, then its most likely a new deployment and the cache isn't setup
         //Se we add the default sharding entry to the cache and return the default Entry
         var defaultEntry = _shardingEntryOptions
             .ProvideDefaultShardingEntry(_options, _authDbContext);
@@ -292,11 +301,6 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
     //------------------------------------------------------
     //private methods
-
-    private string FormShardingEntryKey(string shardingEntryName)
-    {
-        return ShardingEntryPrefix + shardingEntryName;
-    }
 
     /// <summary>
     /// This method allows you to check that the <see cref="ShardingEntry"/> will create a

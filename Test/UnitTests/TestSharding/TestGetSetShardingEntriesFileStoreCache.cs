@@ -9,7 +9,6 @@ using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Graph;
 using Net.DistributedFileStoreCache;
 using Test.StubClasses;
 using Test.TestHelpers;
@@ -29,8 +28,6 @@ public class TestGetSetShardingEntriesFileStoreCache
     {
         _output = output;
     }
-
-    private static string FormShardingEntryKey(string shardingEntryName) => "ShardingEntry-" + shardingEntryName;
 
     [Fact]
     public void TestCheckSetupIsCorrect()
@@ -250,7 +247,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         status.HasErrors.ShouldEqual(fail);
         if (!fail)
         {
-            setup.StubFsCache.GetClass<ShardingEntry>(FormShardingEntryKey(shardingName)).ToString()
+            setup.StubFsCache.GetClass<ShardingEntry>(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey(shardingName)).ToString()
                 .ShouldEqual("Name: Other Database, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
             setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == shardingName).ToString()
                 .ShouldEqual("Name: Other Database, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
@@ -303,7 +300,6 @@ public class TestGetSetShardingEntriesFileStoreCache
     //--------------------------------------------------------------
     //Section to check that the shardingEntryBackup will provide the right 
     //shardingBackup even if the data in the shardingEntryBackup isn't correct
-
 
     /// <summary>
     /// This checks that if there is a ShardingEntryBackup with the same Name as the
@@ -570,7 +566,7 @@ public class TestGetSetShardingEntriesFileStoreCache
             };
             StubFsCache = new StubFileStoreCacheClass();
             StubFsCache.ClearAll();
-            testEntries.ForEach(x => StubFsCache.SetClass(FormShardingEntryKey(x.Name), x));
+            testEntries.ForEach(x => StubFsCache.SetClass(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey(x.Name), x));
             AuthDbContext.ShardingEntryBackup.AddRange(testEntries);
             AuthDbContext.SaveChanges();
 

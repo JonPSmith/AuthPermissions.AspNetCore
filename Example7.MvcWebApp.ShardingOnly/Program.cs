@@ -74,7 +74,7 @@ builder.Services.RegisterAuthPermissions<Example7Permissions>(options =>
 builder.Services.AddTransient<IAddNewUserManager, IndividualUserAddUserManager<IdentityUser>>();
 builder.Services.AddTransient<ISignInAndCreateTenant, SignInAndCreateTenant>();
 builder.Services.AddTransient<ISignUpGetShardingEntry, DemoShardOnlyGetDatabaseForNewTenant>(); //handles sharding tenants
-//2. Services to create an invite to send to someone, and the code for the user to login via the invite
+//2. Services to create an invitation to send to someone, and the code for the user to login via the invite
 builder.Services.AddTransient<IInviteNewUserService, InviteNewUserService>();
 
 //This is used for hold the sharding entries
@@ -92,7 +92,7 @@ builder.Services.AddDistributedFileStoreCache(options =>
         //see https://github.com/JonPSmith/Net.DistributedFileStoreCache/wiki/Tips-on-making-your-cache-fast#class-version---already-has-unsaferelaxedjsonescaping
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
-    //I override the the default first part of the FileStore cache file because there are many example apps in this repo
+    //I override the default first part of the FileStore cache file because there are many example apps in this repo
     options.FirstPartOfCacheFileName = "Example7CacheFileStore";
 }, builder.Environment);
 

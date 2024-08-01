@@ -17,7 +17,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RunMethodsSequentially;
 using Test.StubClasses;
-using TestSupport.Attributes;
 using TestSupport.Helpers;
 using Xunit;
 using Xunit.Abstractions;
