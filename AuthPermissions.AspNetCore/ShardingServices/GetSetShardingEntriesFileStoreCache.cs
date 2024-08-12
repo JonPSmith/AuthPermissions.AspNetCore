@@ -101,7 +101,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         if (results.Any() || !_shardingEntryOptions.HybridMode) 
             return results;
 
-        //If no entries and AddIfEntry is true, then its most likely a new deployment and the cache isn't setup
+        //If no entries and HybridMode is true, then its most likely a new deployment and the cache isn't setup
         //Se we add the default sharding entry to the cache and return the default Entry
         var defaultEntry = _shardingEntryOptions
             .ProvideDefaultShardingEntry(_options, _authDbContext);
@@ -139,11 +139,14 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             !_fsCache
                 .GetAllKeyValues().Any(kv => kv.Key.StartsWith(ShardingEntryPrefix)))
         {
-            //If no entries and AddIfEntry is true, then its most likely a new deployment and the cache isn't setup
+            //If no entries and HybridMode is true, then its most likely a new deployment and the cache isn't setup
             //Se we add the default sharding entry to the cache and return the default Entry
             var defaultEntry = _shardingEntryOptions
                 .ProvideDefaultShardingEntry(_options, _authDbContext);
             _fsCache.SetClass(FormShardingEntryKey(defaultEntry.Name), defaultEntry);
+            //And add the default sharding entry to the ShardingEntryBackup database too
+            _authDbContext.ShardingEntryBackup.Add(defaultEntry);
+            _authDbContext.SaveChanges();
         }
 
         var status = CheckShardingEntryChangeIsValid(ShardingChanges.Added, shardingEntry);

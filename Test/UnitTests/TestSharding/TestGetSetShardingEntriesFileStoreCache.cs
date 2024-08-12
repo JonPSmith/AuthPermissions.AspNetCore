@@ -29,11 +29,17 @@ public class TestGetSetShardingEntriesFileStoreCache
         _output = output;
     }
 
-    [Fact]
-    public void TestCheckSetupIsCorrect()
+    //NOTE: if HybridMode is true, then the FileStore Cache has the "DefaultEntry",
+    //but the ShardingEntryBackup doesn’t have the "DefaultEntry"
+    //The SetupServiceToTest class's ShardingEntryBackup returns the correct entries
+    //to match the HybridMode, i.e. it doesn't have the "DefaultEntry" when the HybridMode is true
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void TestCheckSetupIsCorrect(bool hybridMode)
     {
         //SETUP
-        var setup = new SetupServiceToTest(true);
+        var setup = new SetupServiceToTest(hybridMode);
 
         //ATTEMPT
         var shardings = setup.Service.GetAllShardingEntries();
@@ -44,15 +50,29 @@ public class TestGetSetShardingEntriesFileStoreCache
         {
             _output.WriteLine(databaseInformation.ToString());
         }
-        shardings.Count.ShouldEqual(3);
-        shardings[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
-        shardings[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
-        shardings[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
-        shardingBackup.Length.ShouldEqual(3);
-        shardingBackup[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
-        shardingBackup[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
-        shardingBackup[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
 
+        if (hybridMode)
+        {
+            shardings.Count.ShouldEqual(3);
+            shardings[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
+            shardings[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
+            shardings[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
+            shardingBackup.Length.ShouldEqual(3);
+            shardingBackup[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
+            shardingBackup[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
+            shardingBackup[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
+        }
+        else
+        {
+            shardings.Count.ShouldEqual(3);
+            shardings[0].ToString().ShouldEqual("Name: FirstSharding, DatabaseName: Sharding001Db, ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
+            shardings[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
+            shardings[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
+            shardingBackup.Length.ShouldEqual(3);
+            shardingBackup[0].ToString().ShouldEqual("Name: FirstSharding, DatabaseName: Sharding001Db, ConnectionName: UnitTestConnection, DatabaseType: SqlServer");
+            shardingBackup[1].ToString().ShouldEqual("Name: Other Database, DatabaseName: MyDatabase1, ConnectionName: AnotherConnectionString, DatabaseType: SqlServer");
+            shardingBackup[2].ToString().ShouldEqual("Name: PostgreSql1, DatabaseName: StubTest, ConnectionName: PostgreSqlConnection, DatabaseType: PostgreSQL");
+        }
     }
 
     //------------------------------------------------------------------
@@ -156,6 +176,37 @@ public class TestGetSetShardingEntriesFileStoreCache
             "Name: New Entry, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
     }
 
+    [Fact]
+    public void TestAddNewShardingEntry_Empty_Hybrid()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        var entry = new ShardingEntry
+        {
+            Name = "New Entry",
+            ConnectionName = "DefaultConnection",
+            DatabaseName = "My database",
+            DatabaseType = "SqlServer"
+        };
+        setup.StubFsCache.ClearAll();
+        setup.AuthDbContext.Database.EnsureClean();
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        //ATTEMPT
+        setup.Service.AddNewShardingEntry(entry);
+
+        //VERIFY
+        var shardings = setup.Service.GetAllShardingEntries();
+        var shardingBackup = setup.AuthDbContext.ShardingEntryBackup.ToArray();
+        shardings.Count().ShouldEqual(2);
+        shardings[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        shardings[1].ToString().ShouldEqual("Name: New Entry, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        shardingBackup.Count().ShouldEqual(2);
+        shardingBackup[0].ToString().ShouldEqual("Name: Default Database, DatabaseName:  < null > , ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+        shardingBackup[1].ToString().ShouldEqual("Name: New Entry, DatabaseName: My database, ConnectionName: DefaultConnection, DatabaseType: SqlServer");
+
+    }
+
     [Theory]
     [InlineData("New Entry", false)]
     [InlineData("Other Database", true)]
@@ -257,7 +308,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     [Theory]
     [InlineData("Other Database", false)]
     [InlineData("Not in cache", true)]
-    public void RemoveShardingEntry(string shardingName, bool fail)
+    public void RemoveShardingEntry_HybridMode(string shardingName, bool fail)
     {
         //SETUP
         var setup = new SetupServiceToTest(true);
@@ -560,7 +611,9 @@ public class TestGetSetShardingEntriesFileStoreCache
             //Now we add the test ShardingEntries and the ShardingEntryBackup database
             var testEntries = new List<ShardingEntry>
             {
-                new (){ Name = "Default Database", ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer)},
+                new (){ Name = (hybridMode ? "Default Database" : "FirstSharding"),
+                    DatabaseName = (hybridMode ? null : "Sharding001Db"),
+                    ConnectionName = "UnitTestConnection", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer)},
                 new (){ Name = "Other Database", DatabaseName = "MyDatabase1", ConnectionName = "AnotherConnectionString", DatabaseType = nameof(AuthPDatabaseTypes.SqlServer) },
                 new (){ Name = "PostgreSql1", ConnectionName = "PostgreSqlConnection", DatabaseName = "StubTest", DatabaseType = nameof(AuthPDatabaseTypes.PostgreSQL) }
             };
