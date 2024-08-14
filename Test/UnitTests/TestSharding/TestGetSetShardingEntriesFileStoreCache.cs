@@ -7,9 +7,11 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
+using LocalizeMessagesAndErrors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Net.DistributedFileStoreCache;
+using System.Globalization;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -450,6 +452,156 @@ public class TestGetSetShardingEntriesFileStoreCache
     }
 
     //--------------------------------------------------------------
+    //Section about the CheckTwoShardingSourceMatch method
+
+    [Fact]
+    public void TestShardingBackup_Part1_NoEntries()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+
+        setup.StubFsCache.ClearAll();
+        setup.AuthDbContext.Database.EnsureClean();
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Single().ActualMessage.ShouldEqual(
+            "All OK: there are no tenants in your application so both sources of sharding are empty.");
+    }
+
+    [Fact]
+    public void TestShardingBackup_Part2_BackupShardingFilled()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+
+        setup.AuthDbContext.Database.EnsureClean();
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Single().ActualMessage.ShouldEqual(
+            "All OK: The shardings backup database was empty, but the FileStore Cache has 3 entries. " +
+            "This situation needs the sharding database to updated to match the FileStore Cache sharding so that you have a backup of the sharding.");
+    }
+
+    [Fact]
+    public void TestShardingBackup_Part3_AllGood()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Single().ActualMessage.ShouldEqual(
+            "All OK: the 3 sharding entries in the FileStore Cache matches the backup sharding entries.");
+    }
+
+    [Fact]
+    public void TestShardingBackup_Part3_1_MissingFsCache()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        setup.StubFsCache.Remove(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey("Other Database"));
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Single().ActualMessage.ShouldEqual(
+            "The FileStore Cache is missing an entry with the Name of 'Other Database'.");
+    }
+
+    [Fact]
+    public void TestShardingBackup_Part3_1_MissingBackupDb()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        //Remove a ShardingEntryBackup entry
+        var toDelete = setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == "Other Database");
+        setup.AuthDbContext.ShardingEntryBackup.Remove(toDelete);
+        setup.AuthDbContext.SaveChanges();
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Single().ActualMessage.ShouldEqual(
+            "The ShardingBackup database is missing an entry with the Name of 'Other Database'.");
+    }
+
+
+    [Fact]
+    public void TestShardingBackup_Part3_2_MatchError_FsCache()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        var shardingName = "Other Database";
+        var fsCacheEntryToChange =
+            setup.StubFsCache.GetClass<ShardingEntry>(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey(shardingName));
+        fsCacheEntryToChange.DatabaseName = "DIFFERENT-DB";
+        setup.StubFsCache.SetClass(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey(shardingName), fsCacheEntryToChange);
+        var backupSharding = setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == shardingName);
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Count.ShouldEqual(3);
+        logs[0].ActualMessage.ShouldEqual("The two Shardings with the Name of 'Other Database' do not match. "+
+                            "See the two sources that don't match below:");
+        logs[1].ActualMessage.ShouldEqual($"    FileStore Cache Entry = {fsCacheEntryToChange.ToString()}");
+        logs[2].ActualMessage.ShouldEqual($"    ShardingBackup Entry  = {backupSharding.ToString()}");
+    }
+
+    [Fact]
+    public void TestShardingBackup_Part3_2_MatchError_ShardingBackup()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        var shardingName = "Other Database";
+        var backupShardingToChange = setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == shardingName);
+        backupShardingToChange.DatabaseName = "DIFFERENT-DB";
+        setup.AuthDbContext.ShardingEntryBackup.Update(backupShardingToChange);
+        setup.AuthDbContext.SaveChanges();
+        var fsCacheEntry =
+            setup.StubFsCache.GetClass<ShardingEntry>(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey(shardingName));
+
+        setup.AuthDbContext.ChangeTracker.Clear();
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Count.ShouldEqual(3);
+        logs[0].ActualMessage.ShouldEqual("The two Shardings with the Name of 'Other Database' do not match. " +
+                                          "See the two sources that don't match below:");
+        logs[1].ActualMessage.ShouldEqual($"    FileStore Cache Entry = {fsCacheEntry.ToString()}");
+        logs[2].ActualMessage.ShouldEqual($"    ShardingBackup Entry  = {backupShardingToChange.ToString()}");
+    }
+
+    //--------------------------------------------------------------
     //Section to form connection strings and GetShardingsWithTenantNamesAsync
 
     [Fact]
@@ -603,6 +755,7 @@ public class TestGetSetShardingEntriesFileStoreCache
             services.Configure<ConnectionStringsOption>(config.GetSection("ConnectionStrings"));
             var serviceProvider = services.BuildServiceProvider();
             var connectSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOption>>();
+            StubLocalizer = new StubDefaultLocalizerWithLogging("en", GetType());
 
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
             AuthDbContext = new AuthPermissionsDbContext(options);
@@ -627,12 +780,13 @@ public class TestGetSetShardingEntriesFileStoreCache
                 new ShardingEntryOptions(hybridMode),
                 FormAuthOptionsForSharding(databaseType), AuthDbContext,
                 StubFsCache, new List<IDatabaseSpecificMethods>{new SqlServerDatabaseSpecificMethods()},
-                "en".SetupAuthPLoggingLocalizer());
+                new TestAuthPDefaultLocalizer(StubLocalizer));
         }
 
         public AuthPermissionsDbContext AuthDbContext { get; }
         public IDistributedFileStoreCacheClass StubFsCache { get; }
         public IGetSetShardingEntries Service { get; }
+        public StubDefaultLocalizerWithLogging StubLocalizer { get; }
     }
 
     private static AuthPermissionsOptions FormAuthOptionsForSharding(

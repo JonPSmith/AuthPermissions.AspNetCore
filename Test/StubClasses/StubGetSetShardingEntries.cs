@@ -105,6 +105,16 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
         return new StatusGenericHandler();
     }
 
+    /// <summary>
+    /// This checks that the FileStore Cache and ShardingBackup db contain the same sharding data.
+    /// This method is there for an admin user to run a check if they think something is wrong. 
+    /// </summary>
+    /// <returns>status containing a success message, or errors</returns>
+    public IStatusGeneric CheckTwoShardingSourceMatch()
+    {
+        throw new NotImplementedException();
+    }
+
     public List<string> GetConnectionStringNames()
     {
         return new List<string> { "UnitTestConnection", "PostgreSqlConnection" };

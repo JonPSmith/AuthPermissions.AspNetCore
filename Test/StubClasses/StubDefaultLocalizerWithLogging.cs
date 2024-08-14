@@ -11,7 +11,7 @@ namespace Test.StubClasses;
 
 /// <summary>
 /// This provides a simple replacement of the <see cref="IDefaultLocalizer"/> which
-/// returns the the default message.
+/// returns the default message.
 /// It also writes the information on each localized message to a database is the appsettings.json
 /// file in your testing project contains "SaveLocalizesToDb": true.
 /// If "SaveLocalizesToDb" is True, then there needs to be a connection string called "LocalizationCaptureDb"

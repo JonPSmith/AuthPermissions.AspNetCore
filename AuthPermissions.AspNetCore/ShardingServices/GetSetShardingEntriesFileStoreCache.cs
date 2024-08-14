@@ -232,6 +232,106 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     }
 
     /// <summary>
+    /// This checks that the FileStore Cache and ShardingBackup db contain the same sharding data.
+    /// This method is there for an admin user to run a check if they think something is wrong. 
+    /// </summary>
+    /// <returns>status containing a success message, or errors</returns>
+    public IStatusGeneric CheckTwoShardingSourceMatch()
+    {
+        var status = new StatusGenericLocalizer(_localizeDefault);
+        //Get the ShardingEntries from the two ShardingEntry resources 
+        var fsCacheShardings = _fsCache.GetAllKeyValues()
+            .Where(kv => kv.Key.StartsWith(ShardingEntryPrefix)).ToList()
+            .Select(s => _fsCache.GetClassFromString<ShardingEntry>(s.Value)).ToList();
+        var dbShardings = _authDbContext.ShardingEntryBackup.ToList();
+
+        if (!fsCacheShardings.Any() && !dbShardings.Any())
+        {
+            //1. NO ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
+            //OPERATION: do nothing, because there are no ShardingEntries, e.g. first deploy of the app.  
+            //No shardings, which is a normal situation, i.e. when there is no tenants
+
+            status.SetMessageString("CheckNoEntries".ClassLocalizeKey(this, true),
+                "All OK: there are no tenants in your application so both sources of sharding are empty.");
+            return status;
+        }
+
+        if (fsCacheShardings.Any() && !dbShardings.Any())
+        {
+            //2. ENTRIES IN FILESTORE CACHE, BUT NO ENTRIES IN SHARDINGBACKUP DATABASE
+            //OPERATION: the FileStore Cache is backed up into the ShardingEntryBackup database 
+            //The FileStore Cache has entries, but the ShardingEntryBackup database is empty
+            //This happens when the first time you run this method in AuthP 8.1.0
+
+            _authDbContext.ShardingEntryBackup.AddRange(fsCacheShardings);
+            _authDbContext.SaveChanges();
+
+            status.SetMessageFormatted("CheckSetupBackupShardings".ClassLocalizeKey(this, true),
+                $"All OK: The shardings backup database was empty, but the FileStore Cache has ", 
+                $"{fsCacheShardings.Count} entries. This situation needs the sharding database ", 
+                $"to updated to match the FileStore Cache sharding so that you have a backup of the sharding.");
+            return status;
+        }
+
+        if (fsCacheShardings.Any() && dbShardings.Any())
+        {
+            //3. HAD ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
+            //OPERATION: This checks the two ShardingEntries sources match
+
+            //There are ShardingEntries in both the FileStore Cache and the shardingBackup database.
+            //So now we check that the two sources are the same.
+
+            var numErrors = 0;
+
+            //3.1. Check for missing sharding entries, e.g. a FileStore Cache has a Sharding 
+            //that the hardingBackup database doesn't have.
+            var shardingBackupMissing = fsCacheShardings.Select(x => x.Name)
+                .Except(dbShardings.Select(x => x.Name)).ToArray();
+            foreach (var missingKey in shardingBackupMissing)
+            {
+                numErrors++;
+                return status.AddErrorFormatted("ShardingBackupMissing".ClassLocalizeKey(this, true),
+                    $"The ShardingBackup database is missing an entry with the Name of '{missingKey}'.");
+
+            }
+            var fsCacheMissing = dbShardings.Select(x => x.Name)
+                .Except(fsCacheShardings.Select(x => x.Name)).ToArray();
+            foreach (var missingKey in fsCacheMissing)
+            {
+                numErrors++;
+                return status.AddErrorFormatted("ShardingBackupEmpty".ClassLocalizeKey(this, true),
+                    $"The FileStore Cache is missing an entry with the Name of '{missingKey}'.");
+            }
+
+            //3.2 Checks that the ShardingBackup db entries have the same data as the fsCacheShardings
+            foreach (var fsCacheEntry in fsCacheShardings)
+            {
+                if (dbShardings.Exists(x => x.Name == fsCacheEntry.Name) &&
+                    !dbShardings.Single(x => x.Name == fsCacheEntry.Name).Equals(fsCacheEntry))
+                {
+                    numErrors++;
+                    status.AddErrorFormatted("DifferentShardingData".ClassLocalizeKey(this, true),
+                        $"The two Shardings with the Name of '{fsCacheEntry.Name}' do not match. ",
+                        $"See the two sources that don't match below:");
+                    status.AddErrorFormatted("FileStoreCacheDifferent".ClassLocalizeKey(this, true),
+                        $"    FileStore Cache Entry = {fsCacheEntry}");
+                    status.AddErrorFormatted("FileStoreCacheDifferent".ClassLocalizeKey(this, true),
+                        $"    ShardingBackup Entry  = {dbShardings.Single(x => x.Name == fsCacheEntry.Name)}");
+
+                    return status;
+                }
+            }
+
+            if (numErrors == 0)
+                status.SetMessageFormatted("CheckEntryOK".ClassLocalizeKey(this, true),
+                    $"All OK: the {fsCacheShardings.Count} sharding entries in the FileStore Cache matches the backup sharding entries.");
+
+        }
+
+        return status;
+    }
+
+    /// <summary>
     /// This provides the name of the connection strings. This allows you have connection strings
     /// linked to different servers, e.g. WestServer, CenterServer and EastServer (see Example6)
     /// </summary>
@@ -307,7 +407,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
     /// <summary>
     /// This method allows you to check that the <see cref="ShardingEntry"/> will create a
-    /// a valid connection string. Useful when adding or editing the data in the ShardingEntry data.
+    /// valid connection string. Useful when adding or editing the data in the ShardingEntry data.
     /// </summary>
     /// <param name="databaseInfo">The full definition of the <see cref="ShardingEntry"/> for this sharding entry</param>
     /// <returns></returns>

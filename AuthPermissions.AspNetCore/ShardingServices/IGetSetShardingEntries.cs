@@ -46,7 +46,7 @@ public interface IGetSetShardingEntries
     /// If there are no errors it will update the sharding settings file in the application.
     /// </summary>
     /// <param name="shardingEntry">Looks for a <see cref="ShardingEntry"/> with the <see cref="ShardingEntry.Name"/> and updates it.</param>
-    /// <returns>status containing a success message, or errors</returns>
+    /// <returns></returns>
     IStatusGeneric UpdateShardingEntry(ShardingEntry shardingEntry);
 
     /// <summary>
@@ -56,6 +56,13 @@ public interface IGetSetShardingEntries
     /// <param name="shardingEntryName">Looks for a <see cref="ShardingEntry"/> with the <see cref="ShardingEntry.Name"/> and removes it.</param>
     /// <returns>status containing a success message, or errors</returns>
     IStatusGeneric RemoveShardingEntry(string shardingEntryName);
+
+    /// <summary>
+    /// This checks that the FileStore Cache and ShardingBackup db contain the same sharding data.
+    /// This method is there for an admin user to run a check if they think something is wrong. 
+    /// </summary>
+    /// <returns>status containing a success message, or errors</returns>
+    IStatusGeneric CheckTwoShardingSourceMatch();
 
     /// <summary>
     /// This provides the name of the connection strings. This allows you have connection strings
