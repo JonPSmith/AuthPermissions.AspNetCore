@@ -105,6 +105,8 @@ namespace Example7.MvcWebApp.ShardingOnly.PermissionsCode
         UpdateDatabaseInfo = 42_112,
         [Display(GroupName = "ShardingAdmin", Name = "Remove database info", Description = "Remove sharding database info", AutoGenerateFilter = true)]
         RemoveDatabaseInfo = 42_113,
+        [Display(GroupName = "ShardingAdmin", Name = "Check database info", Description = "Setup / check of backup of the sharding info", AutoGenerateFilter = true)]
+        CheckDatabaseInfo = 42_120,
 
         //Setting the AutoGenerateFilter to true in the display allows we can exclude this permissions
         //to admin users who aren't allowed alter this permissions

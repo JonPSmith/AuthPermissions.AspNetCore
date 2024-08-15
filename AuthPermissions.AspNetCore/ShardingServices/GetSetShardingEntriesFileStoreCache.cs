@@ -267,15 +267,34 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             _authDbContext.SaveChanges();
 
             status.SetMessageFormatted("CheckSetupBackupShardings".ClassLocalizeKey(this, true),
-                $"All OK: The shardings backup database was empty, but the FileStore Cache has ", 
-                $"{fsCacheShardings.Count} entries. This situation needs the sharding database ", 
-                $"to updated to match the FileStore Cache sharding so that you have a backup of the sharding.");
+                $"UPDATE: The shardings backup database was empty, so we copied the {fsCacheShardings.Count} ",
+                $"sharding entries into the FileStore Cache shardings backup database. ",
+                $"If the FileStore Cache file is deleted then run the Check again and it will update the FileStore Cache.");
+            return status;
+        }
+
+        if (!fsCacheShardings.Any() && dbShardings.Any())
+        {
+            //3. THE FILESTORE CACHE IS EMPTY, BUT THE SHARDINGBACKUP DATABASE HAS ENTRIES
+            //OPERATION: the FileStore Cache is updated from ShardingEntryBackup database 
+            //This happens when the FileStore Cache is accidentally deleted. 
+
+            var backupShardings = _authDbContext.ShardingEntryBackup;
+            foreach (var shardingEntry in backupShardings)
+            {
+                _fsCache.SetClass(FormShardingEntryKey(shardingEntry.Name), shardingEntry);
+            }
+
+            status.SetMessageFormatted("CheckSetupBackupShardings".ClassLocalizeKey(this, true),
+                $"UPDATE: The FileStore Cache was empty, but the shardings backup database has {backupShardings.Count()} ",
+                $"entries. This happens when your FileStore Cache was accidentally deleted, so the Check command ",
+                $"has copied the missing sharding entries from shardings backup database into the FileStore Cache.");
             return status;
         }
 
         if (fsCacheShardings.Any() && dbShardings.Any())
         {
-            //3. HAD ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
+            //4. HAD ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
             //OPERATION: This checks the two ShardingEntries sources match
 
             //There are ShardingEntries in both the FileStore Cache and the shardingBackup database.
@@ -283,14 +302,14 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
             var numErrors = 0;
 
-            //3.1. Check for missing sharding entries, e.g. a FileStore Cache has a Sharding 
+            //4.1. Check for missing sharding entries, e.g. a FileStore Cache has a Sharding 
             //that the hardingBackup database doesn't have.
             var shardingBackupMissing = fsCacheShardings.Select(x => x.Name)
                 .Except(dbShardings.Select(x => x.Name)).ToArray();
             foreach (var missingKey in shardingBackupMissing)
             {
                 numErrors++;
-                return status.AddErrorFormatted("ShardingBackupMissing".ClassLocalizeKey(this, true),
+                status.AddErrorFormatted("CheckShardingBackupMissing".ClassLocalizeKey(this, true),
                     $"The ShardingBackup database is missing an entry with the Name of '{missingKey}'.");
 
             }
@@ -299,33 +318,38 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             foreach (var missingKey in fsCacheMissing)
             {
                 numErrors++;
-                return status.AddErrorFormatted("ShardingBackupEmpty".ClassLocalizeKey(this, true),
+                status.AddErrorFormatted("CheckShardingBackupEmpty".ClassLocalizeKey(this, true),
                     $"The FileStore Cache is missing an entry with the Name of '{missingKey}'.");
             }
 
-            //3.2 Checks that the ShardingBackup db entries have the same data as the fsCacheShardings
+            //4.2 Checks that the ShardingBackup db entries have the same data as the fsCacheShardings
             foreach (var fsCacheEntry in fsCacheShardings)
             {
                 if (dbShardings.Exists(x => x.Name == fsCacheEntry.Name) &&
                     !dbShardings.Single(x => x.Name == fsCacheEntry.Name).Equals(fsCacheEntry))
                 {
                     numErrors++;
-                    status.AddErrorFormatted("DifferentShardingData".ClassLocalizeKey(this, true),
+                    status.AddErrorFormatted("CheckDifferentShardingData".ClassLocalizeKey(this, true),
                         $"The two Shardings with the Name of '{fsCacheEntry.Name}' do not match. ",
                         $"See the two sources that don't match below:");
-                    status.AddErrorFormatted("FileStoreCacheDifferent".ClassLocalizeKey(this, true),
-                        $"    FileStore Cache Entry = {fsCacheEntry}");
-                    status.AddErrorFormatted("FileStoreCacheDifferent".ClassLocalizeKey(this, true),
-                        $"    ShardingBackup Entry  = {dbShardings.Single(x => x.Name == fsCacheEntry.Name)}");
-
-                    return status;
+                    status.AddErrorFormatted("CheckFileStoreCacheDifferent".ClassLocalizeKey(this, true),
+                        $"FileStore Cache Entry = {fsCacheEntry}");
+                    status.AddErrorFormatted("CheckFileStoreCacheDifferent".ClassLocalizeKey(this, true),
+                        $"ShardingBackup Entry = {dbShardings.Single(x => x.Name == fsCacheEntry.Name)}");
                 }
             }
 
             if (numErrors == 0)
                 status.SetMessageFormatted("CheckEntryOK".ClassLocalizeKey(this, true),
                     $"All OK: the {fsCacheShardings.Count} sharding entries in the FileStore Cache matches the backup sharding entries.");
+            else
+            {
+                status.AddErrorString("CheckDifferencesFails".ClassLocalizeKey(this, true),
+                        "You have some differences which you need to fix manually. "+
+                        "Look at the section called 'Checking your shardings' in the AuthP's Wiki for more information about that.");
+            }
 
+            return status;
         }
 
         return status;

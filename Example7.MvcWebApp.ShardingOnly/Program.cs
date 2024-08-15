@@ -17,7 +17,6 @@ using Example7.MvcWebApp.ShardingOnly.Data;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;
 using Example7.SingleLevelShardingOnly.AppStart;
 using Example7.SingleLevelShardingOnly.EfCoreCode;
-using Example7.SingleLevelShardingOnly.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Net.DistributedFileStoreCache;

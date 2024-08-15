@@ -7,11 +7,9 @@ using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
-using LocalizeMessagesAndErrors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Net.DistributedFileStoreCache;
-using System.Globalization;
 using Test.StubClasses;
 using Test.TestHelpers;
 using TestSupport.EfHelpers;
@@ -490,12 +488,32 @@ public class TestGetSetShardingEntriesFileStoreCache
         status.IsValid.ShouldBeTrue();
         var logs = setup.StubLocalizer.Logs;
         logs.Single().ActualMessage.ShouldEqual(
-            "All OK: The shardings backup database was empty, but the FileStore Cache has 3 entries. " +
-            "This situation needs the sharding database to updated to match the FileStore Cache sharding so that you have a backup of the sharding.");
+            "UPDATE: The shardings backup database was empty, so we copied the 3 sharding entries into the FileStore Cache " +
+            "shardings backup database. If the FileStore Cache file is deleted then run the Check again and it " +
+            "will update the FileStore Cache.");
     }
 
     [Fact]
-    public void TestShardingBackup_Part3_AllGood()
+    public void TestShardingBackup_Part3_FillFileStoreCache()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        setup.StubFsCache.ClearAll();
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeTrue();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Single().ActualMessage.ShouldEqual(
+            "UPDATE: The FileStore Cache was empty, but the shardings backup database has 3 entries. " +
+            "This happens when your FileStore Cache was accidentally deleted, so the Check command " +
+            "has copied the missing sharding entries from shardings backup database into the FileStore Cache.");
+    }
+
+    [Fact]
+    public void TestShardingBackup_Part4_AllGood()
     {
         //SETUP
         var setup = new SetupServiceToTest(true);
@@ -511,7 +529,7 @@ public class TestGetSetShardingEntriesFileStoreCache
     }
 
     [Fact]
-    public void TestShardingBackup_Part3_1_MissingFsCache()
+    public void TestShardingBackup_Part4_1_MissingFsCache()
     {
         //SETUP
         var setup = new SetupServiceToTest(true);
@@ -523,12 +541,13 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         status.IsValid.ShouldBeFalse();
         var logs = setup.StubLocalizer.Logs;
-        logs.Single().ActualMessage.ShouldEqual(
+        logs.Count.ShouldEqual(2);
+        logs[0].ActualMessage.ShouldEqual(
             "The FileStore Cache is missing an entry with the Name of 'Other Database'.");
     }
 
     [Fact]
-    public void TestShardingBackup_Part3_1_MissingBackupDb()
+    public void TestShardingBackup_Part4_1_MissingBackupDb()
     {
         //SETUP
         var setup = new SetupServiceToTest(true);
@@ -543,13 +562,14 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         status.IsValid.ShouldBeFalse();
         var logs = setup.StubLocalizer.Logs;
-        logs.Single().ActualMessage.ShouldEqual(
+        logs.Count.ShouldEqual(2);
+        logs[0].ActualMessage.ShouldEqual(
             "The ShardingBackup database is missing an entry with the Name of 'Other Database'.");
     }
 
 
     [Fact]
-    public void TestShardingBackup_Part3_2_MatchError_FsCache()
+    public void TestShardingBackup_Part4_2_MatchError_FsCache()
     {
         //SETUP
         var setup = new SetupServiceToTest(true);
@@ -566,15 +586,17 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         status.IsValid.ShouldBeFalse();
         var logs = setup.StubLocalizer.Logs;
-        logs.Count.ShouldEqual(3);
+        logs.Count.ShouldEqual(4);
         logs[0].ActualMessage.ShouldEqual("The two Shardings with the Name of 'Other Database' do not match. "+
                             "See the two sources that don't match below:");
-        logs[1].ActualMessage.ShouldEqual($"    FileStore Cache Entry = {fsCacheEntryToChange.ToString()}");
-        logs[2].ActualMessage.ShouldEqual($"    ShardingBackup Entry  = {backupSharding.ToString()}");
+        logs[1].ActualMessage.ShouldEqual($"FileStore Cache Entry = {fsCacheEntryToChange.ToString()}");
+        logs[2].ActualMessage.ShouldEqual($"ShardingBackup Entry = {backupSharding.ToString()}");
+        logs[3].ActualMessage.ShouldEqual("You have some differences which you need to fix manually. " +
+                                          "Look at the section called 'Checking your shardings' in the AuthP's Wiki for more information about that.");
     }
 
     [Fact]
-    public void TestShardingBackup_Part3_2_MatchError_ShardingBackup()
+    public void TestShardingBackup_Part4_2_MatchError_ShardingBackup()
     {
         //SETUP
         var setup = new SetupServiceToTest(true);
@@ -594,11 +616,13 @@ public class TestGetSetShardingEntriesFileStoreCache
         //VERIFY
         status.IsValid.ShouldBeFalse();
         var logs = setup.StubLocalizer.Logs;
-        logs.Count.ShouldEqual(3);
+        logs.Count.ShouldEqual(4);
         logs[0].ActualMessage.ShouldEqual("The two Shardings with the Name of 'Other Database' do not match. " +
                                           "See the two sources that don't match below:");
-        logs[1].ActualMessage.ShouldEqual($"    FileStore Cache Entry = {fsCacheEntry.ToString()}");
-        logs[2].ActualMessage.ShouldEqual($"    ShardingBackup Entry  = {backupShardingToChange.ToString()}");
+        logs[1].ActualMessage.ShouldEqual($"FileStore Cache Entry = {fsCacheEntry.ToString()}");
+        logs[2].ActualMessage.ShouldEqual($"ShardingBackup Entry = {backupShardingToChange.ToString()}");
+        logs[3].ActualMessage.ShouldEqual("You have some differences which you need to fix manually. " +
+                                          "Look at the section called 'Checking your shardings' in the AuthP's Wiki for more information about that.");
     }
 
     //--------------------------------------------------------------
