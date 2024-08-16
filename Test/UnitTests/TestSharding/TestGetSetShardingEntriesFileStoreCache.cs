@@ -567,6 +567,30 @@ public class TestGetSetShardingEntriesFileStoreCache
             "The ShardingBackup database is missing an entry with the Name of 'Other Database'.");
     }
 
+    [Fact]
+    public void TestShardingBackup_Part4_1_MissingBoth()
+    {
+        //SETUP
+        var setup = new SetupServiceToTest(true);
+        //remove a sharding from FileStore Cache
+        setup.StubFsCache.Remove(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey("Other Database"));
+        //Remove a ShardingEntryBackup entry
+        var toDelete = setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == "PostgreSql1");
+        setup.AuthDbContext.ShardingEntryBackup.Remove(toDelete);
+        setup.AuthDbContext.SaveChanges();
+
+        //ATTEMPT
+        var status = setup.Service.CheckTwoShardingSourceMatch();
+
+        //VERIFY
+        status.IsValid.ShouldBeFalse();
+        var logs = setup.StubLocalizer.Logs;
+        logs.Count.ShouldEqual(3);
+        logs[0].ActualMessage.ShouldEqual(
+            "The ShardingBackup database is missing an entry with the Name of 'PostgreSql1'.");
+        logs[1].ActualMessage.ShouldEqual(
+            "The FileStore Cache is missing an entry with the Name of 'Other Database'.");
+    }
 
     [Fact]
     public void TestShardingBackup_Part4_2_MatchError_FsCache()

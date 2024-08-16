@@ -1,10 +1,9 @@
 {
   "Cache": {
-    "ShardingEntry-XXX-20240815103142": "{\r\n  \"Name\": \"XXX-20240815103142\",\r\n  \"DatabaseName\": \"20240815103142-544\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
-    "ShardingEntry-Another Company-20240815103218": "{\r\n  \"Name\": \"Another Company-20240815103218\",\r\n  \"DatabaseName\": \"20240815103218-506\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
-    "ShardingEntry-Time it-20240815103304": "{\r\n  \"Name\": \"Time it-20240815103304\",\r\n  \"DatabaseName\": \"20240815103304-403\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
-    "ShardingEntry-Debug-20240815103622": "{\r\n  \"Name\": \"Debug-20240815103622\",\r\n  \"DatabaseName\": \"20240815103622-595\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
-    "ShardingEntry-4UEast Shop-20240815104657": "{\r\n  \"Name\": \"4UEast Shop-20240815104657\",\r\n  \"DatabaseName\": \"20240815104657-898\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
+    "ShardingEntry-12.10-20240815111004": "{\r\n  \"Name\": \"12.10-20240815111004\",\r\n  \"DatabaseName\": \"20240815111004-706\",\r\n  \"ConnectionName\": \"EastCoastServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
+    "ShardingEntry-12.3-20240815110327": "{\r\n  \"Name\": \"12.3-20240815110327\",\r\n  \"DatabaseName\": \"20240815110327-580\",\r\n  \"ConnectionName\": \"EastCoastServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
+    "ShardingEntry-12.6-20240815110616": "{\r\n  \"Name\": \"12.6-20240815110616\",\r\n  \"DatabaseName\": \"20240815110616-695\",\r\n  \"ConnectionName\": \"WestCoastServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}",
+    "ShardingEntry-13.18-20240816140829": "{\r\n  \"Name\": \"13.18-20240816140829\",\r\n  \"DatabaseName\": \"20240816140829-085\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
   },
   "TimeOuts": {}
 }
