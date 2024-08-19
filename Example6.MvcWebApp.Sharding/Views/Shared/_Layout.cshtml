@@ -46,6 +46,10 @@
                                     {
                                         <a class="dropdown-item" asp-area="" asp-controller="Sharding" asp-action="Index">List sharding entries</a>
                                     }
+                                    @if (User.HasPermission(Example6Permissions.CheckDatabaseInfo))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Sharding" asp-action="Check">Check sharding entries</a>
+                                    }
                                     @if (User.HasPermission(Example6Permissions.PermissionRead))
                                     {
                                         <a class="dropdown-item" asp-area="" asp-controller="Roles" asp-action="ListPermissions">List all Permissions</a>

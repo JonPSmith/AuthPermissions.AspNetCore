@@ -62,7 +62,7 @@ public interface IGetSetShardingEntries
     /// This method is there for an admin user to run a check if they think something is wrong. 
     /// </summary>
     /// <returns>status containing a success message, or errors</returns>
-    IStatusGeneric CheckTwoShardingSourceMatch();
+    IStatusGeneric CheckTwoShardingSources();
 
     /// <summary>
     /// This provides the name of the connection strings. This allows you have connection strings

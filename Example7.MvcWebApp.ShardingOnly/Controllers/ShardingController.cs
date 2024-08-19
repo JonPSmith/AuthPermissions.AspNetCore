@@ -106,7 +106,7 @@ public class ShardingController : Controller
     [HasPermission(Example7Permissions.CheckDatabaseInfo)]
     public IActionResult Check()
     {
-        var status = _shardingService.CheckTwoShardingSourceMatch();
+        var status = _shardingService.CheckTwoShardingSources();
 
         return status.HasErrors
             ? RedirectToAction(nameof(ErrorDisplay),

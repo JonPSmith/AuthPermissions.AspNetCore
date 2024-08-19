@@ -110,7 +110,7 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
     /// This method is there for an admin user to run a check if they think something is wrong. 
     /// </summary>
     /// <returns>status containing a success message, or errors</returns>
-    public IStatusGeneric CheckTwoShardingSourceMatch()
+    public IStatusGeneric CheckTwoShardingSources()
     {
         throw new NotImplementedException();
     }

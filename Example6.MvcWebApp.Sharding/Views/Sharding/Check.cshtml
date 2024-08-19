@@ -1,0 +1,17 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "Check";
+}
+
+<h1>Check your sharding entries</h1>
+<h3>This checked that the backup sharding database is set up, and they are the same as the </h3>
+<i>NOTE: This does not delete the database. It just takes that database out of use.</i>
+
+<div>
+    <form asp-action="Check">
+        <input type="submit" value="Check" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+
+</div>

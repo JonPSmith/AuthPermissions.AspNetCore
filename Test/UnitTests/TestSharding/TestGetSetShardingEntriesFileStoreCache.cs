@@ -450,26 +450,27 @@ public class TestGetSetShardingEntriesFileStoreCache
     }
 
     //--------------------------------------------------------------
-    //Section about the CheckTwoShardingSourceMatch method
+    //Section about the CheckTwoShardingSources method
 
-    [Fact]
-    public void TestShardingBackup_Part1_NoEntries()
+    [Theory]
+    [InlineData(true, ", apart of the default database.")]
+    [InlineData(false, "there are no sharding databases.")]
+    public void TestShardingBackup_Part1_NoEntries(bool hybridMode, string messageEnds)
     {
         //SETUP
-        var setup = new SetupServiceToTest(true);
+        var setup = new SetupServiceToTest(hybridMode);
 
         setup.StubFsCache.ClearAll();
         setup.AuthDbContext.Database.EnsureClean();
         setup.AuthDbContext.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeTrue();
         var logs = setup.StubLocalizer.Logs;
-        logs.Single().ActualMessage.ShouldEqual(
-            "All OK: there are no tenants in your application so both sources of sharding are empty.");
+        logs.Single().ActualMessage.ShouldEndWith(messageEnds);
     }
 
     [Fact]
@@ -482,13 +483,13 @@ public class TestGetSetShardingEntriesFileStoreCache
         setup.AuthDbContext.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeTrue();
         var logs = setup.StubLocalizer.Logs;
         logs.Single().ActualMessage.ShouldEqual(
-            "UPDATE: The shardings backup database was empty, so we copied the 3 sharding entries into the FileStore Cache " +
+            "BACKUP-SHARDINGS: The shardings backup database was empty, so we copied the 3 sharding entries into the FileStore Cache " +
             "shardings backup database. If the FileStore Cache file is deleted then run the Check again and it " +
             "will update the FileStore Cache.");
     }
@@ -501,13 +502,13 @@ public class TestGetSetShardingEntriesFileStoreCache
         setup.StubFsCache.ClearAll();
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeTrue();
         var logs = setup.StubLocalizer.Logs;
         logs.Single().ActualMessage.ShouldEqual(
-            "UPDATE: The FileStore Cache was empty, but the shardings backup database has 3 entries. " +
+            "RESTORE-SHARDINGS: The FileStore Cache was empty, but the shardings backup database has 3 entries. " +
             "This happens when your FileStore Cache was accidentally deleted, so the Check command " +
             "has copied the missing sharding entries from shardings backup database into the FileStore Cache.");
     }
@@ -519,7 +520,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         var setup = new SetupServiceToTest(true);
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeTrue();
@@ -536,7 +537,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         setup.StubFsCache.Remove(GetSetShardingEntriesFileStoreCache.FormShardingEntryKey("Other Database"));
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
@@ -557,7 +558,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         setup.AuthDbContext.SaveChanges();
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
@@ -580,7 +581,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         setup.AuthDbContext.SaveChanges();
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
@@ -590,6 +591,9 @@ public class TestGetSetShardingEntriesFileStoreCache
             "The ShardingBackup database is missing an entry with the Name of 'PostgreSql1'.");
         logs[1].ActualMessage.ShouldEqual(
             "The FileStore Cache is missing an entry with the Name of 'Other Database'.");
+        logs[2].ActualMessage.ShouldEqual(
+            "There are 2 differences which you need to fix manually. Look at the section called " +
+            "'Securing the sharding data' in the AuthP's Wiki for more information about that.");
     }
 
     [Fact]
@@ -605,7 +609,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         var backupSharding = setup.AuthDbContext.ShardingEntryBackup.Single(x => x.Name == shardingName);
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
@@ -615,8 +619,8 @@ public class TestGetSetShardingEntriesFileStoreCache
                             "See the two sources that don't match below:");
         logs[1].ActualMessage.ShouldEqual($"FileStore Cache Entry = {fsCacheEntryToChange.ToString()}");
         logs[2].ActualMessage.ShouldEqual($"ShardingBackup Entry = {backupSharding.ToString()}");
-        logs[3].ActualMessage.ShouldEqual("You have some differences which you need to fix manually. " +
-                                          "Look at the section called 'Checking your shardings' in the AuthP's Wiki for more information about that.");
+        logs[3].ActualMessage.ShouldEqual("There are 1 difference which you need to fix manually. " +
+                                          "Look at the section called 'Securing the sharding data' in the AuthP's Wiki for more information about that.");
     }
 
     [Fact]
@@ -635,7 +639,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         setup.AuthDbContext.ChangeTracker.Clear();
 
         //ATTEMPT
-        var status = setup.Service.CheckTwoShardingSourceMatch();
+        var status = setup.Service.CheckTwoShardingSources();
 
         //VERIFY
         status.IsValid.ShouldBeFalse();
@@ -645,8 +649,8 @@ public class TestGetSetShardingEntriesFileStoreCache
                                           "See the two sources that don't match below:");
         logs[1].ActualMessage.ShouldEqual($"FileStore Cache Entry = {fsCacheEntry.ToString()}");
         logs[2].ActualMessage.ShouldEqual($"ShardingBackup Entry = {backupShardingToChange.ToString()}");
-        logs[3].ActualMessage.ShouldEqual("You have some differences which you need to fix manually. " +
-                                          "Look at the section called 'Checking your shardings' in the AuthP's Wiki for more information about that.");
+        logs[3].ActualMessage.ShouldEqual("There are 1 difference which you need to fix manually. " +
+                                          "Look at the section called 'Securing the sharding data' in the AuthP's Wiki for more information about that.");
     }
 
     //--------------------------------------------------------------

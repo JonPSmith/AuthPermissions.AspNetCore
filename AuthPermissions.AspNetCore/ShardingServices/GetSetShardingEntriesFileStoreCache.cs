@@ -236,7 +236,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
     /// This method is there for an admin user to run a check if they think something is wrong. 
     /// </summary>
     /// <returns>status containing a success message, or errors</returns>
-    public IStatusGeneric CheckTwoShardingSourceMatch()
+    public IStatusGeneric CheckTwoShardingSources()
     {
         var status = new StatusGenericLocalizer(_localizeDefault);
         //Get the ShardingEntries from the two ShardingEntry resources 
@@ -247,18 +247,21 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
         if (!fsCacheShardings.Any() && !dbShardings.Any())
         {
-            //1. NO ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
+            //1. EMPTY-OK
+            //NO ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
             //OPERATION: do nothing, because there are no ShardingEntries, e.g. first deploy of the app.  
-            //No shardings, which is a normal situation, i.e. when there is no tenants
+            //No shardings, which is a normal situation, i.e. when there are no new sharding databases
 
-            status.SetMessageString("CheckNoEntries".ClassLocalizeKey(this, true),
-                "All OK: there are no tenants in your application so both sources of sharding are empty.");
+            status.SetMessageFormatted("CheckNoEntries".ClassLocalizeKey(this, true),
+                $"EMPTY-OK: there are no sharding databases",
+                $"{(_shardingEntryOptions.HybridMode ? ", apart of the default database." : ".")}");
             return status;
         }
 
         if (fsCacheShardings.Any() && !dbShardings.Any())
         {
-            //2. ENTRIES IN FILESTORE CACHE, BUT NO ENTRIES IN SHARDINGBACKUP DATABASE
+            //2. BACKUP-SHARDINGS
+            //ENTRIES IN FILESTORE CACHE, BUT NO ENTRIES IN SHARDINGBACKUP DATABASE
             //OPERATION: the FileStore Cache is backed up into the ShardingEntryBackup database 
             //The FileStore Cache has entries, but the ShardingEntryBackup database is empty
             //This happens when the first time you run this method in AuthP 8.1.0
@@ -267,7 +270,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             _authDbContext.SaveChanges();
 
             status.SetMessageFormatted("CheckSetupBackupShardings".ClassLocalizeKey(this, true),
-                $"UPDATE: The shardings backup database was empty, so we copied the {fsCacheShardings.Count} ",
+                $"BACKUP-SHARDINGS: The shardings backup database was empty, so we copied the {fsCacheShardings.Count} ",
                 $"sharding entries into the FileStore Cache shardings backup database. ",
                 $"If the FileStore Cache file is deleted then run the Check again and it will update the FileStore Cache.");
             return status;
@@ -275,7 +278,8 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
         if (!fsCacheShardings.Any() && dbShardings.Any())
         {
-            //3. THE FILESTORE CACHE IS EMPTY, BUT THE SHARDINGBACKUP DATABASE HAS ENTRIES
+            //3. RESTORE-SHARDINGS
+            //THE FILESTORE CACHE IS EMPTY, BUT THE SHARDINGBACKUP DATABASE HAS ENTRIES
             //OPERATION: the FileStore Cache is updated from ShardingEntryBackup database 
             //This happens when the FileStore Cache is accidentally deleted. 
 
@@ -286,7 +290,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             }
 
             status.SetMessageFormatted("CheckSetupBackupShardings".ClassLocalizeKey(this, true),
-                $"UPDATE: The FileStore Cache was empty, but the shardings backup database has {backupShardings.Count()} ",
+                $"RESTORE-SHARDINGS: The FileStore Cache was empty, but the shardings backup database has {backupShardings.Count()} ",
                 $"entries. This happens when your FileStore Cache was accidentally deleted, so the Check command ",
                 $"has copied the missing sharding entries from shardings backup database into the FileStore Cache.");
             return status;
@@ -294,7 +298,8 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
 
         if (fsCacheShardings.Any() && dbShardings.Any())
         {
-            //4. HAD ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
+            //4. CHECK-SHARDINGS
+            //HAD ENTRIES IN BOTH FILESTORE CACHE AND THE SHARDINGBACKUP DATABASE
             //OPERATION: This checks the two ShardingEntries sources match
 
             //There are ShardingEntries in both the FileStore Cache and the shardingBackup database.
@@ -344,9 +349,9 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
                     $"All OK: the {fsCacheShardings.Count} sharding entries in the FileStore Cache matches the backup sharding entries.");
             else
             {
-                status.AddErrorString("CheckDifferencesFails".ClassLocalizeKey(this, true),
-                        "You have some differences which you need to fix manually. "+
-                        "Look at the section called 'Checking your shardings' in the AuthP's Wiki for more information about that.");
+                status.AddErrorFormatted("CheckDifferencesFails".ClassLocalizeKey(this, true),
+                        $"There are {numErrors} difference{(numErrors > 1 ? "s" : "")} which you need to fix manually. ",
+                        $"Look at the section called 'Securing the sharding data' in the AuthP's Wiki for more information about that.");
             }
 
             return status;
