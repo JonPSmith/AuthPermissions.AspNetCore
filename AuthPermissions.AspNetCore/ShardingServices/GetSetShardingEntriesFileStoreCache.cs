@@ -345,8 +345,8 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             }
 
             if (numErrors == 0)
-                status.SetMessageFormatted("CheckEntryOK".ClassLocalizeKey(this, true),
-                    $"All OK: the {fsCacheShardings.Count} sharding entries in the FileStore Cache matches the backup sharding entries.");
+                status.SetMessageString("CheckEntryOK".ClassLocalizeKey(this, true),
+                    "CHECK-SHARDINGS: All OK. The FileStore Cache shardings entries match the ShardingBackup database entries.");
             else
             {
                 status.AddErrorFormatted("CheckDifferencesFails".ClassLocalizeKey(this, true),

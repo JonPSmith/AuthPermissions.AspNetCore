@@ -526,7 +526,7 @@ public class TestGetSetShardingEntriesFileStoreCache
         status.IsValid.ShouldBeTrue();
         var logs = setup.StubLocalizer.Logs;
         logs.Single().ActualMessage.ShouldEqual(
-            "All OK: the 3 sharding entries in the FileStore Cache matches the backup sharding entries.");
+            "CHECK-SHARDINGS: All OK. The FileStore Cache shardings entries match the ShardingBackup database entries.");
     }
 
     [Fact]

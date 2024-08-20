@@ -14,7 +14,8 @@ namespace Example6.MvcWebApp.Sharding.PermissionsCode
                 "UserRead, UserSync, UserChange, UserRemove, " +
                 "UserRolesChange, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
                 "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData, " +
-                "ListDbsWithTenants, MoveTenantDatabase, ListDatabaseInfos, AddDatabaseInfo, UpdateDatabaseInfo, RemoveDatabaseInfo, " +
+                "ListDbsWithTenants, MoveTenantDatabase, ListDatabaseInfos, " +
+                "AddDatabaseInfo, UpdateDatabaseInfo, RemoveDatabaseInfo, CheckDatabaseInfo" +
                 "AppStatusList, AppStatusAllDown, AppStatusTenantDown, AppStatusRemove"),
             new("App Support", "overall support - limited admin items",
                 "UserRead, UserRolesChange, RoleRead, TenantList, TenantAccessData"),
