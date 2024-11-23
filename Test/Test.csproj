@@ -1,34 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net8.0</TargetFramework>
+	  <TargetFramework>net9.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EfCore.TestSupport" Version="8.0.1" />
-		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.0.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+		<PackageReference Include="EfCore.TestSupport" Version="9.0.0" />
+		<PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.1.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-		<PackageReference Include="Moq" Version="4.17.2" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
-		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="8.0.0" />
-		<PackageReference Include="ResXResourceReader.NetStandard" Version="1.1.0" />
-		<PackageReference Include="CsvHelper" Version="30.0.1" />
+		<PackageReference Include="Moq" Version="4.20.72" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
+		<PackageReference Include="Net.LocalizeMessagesAndErrors" Version="9.0.0" />
+		<PackageReference Include="ResXResourceReader.NetStandard" Version="1.3.0" />
+		<PackageReference Include="CsvHelper" Version="33.0.1" />
 		<PackageReference Include="GenericServices.StatusGeneric" Version="1.2.0" />
 
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
 
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-		<PackageReference Include="xunit" Version="2.5.3" />
-		<PackageReference Include="xunit.assert" Version="2.5.3" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
+		<PackageReference Include="xunit" Version="2.9.2" />
+		<PackageReference Include="xunit.assert" Version="2.9.2" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="3.2.0">
+		<PackageReference Include="coverlet.collector" Version="6.0.2">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>

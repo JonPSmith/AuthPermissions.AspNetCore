@@ -478,7 +478,7 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
             $"Successfully {typeOfChange} the {changedInfo.Name} sharding entry.");
 
         //Check Names: not null or empty
-        if (changedInfo.Name.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(changedInfo.Name))
             return status.AddErrorString("NameNullOrEmpty".ClassLocalizeKey(this, true),
                 $"The {nameof(ShardingEntry.Name)} is null or empty, which isn't allowed.");
 
