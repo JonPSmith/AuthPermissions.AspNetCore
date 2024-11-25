@@ -21,11 +21,11 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
             {
                 builder.UseExceptionProcessor();
-                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
             });
 
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             //ATTEMPT
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", null, "userName"));
@@ -42,10 +42,10 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
             {
                 builder.UseExceptionProcessor();
-                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
             });
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "j@gmail.com", "userName"));
             var status = context.SaveChangesWithChecks("en".SetupAuthPLoggingLocalizer().DefaultLocalizer);
@@ -61,10 +61,10 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
             {
                 builder.UseExceptionProcessor();
-                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
             });
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             //ATTEMPT
             var ex = Assert.Throws<AuthPermissionsBadDataException>(() =>

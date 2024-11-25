@@ -21,7 +21,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder => 
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             //ATTEMPT
             context.Add(new RoleToPermissions("Test", null, "x"));
@@ -38,7 +39,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             context.Add(new RoleToPermissions("BIG Name", null, "x"));
             context.SaveChanges();
@@ -62,7 +64,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "first@gmail.com", "first"));
             context.SaveChanges();
@@ -86,7 +89,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             context.Add(new RoleToPermissions("Test1", null, "x"));
             context.Add(new RoleToPermissions("Test2", null, "x"));
@@ -115,7 +119,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             context.Add(new RoleToPermissions("Test", null, "x"));
             context.SaveChangesWithChecks("en".SetupAuthPLoggingLocalizer().DefaultLocalizer);

@@ -25,7 +25,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             var initial = new RoleToPermissions("Test", null, "123");
             context.Add(initial);

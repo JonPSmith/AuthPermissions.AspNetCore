@@ -32,7 +32,8 @@ namespace Test.UnitTests.TestExamples
             //var options = SqliteInMemory.CreateOptions<RetailDbContext>();
             var options = this.CreateUniqueClassOptions<RetailDbContext>();
             using var context = new RetailDbContext(options, new StubGetDataKeyFilter(retailKey));
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             //ATTEMPT
             var retailOutlet = new RetailOutlet(1, "SanFran | Dress4U", ".1.2");
@@ -54,7 +55,8 @@ namespace Test.UnitTests.TestExamples
             //var options = SqliteInMemory.CreateOptions<RetailDbContext>();
             var options = this.CreateUniqueClassOptions<RetailDbContext>();
             using var context = new RetailDbContext(options, new StubGetDataKeyFilter(retailKey));
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             var retailOutlet = new RetailOutlet(1, "SanFran | Dress4U", ".1.2");
             var stock = new ShopStock("white dress", 123, 5, retailOutlet);
@@ -85,7 +87,8 @@ namespace Test.UnitTests.TestExamples
             //var options = SqliteInMemory.CreateOptions<RetailDbContext>();
             var options = this.CreateUniqueClassOptions<RetailDbContext>();
             using var context = new RetailDbContext(options, new StubGetDataKeyFilter(".1.2"));
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             var retailOutlet = new RetailOutlet(1, "SanFran | Dress4U", ".1.2");
             var stock = new ShopStock("white dress", 123, 5, retailOutlet);

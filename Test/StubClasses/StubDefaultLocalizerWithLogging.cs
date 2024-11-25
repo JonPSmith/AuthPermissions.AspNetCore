@@ -194,7 +194,8 @@ public class StubDefaultLocalizerWithLogging : IDefaultLocalizer
         if (context == null)
             return;
 
-        context.Database.EnsureClean();
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
     }
 
     public List<LocalizedLog> ListLocalizationCaptureDb()
