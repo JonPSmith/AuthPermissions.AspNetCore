@@ -9,6 +9,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example3.InvoiceCode.EfCoreClasses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Example3.InvoiceCode.EfCoreCode
 {
@@ -22,6 +23,14 @@ namespace Example3.InvoiceCode.EfCoreCode
             // The DataKey is null when: no one is logged in, its a background service, or user hasn't got an assigned tenant
             // In these cases its best to set the data key that doesn't match any possible DataKey 
             DataKey = dataKeyFilter?.DataKey ?? "Bad key";
+        }
+
+        protected override void OnConfiguring(
+            DbContextOptionsBuilder optionsBuilder)
+        {
+            //This allows you to add more that one migration on this database 
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
+            base.OnConfiguring(optionsBuilder);
         }
 
         public DbSet<CompanyTenant> Companies { get; set; }

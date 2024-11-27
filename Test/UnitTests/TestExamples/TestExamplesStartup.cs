@@ -104,7 +104,7 @@ namespace Test.UnitTests.TestExamples
                 .AddJsonFile("example3-appsettings.json", optional: false);
             builder.Services.AddSingleton<IConfiguration>(configBuilder.Build());
 
-            //Regsiter the Example3 invoice DbContext
+            //Register the Example3 invoice DbContext
             builder.Services.AddDbContext<InvoicesDbContext>(options =>
                 options.UseSqlServer(connectionString, dbOptions =>
                 dbOptions.MigrationsHistoryTable("SomeNonDefaultHistoryName")));

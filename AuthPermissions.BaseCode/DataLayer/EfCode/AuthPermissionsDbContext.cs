@@ -4,6 +4,7 @@
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -31,9 +32,16 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             {
                 eventSetup.RegisterEventHandlers(this);
             }
-
             ProviderName = Database.ProviderName;
             _customConfiguration = customConfiguration;
+        }
+
+        protected override void OnConfiguring(
+            DbContextOptionsBuilder optionsBuilder)
+        {
+            //This allows you to add more that one migration on this database 
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
+            base.OnConfiguring(optionsBuilder);
         }
 
         /// <summary>
