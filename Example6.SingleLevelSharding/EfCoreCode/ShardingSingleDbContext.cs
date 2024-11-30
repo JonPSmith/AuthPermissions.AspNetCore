@@ -36,10 +36,15 @@ public class ShardingSingleDbContext : DbContext, IDataKeyFilterReadOnly
             Database.SetConnectionString(shardingDataKeyAndConnect.ConnectionString);
     }
 
+    /// <summary>
+    /// This is needed for EF Core 9 and above  when building a multi-tenant application.
+    /// This allows you to add more than one migration on this database
+    /// NOTE: You don't need to add this code if you are building a Sharding-Only type multi-tenant.  
+    /// </summary>
+    /// <param name="optionsBuilder"></param>
     protected override void OnConfiguring(
         DbContextOptionsBuilder optionsBuilder)
     {
-        //This allows you to add more that one migration on this database 
         optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
         base.OnConfiguring(optionsBuilder);
     }

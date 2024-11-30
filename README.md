@@ -10,17 +10,16 @@ The AuthP is an open-source library under the MIT licence (and remain as a open-
 
 ## List of versions and which .NET framework they support
 
+- Version 9.?.? supports NET 9 only (simpler to update to next NET release)
 - Version 8.?.? supports NET 8 only (simpler to update to next NET release)
 - Version 6.?.? supports NET 6, 7 and 8
 - Version 5.?.? supports NET 6 and 7
 
 If you have already built your application using an older version, then you need to look at the following "how up update" documents
 
+- For AuthPermissions.AspNetCore versions below 9 see [UpdateToVersion9.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion9.md)
 - From Migrating from AuthPermissions.AspNetCore 3, 4, 5 to 6.1 see [UpdateToVersion620.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion620.md). NOTE: you only need to do this if you are using the "Sign up for a new tenant, with versioning" (shortened to "Sign up Tenant") feature **AND** your multi-tenant uses [sharding](https://github.com/JonPSmith/AuthPermissions.AspNetCore/wiki/Sharding-explained).
 - From Migrating from AuthPermissions.AspNetCore 3, 4, 5 to 6.0 see [UpdateToVersion6.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion5.md)
-- From Migrating from AuthPermissions.AspNetCore 2, 3 or 4.* to 5.0 see [UpdateToVersion5.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion5.md)
-- From Migrating from AuthPermissions.AspNetCore 2.* to 3.0 see [UpdateToVersion3.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion3.md)
-- From Migrating from AuthPermissions.AspNetCore 1.* to 1.0 see [UpdateToVersion2.md](https://github.com/JonPSmith/AuthPermissions.AspNetCore/blob/main/UpdateToVersion2.md)
 
 The AuthP library also:
 

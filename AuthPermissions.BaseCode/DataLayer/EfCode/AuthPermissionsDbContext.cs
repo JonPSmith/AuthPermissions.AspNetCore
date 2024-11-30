@@ -36,10 +36,14 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             _customConfiguration = customConfiguration;
         }
 
+        /// <summary>
+        /// This is needed for EF Core 9 and above  when building a multi-tenant application.
+        /// This allows you to add more than one migration on this database 
+        /// </summary>
+        /// <param name="optionsBuilder"></param>
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)
         {
-            //This allows you to add more that one migration on this database 
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
             base.OnConfiguring(optionsBuilder);
         }
