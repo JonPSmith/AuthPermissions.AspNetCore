@@ -3,6 +3,7 @@
 
 using AuthPermissions.AdminCode;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -112,13 +113,13 @@ public class ShardingOnlyTenantAddDto
     /// <exception cref="AuthPermissionsBadDataException"></exception>
     public void ValidateProperties()
     {
-        if (TenantName.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(TenantName))
             throw new AuthPermissionsBadDataException("Should not be null or empty", nameof(TenantName));
 
-        if (ConnectionStringName.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(ConnectionStringName))
             throw new AuthPermissionsBadDataException("Should not be null or empty", nameof(ConnectionStringName));
 
-        if (DbProviderShortName.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(DbProviderShortName))
             throw new AuthPermissionsBadDataException("Should not be null or empty", nameof(DbProviderShortName));
     }
 

@@ -7,6 +7,7 @@ using AuthPermissions.BaseCode.CommonCode;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using Example6.SingleLevelSharding.EfCoreClasses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Example6.SingleLevelSharding.EfCoreCode;
 
@@ -33,6 +34,19 @@ public class ShardingSingleDbContext : DbContext, IDataKeyFilterReadOnly
             //NOTE: If no connection string is provided the DbContext will use the connection it was provided when it was registered
             //If you don't want that to happen, then remove the if above and the connection will be set to null (and fail) 
             Database.SetConnectionString(shardingDataKeyAndConnect.ConnectionString);
+    }
+
+    /// <summary>
+    /// This is needed for EF Core 9 and above  when building a multi-tenant application.
+    /// This allows you to add more than one migration on this database
+    /// NOTE: You don't need to add this code if you are building a Sharding-Only type multi-tenant.  
+    /// </summary>
+    /// <param name="optionsBuilder"></param>
+    protected override void OnConfiguring(
+        DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
+        base.OnConfiguring(optionsBuilder);
     }
 
     public DbSet<CompanyTenant> Companies { get; set; }

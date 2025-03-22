@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
 using Medallion.Threading.SqlServer;
 using Microsoft.Data.SqlClient;

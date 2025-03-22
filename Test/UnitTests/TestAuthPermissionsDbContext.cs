@@ -19,10 +19,7 @@ namespace Test.UnitTests
         public void TestSqlServer()
         {
             //SETUP
-            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-            {
-                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
-            });
+            var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
@@ -39,10 +36,7 @@ namespace Test.UnitTests
         public void TestPostgres()
         {
             //SETUP
-            var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
-            {
-                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
-            });
+            var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();

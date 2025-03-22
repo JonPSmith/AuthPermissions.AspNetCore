@@ -18,7 +18,7 @@ namespace AuthPermissions.PostgreSql.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("authp")
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -46,7 +46,8 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("UserId");
 
@@ -85,7 +86,8 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("TokenValue");
 
@@ -114,13 +116,43 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("RoleName");
 
                     b.HasIndex("RoleType");
 
                     b.ToTable("RoleToPermissions", "authp");
+                });
+
+            modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.ShardingEntry", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<string>("ConnectionName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DatabaseName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DatabaseType")
+                        .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Name");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ShardingEntryBackup", "authp");
                 });
 
             modelBuilder.Entity("AuthPermissions.BaseCode.DataLayer.Classes.Tenant", b =>
@@ -156,7 +188,8 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("TenantId");
 
@@ -183,7 +216,8 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("UserId", "RoleName");
 
@@ -203,7 +237,8 @@ namespace AuthPermissions.PostgreSql.Migrations
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("TenantRolesRoleName", "TenantsTenantId");
 

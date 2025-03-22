@@ -2,6 +2,7 @@
 // Licensed under MIT license. See License.txt in the project root for license information.
 
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using StatusGeneric;
 using TestSupport.Helpers;
 
@@ -102,6 +103,16 @@ public class StubGetSetShardingEntries : IGetSetShardingEntries
         CalledMethodName = nameof(RemoveShardingEntry);
         SharingEntryAddUpDel = new ShardingEntry { Name = shardingEntryName };
         return new StatusGenericHandler();
+    }
+
+    /// <summary>
+    /// This checks that the FileStore Cache and ShardingBackup db contain the same sharding data.
+    /// This method is there for an admin user to run a check if they think something is wrong. 
+    /// </summary>
+    /// <returns>status containing a success message, or errors</returns>
+    public IStatusGeneric CheckTwoShardingSources()
+    {
+        throw new NotImplementedException();
     }
 
     public List<string> GetConnectionStringNames()

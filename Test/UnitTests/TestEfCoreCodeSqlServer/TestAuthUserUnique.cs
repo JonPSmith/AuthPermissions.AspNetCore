@@ -20,7 +20,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             //ATTEMPT
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", null, "userName"));
@@ -37,7 +38,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             context.Add(AuthPSetupHelpers.CreateTestAuthUserOk("123", "j@gmail.com", "userName"));
             var status = context.SaveChangesWithChecks("en".SetupAuthPLoggingLocalizer().DefaultLocalizer);
@@ -53,7 +55,8 @@ namespace Test.UnitTests.TestEfCoreCodeSqlServer
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             //ATTEMPT
             var ex = Assert.Throws<AuthPermissionsBadDataException>(() =>

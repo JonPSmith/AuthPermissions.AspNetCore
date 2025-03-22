@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using AuthPermissions.AspNetCore.ShardingServices;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.SetupCode;
 using StatusGeneric;
 

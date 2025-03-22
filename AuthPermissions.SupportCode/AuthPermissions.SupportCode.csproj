@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net8.0</TargetFramework>
+	  <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
 	<ItemGroup>
-    <PackageReference Include="DistributedLock" Version="2.4.0" />
+    <PackageReference Include="DistributedLock" Version="2.5.0" />
     <PackageReference Include="Microsoft.Graph" Version="4.54.0" />
     <PackageReference Include="Net.DistributedFileStoreCache" Version="2.0.0" />
   </ItemGroup>

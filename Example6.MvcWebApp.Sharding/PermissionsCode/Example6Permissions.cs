@@ -105,6 +105,8 @@ namespace Example6.MvcWebApp.Sharding.PermissionsCode
         UpdateDatabaseInfo = 42_112,
         [Display(GroupName = "ShardingAdmin", Name = "Remove database info", Description = "Remove sharding database info", AutoGenerateFilter = true)]
         RemoveDatabaseInfo = 42_113,
+        [Display(GroupName = "ShardingAdmin", Name = "Check database info", Description = "Setup / check of backup of the sharding info", AutoGenerateFilter = true)]
+        CheckDatabaseInfo = 42_120,
 
         //43_000
         [Display(GroupName = "AppStatus", Name = "list active app statues", Description = "Can list active statues", AutoGenerateFilter = true)]

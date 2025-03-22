@@ -103,6 +103,16 @@ public class ShardingController : Controller
             : RedirectToAction(nameof(Index), new { message = status.Message });
     }
 
+    [HasPermission(Example6Permissions.CheckDatabaseInfo)]
+    public IActionResult Check()
+    {
+        var status = _shardingService.CheckTwoShardingSources();
+
+        return status.HasErrors
+            ? RedirectToAction(nameof(ErrorDisplay),
+                new { errorMessage = status.GetAllErrors() })
+            : RedirectToAction(nameof(Index), new { message = status.Message });
+    }
 
     public ActionResult ErrorDisplay(string errorMessage)
     {

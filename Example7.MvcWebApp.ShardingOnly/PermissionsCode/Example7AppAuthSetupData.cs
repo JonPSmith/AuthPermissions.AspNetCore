@@ -15,7 +15,8 @@ namespace Example7.MvcWebApp.ShardingOnly.PermissionsCode
                 "UserRead, UserSync, UserChange, UserRemove, " +
                 "UserRolesChange, RoleRead, RoleChange, PermissionRead, IncludeFilteredPermissions, " +
                 "TenantList, TenantCreate, TenantUpdate, UserChangeTenant, TenantAccessData, " +
-                "ListDbsWithTenants, MoveTenantDatabase, ListDatabaseInfos, AddDatabaseInfo, UpdateDatabaseInfo, RemoveDatabaseInfo"),
+                "ListDbsWithTenants, MoveTenantDatabase, ListDatabaseInfos, AddDatabaseInfo, " +
+                "UpdateDatabaseInfo, RemoveDatabaseInfo, CheckDatabaseInfo"),
             new("App Support", "overall support - limited admin items",
                 "UserRead, UserRolesChange, RoleRead, TenantList, TenantAccessData"),
             new("Invoice Reader", "Can read invoices", "InvoiceRead"),

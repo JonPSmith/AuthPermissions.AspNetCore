@@ -62,7 +62,7 @@ namespace Test.UnitTests.TestAuthPermissions
             //var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>();
             using var context = new AuthPermissionsDbContext(options);
             context.Database.EnsureCreated();
-            //context.Database.EnsureClean();
+            //context.Database.EnsureDeleted(); context.Database.EnsureCreated()
 
             var authOptions = new AuthPermissionsOptions();
             authOptions.InternalData.EnumPermissionsType = typeof(TestEnum);

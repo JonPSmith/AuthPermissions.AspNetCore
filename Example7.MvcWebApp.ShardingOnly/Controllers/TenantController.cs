@@ -4,7 +4,6 @@
 using AuthPermissions.AdminCode;
 using AuthPermissions.AspNetCore;
 using AuthPermissions.AspNetCore.ShardingServices;
-using AuthPermissions.BaseCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Example7.MvcWebApp.ShardingOnly.Models;
 using Example7.MvcWebApp.ShardingOnly.PermissionsCode;

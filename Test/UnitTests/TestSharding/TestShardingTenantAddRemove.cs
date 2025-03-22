@@ -28,7 +28,7 @@ public class TestShardingOnlyTenantAddRemove
 
     /// <summary>
     /// This returns an instance of the <see cref="ShardingOnlyTenantAddRemove"/> with the TenantType set.
-    /// It also creates a extra <see cref="Tenant"/> to check duplication errors and also for the Delete
+    /// It also creates an extra <see cref="Tenant"/> to check duplication errors and also for the Delete
     /// </summary>
     /// <param name="tenantType"></param>
     /// <param name="childTenant"></param>

@@ -141,10 +141,10 @@ namespace Test.UnitTests.TestAuthPermissionsAdmin
             var options = this.CreateUniqueClassOptions<AuthPermissionsDbContext>(builder =>
             {
                 builder.UseExceptionProcessor();
-                builder.ReplaceService<IModelCacheKeyFactory, DynamicModelCacheKeyFactory>();
             });
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             await context.SetupRolesInDbAsync();
             context.ChangeTracker.Clear();

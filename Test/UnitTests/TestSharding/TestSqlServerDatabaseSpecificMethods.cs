@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using AuthPermissions.AspNetCore.ShardingServices;
 using AuthPermissions.AspNetCore.ShardingServices.DatabaseSpecificMethods;
 using AuthPermissions.BaseCode.CommonCode;
+using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.EfCode;
 using AuthPermissions.BaseCode.SetupCode;
 using Microsoft.Data.SqlClient;

@@ -35,7 +35,8 @@ namespace Test.UnitTests.TestEfCoreCodePostgres
             var options = this.CreatePostgreSqlUniqueClassOptions<AuthPermissionsDbContext>(builder =>
                 builder.UseExceptionProcessor());
             using var context = new AuthPermissionsDbContext(options);
-            context.Database.EnsureClean();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
             var initial = new RoleToPermissions("Test", null, "123");
             context.Add(initial);

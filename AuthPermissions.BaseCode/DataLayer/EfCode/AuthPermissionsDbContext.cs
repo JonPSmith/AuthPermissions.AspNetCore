@@ -4,6 +4,7 @@
 using AuthPermissions.BaseCode.DataLayer.Classes;
 using AuthPermissions.BaseCode.DataLayer.Classes.SupportTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -31,9 +32,20 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
             {
                 eventSetup.RegisterEventHandlers(this);
             }
-
             ProviderName = Database.ProviderName;
             _customConfiguration = customConfiguration;
+        }
+
+        /// <summary>
+        /// This is needed for EF Core 9 and above  when building a multi-tenant application.
+        /// This allows you to add more than one migration on this database 
+        /// </summary>
+        /// <param name="optionsBuilder"></param>
+        protected override void OnConfiguring(
+            DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
+            base.OnConfiguring(optionsBuilder);
         }
 
         /// <summary>
@@ -66,6 +78,11 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
         /// If you use AuthP's JWT refresh token, then the tokens are held in this entity
         /// </summary>
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+        /// <summary>
+        /// This holds the backup set of <see cref="ShardingEntry"/>'s held in the FileStore cache
+        /// </summary>
+        public DbSet<ShardingEntry> ShardingEntryBackup { get; set; }
 
 
         /// <summary>
@@ -149,6 +166,13 @@ namespace AuthPermissions.BaseCode.DataLayer.EfCode
 
             modelBuilder.Entity<RefreshToken>()
                 .HasIndex(x => x.AddedDateUtc)
+                .IsUnique();
+
+            modelBuilder.Entity<ShardingEntry>()
+                .HasKey(x => x.Name);
+
+            modelBuilder.Entity<ShardingEntry>()
+                .HasIndex(x => x.Name)
                 .IsUnique();
         }
     }

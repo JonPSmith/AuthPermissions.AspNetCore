@@ -1,6 +1,4 @@
 {
-  "Cache": {
-    "ShardingEntry-Manual added tenant-20240724135627": "{\r\n  \"Name\": \"Manual added tenant-20240724135627\",\r\n  \"DatabaseName\": \"20240724135627-266\",\r\n  \"ConnectionName\": \"CentralServer\",\r\n  \"DatabaseType\": \"SqlServer\"\r\n}"
-  },
+  "Cache": {},
   "TimeOuts": {}
 }
