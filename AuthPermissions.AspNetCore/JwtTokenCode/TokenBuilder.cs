@@ -192,8 +192,8 @@ namespace AuthPermissions.AspNetCore.JwtTokenCode
             {
                 ValidateIssuer = true,
                 ValidIssuer = _options.ConfigureAuthPJwtToken.Issuer,
-                ValidateAudience = true,
-                ValidAudience = _options.ConfigureAuthPJwtToken.Audience,
+                ValidAudience = _options.ConfigureAuthPJwtToken.Audience,    
+                ValidateAudience = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_options.ConfigureAuthPJwtToken.SigningKey)),
                 ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
