@@ -56,10 +56,10 @@ namespace AuthPermissions
                 return result;
 
             var permissions = await CalcPermissionsForUserAsync(userId);
-            var permissionList= permissions?.ConvertPackedPermissionToNames(_options.InternalData.EnumPermissionsType);
+            //var permissionList= permissions?.ConvertPackedPermissionToNames(_options.InternalData.EnumPermissionsType);
 
             if (permissions != null) 
-                result.Add(new Claim(PermissionConstants.PackedPermissionClaimType, string.Join(",",permissionList)));
+                result.Add(new Claim(PermissionConstants.PackedPermissionClaimType, permissions));
 
             if (_options.TenantType.IsMultiTenant())
                 result.AddRange(GetMultiTenantClaims(userWithTenant.UserTenant));
