@@ -222,9 +222,10 @@ public class GetSetShardingEntriesFileStoreCache : IGetSetShardingEntries
         if (status.IsValid)
         {
             _fsCache.Remove(FormShardingEntryKey(fullShardingInfo.Name));
-            //The database delete doesn't throw an Exception if the entry isn't there
-            var sql = "DELETE FROM authp.ShardingEntryBackup WHERE Name = {0}";
-            _authDbContext.Database.ExecuteSqlRaw(sql, shardingEntryName);
+            //The database delete doesn't throw an Exception if the entry isn't there.
+            //NOTE: This lets EF Core build the SQL, so the table and column names are quoted correctly for each database
+            //(hand-written SQL with unquoted names fails on PostgreSQL, because it folds them to lower case)
+            _authDbContext.ShardingEntryBackup.Where(x => x.Name == shardingEntryName).ExecuteDelete();
 
         }
 
